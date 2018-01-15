@@ -4,7 +4,7 @@
 #include <tock.h>
 
 // Sizes in bytes
-#define DEVICE_NAME_SIZE 6
+#define DEVICE_NAME_SIZE 11
 #define UUIDS_SIZE 4
 #define MANUFACTURER_DATA_SIZE 2
 #define FAKE_TEMPERATURE_DATA_SIZE 2
@@ -15,11 +15,10 @@
 
 int main(void) {
   int err;
-  printf("[Tutorial] BLE Advertising\n");
 
   // declarations of variables to be used in this BLE example application
   uint16_t advertising_interval_ms = 300;
-  uint8_t device_name[]            = "TockOS";
+  uint8_t device_name[]            = "TockOS2";
   uint16_t uuids[]                 = {0x1800, 0x1809};
   uint8_t manufacturer_data[]      = {0x13, 0x37};
   uint8_t fake_temperature_data[]  = {0x00, 0x00};
@@ -31,7 +30,6 @@ int main(void) {
   if (err < TOCK_SUCCESS)
     printf("ble_initialize, error: %s\r\n", tock_strerror(err));
 
-  // configure device name as TockOS
   printf(" - Setting the device name... %s\n", device_name);
   err = ble_advertise_name(device_name, DEVICE_NAME_SIZE);
   if (err < TOCK_SUCCESS)
