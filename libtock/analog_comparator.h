@@ -11,9 +11,6 @@ extern "C" {
 // Does the driver exist?
 int ac_exists(void);
 
-// Initialize and enable the DAC.
-int ac_enable(void);
-
 // Compare the voltages of two pins (if one is higher than the other) on the
 // corresponding AC, by polling every second.
 bool ac_comparison(uint8_t);
@@ -22,8 +19,11 @@ bool ac_comparison(uint8_t);
 // corresponding window, by polling every second.
 bool ac_window_comparison(uint8_t);
 
-// Enable interrupts
+// Enable interrupt-based comparisons
 int ac_enable_interrupts(uint8_t);
+
+// Disable interrupt-based comparisons
+int ac_disable_interrupts(uint8_t);
 
 // Compare the voltages of two pins (if one is higher than the other) on the
 // corresponding AC, by means of receiving an interrupt.
