@@ -50,7 +50,7 @@ static void ac_comparison_interrupt(uint8_t ac) {
 
   while (1) {
     yield();
-    printf("ACIFC Interrupt, Vinp > Vinn !\n");
+    printf("ACIFC Interrupt received, Vinp > Vinn !\n");
   }
 }
 
@@ -64,17 +64,15 @@ int main(void) {
   // Set mode according to which implementation you want
   uint8_t mode = 2;
 
-  // Choose a comparator in case you want to do a comparison of two input values. For the hail, there are two comparators. ac = 0
-  // corresponds to PA06 and PA07, whereas ac = 1 corresponds to PB02 and PB03.
-  // On the hail these are the pins DAC and WKP, and A2 and A3 respectively.
+  // Choose a comparator in case you want to do a comparison of two input
+  // values. For the hail, there are two comparators. ac = 0 corresponds to
+  // PA06 and PA07, whereas ac = 1 corresponds to PB02 and PB03.  On the hail
+  // these are the pins DAC and WKP, and A2 and A3 respectively.
   uint8_t ac = 1;
 
-  // Choose a window in case you want to do a comparison of three input values. For the hail, there is only one window. For imix, there
-  // are two (0 and 1).
+  // Choose a window in case you want to do a comparison of three input values.
+  // For the hail, there is only one window. For imix, there are two (0 and 1).
   uint8_t window = 1;
-
-  // Initialize the ACs by enabling some basic necessities
-  ac_enable();
 
   switch (mode) {
     // Poll for a normal comparison every second and print the result
