@@ -167,28 +167,28 @@ void timer_cancel(tock_timer_t* timer) {
   alarm_cancel(&timer->alarm);
 }
 
-void delay_ms(uint32_t ms) {
-  void delay_cb(__attribute__ ((unused)) int unused0,
-                __attribute__ ((unused)) int unused1,
-                __attribute__ ((unused)) int unused2,
-                void* ud) {
-    *((bool*)ud) = true;
-  }
+static void delay_cb(__attribute__ ((unused)) int unused0,
+              __attribute__ ((unused)) int unused1,
+              __attribute__ ((unused)) int unused2,
+              void* ud) {
+  *((bool*)ud) = true;
+}
 
+void delay_ms(uint32_t ms) {
   bool cond = false;
   tock_timer_t timer;
   timer_in(ms, delay_cb, &cond, &timer);
   yield_for(&cond);
 }
 
-int yield_for_with_timeout(bool* cond, uint32_t ms) {
-  void yield_for_timeout_cb(__attribute__ ((unused)) int unused0,
-                            __attribute__ ((unused)) int unused1,
-                            __attribute__ ((unused)) int unused2,
-                            void* ud) {
-    *((bool*)ud) = true;
-  }
+static void yield_for_timeout_cb(__attribute__ ((unused)) int unused0,
+                          __attribute__ ((unused)) int unused1,
+                          __attribute__ ((unused)) int unused2,
+                          void* ud) {
+  *((bool*)ud) = true;
+}
 
+int yield_for_with_timeout(bool* cond, uint32_t ms) {
   bool timeout = false;
   tock_timer_t timer;
   timer_in(ms, yield_for_timeout_cb, &timeout, &timer);
