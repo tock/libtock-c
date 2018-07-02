@@ -9,6 +9,8 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wredundant-decls"
 
+// Clang does not support the warning attribute
+#ifndef __clang__
 
 // C++ doesn't have the `restrict` keyword so copy whole decl's in this section
 #ifdef __cplusplus
@@ -31,5 +33,6 @@ int vsprintf(char * restrict str, const char * restrict format, va_list ap);
 
 #endif // __cplusplus
 
+#endif // __clang__
 
 #pragma GCC diagnostic pop

@@ -40,6 +40,94 @@ void yield_for(bool *cond) {
   }
 }
 
+void* tock_app_memory_begins_at(void) {
+  return memop(2, 0);
+}
+
+void* tock_app_memory_ends_at(void) {
+  return memop(3, 0);
+}
+
+void* tock_app_flash_begins_at(void) {
+  return memop(4, 0);
+}
+
+void* tock_app_flash_ends_at(void) {
+  return memop(5, 0);
+}
+
+void* tock_app_grant_begins_at(void) {
+  return memop(6, 0);
+}
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbad-function-cast"
+int tock_app_number_writeable_flash_regions(void) {
+  return (int) memop(7, 0);
+}
+#pragma GCC diagnostic pop
+
+void* tock_app_writeable_flash_region_begins_at(int region_index) {
+  return memop(8, region_index);
+}
+
+void* tock_app_writeable_flash_region_ends_at(int region_index) {
+  return memop(9, region_index);
+}
+
+bool driver_exists(uint32_t driver) {
+  int ret = command(driver, 0, 0, 0);
+  return ret >= 0;
+}
+
+const char* tock_strerror(int tock_errno) {
+  switch (tock_errno) {
+    case TOCK_SUCCESS:
+      return "Success";
+    case TOCK_FAIL:
+      return "Unknown Error";
+    case TOCK_EBUSY:
+      return "Underlying system is busy; retry";
+    case TOCK_EALREADY:
+      return "The state requested is already set";
+    case TOCK_EOFF:
+      return "The component is powered down";
+    case TOCK_ERESERVE:
+      return "Reservation required before use";
+    case TOCK_EINVAL:
+      return "An invalid parameter was passed";
+    case TOCK_ESIZE:
+      return "Parameter passed was too large";
+    case TOCK_ECANCEL:
+      return "Operation cancelled by a call";
+    case TOCK_ENOMEM:
+      return "Memory required not available";
+    case TOCK_ENOSUPPORT:
+      return "Operation or command is unsupported";
+    case TOCK_ENODEVICE:
+      return "Device does not exist";
+    case TOCK_EUNINSTALLED:
+      return "Device is not physically installed";
+    case TOCK_ENOACK:
+      return "Packet transmission not acknowledged";
+  }
+  return "Invalid error number";
+}
+
+void tock_expect(int expected, int actual, const char* file, unsigned line) {
+  if (expected != actual) {
+    printf("Expectation failure in \"%s\" at line %u\n", file, line);
+    printf("Expected value: %d\n", expected);
+    printf(" But got value: %d (possible error: %s)\n", actual, tock_strerror(actual));
+    exit(-1);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Arch-Specific Implementations
+
+#if defined(TOCK_ARCH_cortex_m0) || defined(TOCK_ARCH_cortex_m3) || defined(TOCK_ARCH_cortex_m4)
+
 void yield(void) {
   if (task_cur != task_last) {
     tock_task_t task = task_queue[task_cur];
@@ -136,85 +224,7 @@ void* memop(uint32_t op_type, int arg1) {
   return ret;
 }
 
-void* tock_app_memory_begins_at(void) {
-  return memop(2, 0);
-}
-
-void* tock_app_memory_ends_at(void) {
-  return memop(3, 0);
-}
-
-void* tock_app_flash_begins_at(void) {
-  return memop(4, 0);
-}
-
-void* tock_app_flash_ends_at(void) {
-  return memop(5, 0);
-}
-
-void* tock_app_grant_begins_at(void) {
-  return memop(6, 0);
-}
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wbad-function-cast"
-int tock_app_number_writeable_flash_regions(void) {
-  return (int) memop(7, 0);
-}
-#pragma GCC diagnostic pop
-
-void* tock_app_writeable_flash_region_begins_at(int region_index) {
-  return memop(8, region_index);
-}
-
-void* tock_app_writeable_flash_region_ends_at(int region_index) {
-  return memop(9, region_index);
-}
-
-bool driver_exists(uint32_t driver) {
-  int ret = command(driver, 0, 0, 0);
-  return ret >= 0;
-}
-
-const char* tock_strerror(int tock_errno) {
-  switch (tock_errno) {
-    case TOCK_SUCCESS:
-      return "Success";
-    case TOCK_FAIL:
-      return "Unknown Error";
-    case TOCK_EBUSY:
-      return "Underlying system is busy; retry";
-    case TOCK_EALREADY:
-      return "The state requested is already set";
-    case TOCK_EOFF:
-      return "The component is powered down";
-    case TOCK_ERESERVE:
-      return "Reservation required before use";
-    case TOCK_EINVAL:
-      return "An invalid parameter was passed";
-    case TOCK_ESIZE:
-      return "Parameter passed was too large";
-    case TOCK_ECANCEL:
-      return "Operation cancelled by a call";
-    case TOCK_ENOMEM:
-      return "Memory required not available";
-    case TOCK_ENOSUPPORT:
-      return "Operation or command is unsupported";
-    case TOCK_ENODEVICE:
-      return "Device does not exist";
-    case TOCK_EUNINSTALLED:
-      return "Device is not physically installed";
-    case TOCK_ENOACK:
-      return "Packet transmission not acknowledged";
-  }
-  return "Invalid error number";
-}
-
-void tock_expect(int expected, int actual, const char* file, unsigned line) {
-  if (expected != actual) {
-    printf("Expectation failure in \"%s\" at line %u\n", file, line);
-    printf("Expected value: %d\n", expected);
-    printf(" But got value: %d (possible error: %s)\n", actual, tock_strerror(actual));
-    exit(-1);
-  }
-}
+#elif defined(TOCK_ARCH_native)
+#else
+#error Missing syscall implementation for current arch.
+#endif

@@ -27,25 +27,40 @@ ifdef TOCK_USERLAND_BASE_DIR
     endif
 endif
 
+
+
+# Here we define some specialized rules for each compiler
+define HELPERS_RULES
+
+ifeq ($$(CC_$(1)),arm-none-eabi-gcc)
+
 # Validate the the toolchain is new enough (known not to work for gcc <= 5.1)
-CC_VERSION_MAJOR := $(shell $(CC) -dumpversion | cut -d '.' -f1)
-ifeq (1,$(shell expr $(CC_VERSION_MAJOR) \>= 6))
+CC_VERSION_MAJOR_$(1) := $$(shell $$(CC_$(1)) -dumpversion | cut -d '.' -f1)
+ifeq (1,$$(shell expr $$(CC_VERSION_MAJOR_$(1)) \>= 6))
   # Opportunistically turn on gcc 6.0+ warnings since we're already version checking:
-  override CPPFLAGS += -Wduplicated-cond #  if (p->q != NULL) { ... } else if (p->q != NULL) { ... }
-  override CPPFLAGS += -Wnull-dereference # deref of NULL (thought default if -fdelete-null-pointer-checks, in -Os, but no?)
+  override CPPFLAGS_$(1) += -Wduplicated-cond #  if (p->q != NULL) { ... } else if (p->q != NULL) { ... }
+  override CPPFLAGS_$(1) += -Wnull-dereference # deref of NULL (thought default if -fdelete-null-pointer-checks, in -Os, but no?)
 else
-  ifneq (5,$(CC_VERSION_MAJOR))
-    $(info CC=$(CC))
-    $(info $$(CC) -dumpversion: $(shell $(CC) -dumpversion))
-    $(error Your compiler is too old. Need gcc version > 5.1)
+  ifneq (5,$$(CC_VERSION_MAJOR_$(1)))
+    $$(info CC=$$(CC_$(1)))
+    $$(info $$$$(CC_$(1)) -dumpversion: $$(shell $$(CC_$(1)) -dumpversion))
+    $$(error Your compiler is too old. Need gcc version > 5.1)
   endif
-    CC_VERSION_MINOR := $(shell $(CC) -dumpversion | cut -d '.' -f2)
-  ifneq (1,$(shell expr $(CC_VERSION_MINOR) \> 1))
-    $(info CC=$(CC))
-    $(info $$(CC) -dumpversion: $(shell $(CC) -dumpversion))
-    $(error Your compiler is too old. Need gcc version > 5.1)
+    CC_VERSION_MINOR_$(1) := $$(shell $$(CC_$(1)) -dumpversion | cut -d '.' -f2)
+  ifneq (1,$$(shell expr $$(CC_VERSION_MINOR_$(1)) \> 1))
+    $$(info CC=$$(CC_$(1)))
+    $$(info $$$$(CC_$(1)) -dumpversion: $$(shell $$(CC_$(1)) -dumpversion))
+    $$(error Your compiler is too old. Need gcc version > 5.1)
   endif
 endif
+
+endif
+
+endef
+
+$(foreach arch,$(TOCK_ARCHS),$(eval $(call HELPERS_RULES,$(arch))))
+
+
 
 
 # Format check rule

@@ -51,7 +51,11 @@ struct reldata {
   uint32_t data[];
 };
 
+#ifdef __APPLE__
+__attribute__ ((section("DATA,.start"), used))
+#else
 __attribute__ ((section(".start"), used))
+#endif
 __attribute__ ((weak))
 __attribute__ ((noreturn))
 void _start(void* app_start,
@@ -101,8 +105,13 @@ void _start(void* app_start,
     memop(0, stacktop + heap_size);
     memop(11, stacktop + heap_size);
     memop(10, stacktop);
+#if defined(TOCK_ARCH_cortex_m0) || defined(TOCK_ARCH_cortex_m3) || defined(TOCK_ARCH_cortex_m4)
     asm volatile ("mov sp, %[stacktop]" :: [stacktop] "r" (stacktop) : "memory");
     asm volatile ("mov r9, sp");
+#elif defined(TOCK_ARCH_native)
+#else
+#error Missing stack / PIC setup for current arch.
+#endif
   }
 
   main();

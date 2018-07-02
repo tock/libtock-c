@@ -10,17 +10,6 @@ CONFIGURATION_MAKEFILE = 1
 MAKEFLAGS += -r
 MAKEFLAGS += -R
 
-# Toolchain programs
-TOOLCHAIN := arm-none-eabi
-AR := $(TOOLCHAIN)-ar
-AS := $(TOOLCHAIN)-as
-CC := $(TOOLCHAIN)-gcc
-CXX := $(TOOLCHAIN)-g++
-OBJDUMP := $(TOOLCHAIN)-objdump
-RANLIB := $(TOOLCHAIN)-ranlib
-READELF := $(TOOLCHAIN)-readelf
-SIZE := $(TOOLCHAIN)-size
-
 # Set default region sizes
 STACK_SIZE       ?= 2048
 APP_HEAP_SIZE    ?= 1024
@@ -30,7 +19,13 @@ KERNEL_HEAP_SIZE ?= 1024
 PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 
 # Tock supported architectures
-TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4
+TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4 native
+
+# Toolchain prefixes, must be defined for each architecture
+TOOLCHAIN_cortex-m0 := arm-none-eabi-
+TOOLCHAIN_cortex-m3 := arm-none-eabi-
+TOOLCHAIN_cortex-m4 := arm-none-eabi-
+TOOLCHAIN_naitve :=
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
@@ -44,25 +39,14 @@ ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap 
 # Flags for building app Assembly, C, C++ files
 # n.b. make convention is that CPPFLAGS are shared for C and C++ sources
 # [CFLAGS is C only, CXXFLAGS is C++ only]
-override ASFLAGS += -mthumb
 override CFLAGS  += -std=gnu11
 override CPPFLAGS += \
-	    -frecord-gcc-switches\
 	    -gdwarf-2\
 	    -Os\
 	    -fdata-sections -ffunction-sections\
-	    -fstack-usage -Wstack-usage=$(STACK_SIZE)\
 	    -Wall\
 	    -Wextra\
-	    -Wl,--warn-common\
-	    -Wl,--gc-sections\
-	    -Wl,--emit-relocs\
-	    -fPIC\
-	    -mthumb\
-	    -mfloat-abi=soft\
-	    -msingle-pic-base\
-	    -mpic-register=r9\
-	    -mno-pic-data-is-text-relative
+	    -fPIC
 
 # Work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85606
 override CPPFLAGS_cortex-m0 += -march=armv6s-m
@@ -105,7 +89,6 @@ override CPPFLAGS += -Wformat-nonliteral #        # can't check format string (m
 override CPPFLAGS += -Wformat-security #          # using untrusted format strings (maybe disable)
 override CPPFLAGS += -Wformat-y2k #               # use of strftime that assumes two digit years
 override CPPFLAGS += -Winit-self #                # { int i = i }
-override CPPFLAGS += -Wlogical-op #               # "suspicous use of logical operators in expressions" (a lint)
 override CPPFLAGS += -Wmissing-declarations #     # ^same? not sure how these differ
 override CPPFLAGS += -Wmissing-field-initializers # if init'ing struct w/out field names, warn if not all used
 override CPPFLAGS += -Wmissing-format-attribute # # something looks printf-like but isn't marked as such
@@ -114,7 +97,6 @@ override CPPFLAGS += -Wmultichar #                # use of 'foo' instead of "foo
 override CPPFLAGS += -Wpointer-arith #            # sizeof things not define'd (i.e. sizeof(void))
 override CPPFLAGS += -Wredundant-decls #          # { int i; int i; } (a lint)
 override CPPFLAGS += -Wshadow #                   # int foo(int a) { int a = 1; } inner a shadows outer a
-override CPPFLAGS += -Wtrampolines #              # attempt to generate a trampoline on the NX stack
 override CPPFLAGS += -Wunused-macros #            # macro defined in this file not used
 override CPPFLAGS += -Wunused-parameter #         # function parameter is unused aside from its declaration
 override CPPFLAGS += -Wwrite-strings #            # { char* c = "foo"; c[0] = 'b' } <-- "foo" should be r/o
@@ -154,7 +136,6 @@ override CPPFLAGS += -Wwrite-strings #            # { char* c = "foo"; c[0] = 'b
 
 # C-only warnings
 override CFLAGS += -Wbad-function-cast #          # not obvious when this would trigger, could drop if annoying
-override CFLAGS += -Wjump-misses-init #           # goto or switch skips over a variable initialziation
 override CFLAGS += -Wmissing-prototypes #         # global fn defined w/out prototype (should be static or in .h)
 override CFLAGS += -Wnested-externs #             # mis/weird-use of extern keyword
 override CFLAGS += -Wold-style-definition #       # this garbage: void bar (a) int a; { }
@@ -228,6 +209,70 @@ override CXXFLAGS += -Wzero-as-null-pointer-constant # use of 0 as NULL
 UNCRUSTIFY := $(TOCK_USERLAND_BASE_DIR)/tools/uncrustify/uncrustify.sh
 
 
+##################################################################################################
+## Arch-specific toolchain adaptations
+
+define CONFIG_RULES
+
+AR_$(1) := $$(TOOLCHAIN_$(1))ar
+AS_$(1) := $$(TOOLCHAIN_$(1))as
+CC_$(1) := $$(TOOLCHAIN_$(1))gcc
+CXX_$(1) := $$(TOOLCHAIN_$(1))g++
+OBJDUMP_$(1) := $$(TOOLCHAIN_$(1))objdump
+RANLIB_$(1) := $$(TOOLCHAIN_$(1))ranlib
+READELF_$(1) := $$(TOOLCHAIN_$(1))readelf
+SIZE_$(1) := $$(TOOLCHAIN_$(1))size
+
+# n.b. Can't have '-' in a define
+override CPPFLAGS_$(1) += -DTOCK_ARCH_$$(subst -,_,$(1))
+
+ifeq ($$(CC_$(1)),arm-none-eabi-gcc)
+override ASFLAGS_$(1) += -mthumb
+override CPPFLAGS_$(1) += \
+	    -mthumb\
+	    -mcpu=$(1)\
+	    -mfloat-abi=soft\
+	    -msingle-pic-base\
+	    -mpic-register=r9\
+	    -mno-pic-data-is-text-relative
+endif
+
+# On mac, `native` will resolve to clang, so filter out gcc-specific switches
+ifeq (,$$(shell $$(CC_$(1)) --version 2>&1 | grep clang))
+
+override CPPFLAGS_$(1) += \
+	    -frecord-gcc-switches\
+	    -fstack-usage\
+	    -Wstack-usage=$(STACK_SIZE)\
+	    -Wl,--warn-common\
+	    -Wl,--gc-sections\
+	    -Wl,--emit-relocs
+
+# And some gcc-only extra warnings
+override CFLAGS_$(1) += -Wjump-misses-init #           # goto or switch skips over a variable initialziation
+override CPPFLAGS_$(1) += -Wlogical-op #               # "suspicous use of logical operators in expressions" (a lint)
+override CPPFLAGS_$(1) += -Wtrampolines #              # attempt to generate a trampoline on the NX stack
+
+endif
+
+endef
+
+define CONFIG_VERBOSE_RULES
+
+$$(info Arch: $(1))
+$$(info ├ TOOLCHAIN_$(1) = $$(TOOLCHAIN_$(1)))
+$$(info ├ CC_$(1) = $$(CC_$(1)))
+$$(info └ $$(CC_$(1)) --version = $$(shell $$(CC_$(1)) --version 2>&1 ))
+$$(info )
+
+endef
+
+$(foreach arch,$(TOCK_ARCHS),$(eval $(call CONFIG_RULES,$(arch))))
+
+## END ARCH-SPECIFIC TOOLCHAIN SUPPORT
+##################################################################################################
+
+
 # Dump configuration for verbose builds
 ifneq ($(V),)
   $(info )
@@ -235,15 +280,14 @@ ifneq ($(V),)
   $(info TOCK USERLAND BUILD SYSTEM -- VERBOSE BUILD)
   $(info **************************************************)
   $(info Config:)
-  $(info CC=$(CC))
   $(info LAYOUT=$(LAYOUT))
   $(info MAKEFLAGS=$(MAKEFLAGS))
   $(info PACKAGE_NAME=$(PACKAGE_NAME))
   $(info TOCK_ARCHS=$(TOCK_ARCHS))
   $(info TOCK_USERLAND_BASE_DIR=$(TOCK_USERLAND_BASE_DIR))
-  $(info TOOLCHAIN=$(TOOLCHAIN))
   $(info )
-  $(info $(CC) --version = $(shell $(CC) --version))
+  $(info .......... Tock per-arch configurations ..........)
+$(foreach arch,$(TOCK_ARCHS),$(eval $(call CONFIG_VERBOSE_RULES,$(arch))))
   $(info **************************************************)
   $(info )
 endif
