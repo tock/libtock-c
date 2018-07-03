@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/tock/libtock-c.svg?branch=master)](https://travis-ci.org/tock/libtock-c)
+[![irc](https://img.shields.io/badge/irc-%23tock-lightgrey.svg)](https://kiwiirc.com/client/irc.freenode.net/tock)
+
 Tock Userland
 =============
 
