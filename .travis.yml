@@ -20,6 +20,7 @@ language: rust
 branches:
   except:
     - staging.tmp
+    - trying.tmp
 
 
 
