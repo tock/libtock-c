@@ -1,0 +1,27 @@
+sudo: false
+language: rust
+
+# The language is a lie, but the C toolchain is available in the rust image. If
+# we go the other way, then we have to slow builds by pulling in the rust
+# toolchain manually.
+
+cache:
+  cargo: true
+  directories:
+    - $HOME/gcc-arm-none-eabi-6_2-2016q4
+
+os:
+  - linux
+
+rust:
+  - nightly-2018-06-26
+
+before_install:
+  - ./.travis-install-gcc
+  - export PATH="$PATH:$HOME/gcc-arm-none-eabi-6_2-2016q4/bin"
+  - export PATH="$PATH:$HOME/uncrustify-uncrustify-0.65/build"
+
+script:
+  - pushd examples; ./build_all.sh || exit; popd
+  - pushd examples; ./format_all.sh || exit; popd
+
