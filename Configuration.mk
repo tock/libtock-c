@@ -235,9 +235,19 @@ override CPPFLAGS_$(1) += \
 	    -msingle-pic-base\
 	    -mpic-register=r9\
 	    -mno-pic-data-is-text-relative
+override LDFLAGS_$(1) += \
+	    --entry=_start\
+	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
+	    -Xlinker --defsym=APP_HEAP_SIZE=$$(APP_HEAP_SIZE)\
+	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
+	    -T $$(LAYOUT)\
+	    -nostdlib\
+	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS) -Wl,--end-group\
+	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(1).Map
 endif
 
-# On mac, `native` will resolve to clang, so filter out gcc-specific switches
+
+# Filter between gcc and clang as CC driver. This will be empty if gcc, else clang.
 ifeq (,$$(shell $$(CC_$(1)) --version 2>&1 | grep clang))
 
 override CPPFLAGS_$(1) += \
@@ -253,9 +263,21 @@ override CFLAGS_$(1) += -Wjump-misses-init #           # goto or switch skips ov
 override CPPFLAGS_$(1) += -Wlogical-op #               # "suspicous use of logical operators in expressions" (a lint)
 override CPPFLAGS_$(1) += -Wtrampolines #              # attempt to generate a trampoline on the NX stack
 
+else
+# Here we're using clang
+override LDFLAGS_$(1) += \
+	    -Xlinker -no_new_main\
+	    -Wl,-alias,__STACK_SIZE,$$(STACK_SIZE)\
+	    -Wl,-alias,_APP_HEAP_SIZE,$$(APP_HEAP_SIZE)\
+	    -Wl,-alias,_KERNEL_HEAP_SIZE,$$(KERNEL_HEAP_SIZE)\
+	    $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS)\
+	    -Wl,-map,$$(BUILDDIR)/$(1)/$(1).Map
+
 endif
 
 endef
+
+
 
 define CONFIG_VERBOSE_RULES
 

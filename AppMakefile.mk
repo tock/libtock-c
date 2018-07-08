@@ -68,6 +68,10 @@ ifdef LDFLAGS
   $(warning it is not currently done. Sorry.)
   $(warning *******************************************************)
 endif
+# n.b. We *do* allow LDFLAGS_[arch] as we need some arch-specific linking,
+# however we assume that these are formatted correctly already for $(CC)-driven
+# linking, as we do that and anyone setting a LDFLAGS_[arch] is likely familiar
+# with this make system.
 
 # Warn users about improperly defined HEAP_SIZE
 ifdef HEAP_SIZE
@@ -127,14 +131,7 @@ OBJS_$(1) += $$(patsubst %.cxx,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cxx, $$(CXX_SRC
 $$(BUILDDIR)/$(1)/$(1).elf: $$(OBJS_$(1)) $$(TOCK_USERLAND_BASE_DIR)/newlib/libc.a $$(LIBS_$(1)) $$(LAYOUT) | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
 	$$(Q)$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1))\
-	    --entry=_start\
-	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
-	    -Xlinker --defsym=APP_HEAP_SIZE=$$(APP_HEAP_SIZE)\
-	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
-	    -T $$(LAYOUT)\
-	    -nostdlib\
-	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS) -Wl,--end-group\
-	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(1).Map\
+	    $$(LDFLAGS_$(1))\
 	    -o $$@
 
 # NOTE: This rule creates an lst file for the elf as flashed on the board
