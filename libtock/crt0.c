@@ -58,7 +58,12 @@ __attribute__ ((section(".start"), used))
 #endif
 __attribute__ ((weak))
 __attribute__ ((noreturn))
-void _start(void* app_start,
+#ifdef __APPLE__
+void start(
+#else
+void _start(
+#endif
+            void* app_start,
             void* mem_start,
             void* memory_len __attribute__((unused)),
             void* app_heap_break __attribute__((unused))) {
