@@ -9,6 +9,14 @@ instead.
 
 ## Running
 
+There are two options for testing this application. The first is to
+use the link layer reception test, which provides more debugging information.
+The second is to use the UDP layer reception test, which is more
+representative of a real use of the userland IP layer. A description
+of both options follows:
+
+### Link Layer reception
+
 Program the kernel on two imixs. On one, program the `radio_rx` app in
 `userland/examples/tests/ieee802154/radio_rx` with the `PRINT_PAYLOAD` and
 `PRINT_STRING` options enabled (this app simply prints received 802.15.4
@@ -31,3 +39,21 @@ Packet source address: 0x1540
 Received packet with payload of 28 bytes from offset 11
 2848 deg C; 3456%; 500 lux;
 ```
+
+### UDP Layer reception
+
+Program the kernel on two imixs. On one, program the `udp_rx` app in
+`userland/examples/tests/udp/udp_rx/udp_rx`.
+On the other, program the `ip_sense` app.
+
+You'll see packets printed on the console of the form:
+
+```
+[RF233] Received packet, sending to client
+[UDP_RecvClient] received something
+
+```
+Unfortunately, as of 7/25/18, the udp\_rx test does not pass
+packets all the way up to the userland client. Instead, packets are silently dropped
+by the UDP userland driver. This is the reason no additional information is printed
+to the console, such as the content of the UDP payload.
