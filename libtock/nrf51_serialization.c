@@ -21,3 +21,7 @@ int nrf51_serialization_write (char* tx, int tx_len) {
   ret = command(DRIVER_NUM_NRF_SERIALIZATION, 1, 0, 0);
   return ret;
 }
+
+int nrf51_serialization_reset (void) {
+  return command(DRIVER_NUM_NRF_SERIALIZATION, 2, 0, 0);
+}

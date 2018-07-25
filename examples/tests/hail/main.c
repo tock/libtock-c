@@ -60,18 +60,18 @@ static void sample_sensors (void) {
   ambient_light_read_intensity_sync(&light);
 
   // Analog inputs: A0-A5
-  uint16_t val;
-  adc_sample_sync(0, &val);
+  uint16_t val=6;
+  //adc_sample_sync(0, &val);
   int a0 = (val * 3300) / 4095;
-  adc_sample_sync(1, &val);
+  //adc_sample_sync(1, &val);
   int a1 = (val * 3300) / 4095;
-  adc_sample_sync(2, &val);
+  //adc_sample_sync(2, &val);
   int a2 = (val * 3300) / 4095;
-  adc_sample_sync(3, &val);
+  //adc_sample_sync(3, &val);
   int a3 = (val * 3300) / 4095;
-  adc_sample_sync(4, &val);
+  //adc_sample_sync(4, &val);
   int a4 = (val * 3300) / 4095;
-  adc_sample_sync(5, &val);
+  //adc_sample_sync(5, &val);
   int a5 = (val * 3300) / 4095;
 
   // Digital inputs: D0, D1, D6, D7
@@ -109,6 +109,7 @@ int main(void) {
   printf("[Hail] Button controls LED.\n");
 
   // Setup BLE
+  nrf51_serialization_reset();
   simple_ble_init(&ble_config);
   simple_adv_only_name();
 

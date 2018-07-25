@@ -323,10 +323,16 @@ uint32_t ser_phy_open (ser_phy_events_handler_t events_handler) {
 
     // Configure the serialization layer in the kernel
     ret = nrf51_serialization_subscribe(ble_serialization_callback);
-    if (ret < 0) return NRF_ERROR_INTERNAL;
+    if (ret < 0) {
+printf("error2 %i!", ret);
+        return NRF_ERROR_INTERNAL;
+    }
 
     ret = nrf51_serialization_setup_rx_buffer((char*) rx, SER_HAL_TRANSPORT_RX_MAX_PKT_SIZE);
-    if (ret < 0) return NRF_ERROR_INTERNAL;
+    if (ret < 0) {
+printf("error3 %i!", ret);
+        return NRF_ERROR_INTERNAL;
+    }
 
     // Save the callback handler
     _ser_phy_event_handler = events_handler;
@@ -364,6 +370,7 @@ uint32_t ser_phy_tx_pkt_send (const uint8_t* p_buffer, uint16_t num_of_bytes) {
         // Call tx procedure to start transmission of a packet
         int ret = nrf51_serialization_write((char*) tx, tx_len);
         if (ret < 0) {
+            printf("error1 %i!", ret);
             return NRF_ERROR_INTERNAL;
         }
     } else {

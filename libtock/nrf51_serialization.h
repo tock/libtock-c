@@ -21,6 +21,9 @@ int nrf51_serialization_setup_rx_buffer (char* rx, int rx_len);
 __attribute__ ((warn_unused_result))
 int nrf51_serialization_write (char* tx, int tx_len);
 
+// Reset the nRF51 device.
+int nrf51_serialization_reset (void);
+
 #ifdef __cplusplus
 }
 #endif
