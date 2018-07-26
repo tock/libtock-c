@@ -1,5 +1,5 @@
-#include "udp.h"
 #include "tock.h"
+#include "udp.h"
 
 const int UDP_DRIVER = 0x30002;
 
@@ -13,7 +13,7 @@ static const int SUBSCRIBE_TX = 1;
 
 // COMMAND 0 is driver existence check
 static const int COMMAND_GET_IFACES = 1;
-static const int COMMAND_SEND = 2;
+static const int COMMAND_SEND       = 2;
 
 static unsigned char BUF_TX_CFG[2 * sizeof(sock_addr_t)];
 static unsigned char BUF_RX_CFG[2 * sizeof(sock_addr_t)];
@@ -32,7 +32,7 @@ static void tx_done_callback(int result,
                              __attribute__ ((unused)) int arg2,
                              __attribute__ ((unused)) int arg3,
                              void *ud) {
-  tx_result = result;
+  tx_result      = result;
   *((bool *) ud) = true;
 }
 
@@ -41,7 +41,7 @@ ssize_t udp_send_to(sock_handle_t *handle, void *buf, size_t len,
 
   // Set up source and destination address/port pairs
   int bytes = sizeof(sock_addr_t);
-  int err = allow(UDP_DRIVER, ALLOW_CFG, (void *) BUF_TX_CFG, 2 * bytes);
+  int err   = allow(UDP_DRIVER, ALLOW_CFG, (void *) BUF_TX_CFG, 2 * bytes);
   if (err < 0) return err;
 
   memcpy(BUF_TX_CFG, &(handle->addr), bytes);
@@ -66,7 +66,7 @@ static void rx_done_callback(int result,
                              __attribute__ ((unused)) int arg2,
                              __attribute__ ((unused)) int arg3,
                              void *ud) {
-  rx_result = result;
+  rx_result      = result;
   *((bool *) ud) = true;
 }
 
@@ -88,7 +88,7 @@ ssize_t udp_recv_from_sync(sock_handle_t *handle, void *buf, size_t len,
   if (err < 0) return err;
 
   yield_for(&rx_done);
-  return rx_result; 
+  return rx_result;
 }
 
 ssize_t udp_recv_from(subscribe_cb callback, sock_handle_t *handle, void *buf,
