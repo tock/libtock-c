@@ -50,10 +50,7 @@ You'll see packets printed on the console of the form:
 
 ```
 [RF233] Received packet, sending to client
-[UDP_RecvClient] received something
-
+2 deg C; 1%; 3 lux;2 deg C; 1%; 3 lux;
 ```
-Unfortunately, as of 7/25/18, the udp\_rx test does not pass
-packets all the way up to the userland client. Instead, packets are silently dropped
-by the UDP userland driver. This is the reason no additional information is printed
-to the console, such as the content of the UDP payload.
+
+The second line is simply the payload of the received UDP packet
