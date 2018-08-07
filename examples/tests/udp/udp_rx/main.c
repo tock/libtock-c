@@ -68,12 +68,12 @@ int main(void) {
   print_ipv6(&ifaces[0]);
   printf(" : %d\n", incoming_addr->port);
 
-  /*
+
   ieee802154_set_address(0x802);
   ieee802154_set_pan(0xABCD);
   ieee802154_config_commit();
   ieee802154_up();
-  */
+
 
   memset(packet_rx, 0, IEEE802154_FRAME_LEN);
   udp_recv_from(callback, handle, packet_rx, IEEE802154_FRAME_LEN, incoming_addr);
