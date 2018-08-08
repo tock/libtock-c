@@ -2,10 +2,8 @@ IP Sensor App
 =============
 
 An example app for platforms with sensors and an 802.15.4 radio that broadcasts
-periodic sensor readings over the network. Currently, it sends raw 802.15.4
-packets with statically configured PAN, source and destination addresses, but
-as support is added for 6lowpan, Thread, etc, this app will evolve to use those
-instead.
+periodic sensor readings over the network. Currently, it sends UDP packets
+using 6lowpan to a single neighbor with an IP address known ahead of time.
 
 ## Running
 
