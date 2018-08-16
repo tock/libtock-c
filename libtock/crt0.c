@@ -63,8 +63,19 @@ void _start(void* app_start,
   // bss_size from start of memory. Also make sure that the stack starts on an
   // 8 byte boundary per section 5.2.1.2 here:
   // http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042f/IHI0042F_aapcs.pdf
-  struct hdr* myhdr = (struct hdr*)app_start;
-  uint32_t stacktop = (((uint32_t)mem_start + myhdr->stack_size + 7) & 0xfffffff8);
+
+  // Before adjusting the stack, make sure to keep all variables in registers.
+  register struct hdr* myhdr = (struct hdr*)app_start;
+  register uint32_t stacktop = (((uint32_t)mem_start + myhdr->stack_size + 7) & 0xfffffff8);
+
+  {
+    register uint32_t heap_size = myhdr->got_size + myhdr->data_size + myhdr->bss_size;
+    memop(0, stacktop + heap_size);
+    memop(11, stacktop + heap_size);
+    memop(10, stacktop);
+    asm volatile ("mov sp, %[stacktop]" :: [stacktop] "r" (stacktop) : "memory");
+    asm volatile ("mov r9, sp");
+  }
 
   // fix up GOT
   volatile uint32_t* got_start     = (uint32_t*)(myhdr->got_start + stacktop);
@@ -94,15 +105,6 @@ void _start(void* app_start,
     } else {
       *target = (*target ^ 0x80000000) + (uint32_t)app_start;
     }
-  }
-
-  {
-    uint32_t heap_size = myhdr->got_size + myhdr->data_size + myhdr->bss_size;
-    memop(0, stacktop + heap_size);
-    memop(11, stacktop + heap_size);
-    memop(10, stacktop);
-    asm volatile ("mov sp, %[stacktop]" :: [stacktop] "r" (stacktop) : "memory");
-    asm volatile ("mov r9, sp");
   }
 
   main();
