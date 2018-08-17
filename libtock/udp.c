@@ -76,6 +76,8 @@ ssize_t udp_recv_from_sync(sock_handle_t *handle, void *buf, size_t len,
   if (err < 0) return err;
 
   // Pass interface to listen on and incoming source address to listen for
+  // TODO: Verify that address being listened on is the IP address of an interface
+  // on this device
   int bytes = sizeof(sock_addr_t);
   err = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) BUF_RX_CFG, 2 * bytes);
   if (err < 0) return err;

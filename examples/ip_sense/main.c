@@ -28,10 +28,10 @@ int main(void) {
 
   /*
   ieee802154_set_address(0x1540);
-  */
   ieee802154_set_pan(0xABCD);
   ieee802154_config_commit();
   ieee802154_up();
+  */
 
 
   ipv6_addr_t ifaces[10];
