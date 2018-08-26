@@ -14,6 +14,7 @@ static const int SUBSCRIBE_TX = 1;
 // COMMAND 0 is driver existence check
 static const int COMMAND_GET_IFACES = 1;
 static const int COMMAND_SEND = 2;
+static const int COMMAND_BIND = 3;
 
 static unsigned char BUF_TX_CFG[2 * sizeof(sock_addr_t)];
 static unsigned char BUF_RX_CFG[2 * sizeof(sock_addr_t)];
@@ -75,22 +76,20 @@ ssize_t udp_recv_from_sync(sock_handle_t *handle, void *buf, size_t len,
   int err = allow(UDP_DRIVER, ALLOW_RX, (void *) buf, len);
   if (err < 0) return err;
 
-  // Pass interface to listen on and incoming source address to listen for
-  // TODO: Verify that address being listened on is the IP address of an interface
-  // on this device
+  // Pass interface to listen on and buffer which will be filled with the
+  // address of any received packets.
   int bytes = sizeof(sock_addr_t);
   err = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) BUF_RX_CFG, 2 * bytes);
   if (err < 0) return err;
 
   memcpy(BUF_RX_CFG, &(handle->addr), bytes);
-  memcpy(BUF_RX_CFG + bytes, dst_addr, bytes);
 
   bool rx_done = false;
   err = subscribe(UDP_DRIVER, SUBSCRIBE_RX, rx_done_callback, (void *) &rx_done);
   if (err < 0) return err;
 
   yield_for(&rx_done);
-  return rx_result; 
+  return rx_result;
 }
 
 ssize_t udp_recv_from(subscribe_cb callback, sock_handle_t *handle, void *buf,
@@ -104,10 +103,16 @@ ssize_t udp_recv_from(subscribe_cb callback, sock_handle_t *handle, void *buf,
   err = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) BUF_RX_CFG, 2 * bytes);
   if (err < 0) return err;
 
-  memcpy(BUF_RX_CFG, &(handle->addr), bytes);
-  memcpy(BUF_RX_CFG + bytes, dst_addr, bytes);
+  memcpy(BUF_RX_CFG, dst_addr, bytes);
+  memcpy(BUF_RX_CFG + bytes, &(handle->addr), bytes);
 
-  return subscribe(UDP_DRIVER, SUBSCRIBE_RX, callback, NULL);
+  err = subscribe(UDP_DRIVER, SUBSCRIBE_RX, callback, NULL);
+  if (err < 0) return err;
+
+  int ret_val= command(UDP_DRIVER, COMMAND_BIND, 0, 0);
+
+  return ret_val;
+
 }
 
 int udp_list_ifaces(ipv6_addr_t *ifaces, size_t len) {

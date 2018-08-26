@@ -31,6 +31,9 @@ static void callback(int payload_len,
 
 #define PRINT_STRING 1
 #if PRINT_STRING
+  printf("[UDP_RCV]: Rcvd UDP Packet from:");
+  print_ipv6(&incoming_addr->addr);
+  printf(" : %d\n", incoming_addr->port);
   printf("%.*s\n", payload_len, packet_rx);
 #else
   for (i = 0; i < payload_len; i++) {
@@ -59,15 +62,15 @@ int main(void) {
   udp_socket(&h, &addr);
   handle = &h;
 
+  //Init incoming addr to all 0
+  ipv6_addr_t zero_addr = {0};
+
   sock_addr_t in = {
-    ifaces[0],
-    15123
+    zero_addr,
+    0
   };
   incoming_addr = &in;
-  printf("Listening for UDP packets from ");
-  print_ipv6(&ifaces[0]);
-  printf(" : %d\n", incoming_addr->port);
-
+  printf("Listening for UDP packets.\n");
 
   ieee802154_set_address(0x802);
   ieee802154_set_pan(0xABCD);
@@ -76,7 +79,8 @@ int main(void) {
 
 
   memset(packet_rx, 0, IEEE802154_FRAME_LEN);
-  udp_recv_from(callback, handle, packet_rx, IEEE802154_FRAME_LEN, incoming_addr);
+  ssize_t result = udp_recv_from(callback, handle, packet_rx, IEEE802154_FRAME_LEN, incoming_addr);
+  printf("Result of bind attempt [UDP_RCV] is: %d\n", result);
   while (1) {
     delay_ms(4000);
   }
