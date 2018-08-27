@@ -1,27 +1,26 @@
 #include "analog_comparator.h"
 #include "tock.h"
 
-// TODO Change into bool?
-int ac_exists(void) {
-  return command(DRIVER_NUM_ACIFC, 0, 0, 0) >= 0;
+bool analog_comparator_exists(void) {
+  return command(DRIVER_NUM_ANALOG_COMPARATOR, 0, 0, 0) >= 0;
 }
 
-int ac_count(void) {
-  return command(DRIVER_NUM_ACIFC, 0, 0, 0);
+int analog_comparator_count(void) {
+  return command(DRIVER_NUM_ANALOG_COMPARATOR, 0, 0, 0);
 }
 
-bool ac_comparison(uint8_t ac) {
-  return command(DRIVER_NUM_ACIFC, 1, ac, 0);
+bool analog_comparator_comparison(uint8_t channel) {
+  return command(DRIVER_NUM_ANALOG_COMPARATOR, 1, channel, 0);
 }
 
-int ac_enable_interrupts(uint8_t ac) {
-  return command(DRIVER_NUM_ACIFC, 2, ac, 0);
+int analog_comparator_start_comparing(uint8_t channel) {
+  return command(DRIVER_NUM_ANALOG_COMPARATOR, 2, channel, 0);
 }
 
-int ac_disable_interrupts(uint8_t ac) {
-  return command(DRIVER_NUM_ACIFC, 3, ac, 0);
+int analog_comparator_stop_comparing(uint8_t channel) {
+  return command(DRIVER_NUM_ANALOG_COMPARATOR, 3, channel, 0);
 }
 
-int ac_interrupt_callback(subscribe_cb callback, void* callback_args) {
-  return subscribe(DRIVER_NUM_ACIFC, 0, callback, callback_args);
+int analog_comparator_interrupt_callback(subscribe_cb callback, void* callback_args) {
+  return subscribe(DRIVER_NUM_ANALOG_COMPARATOR, 0, callback, callback_args);
 }

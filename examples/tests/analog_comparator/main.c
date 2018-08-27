@@ -4,18 +4,18 @@
 #include <analog_comparator.h>
 #include <timer.h>
 #include <tock.h>
-static int channel;
+static int callback_channel;
 
-static void ac_comparison_polling(uint8_t ac) {
+static void analog_comparator_comparison_polling(uint8_t channel) {
   uint count = 0;
   while (1) {
     count++;
-    bool result = ac_comparison(ac);
+    bool result = analog_comparator_comparison(channel);
     printf("Try %d. Result = %d.\n", count, result);
     if (result == 1) {
-      printf("This implies Vinp > Vinn!\n\n");
+      printf("This means Vinp > Vinn!\n\n");
     }else {
-      printf("This implies Vinp < Vinn!\n\n");
+      printf("This means Vinp < Vinn!\n\n");
     }
     delay_ms(1000);
   }
@@ -23,50 +23,58 @@ static void ac_comparison_polling(uint8_t ac) {
 
 // Callback for AC interrupts. Channel on which the interrupt is generated is
 // passed through here.
-static void ac_cb (__attribute__ ((unused)) int arg0,
-                   __attribute__ ((unused)) int arg1,
-                   __attribute__ ((unused)) int arg2,
-                   __attribute__ ((unused)) void* userdata) {
-  channel = arg0;
+static void analog_comparator_callback (__attribute__ ((unused)) int arg0,
+                                        __attribute__ ((unused)) int arg1,
+                                        __attribute__ ((unused)) int arg2,
+                                        __attribute__ ((unused)) void* userdata) {
+  callback_channel = arg0;
 }
 
-static void ac_comparison_interrupt(uint8_t ac) {
-  // Enable AC interrupts
-  ac_enable_interrupts(ac);
+static void analog_comparator_comparison_interrupt(uint8_t channel) {
+  // Enable AC interrupts on the desired channel (i.e. two pins)
+  analog_comparator_start_comparing(channel);
 
   // Set callback for AC interrupts
-  ac_interrupt_callback(ac_cb, NULL);
+  analog_comparator_interrupt_callback(analog_comparator_callback, NULL);
 
   while (1) {
     yield();
-    printf("Interrupt received on channel %d, Vinp > Vinn!\n", channel);
+    printf("Interrupt received on channel %d, Vinp > Vinn!\n", callback_channel);
   }
 }
 
 int main(void) {
   printf("\nAnalog Comparator test application\n");
 
-  if (!ac_exists()) {
+  if (!analog_comparator_exists()) {
     printf("Analog Comparator driver does not exist\n");
     exit(1);
   }
-  printf("Analog Comparator driver exists with %d channels\n", ac_count());
+
+  printf("Analog Comparator driver exists with %d channels\n", analog_comparator_count());
 
   // Set mode according to which implementation you want.
   // mode = 0 --> polling comparison
   // mode = 1 --> interrupt-based comparison
   uint8_t mode = 1;
 
-  // Choose a comparator, starting from index 0 and depending on the chip
-  uint8_t ac = 1;
+  // Choose a comparator channel, starting from index 0 and depending on the chip
+  // A channel means an analog comparator, that is two pins.
+  uint8_t channel = 1;
+
+  // Since channel starts at index 0 and analog_comparator_count starts from 1,
+  // a channel equal to count is already non-existing
+  if (channel >= analog_comparator_count()) {
+    printf("Specified channel does not exist on this board\n");
+    exit(1);
+  }
 
   switch (mode) {
     // Poll for a normal comparison every second and print the result
-    case 0: ac_comparison_polling(ac); break;
+    case 0: analog_comparator_comparison_polling(channel); break;
 
     // Print for every interrupt received
-    case 1: ac_comparison_interrupt(ac); break;
-
+    case 1: analog_comparator_comparison_interrupt(channel); break;
   }
   printf("\n");
   return 0;
