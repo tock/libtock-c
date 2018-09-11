@@ -12,8 +12,9 @@
 void print_ipv6(ipv6_addr_t *);
 
 void print_ipv6(ipv6_addr_t *ipv6_addr) {
-  for (int j = 0; j < 14; j += 2)
+  for (int j = 0; j < 14; j += 2) {
     printf("%02x%02x:", ipv6_addr->addr[j], ipv6_addr->addr[j + 1]);
+  }
   printf("%02x%02x", ipv6_addr->addr[14], ipv6_addr->addr[15]);
 }
 
@@ -26,9 +27,6 @@ int main(void) {
   int lux  = 3;
   char packet[64];
 
-  /*
-     ieee802154_set_address(0x1540);
-   */
   ieee802154_set_pan(0xABCD);
   ieee802154_config_commit();
   ieee802154_up();
@@ -66,24 +64,17 @@ int main(void) {
     print_ipv6(&(destination.addr));
     printf(" : %d\n", destination.port);
     ssize_t result = udp_send_to(&handle, packet, len, &destination);
-    if (result < 0) {
-      printf("    UDP TX ERROR: %d\n", result);
-    } else {
-      printf("UDP TX Success \n");
-    }
 
-    /*
-       switch (err) {
-       case TOCK_SUCCESS:
-        printf("Sent and acknowledged\n");
-        break;
-       case TOCK_ENOACK:
-        printf("Sent but not acknowledged\n");
-        break;
-       default:
-        printf("Error sending packet %d\n", err);
-       }
-     */
+    switch (result) {
+    case TOCK_SUCCESS:
+      printf("Packet sent.\n");
+      break;
+    case TOCK_ENOACK:
+      printf("Sent but not acknowledged\n");
+      break;
+    default:
+      printf("Error sending packet %d\n", result);
+    }
     delay_ms(1000);
   }
 
