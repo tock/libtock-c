@@ -18,9 +18,10 @@ sock_addr_t *incoming_addr;
 void print_ipv6(ipv6_addr_t *);
 
 void print_ipv6(ipv6_addr_t *ipv6_addr) {
-    for(int j = 0; j < 14; j+=2)
-        printf("%02x%02x:", ipv6_addr->addr[j], ipv6_addr->addr[j+1]);
-    printf("%02x%02x", ipv6_addr->addr[14], ipv6_addr->addr[15]);
+  for (int j = 0; j < 14; j += 2) {
+    printf("%02x%02x:", ipv6_addr->addr[j], ipv6_addr->addr[j + 1]);
+  }
+  printf("%02x%02x", ipv6_addr->addr[14], ipv6_addr->addr[15]);
 }
 
 static void callback(int payload_len,
@@ -81,9 +82,7 @@ int main(void) {
   memset(packet_rx, 0, IEEE802154_FRAME_LEN);
   ssize_t result = udp_recv_from(callback, handle, packet_rx, IEEE802154_FRAME_LEN, incoming_addr);
   printf("Result of bind attempt [UDP_RCV] is: %d\n", result);
-  while (1) {
-    delay_ms(4000);
-  }
 
-  // udp_close(handle);
+  /* Tock keeps the app alive waiting for callbacks after
+   * returning from main, so no need to busy wait */
 }
