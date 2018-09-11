@@ -66,14 +66,14 @@ int main(void) {
     ssize_t result = udp_send_to(&handle, packet, len, &destination);
 
     switch (result) {
-    case TOCK_SUCCESS:
-      printf("Packet sent.\n");
-      break;
-    case TOCK_ENOACK:
-      printf("Sent but not acknowledged\n");
-      break;
-    default:
-      printf("Error sending packet %d\n", result);
+      case TOCK_SUCCESS:
+        printf("Packet sent.\n");
+        break;
+      case TOCK_ENOACK:
+        printf("Sent but not acknowledged\n");
+        break;
+      default:
+        printf("Error sending packet %d\n", result);
     }
     delay_ms(1000);
   }

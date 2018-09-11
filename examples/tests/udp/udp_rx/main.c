@@ -18,10 +18,10 @@ sock_addr_t *incoming_addr;
 void print_ipv6(ipv6_addr_t *);
 
 void print_ipv6(ipv6_addr_t *ipv6_addr) {
-    for(int j = 0; j < 14; j+=2) {
-        printf("%02x%02x:", ipv6_addr->addr[j], ipv6_addr->addr[j+1]);
-    }
-    printf("%02x%02x", ipv6_addr->addr[14], ipv6_addr->addr[15]);
+  for (int j = 0; j < 14; j += 2) {
+    printf("%02x%02x:", ipv6_addr->addr[j], ipv6_addr->addr[j + 1]);
+  }
+  printf("%02x%02x", ipv6_addr->addr[14], ipv6_addr->addr[15]);
 }
 
 static void callback(int payload_len,
@@ -38,7 +38,7 @@ static void callback(int payload_len,
     printf("%02x%c", packet_rx[i],
            ((i + 1) % 16 == 0 || i + 1 == payload_len) ? '\n' : ' ');
   }
-#endif //PRINT_STRING
+#endif // PRINT_STRING
 
   udp_recv_from(callback, handle, packet_rx, IEEE802154_FRAME_LEN, incoming_addr);
 }
