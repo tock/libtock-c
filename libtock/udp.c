@@ -17,7 +17,7 @@ static const int COMMAND_SEND = 2;
 static const int COMMAND_BIND = 3;
 
 static unsigned char BUF_TX_CFG[2 * sizeof(sock_addr_t)];
-static unsigned char BUF_RX_CFG[2 * sizeof(sock_addr_t)];
+static unsigned char zero_addr[2 * sizeof(sock_addr_t)];
 
 int udp_socket(sock_handle_t *handle, sock_addr_t *addr) {
   memcpy(&(handle->addr), addr, sizeof(sock_addr_t));
@@ -25,7 +25,15 @@ int udp_socket(sock_handle_t *handle, sock_addr_t *addr) {
 }
 
 int udp_close(__attribute__ ((unused)) sock_handle_t *handle) {
-  return TOCK_SUCCESS;
+  int bytes = sizeof(sock_addr_t);
+  // call allow here to prevent any issues if close is called before recv
+  // Driver 'closes' when 0 addr is bound to
+  int err = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) zero_addr, 2 * bytes);
+  if (err < 0) return err;
+
+  memset(zero_addr, 0, 2*bytes);
+  err = command(UDP_DRIVER, COMMAND_BIND, 0, 0);
+  return err;
 }
 
 static int tx_result;
@@ -71,18 +79,18 @@ static void rx_done_callback(int result,
   *((bool *) ud) = true;
 }
 
-ssize_t udp_recv_from_sync(sock_handle_t *handle, void *buf, size_t len,
-                           sock_addr_t *dst_addr) {
+ssize_t udp_recv_sync(sock_handle_t *handle, void *buf, size_t len,
+                      unsigned char *buf_rx_cfg) {
   int err = allow(UDP_DRIVER, ALLOW_RX, (void *) buf, len);
   if (err < 0) return err;
 
   // Pass interface to listen on and buffer which will be filled with the
   // address of any received packets.
   int bytes = sizeof(sock_addr_t);
-  err = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) BUF_RX_CFG, 2 * bytes);
+  err = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) buf_rx_cfg, 2 * bytes);
   if (err < 0) return err;
 
-  memcpy(BUF_RX_CFG, &(handle->addr), bytes);
+  memcpy(buf_rx_cfg + bytes, &(handle->addr), bytes);
 
   bool rx_done = false;
   err = subscribe(UDP_DRIVER, SUBSCRIBE_RX, rx_done_callback, (void *) &rx_done);
@@ -92,19 +100,19 @@ ssize_t udp_recv_from_sync(sock_handle_t *handle, void *buf, size_t len,
   return rx_result;
 }
 
-ssize_t udp_recv_from(subscribe_cb callback, sock_handle_t *handle, void *buf,
-                      size_t len, sock_addr_t *dst_addr) {
+ssize_t udp_recv(subscribe_cb callback, sock_handle_t *handle, void *buf,
+                      size_t len, unsigned char *buf_rx_cfg) {
 
   int err = allow(UDP_DRIVER, ALLOW_RX, (void *) buf, len);
   if (err < 0) return err;
 
-  // Pass interface to listen on and incoming source address to listen for
+  // Pass interface to listen on and space for kernel to write src addr
+  // of received packet
   int bytes = sizeof(sock_addr_t);
-  err = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) BUF_RX_CFG, 2 * bytes);
+  err = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) buf_rx_cfg, 2 * bytes);
   if (err < 0) return err;
 
-  memcpy(BUF_RX_CFG, dst_addr, bytes);
-  memcpy(BUF_RX_CFG + bytes, &(handle->addr), bytes);
+  memcpy(buf_rx_cfg + bytes, &(handle->addr), bytes);
 
   err = subscribe(UDP_DRIVER, SUBSCRIBE_RX, callback, NULL);
   if (err < 0) return err;
