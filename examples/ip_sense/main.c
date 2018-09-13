@@ -31,7 +31,6 @@ int main(void) {
   ieee802154_config_commit();
   ieee802154_up();
 
-
   ipv6_addr_t ifaces[10];
   udp_list_ifaces(ifaces, 10);
 
@@ -56,18 +55,17 @@ int main(void) {
     // so the below code is commented out. Feel free to try it on
     // your imix to see if the sensors work.
     /*
-    temperature_read_sync(&temp);
-    humidity_read_sync(&humi);
-    ambient_light_read_intensity_sync(&lux);
-    */
-
+       temperature_read_sync(&temp);
+       humidity_read_sync(&humi);
+       ambient_light_read_intensity_sync(&lux);
+     */
     int len = snprintf(packet, sizeof(packet), "%d deg C; %d%%; %d lux;\n",
                        temp, humi, lux);
     int max_tx_len = udp_get_max_tx_len();
     if (len > max_tx_len) {
-        printf("Cannot send packets longer than %d bytes without changing"
-                " constants in kernel\n", max_tx_len);
-        return 0;
+      printf("Cannot send packets longer than %d bytes without changing"
+             " constants in kernel\n", max_tx_len);
+      return 0;
     }
     printf("Sending packet (length %d) --> ", len);
     print_ipv6(&(destination.addr));

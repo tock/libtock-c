@@ -44,7 +44,7 @@ static void callback(int payload_len,
     printf("%02x%c", packet_rx[i],
            ((i + 1) % 16 == 0 || i + 1 == payload_len) ? '\n' : ' ');
   }
-#endif //PRINT_STRING
+#endif // PRINT_STRING
 }
 
 int main(void) {
@@ -69,31 +69,29 @@ int main(void) {
   ieee802154_config_commit();
   ieee802154_up();
 
-
   memset(packet_rx, 0, MAX_RX_PACKET_LEN);
   ssize_t result = udp_recv(callback, handle, packet_rx, MAX_RX_PACKET_LEN, BUF_RX_CFG);
 
   switch (result) {
-      case TOCK_SUCCESS:
-        printf("Succesfully bound to socket, listening for UDP packets\n\n");
-        break;
-      case TOCK_EINVAL:
-        printf("The address requested is not a local interface\n");
-        break;
-      case TOCK_EBUSY:
-        printf("Another userland app has already bound to this addr/port\n");
-        break;
-      default:
-        printf("Failed to bind to socket %d\n", result);
-        break;
-    }
+    case TOCK_SUCCESS:
+      printf("Succesfully bound to socket, listening for UDP packets\n\n");
+      break;
+    case TOCK_EINVAL:
+      printf("The address requested is not a local interface\n");
+      break;
+    case TOCK_EBUSY:
+      printf("Another userland app has already bound to this addr/port\n");
+      break;
+    default:
+      printf("Failed to bind to socket %d\n", result);
+      break;
+  }
 
   /* Tock keeps the app alive waiting for callbacks after
    * returning from main, so no need to busy wait
    * However, this app tests receiving for 10 seconds
    * then closing the connection, so we include a busy wait for that
    * reason. */
-
   delay_ms(30000);
   ssize_t err = udp_close(handle);
   if (err < 0) {
