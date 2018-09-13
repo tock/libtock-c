@@ -59,13 +59,16 @@ ssize_t udp_send_to(sock_handle_t *handle, void *buf, size_t len,
 
   // Set message buffer
   err = allow(UDP_DRIVER, ALLOW_TX, buf, len);
+  printf("Allow called in udp.c\n");
   if (err < 0) return err;
 
   bool tx_done = false;
   err = subscribe(UDP_DRIVER, SUBSCRIBE_TX, tx_done_callback, (void *) &tx_done);
+  printf("Subscribe called in udp.c\n");
   if (err < 0) return err;
 
   err = command(UDP_DRIVER, COMMAND_SEND, 0, 0);
+  printf("Command called in udp.c\n");
   if (err < 0) return err;
   yield_for(&tx_done);
   return tx_result;

@@ -19,12 +19,13 @@ void print_ipv6(ipv6_addr_t *ipv6_addr) {
 }
 
 int main(void) {
+  //delay_ms(2000);
   printf("[Sensors] Starting Sensors App.\n");
   printf("[Sensors] All available sensors on the platform will be sampled.\n");
 
-  unsigned int humi = 1;
-  int temp = 2;
-  int lux  = 3;
+  unsigned int humi = 4;
+  int temp = 5;
+  int lux  = 6;
   char packet[64];
 
   ieee802154_set_pan(0xABCD);
@@ -37,7 +38,7 @@ int main(void) {
   sock_handle_t handle;
   sock_addr_t addr = {
     ifaces[0],
-    15123
+    12345
   };
 
   printf("Opening socket on ");
@@ -47,7 +48,7 @@ int main(void) {
 
   sock_addr_t destination = {
     ifaces[1],
-    16123
+    23456
   };
 
   while (1) {
