@@ -9,9 +9,12 @@
 #include <udp.h>
 
 // UDP sample packet reception app.
-// Continually receives frames at the specified address and port.
+// Receives packets at the specified address and port for 30 seconds,
+// then closes the socket.
 
-char packet_rx[IEEE802154_FRAME_LEN];
+#define MAX_RX_PACKET_LEN 200
+
+char packet_rx[MAX_RX_PACKET_LEN];
 static unsigned char BUF_RX_CFG[2 * sizeof(sock_addr_t)];
 sock_handle_t* handle;
 
@@ -67,8 +70,8 @@ int main(void) {
   ieee802154_up();
 
 
-  memset(packet_rx, 0, IEEE802154_FRAME_LEN);
-  ssize_t result = udp_recv(callback, handle, packet_rx, IEEE802154_FRAME_LEN, BUF_RX_CFG);
+  memset(packet_rx, 0, MAX_RX_PACKET_LEN);
+  ssize_t result = udp_recv(callback, handle, packet_rx, MAX_RX_PACKET_LEN, BUF_RX_CFG);
 
   switch (result) {
       case TOCK_SUCCESS:

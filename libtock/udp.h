@@ -54,6 +54,9 @@ ssize_t udp_recv_sync(sock_handle_t *handle, void *buf, size_t len,
 // Returns the _total_ number of interfaces, negative on failure.
 int udp_list_ifaces(ipv6_addr_t *ifaces, size_t len);
 
+// Returns the maximum length udp payload that the app can transmit
+int udp_get_max_tx_len();
+
 #ifdef __cplusplus
 }
 #endif

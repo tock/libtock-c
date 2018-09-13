@@ -15,6 +15,7 @@ static const int SUBSCRIBE_TX = 1;
 static const int COMMAND_GET_IFACES = 1;
 static const int COMMAND_SEND = 2;
 static const int COMMAND_BIND = 3;
+static const int COMMAND_GET_TX_LEN = 4;
 
 static unsigned char BUF_TX_CFG[2 * sizeof(sock_addr_t)];
 static unsigned char zero_addr[2 * sizeof(sock_addr_t)];
@@ -131,5 +132,9 @@ int udp_list_ifaces(ipv6_addr_t *ifaces, size_t len) {
   if (err < 0) return err;
 
   return command(UDP_DRIVER, COMMAND_GET_IFACES, len, 0);
+}
+
+int udp_get_max_tx_len() {
+  return command(UDP_DRIVER, COMMAND_GET_TX_LEN, 0, 0);
 }
 

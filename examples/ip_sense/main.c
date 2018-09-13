@@ -30,7 +30,6 @@ int main(void) {
   ieee802154_set_pan(0xABCD);
   ieee802154_config_commit();
   ieee802154_up();
-  */
 
 
   ipv6_addr_t ifaces[10];
@@ -53,7 +52,9 @@ int main(void) {
   };
 
   while (1) {
-    // TODO: Below lines caused code to hang, commented out until fixed
+    // Some imixes are unable to read sensors due to hardware issues,
+    // so the below code is commented out. Feel free to try it on
+    // your imix to see if the sensors work.
     /*
     temperature_read_sync(&temp);
     humidity_read_sync(&humi);
@@ -62,7 +63,12 @@ int main(void) {
 
     int len = snprintf(packet, sizeof(packet), "%d deg C; %d%%; %d lux;\n",
                        temp, humi, lux);
-
+    int max_tx_len = udp_get_max_tx_len();
+    if (len > max_tx_len) {
+        printf("Cannot send packets longer than %d bytes without changing"
+                " constants in kernel\n", max_tx_len);
+        return 0;
+    }
     printf("Sending packet (length %d) --> ", len);
     print_ipv6(&(destination.addr));
     printf(" : %d\n", destination.port);
@@ -70,15 +76,12 @@ int main(void) {
 
     switch (result) {
       case TOCK_SUCCESS:
-        printf("Packet sent.\n");
-        break;
-      case TOCK_ENOACK:
-        printf("Sent but not acknowledged\n");
+        printf("Packet sent.\n\n");
         break;
       default:
-        printf("Error sending packet %d\n", result);
+        printf("Error sending packet %d\n\n", result);
     }
 
-    delay_ms(1000);
+    delay_ms(2000);
   }
 }
