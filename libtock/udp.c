@@ -134,7 +134,7 @@ int udp_list_ifaces(ipv6_addr_t *ifaces, size_t len) {
   return command(UDP_DRIVER, COMMAND_GET_IFACES, len, 0);
 }
 
-int udp_get_max_tx_len() {
+int udp_get_max_tx_len(void) {
   return command(UDP_DRIVER, COMMAND_GET_TX_LEN, 0, 0);
 }
 
