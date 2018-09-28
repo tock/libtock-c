@@ -25,9 +25,28 @@ int udp_socket(sock_handle_t *handle, sock_addr_t *addr) {
   return TOCK_SUCCESS;
 }
 
+int udp_bind(sock_handle_t *handle, unsigned char *buf_rx_cfg) {
+  // Pass interface to listen on and space for kernel to write src addr
+  // of received packets
+  int bytes = sizeof(sock_addr_t);
+  err = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) buf_rx_cfg, 2 * bytes);
+  if (err < 0) return err;
+
+  memcpy(buf_rx_cfg + bytes, &(handle->addr), bytes);
+
+  // Set up source and destination address/port pairs for sending
+  int bytes = sizeof(sock_addr_t);
+  int err   = allow(UDP_DRIVER, ALLOW_CFG, (void *) BUF_TX_CFG, 2 * bytes);
+  if (err < 0) return err;
+
+  memcpy(BUF_TX_CFG, &(handle->addr), bytes);
+
+  return command(UDP_DRIVER, COMMAND_BIND, 0, 0);
+}
+
 int udp_close(__attribute__ ((unused)) sock_handle_t *handle) {
   int bytes = sizeof(sock_addr_t);
-  // call allow here to prevent any issues if close is called before recv
+  // call allow here to prevent any issues if close is called before bind
   // Driver 'closes' when 0 addr is bound to
   int err = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) zero_addr, 2 * bytes);
   if (err < 0) return err;
@@ -46,15 +65,11 @@ static void tx_done_callback(int result,
   *((bool *) ud) = true;
 }
 
-ssize_t udp_send_to(sock_handle_t *handle, void *buf, size_t len,
+ssize_t udp_send_to(void *buf, size_t len,
                     sock_addr_t *dst_addr) {
-
-  // Set up source and destination address/port pairs
+  // Set dest addr
+  // NOTE: bind() must be called previously for this to work
   int bytes = sizeof(sock_addr_t);
-  int err   = allow(UDP_DRIVER, ALLOW_CFG, (void *) BUF_TX_CFG, 2 * bytes);
-  if (err < 0) return err;
-
-  memcpy(BUF_TX_CFG, &(handle->addr), bytes);
   memcpy(BUF_TX_CFG + bytes, dst_addr, bytes);
 
   // Set message buffer
@@ -82,6 +97,7 @@ static void rx_done_callback(int result,
 
 ssize_t udp_recv_sync(sock_handle_t *handle, void *buf, size_t len,
                       unsigned char *buf_rx_cfg) {
+  //TODO: Update to match udp_recv once udp_recv works again
   int err = allow(UDP_DRIVER, ALLOW_RX, (void *) buf, len);
   if (err < 0) return err;
 
@@ -107,13 +123,6 @@ ssize_t udp_recv(subscribe_cb callback, sock_handle_t *handle, void *buf,
   int err = allow(UDP_DRIVER, ALLOW_RX, (void *) buf, len);
   if (err < 0) return err;
 
-  // Pass interface to listen on and space for kernel to write src addr
-  // of received packet
-  int bytes = sizeof(sock_addr_t);
-  err = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) buf_rx_cfg, 2 * bytes);
-  if (err < 0) return err;
-
-  memcpy(buf_rx_cfg + bytes, &(handle->addr), bytes);
 
   err = subscribe(UDP_DRIVER, SUBSCRIBE_RX, callback, NULL);
   if (err < 0) return err;

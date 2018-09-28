@@ -60,7 +60,7 @@ int main(void) {
        humidity_read_sync(&humi);
        ambient_light_read_intensity_sync(&lux);
      */
-    int len = snprintf(packet, sizeof(packet), "%d deg C; %d%%; %d lux;\n",
+    int len = snprintf(packet, sizeof(packet), "%d deg C; %d%%; %d luxxxxxxx;\n",
                        temp, humi, lux);
     int max_tx_len = udp_get_max_tx_len();
     if (len > max_tx_len) {
