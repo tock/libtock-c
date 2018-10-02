@@ -33,7 +33,7 @@ int udp_bind(sock_handle_t *handle, unsigned char *buf_bind_cfg) {
   // not set up a receive callback on this port. Of course, the client application
   // does not have to read these addresses or worry about them.
   int bytes = sizeof(sock_addr_t);
-  int err = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) buf_bind_cfg, 2 * bytes);
+  int err   = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) buf_bind_cfg, 2 * bytes);
   if (err < 0) return err;
 
   memcpy(buf_bind_cfg + bytes, &(handle->addr), bytes);
@@ -42,7 +42,7 @@ int udp_bind(sock_handle_t *handle, unsigned char *buf_bind_cfg) {
   // Notably, the pair chosen must match the address/port to which the
   // app is bound, unless the kernel changes in the future to allow for
   // sending from a port to which the app is not bound.
-  err   = allow(UDP_DRIVER, ALLOW_CFG, (void *) BUF_TX_CFG, 2 * bytes);
+  err = allow(UDP_DRIVER, ALLOW_CFG, (void *) BUF_TX_CFG, 2 * bytes);
   if (err < 0) return err;
 
   memcpy(BUF_TX_CFG, &(handle->addr), bytes);
@@ -131,7 +131,6 @@ ssize_t udp_recv(subscribe_cb callback, void *buf, size_t len) {
 
   int err = allow(UDP_DRIVER, ALLOW_RX, (void *) buf, len);
   if (err < 0) return err;
-
 
   err = subscribe(UDP_DRIVER, SUBSCRIBE_RX, callback, NULL);
   return err;
