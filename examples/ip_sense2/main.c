@@ -9,6 +9,8 @@
 #include <ieee802154.h>
 #include <udp.h>
 
+static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
+
 void print_ipv6(ipv6_addr_t *);
 
 void print_ipv6(ipv6_addr_t *ipv6_addr) {
@@ -19,7 +21,6 @@ void print_ipv6(ipv6_addr_t *ipv6_addr) {
 }
 
 int main(void) {
-  //delay_ms(2000);
   printf("[Sensors] Starting Sensors App.\n");
   printf("[Sensors] All available sensors on the platform will be sampled.\n");
 
@@ -45,6 +46,7 @@ int main(void) {
   print_ipv6(&ifaces[0]);
   printf(" : %d\n", addr.port);
   udp_socket(&handle, &addr);
+  udp_bind(&handle, BUF_BIND_CFG);
 
   sock_addr_t destination = {
     ifaces[1],
@@ -60,7 +62,7 @@ int main(void) {
        humidity_read_sync(&humi);
        ambient_light_read_intensity_sync(&lux);
      */
-    int len = snprintf(packet, sizeof(packet), "%d deg C; %d%%; %d luxxxxxxx;\n",
+    int len = snprintf(packet, sizeof(packet), "%d deg C; %d%%; %d lux;\n",
                        temp, humi, lux);
     int max_tx_len = udp_get_max_tx_len();
     if (len > max_tx_len) {
@@ -71,7 +73,7 @@ int main(void) {
     printf("Sending packet (length %d) --> ", len);
     print_ipv6(&(destination.addr));
     printf(" : %d\n", destination.port);
-    ssize_t result = udp_send_to(&handle, packet, len, &destination);
+    ssize_t result = udp_send_to(packet, len, &destination);
 
     switch (result) {
       case TOCK_SUCCESS:

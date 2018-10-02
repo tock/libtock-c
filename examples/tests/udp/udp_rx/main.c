@@ -15,7 +15,7 @@
 #define MAX_RX_PACKET_LEN 200
 
 char packet_rx[MAX_RX_PACKET_LEN];
-static unsigned char BUF_RX_CFG[2 * sizeof(sock_addr_t)];
+static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
 sock_handle_t* handle;
 
 void print_ipv6(ipv6_addr_t *);
@@ -36,8 +36,8 @@ static void callback(int payload_len,
 #define PRINT_STRING 1
 #if PRINT_STRING
   printf("[UDP_RCV]: Rcvd UDP Packet from: ");
-  print_ipv6((ipv6_addr_t*)&BUF_RX_CFG);
-  printf(" : %d\n", (uint16_t)(BUF_RX_CFG[16]) + ((uint16_t)(BUF_RX_CFG[17]) << 8));
+  print_ipv6((ipv6_addr_t*)&BUF_BIND_CFG);
+  printf(" : %d\n", (uint16_t)(BUF_BIND_CFG[16]) + ((uint16_t)(BUF_BIND_CFG[17]) << 8));
   printf("Packet Payload: %.*s\n", payload_len, packet_rx);
 #else
   for (i = 0; i < payload_len; i++) {
@@ -63,6 +63,7 @@ int main(void) {
   sock_handle_t h;
   udp_socket(&h, &addr);
   handle = &h;
+  udp_bind(handle, BUF_BIND_CFG);
 
   ieee802154_set_address(0x802);
   ieee802154_set_pan(0xABCD);
@@ -70,7 +71,7 @@ int main(void) {
   ieee802154_up();
 
   memset(packet_rx, 0, MAX_RX_PACKET_LEN);
-  ssize_t result = udp_recv(callback, handle, packet_rx, MAX_RX_PACKET_LEN, BUF_RX_CFG);
+  ssize_t result = udp_recv(callback, packet_rx, MAX_RX_PACKET_LEN);
 
   switch (result) {
     case TOCK_SUCCESS:
@@ -81,6 +82,9 @@ int main(void) {
       break;
     case TOCK_EBUSY:
       printf("Another userland app has already bound to this addr/port\n");
+      break;
+    case TOCK_ERESERVE:
+      printf("Receive Failure. Must bind to a port before calling receive\n");
       break;
     default:
       printf("Failed to bind to socket %d\n", result);
