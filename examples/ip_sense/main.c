@@ -46,7 +46,12 @@ int main(void) {
   print_ipv6(&ifaces[0]);
   printf(" : %d\n", addr.port);
   udp_socket(&handle, &addr);
-  udp_bind(&handle, BUF_BIND_CFG);
+  int bind_return = udp_bind(&handle, BUF_BIND_CFG);
+
+  if (bind_return < 0) {
+    printf("Failed to bind to port: failure=%d\n", bind_return);
+    return -1;
+  }
 
   sock_addr_t destination = {
     ifaces[1],
