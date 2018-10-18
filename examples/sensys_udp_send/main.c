@@ -10,8 +10,6 @@
 #include <udp.h>
 
 static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
-// Set the below address to be the IP address of your receiver
-//static uint8_t DEST_ADDR[16] = {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xfe, 0, 0xef, 0x1c};
 
 void print_ipv6(ipv6_addr_t *);
 
@@ -54,8 +52,9 @@ int main(void) {
     printf("Bind failed. Error code: %d\n", bind_return);
     return -1;
   }
+// Set the below address to be the IP address of your receiver
   ipv6_addr_t dest_addr = {
-    {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xfe, 0, 0x0f, 0x1c}
+    {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xfe, 0, 0xbf, 0xf0}
   };
   sock_addr_t destination = {
     dest_addr,
@@ -64,11 +63,11 @@ int main(void) {
 
   while (1) {
     // Some imixes are unable to read sensors due to hardware issues,
-    // If theis app hangs, comment out the next 3 lines of code
+    // If this app hangs, comment out the next 3 lines of code
 
-    temperature_read_sync(&temp);
-    humidity_read_sync(&humi);
-    ambient_light_read_intensity_sync(&lux);
+    //temperature_read_sync(&temp);
+    //humidity_read_sync(&humi);
+    //ambient_light_read_intensity_sync(&lux);
 
     int len = snprintf(packet, sizeof(packet), "%d deg C; %d%%; %d lux;\n",
                        temp, humi, lux);
