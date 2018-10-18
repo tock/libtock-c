@@ -104,7 +104,7 @@ int main(void) {
     int rand_bytes = rng_sync(randbuf, 4, 4);
     if (rand_bytes < 0) {
       printf("Error obtaining random number: %d\n", rand_bytes);
-    }else if (rand_bytes != 4)  {
+    }else if (rand_bytes != 4) {
       printf("Only obtained %d bytes of randomness\n", rand_bytes);
     }
 
