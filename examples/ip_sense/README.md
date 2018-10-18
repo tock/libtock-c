@@ -48,7 +48,7 @@ You'll see packets printed on the console of the form:
 
 ```
 [RF233] Received packet, sending to client
-2 deg C; 1%; 3 lux;2 deg C; 1%; 3 lux;
+2 deg C; 1%; 3 lux;
 ```
 
 The second line is simply the payload of the received UDP packet

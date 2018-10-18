@@ -9,11 +9,14 @@
 #include <udp.h>
 
 // UDP sample packet reception app.
-// Continually receives frames at the specified address and port.
+// Receives packets at the specified address and port for 30 seconds,
+// then closes the socket.
 
-char packet_rx[IEEE802154_FRAME_LEN];
+#define MAX_RX_PACKET_LEN 200
+
+char packet_rx[MAX_RX_PACKET_LEN];
+static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
 sock_handle_t* handle;
-sock_addr_t *incoming_addr;
 
 void print_ipv6(ipv6_addr_t *);
 
@@ -32,15 +35,16 @@ static void callback(int payload_len,
 
 #define PRINT_STRING 1
 #if PRINT_STRING
-  printf("%.*s\n", payload_len, packet_rx);
+  printf("[UDP_RCV]: Rcvd UDP Packet from: ");
+  print_ipv6((ipv6_addr_t*)&BUF_BIND_CFG);
+  printf(" : %d\n", (uint16_t)(BUF_BIND_CFG[16]) + ((uint16_t)(BUF_BIND_CFG[17]) << 8));
+  printf("Packet Payload: %.*s\n", payload_len, packet_rx);
 #else
   for (i = 0; i < payload_len; i++) {
     printf("%02x%c", packet_rx[i],
            ((i + 1) % 16 == 0 || i + 1 == payload_len) ? '\n' : ' ');
   }
 #endif // PRINT_STRING
-
-  udp_recv_from(callback, handle, packet_rx, IEEE802154_FRAME_LEN, incoming_addr);
 }
 
 int main(void) {
@@ -55,28 +59,48 @@ int main(void) {
 
   printf("Opening socket on ");
   print_ipv6(&ifaces[1]);
-  printf(" : %d\n", addr.port);
+  printf(" : %d, and binding to that socket.\n", addr.port);
   sock_handle_t h;
-  udp_socket(&h, &addr);
   handle = &h;
-
-  sock_addr_t in = {
-    ifaces[0],
-    15123
-  };
-  incoming_addr = &in;
-  printf("Listening for UDP packets from ");
-  print_ipv6(&ifaces[0]);
-  printf(" : %d\n", incoming_addr->port);
+  udp_bind(handle, &addr, BUF_BIND_CFG);
 
   ieee802154_set_address(0x802);
   ieee802154_set_pan(0xABCD);
   ieee802154_config_commit();
   ieee802154_up();
 
-  memset(packet_rx, 0, IEEE802154_FRAME_LEN);
-  udp_recv_from(callback, handle, packet_rx, IEEE802154_FRAME_LEN, incoming_addr);
+  memset(packet_rx, 0, MAX_RX_PACKET_LEN);
+  ssize_t result = udp_recv(callback, packet_rx, MAX_RX_PACKET_LEN);
+
+  switch (result) {
+    case TOCK_SUCCESS:
+      printf("Succesfully bound to socket, listening for UDP packets\n\n");
+      break;
+    case TOCK_EINVAL:
+      printf("The address requested is not a local interface\n");
+      break;
+    case TOCK_EBUSY:
+      printf("Another userland app has already bound to this addr/port\n");
+      break;
+    case TOCK_ERESERVE:
+      printf("Receive Failure. Must bind to a port before calling receive\n");
+      break;
+    default:
+      printf("Failed to bind to socket %d\n", result);
+      break;
+  }
 
   /* Tock keeps the app alive waiting for callbacks after
-   * returning from main, so no need to busy wait */
+   * returning from main, so no need to busy wait
+   * However, this app tests receiving for 10 seconds
+   * then closing the connection, so we include a busy wait for that
+   * reason. */
+  delay_ms(30000);
+  ssize_t err = udp_close(handle);
+  if (err < 0) {
+    printf("Error closing socket\n");
+  } else {
+    printf("Socket closed.\n");
+  }
+
 }
