@@ -60,9 +60,8 @@ int main(void) {
   print_ipv6(&ifaces[2]);
   printf(" : %d\n", addr.port);
   sock_handle_t h;
-  udp_socket(&h, &addr);
   handle = &h;
-  udp_bind(handle, BUF_BIND_CFG);
+  udp_bind(handle, &addr, BUF_BIND_CFG);
 
   //ieee802154_set_address(0x802); //Mac addr is configured in the kernel from serial num
   ieee802154_set_pan(0xABCD);
