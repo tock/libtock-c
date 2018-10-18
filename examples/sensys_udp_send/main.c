@@ -3,11 +3,11 @@
 #include <stdio.h>
 
 #include <ambient_light.h>
+#include <button.h>
 #include <humidity.h>
+#include <rng.h>
 #include <temperature.h>
 #include <timer.h>
-#include <button.h>
-#include <rng.h>
 
 #include <ieee802154.h>
 #include <udp.h>
@@ -96,17 +96,16 @@ int main(void) {
     // Some imixes are unable to read sensors due to hardware issues,
     // If this app hangs, comment out the next 3 lines of code
 
-    //temperature_read_sync(&temp);
-    //humidity_read_sync(&humi);
-    //ambient_light_read_intensity_sync(&lux);
+    // temperature_read_sync(&temp);
+    // humidity_read_sync(&humi);
+    // ambient_light_read_intensity_sync(&lux);
 
-    //get randomness
+    // get randomness
     int rand_bytes = rng_sync(randbuf, 4, 4);
     if (rand_bytes < 0) {
-        printf("Error obtaining random number: %d\n", rand_bytes);
-    }
-    else if (rand_bytes != 4) {
-        printf("Only obtained %d bytes of randomness\n", rand_bytes);
+      printf("Error obtaining random number: %d\n", rand_bytes);
+    }else if (rand_bytes != 4)  {
+      printf("Only obtained %d bytes of randomness\n", rand_bytes);
     }
 
     uint32_t rand = 0;

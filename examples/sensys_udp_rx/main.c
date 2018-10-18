@@ -53,7 +53,7 @@ int main(void) {
 
   sock_addr_t addr = {
     ifaces[2],
-    16123 //arbitrary port choice
+    16123 // arbitrary port choice
   };
 
   printf("Opening socket on ");
@@ -63,7 +63,7 @@ int main(void) {
   handle = &h;
   udp_bind(handle, &addr, BUF_BIND_CFG);
 
-  //ieee802154_set_address(0x802); //Mac addr is configured in the kernel from serial num
+  // ieee802154_set_address(0x802); //Mac addr is configured in the kernel from serial num
   ieee802154_set_pan(0xABCD);
   ieee802154_config_commit();
   ieee802154_up();
