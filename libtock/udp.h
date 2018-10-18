@@ -25,12 +25,14 @@ typedef struct sock_handle {
 // Returns 0 on success, negative on failure.
 int udp_socket(sock_handle_t *handle, sock_addr_t *addr);
 
-// Binds to the address in handle if the address is not already
+// Takes in an addess and a handle, and copies the address into
+// the handle.
+// Next, Binds to the address in handle if the address is not already
 // bound by another port. Binding enables an app to receive on
 // the bound port, and ensures that all sent packets will have
 // the bound port as their src address.
 // Returns 0 on successful bind, negative on failure.
-int udp_bind(sock_handle_t *handle, unsigned char *buf_bind_cfg);
+int udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned char *buf_bind_cfg);
 
 // Closes a socket.
 // Currently only one socket can exist per app, so this fn

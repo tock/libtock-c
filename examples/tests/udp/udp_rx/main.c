@@ -59,11 +59,10 @@ int main(void) {
 
   printf("Opening socket on ");
   print_ipv6(&ifaces[1]);
-  printf(" : %d\n", addr.port);
+  printf(" : %d, and binding to that socket.\n", addr.port);
   sock_handle_t h;
-  udp_socket(&h, &addr);
   handle = &h;
-  udp_bind(handle, BUF_BIND_CFG);
+  udp_bind(handle, &addr, BUF_BIND_CFG);
 
   ieee802154_set_address(0x802);
   ieee802154_set_pan(0xABCD);

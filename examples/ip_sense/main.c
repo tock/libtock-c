@@ -44,9 +44,8 @@ int main(void) {
 
   printf("Opening socket on ");
   print_ipv6(&ifaces[0]);
-  printf(" : %d\n", addr.port);
-  udp_socket(&handle, &addr);
-  int bind_return = udp_bind(&handle, BUF_BIND_CFG);
+  printf(" : %d, and binding to that socket.\n", addr.port);
+  int bind_return = udp_bind(&handle, &addr, BUF_BIND_CFG);
 
   if (bind_return < 0) {
     printf("Failed to bind to port: failure=%d\n", bind_return);

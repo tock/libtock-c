@@ -20,18 +20,14 @@ static const int COMMAND_GET_TX_LEN = 4;
 static unsigned char BUF_TX_CFG[2 * sizeof(sock_addr_t)];
 static unsigned char zero_addr[2 * sizeof(sock_addr_t)];
 
-int udp_socket(sock_handle_t *handle, sock_addr_t *addr) {
-  memcpy(&(handle->addr), addr, sizeof(sock_addr_t));
-  return TOCK_SUCCESS;
-}
-
-int udp_bind(sock_handle_t *handle, unsigned char *buf_bind_cfg) {
+int udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned char *buf_bind_cfg) {
   // Pass interface to listen on and space for kernel to write src addr
   // of received packets
   // In current design, buf_bind_cfg will still be written with addresses of external
   // senders sending addresses to the bound port even if the client application has
   // not set up a receive callback on this port. Of course, the client application
   // does not have to read these addresses or worry about them.
+  memcpy(&(handle->addr), addr, sizeof(sock_addr_t));
   int bytes = sizeof(sock_addr_t);
   int err   = allow(UDP_DRIVER, ALLOW_RX_CFG, (void *) buf_bind_cfg, 2 * bytes);
   if (err < 0) return err;
