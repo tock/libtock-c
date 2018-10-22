@@ -1,54 +1,23 @@
-IP Sensor App
+UDP Buggy App
 =============
 
-An example app for platforms with sensors and an 802.15.4 radio that broadcasts
-periodic sensor readings over the network. Currently, it sends UDP packets
+An example app for platforms with a 802.15.4 radio that broadcasts
+button presses over the network. Currently, it sends UDP packets
 using 6lowpan to a single neighbor with an IP address known ahead of time.
+This app is buggy in that it busy waits for a button press to occur.
 
 ## Running
 
-There are two options for testing this application. The first is to
-use the link layer reception test, which provides more debugging information.
-The second is to use the UDP layer reception test, which is more
-representative of a real use of the userland IP layer. A description
-of both options follows:
+To run this app, simply place the IP address of the destination node in the dst\_addr struct.
+Notably, until Tock has neighbor discovery implemented, you also have to configure
+the destination MAC address in the kernel (in boards/imix/src/main.rs).
 
-### Link Layer reception
+### UDP Layer Reception Test
 
-Program the kernel on two imixs. On one, program the `radio_rx` app in
-`userland/examples/tests/ieee802154/radio_rx` with the `PRINT_PAYLOAD` and
-`PRINT_STRING` options enabled (this app simply prints received 802.15.4
-packets to the console). On the other, program the `ip_sense` app.
+The best way to test this app is by using UDP reception on another Imix.
+Program the kernel on two imixs. On one, program the `sensys_udp_rx` app in
+`userland/examples/sensys_udp_rx.
+On the other, program this app.
 
-You'll see packets printed on the console of the form:
-
-```
-Packet destination PAN ID: 0xabcd
-Packet destination address: 0x0802
-Packet source PAN ID: 0xabcd
-Packet source address: 0x1540
-Received packet with payload of 28 bytes from offset 11
-2848 deg C; 3457%; 500 lux;
-
-Packet destination PAN ID: 0xabcd
-Packet destination address: 0x0802
-Packet source PAN ID: 0xabcd
-Packet source address: 0x1540
-Received packet with payload of 28 bytes from offset 11
-2848 deg C; 3456%; 500 lux;
-```
-
-### UDP Layer reception
-
-Program the kernel on two imixs. On one, program the `udp_rx` app in
-`userland/examples/tests/udp/udp_rx/udp_rx`.
-On the other, program the `ip_sense` app.
-
-You'll see packets printed on the console of the form:
-
-```
-[RF233] Received packet, sending to client
-2 deg C; 1%; 3 lux;2 deg C; 1%; 3 lux;
-```
-
-The second line is simply the payload of the received UDP packet
+You'll see packets printed on the console.
+These lines contain the payload of the received UDP packet.
