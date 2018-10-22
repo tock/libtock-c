@@ -73,9 +73,9 @@ int main(void) {
   int len = snprintf(packet, sizeof(packet), "A button was pressed!\n");
 
   while (1) {
-    //wait for gpio pin to be pressed
-    while(!button_press) {
-        delay_ms(1);
+    // wait for gpio pin to be pressed
+    while (!button_press) {
+      delay_ms(1);
     }
     button_press = false;
 
