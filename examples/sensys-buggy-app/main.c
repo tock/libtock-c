@@ -2,11 +2,13 @@
 #include <stdio.h>
 
 #include <button.h>
-#include <ambient_light.h>
 #include <timer.h>
 
 #include <ieee802154.h>
 #include <udp.h>
+
+static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
+static bool button_press;
 
 void print_ipv6(ipv6_addr_t *);
 
@@ -17,10 +19,25 @@ void print_ipv6(ipv6_addr_t *ipv6_addr) {
   printf("%02x%02x", ipv6_addr->addr[14], ipv6_addr->addr[15]);
 }
 
+static void button_callback(__attribute__ ((unused)) int btn_num,
+                            int val,
+                            __attribute__ ((unused)) int arg2,
+                            __attribute__ ((unused)) void *ud) {
+  if (val == 1) {
+    button_press = true;
+  }
+}
+
 int main(void) {
 
-  int lux  = 1;
+  button_subscribe(button_callback, NULL);
+  int count = button_count();
+  for (int i = 0; i < count; i++) {
+    button_enable_interrupt(i);
+  }
+
   char packet[64];
+  button_press = false;
 
   ieee802154_set_pan(0xABCD);
   ieee802154_config_commit();
@@ -31,35 +48,43 @@ int main(void) {
 
   sock_handle_t handle;
   sock_addr_t addr = {
-    ifaces[0],
+    ifaces[2],
     15123
   };
 
   printf("Opening socket on ");
-  print_ipv6(&ifaces[0]);
+  print_ipv6(&ifaces[2]);
   printf(" : %d\n", addr.port);
-  udp_socket(&handle, &addr);
+  int bind_return = udp_bind(&handle, &addr, BUF_BIND_CFG);
+  if (bind_return < 0) {
+    printf("Bind failed. Error code: %d\n", bind_return);
+    return -1;
+  }
 
+  // Set the below address to IP address of receiver
+  ipv6_addr_t dest_addr = {
+    {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xfe, 0, 0xbf, 0xf0}
+  };
   sock_addr_t destination = {
-    ifaces[1],
+    dest_addr,
     16123
   };
 
+  int len = snprintf(packet, sizeof(packet), "A button was pressed!\n");
+
   while (1) {
     //wait for gpio pin to be pressed
-    int button_val = 0;
-    while(button_val == 0) {
+    while(!button_press) {
         delay_ms(1);
-        button_val = button_read(0);
     }
+    button_press = false;
 
-    ambient_light_read_intensity_sync(&lux);
-    int len = snprintf(packet, sizeof(packet), "%d lux;\n", lux);
+    printf("Button press detected\n");
 
     printf("Sending packet (length %d) --> ", len);
     print_ipv6(&(destination.addr));
     printf(" : %d\n", destination.port);
-    ssize_t result = udp_send_to(&handle, packet, len, &destination);
+    ssize_t result = udp_send_to(packet, len, &destination);
 
     switch (result) {
       case TOCK_SUCCESS:
@@ -71,12 +96,5 @@ int main(void) {
       default:
         printf("Error sending packet %d\n", result);
     }
-
-    while(button_val == 1) {
-        delay_ms(1);
-        button_val = button_read(0);
-    }
   }
-
-  udp_close(&handle);
 }
