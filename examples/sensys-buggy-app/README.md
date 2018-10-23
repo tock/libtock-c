@@ -1,4 +1,4 @@
-UDP Buggy App
+UDP Button Press App
 =============
 
 An example app for platforms with a 802.15.4 radio that broadcasts
