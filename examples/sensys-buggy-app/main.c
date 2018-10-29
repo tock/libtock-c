@@ -2,13 +2,12 @@
 #include <stdio.h>
 
 #include <button.h>
-#include <timer.h>
 
 #include <ieee802154.h>
 #include <udp.h>
 
 static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
-static bool button_press;
+static int button_press;
 
 void print_ipv6(ipv6_addr_t *);
 
@@ -19,25 +18,10 @@ void print_ipv6(ipv6_addr_t *ipv6_addr) {
   printf("%02x%02x", ipv6_addr->addr[14], ipv6_addr->addr[15]);
 }
 
-static void button_callback(__attribute__ ((unused)) int btn_num,
-                            int val,
-                            __attribute__ ((unused)) int arg2,
-                            __attribute__ ((unused)) void *ud) {
-  if (val == 1) {
-    button_press = true;
-  }
-}
-
 int main(void) {
 
-  button_subscribe(button_callback, NULL);
-  int count = button_count();
-  for (int i = 0; i < count; i++) {
-    button_enable_interrupt(i);
-  }
-
   char packet[64];
-  button_press = false;
+  button_press = 0;
 
   ieee802154_set_pan(0xABCD);
   ieee802154_config_commit();
@@ -74,10 +58,9 @@ int main(void) {
 
   while (1) {
     // wait for gpio pin to be pressed
-    while (!button_press) {
-      delay_ms(1);
+    while (button_press == 0) {
+      button_press = button_read(0);
     }
-    button_press = false;
 
     printf("Button press detected\n");
 
@@ -95,6 +78,11 @@ int main(void) {
         break;
       default:
         printf("Error sending packet %d\n", result);
+    }
+
+    // Debounce
+    while (button_press != 0) {
+      button_press = button_read(0);
     }
   }
 }
