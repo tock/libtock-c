@@ -23,26 +23,26 @@ extern int main(void);
  * sections that need some sort of loading and/or relocation.
  */
 struct hdr {
-  // Offset of GOT symbols in flash
+  //  0: Offset of GOT symbols in flash
   uint32_t got_sym_start;
-  // Offset of GOT section in memory
+  //  4: Offset of GOT section in memory
   uint32_t got_start;
-  // Size of GOT section
+  //  8: Size of GOT section
   uint32_t got_size;
-  // Offset of data symbols in flash
+  // 12: Offset of data symbols in flash
   uint32_t data_sym_start;
-  // Offset of data section in memory
+  // 16: Offset of data section in memory
   uint32_t data_start;
-  // Size of data section
+  // 20: Size of data section
   uint32_t data_size;
-  // Offset of BSS section in memory
+  // 24: Offset of BSS section in memory
   uint32_t bss_start;
-  // Size of BSS section
+  // 28: Size of BSS section
   uint32_t bss_size;
-  // First address offset after program flash, where elf2tab places
-  // .rel.data section
+  // 32: First address offset after program flash, where elf2tab places
+  //     .rel.data section
   uint32_t reldata_start;
-  // The size of the stack requested by this application
+  // 36: The size of the stack requested by this application
   uint32_t stack_size;
 };
 
@@ -53,18 +53,85 @@ struct reldata {
 
 __attribute__ ((section(".start"), used))
 __attribute__ ((weak))
+__attribute__ ((naked))
 __attribute__ ((noreturn))
-void _start(void* app_start,
-            void* mem_start,
+void _start(void* app_start __attribute__((unused)),
+            void* mem_start __attribute__((unused)),
             void* memory_len __attribute__((unused)),
             void* app_heap_break __attribute__((unused))) {
+#if defined(__thumb__)
+  // Assembly written to adhere to any modern thumb arch
 
   // Allocate stack and data. `brk` to stack_size + got_size + data_size +
   // bss_size from start of memory. Also make sure that the stack starts on an
   // 8 byte boundary per section 5.2.1.2 here:
   // http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042f/IHI0042F_aapcs.pdf
+
+  asm volatile (
+    // Compute the stack top
+    //
+    // struct hdr* myhdr = (struct hdr*)app_start;
+    // uint32_t stacktop = (((uint32_t)mem_start + myhdr->stack_size + 7) & 0xfffffff8);
+    "ldr  r4, [r0, #36]\n"      // r4 = myhdr->stack_size
+    "add  r4, #7\n"             // r4 = myhdr->stack_size + 7
+    "add  r4, r4, r1\n"         // r4 = mem_start + myhdr->stack_size + 7
+    "movs r5, #7\n"
+    "bic  r4, r4, r5\n"         // r4 = (mem_start + myhdr->stack_size + 7) & ~0x7
+    //
+    // Compute the heap size
+    //
+    // uint32_t heap_size = myhdr->got_size + myhdr->data_size + myhdr->bss_size;
+    "ldr  r5, [r0, #8]\n"       // r5 = myhdr->got_size
+    "ldr  r6, [r0, #20]\n"      // r6 = myhdr->data_size
+    "ldr  r7, [r0, #28]\n"      // r6 = myhdr->bss_size
+    "add  r5, r5, r6\n"         // r5 = got_size + data_size
+    "add  r5, r5, r7\n"         // r5 = got_size + data_size + bss_size
+    //
+    // Move registers we need to keep over to callee-saved locations
+    "movs r6, r0\n"
+    "movs r7, r1\n"
+    //
+    // Call `brk` to set to requested memory
+    //
+    // memop(0, stacktop + heap_size);
+    "movs r0, #0\n"
+    "add  r1, r4, r5\n"
+    "svc 4\n"                   // memop
+    //
+    // Debug support, tell the kernel the stack location
+    //
+    // memop(10, stacktop);
+    "movs r0, #10\n"
+    "movs r1, r4\n"
+    "svc 4\n"                   // memop
+    //
+    // Debug support, tell the kernel the heap location
+    //
+    // memop(11, stacktop + heap_size);
+    "movs r0, #11\n"
+    "add  r1, r4, r5\n"
+    "svc 4\n"                   // memop
+    //
+    // Setup initial stack pointer for normal execution
+    "mov  sp, r4\n"
+    "mov  r9, sp\n"
+    //
+    // Call into the rest of startup.
+    // This should never return, if it does, trigger a breakpoint (which will
+    // promote to a HardFault in the absence of a debugger)
+    "movs r0, r6\n"             // first arg is app_start
+    "movs r1, r4\n"             // second arg is stacktop
+    "bl _c_start\n"
+    "bkpt #255\n"
+    );
+#else
+#error Missing initial stack setup trampoline for current arch.
+#endif
+}
+
+__attribute__((noreturn))
+void _c_start(uint32_t* app_start, uint32_t stacktop) {
   struct hdr* myhdr = (struct hdr*)app_start;
-  uint32_t stacktop = (((uint32_t)mem_start + myhdr->stack_size + 7) & 0xfffffff8);
 
   // fix up GOT
   volatile uint32_t* got_start     = (uint32_t*)(myhdr->got_start + stacktop);
@@ -94,15 +161,6 @@ void _start(void* app_start,
     } else {
       *target = (*target ^ 0x80000000) + (uint32_t)app_start;
     }
-  }
-
-  {
-    uint32_t heap_size = myhdr->got_size + myhdr->data_size + myhdr->bss_size;
-    memop(0, stacktop + heap_size);
-    memop(11, stacktop + heap_size);
-    memop(10, stacktop);
-    asm volatile ("mov sp, %[stacktop]" :: [stacktop] "r" (stacktop) : "memory");
-    asm volatile ("mov r9, sp");
   }
 
   main();
