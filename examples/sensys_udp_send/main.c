@@ -12,51 +12,21 @@
 #include <ieee802154.h>
 #include <udp.h>
 
+#include "mjson.h"
+
 static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
 
-// counts button presses (any button on board)
-static unsigned int btn_cnt;
-uint8_t randbuf[4];
-
 void print_ipv6(ipv6_addr_t *);
-
-void print_ipv6(ipv6_addr_t *ipv6_addr) {
-  for (int j = 0; j < 14; j += 2) {
-    printf("%02x%02x:", ipv6_addr->addr[j], ipv6_addr->addr[j + 1]);
-  }
-  printf("%02x%02x", ipv6_addr->addr[14], ipv6_addr->addr[15]);
-}
-
-// Callback for button presses.
-//   btn_num: The index of the button associated with the callback
-//   val: 1 if pressed, 0 if depressed
-static void button_callback(__attribute__ ((unused)) int btn_num,
-                            int val,
-                            __attribute__ ((unused)) int arg2,
-                            __attribute__ ((unused)) void *ud) {
-  if (val == 1) {
-    btn_cnt += 1;
-  }
-}
+int serialize_to_json(char* packet, int len, uint32_t rand, int temp, int humi, int lux);
 
 int main(void) {
 
-  printf("[Buttons] Enabling button callbacks.\n");
-  button_subscribe(button_callback, NULL);
-
-  // Enable interrupts on each button.
-  int count = button_count();
-  for (int i = 0; i < count; i++) {
-    button_enable_interrupt(i);
-  }
-
   printf("[UDP] Starting UDP App.\n");
 
-  unsigned int humi = 1;
-  int temp = 2;
-  int lux  = 3;
-  char packet[70];
-  btn_cnt = 0;
+  static unsigned int humi = 0;
+  static int temp = 0;
+  static int lux  = 0;
+  static char packet[70];
 
   ieee802154_set_pan(0xABCD);
   ieee802154_config_commit();
@@ -80,7 +50,8 @@ int main(void) {
     printf("Bind failed. Error code: %d\n", bind_return);
     return -1;
   }
-// Set the below address to be the IP address of your receiver
+
+  // Set the below address to be the IP address of your receiver
   ipv6_addr_t dest_addr = {
     {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xfe, 0, 0xbf, 0xf0}
   };
@@ -89,36 +60,21 @@ int main(void) {
     16123
   };
 
-  printf("[Sensors] All available sensors on the platform will be sampled.\n");
-  printf("[RNG] Test App\n");
-
   while (1) {
-    // Some imixes are unable to read sensors due to hardware issues,
-    // If this app hangs, comment out the next 3 lines of code
-
-    // temperature_read_sync(&temp);
-    // humidity_read_sync(&humi);
-    // ambient_light_read_intensity_sync(&lux);
+    temperature_read_sync(&temp);
+    humidity_read_sync(&humi);
+    ambient_light_read_intensity_sync(&lux);
 
     // get randomness
-    int rand_bytes = rng_sync(randbuf, 4, 4);
-    if (rand_bytes < 0) {
-      printf("Error obtaining random number: %d\n", rand_bytes);
-    }else if (rand_bytes != 4) {
-      printf("Only obtained %d bytes of randomness\n", rand_bytes);
-    }
-
     uint32_t rand = 0;
-    memcpy(&rand, randbuf, 4);
-
-    int len = snprintf(packet, sizeof(packet), "rand: %lu; %d deg C; %d%% RH; %d lux; %d btn presses;\n",
-                       rand, temp, humi, lux, btn_cnt);
-    int max_tx_len = udp_get_max_tx_len();
-    if (len > max_tx_len) {
-      printf("Cannot send packets longer than %d bytes without changing"
-             " constants in kernel\n", max_tx_len);
-      return 0;
+    int err = rng_sync((uint8_t*)&rand, 4, 4);
+    if (err < 0) {
+      printf("Error obtaining random number: %d\n", err);
+    } else if (err < 4) {
+      printf("Only obtained %d bytes of randomness\n", err);
     }
+
+    int len = serialize_to_json(packet, sizeof(packet), rand, temp, humi, lux);
     printf("Sending packet (length %d) --> ", len);
     print_ipv6(&(destination.addr));
     printf(" : %d\n", destination.port);
@@ -135,3 +91,17 @@ int main(void) {
     delay_ms(5000);
   }
 }
+
+void print_ipv6(ipv6_addr_t *ipv6_addr) {
+  for (int j = 0; j < 14; j += 2) {
+    printf("%02x%02x:", ipv6_addr->addr[j], ipv6_addr->addr[j + 1]);
+  }
+  printf("%02x%02x", ipv6_addr->addr[14], ipv6_addr->addr[15]);
+}
+
+int serialize_to_json(char* buf, int buflen, uint32_t rand, int temp, int humi, int lux) {
+  struct mjson_out out = MJSON_OUT_FIXED_BUF(buf, buflen);
+  return mjson_printf(&out, "{%Q: %d, %Q: %d, %Q: %d, %Q: %d}",
+                       "rand", rand, "temp", temp, "humi", humi, "lux", lux);
+}
+
