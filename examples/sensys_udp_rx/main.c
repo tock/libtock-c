@@ -32,17 +32,26 @@ static void callback(int payload_len,
                      __attribute__ ((unused)) void* ud) {
   led_toggle(0);
 
-#define PRINT_STRING 1
+#define PRINT_STRING 0
 #if PRINT_STRING
   printf("[UDP_RCV]: Rcvd UDP Packet from: ");
   print_ipv6((ipv6_addr_t*)&BUF_BIND_CFG);
   printf(" : %d\n", (uint16_t)(BUF_BIND_CFG[16]) + ((uint16_t)(BUF_BIND_CFG[17]) << 8));
   printf("Packet Payload: %.*s\n", payload_len, packet_rx);
 #else
-  for (i = 0; i < payload_len; i++) {
-    printf("%02x%c", packet_rx[i],
-           ((i + 1) % 16 == 0 || i + 1 == payload_len) ? '\n' : ' ');
-  }
+  // Serialize packet to UART. Format:
+  //
+  // - 2 magic: 0x8081
+  // - 16 byte ipv6 address
+  // - 2 byte payload length in network order
+  // - payload
+  char magic[2] = {0x80, 0x81};
+  ipv6_addr_t *sender_addr = (ipv6_addr_t*)BUF_BIND_CFG;
+  char paylen[2] = {(char)((payload_len >> 8) & 0xff), (char)(payload_len & 0xff)};
+  write(0, magic, 2);
+  write(0, (char*)sender_addr, 16);
+  write(0, paylen, 2);
+  write(0, packet_rx, payload_len);
 #endif // PRINT_STRING
 }
 
