@@ -51,13 +51,34 @@ if (process.argv.length < 3) {
   console.log("Usage: node stream.js [serial-device], e.g. node stream.js /dev/ttyUSB0");
   process.exit(1);
 }
+
 const port = process.argv[2];
 const serialport = new SerialPort(port);
 
-var mystream = createMyStream();
+const mystream = createMyStream();
 serialport.pipe(mystream);
 
+let recent_data = {};
+
 mystream.on('packet', (packet) => {
+  let address_last2 = packet.address.slice(-2).readUInt16BE().toString(16);
+  recent_data[address_last2] |= {};
+  let slot = recent_data[address_last2];
+  slot.timestamp = new Date().valueOf();
+  for (k in packet.payload) {
+    slot[k] = packet.payload[k];
+  }
   console.log(packet);
 });
+
+const express = require('express');
+      serveStatic = require('serve-static');
+      app = express();
+      web_port = 3000;
+
+app.use(serveStatic('static'));
+app.get('/data', (req, res) => res.json(recent_data));
+app.get('/data/:addr', (req, res) => res.json(recent_data[req.params.addr]));
+
+app.listen(web_port, () => console.log(`Web app listening on port ${web_port}!`));
 
