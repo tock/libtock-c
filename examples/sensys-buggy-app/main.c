@@ -6,6 +6,8 @@
 #include <ieee802154.h>
 #include <udp.h>
 
+#define DEBUG 0
+
 static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
 static int button_press;
 
@@ -47,7 +49,7 @@ int main(void) {
 
   // Set the below address to IP address of receiver
   ipv6_addr_t dest_addr = {
-    {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xfe, 0, 0xbf, 0xf0}
+    {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xfe, 0, 0xdf, 0xf0}
   };
   sock_addr_t destination = {
     dest_addr,
@@ -61,20 +63,21 @@ int main(void) {
     while (button_press == 0) {
       button_press = button_read(0);
     }
+    
+    if (DEBUG) {
+      printf("Button press detected\n");
 
-    printf("Button press detected\n");
-
-    printf("Sending packet (length %d) --> ", len);
-    print_ipv6(&(destination.addr));
-    printf(" : %d\n", destination.port);
+      printf("Sending packet (length %d) --> ", len);
+      print_ipv6(&(destination.addr));
+      printf(" : %d\n", destination.port);
+    }
     ssize_t result = udp_send_to(packet, len, &destination);
 
     switch (result) {
       case TOCK_SUCCESS:
-        printf("Packet sent.\n");
-        break;
-      case TOCK_ENOACK:
-        printf("Sent but not acknowledged\n");
+        if (DEBUG) {
+          printf("Packet sent.\n");
+        }
         break;
       default:
         printf("Error sending packet %d\n", result);

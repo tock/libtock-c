@@ -14,6 +14,8 @@
 
 #include "mjson.h"
 
+#define DEBUG 0
+
 static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
 
 void print_ipv6(ipv6_addr_t *);
@@ -38,7 +40,7 @@ int main(void) {
   sock_handle_t handle;
   sock_addr_t addr = {
     ifaces[2],
-    15123
+    11111
   };
 
   printf("Opening socket on ");
@@ -53,7 +55,7 @@ int main(void) {
 
   // Set the below address to be the IP address of your receiver
   ipv6_addr_t dest_addr = {
-    {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xfe, 0, 0xbf, 0xf0}
+    {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xfe, 0, 0xdf, 0xf0}
   };
   sock_addr_t destination = {
     dest_addr,
@@ -75,14 +77,18 @@ int main(void) {
     }
 
     int len = serialize_to_json(packet, sizeof(packet), rand, temp, humi, lux);
-    printf("Sending packet (length %d) --> ", len);
-    print_ipv6(&(destination.addr));
-    printf(" : %d\n", destination.port);
+    if (DEBUG) {
+      printf("Sending packet (length %d) --> ", len);
+      print_ipv6(&(destination.addr));
+      printf(" : %d\n", destination.port);
+    }
     ssize_t result = udp_send_to(packet, len, &destination);
 
     switch (result) {
       case TOCK_SUCCESS:
-        printf("Packet sent.\n\n");
+        if (DEBUG) {
+          printf("Packet sent.\n\n");
+        }
         break;
       default:
         printf("Error sending packet %d\n\n", result);
