@@ -63,7 +63,7 @@ int main(void) {
     while (button_press == 0) {
       button_press = button_read(0);
     }
-    
+
     if (DEBUG) {
       printf("Button press detected\n");
 
