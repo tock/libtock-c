@@ -12,8 +12,6 @@
 #include <ieee802154.h>
 #include <udp.h>
 
-#include "mjson.h"
-
 #define DEBUG 0
 
 static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
@@ -106,8 +104,7 @@ void print_ipv6(ipv6_addr_t *ipv6_addr) {
 }
 
 int serialize_to_json(char* buf, int buflen, uint32_t rand, int temp, int humi, int lux) {
-  struct mjson_out out = MJSON_OUT_FIXED_BUF(buf, buflen);
-  return mjson_printf(&out, "{%Q: %d, %Q: %d, %Q: %d, %Q: %d}",
-                       "rand", rand, "temp", temp, "humi", humi, "lux", lux);
+  return snprintf(buf, buflen, "{\"rand\": %lu, \"temp\": %d, \"humi\": %d, \"lux\": %d}",
+                       rand, temp, humi, lux);
 }
 
