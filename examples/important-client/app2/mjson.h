@@ -48,6 +48,13 @@ enum mjson_tok {
 
 typedef void (*mjson_cb_t)(int ev, const char *s, int off, int len, void *ud);
 
+enum mjson_tok mjson_find(const char *s, int len, const char *jp,
+                          const char **tokptr, int *toklen);
+double mjson_find_number(const char *s, int len, const char *path, double def);
+int mjson_find_bool(const char *s, int len, const char *path, int dflt);
+int mjson_find_string(const char *s, int len, const char *path, char *to, int n);
+int mjson_find_base64(const char *s, int len, const char *path, char *to, int n);
+
 #ifndef MJSON_MAX_DEPTH
 #define MJSON_MAX_DEPTH 20
 #endif
@@ -359,6 +366,17 @@ struct mjson_out {
     FILE *fp;
   } u;
 };
+
+int mjson_printf(struct mjson_out *out, const char *fmt, ...);
+int mjson_vprintf(struct mjson_out *out, const char *fmt, va_list ap);
+int mjson_print_fixed_buf(struct mjson_out *out, const char *ptr, int len);
+int mjson_print_dynamic_buf(struct mjson_out *out, const char *ptr, int len);
+int mjson_print_file(struct mjson_out *out, const char *ptr, int len);
+int mjson_print_buf(struct mjson_out *out, const char *buf, int len);
+int mjson_print_b64(struct mjson_out *out, const unsigned char *s, int n);
+int mjson_print_str(struct mjson_out *out, const char *s, int len);
+int mjson_print_dbl(struct mjson_out *out, double d);
+int mjson_print_int(struct mjson_out *out, int value);
 
 #define MJSON_OUT_FIXED_BUF(buf, buflen) \
   {                                      \
