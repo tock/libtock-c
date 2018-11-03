@@ -44,7 +44,7 @@
 
         let timestamp = content.appendChild(document.createElement("tr"));
         timestamp.appendChild(document.createElement("td")).innerText = "Last updated";
-        timestamp.appendChild(document.createElement("td")).innerText = body.timestamp;
+        timestamp.appendChild(document.createElement("td")).innerText = new Date(body.timestamp).toLocaleString();
         for (let reading in body.payload) {
           let row = document.createElement("tr");
 	  row.appendChild(document.createElement("td")).innerText = reading;

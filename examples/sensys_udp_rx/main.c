@@ -38,21 +38,23 @@ static void callback(int payload_len,
   print_ipv6((ipv6_addr_t*)&BUF_BIND_CFG);
   printf(" : %d\n", (uint16_t)(BUF_BIND_CFG[16]) + ((uint16_t)(BUF_BIND_CFG[17]) << 8));
   printf("Packet Payload: %.*s\n", payload_len, packet_rx);
-#else
+#endif // PRINT_STRING
   // Serialize packet to UART. Format:
   //
   // - 2 magic: 0x8081
   // - 16 byte ipv6 address
   // - 2 byte payload length in network order
   // - payload
-  char magic[2] = {0x80, 0x81};
-  ipv6_addr_t *sender_addr = (ipv6_addr_t*)BUF_BIND_CFG;
-  char paylen[2] = {(char)((payload_len >> 8) & 0xff), (char)(payload_len & 0xff)};
-  write(0, magic, 2);
-  write(0, (char*)sender_addr, 16);
-  write(0, paylen, 2);
+  ipv6_addr_t sender_addr = *((ipv6_addr_t*)BUF_BIND_CFG);
+  uint8_t header[2 + 1 + 16];
+  header[0] = 0x80;
+  header[1] = 0x81;
+  header[2] = (char)(payload_len & 0xff);
+  for (int i = 0; i < 16; i++) {
+    header[3 + i] = 1 + sender_addr.addr[i];
+  }
+  write(0, header, sizeof(header));
   write(0, packet_rx, payload_len);
-#endif // PRINT_STRING
 }
 
 int main(void) {
