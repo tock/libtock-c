@@ -56,14 +56,15 @@ int main(void) {
     16123
   };
 
-  int len = snprintf(packet, sizeof(packet), "A button was pressed!\n");
-
+  int count = 0;
   while (1) {
     // wait for gpio pin to be pressed
     while (button_press == 0) {
       button_press = button_read(0);
     }
+    count++;
 
+    int len = snprintf(packet, sizeof(packet), "{\"buttons\": %d}", count);
     if (DEBUG) {
       printf("Button press detected\n");
 
