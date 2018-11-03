@@ -30,29 +30,33 @@
 </head>
 <body>
 <script>
+    const node = location.search.slice(1);
+
     function update() {
-      fetch("/data").then((data) => data.json()).then((body) => {
+      fetch("/data/" + node).then((data) => data.json()).then((body) => {
         let content = document.getElementById("content");
         while (content.firstChild) {
           content.removeChild(content.firstChild);
         }
         let header = content.appendChild(document.createElement("tr"));
         header.appendChild(document.createElement("th")).innerText = "Node";
-        header.appendChild(document.createElement("th")).innerText = "Last Updated";
-        for (let node in body) {
-          let nodeElem = document.createElement("tr");
-	  let nodeName = nodeElem.appendChild(document.createElement("td")).appendChild(document.createElement("a"));
-          nodeName.innerText = node;
-          nodeName.href = "/node.html?" + node;
-          nodeElem.appendChild(document.createElement("td")).innerText = new Date(body[node].timestamp).toLocaleString();
-          content.appendChild(nodeElem);
+        header.appendChild(document.createElement("th")).innerText = node;
+
+        let timestamp = content.appendChild(document.createElement("tr"));
+        timestamp.appendChild(document.createElement("td")).innerText = "Last updated";
+        timestamp.appendChild(document.createElement("td")).innerText = body.timestamp;
+        for (let reading in body.payload) {
+          let row = document.createElement("tr");
+	  row.appendChild(document.createElement("td")).innerText = reading;
+          row.appendChild(document.createElement("td")).innerText = body.payload[reading];
+          content.appendChild(row);
         }
       });
     }
     update();
     window.setInterval(update, 5000);
 </script>
-<h1>Imix Dashboard</h1>
+<h1>Single Node Dashboard</h1>
 <table id="content">
 
 </table>
