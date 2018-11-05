@@ -13,7 +13,7 @@ int main(void) {
 
   // declarations of variables to be used in this BLE example application
   uint16_t advertising_interval_ms = 1000;
-  static unsigned char data[] = {
+  static unsigned char data[]      = {
     0x2, // Length of this data
     0x1, // Flags
     0x6, // LE General discoverable + BD/EDR not supported
@@ -23,7 +23,8 @@ int main(void) {
     0xe, // Length of this data
     0x24, // URI
     0x17, // 'https:'
-    '/', '/', 't', 'o', 'c', 'k', 'o', 's', '.', 'o', 'r', 'g' };
+    '/', '/', 't', 'o', 'c', 'k', 'o', 's', '.', 'o', 'r', 'g'
+  };
 
   // start advertising
   printf(" - Begin advertising!\n");

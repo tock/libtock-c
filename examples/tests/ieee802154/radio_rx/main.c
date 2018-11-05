@@ -1,8 +1,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "led.h"
 #include "ieee802154.h"
+#include "led.h"
 #include "timer.h"
 #include "tock.h"
 
@@ -36,7 +36,7 @@ static void callback(__attribute__ ((unused)) int pans,
     printf("%02x%c", packet_rx[payload_offset + i],
            ((i + 1) % 16 == 0 || i + 1 == payload_length) ? '\n' : ' ');
   }
-#endif //PRINT_STRING
+#endif // PRINT_STRING
 
   unsigned short pan;
   unsigned short short_addr;

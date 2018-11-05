@@ -1,8 +1,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "led.h"
 #include "ieee802154.h"
+#include "led.h"
 #include "timer.h"
 
 // IEEE 802.15.4 sample packet transmission/ack app.

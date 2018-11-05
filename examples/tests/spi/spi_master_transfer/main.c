@@ -1,8 +1,8 @@
 #include <stdbool.h>
 
+#include <button.h>
 #include <led.h>
 #include <spi.h>
-#include <button.h>
 
 #define BUF_SIZE 16
 char rbuf[BUF_SIZE];
@@ -28,9 +28,9 @@ static void buffer_eq (char *buf1, char *buf2) {
 // Note that we do not start another transfer here, and
 // we simply check for buffer equality.
 static void write_cb(__attribute__ ((unused)) int arg0,
-              __attribute__ ((unused)) int arg2,
-              __attribute__ ((unused)) int arg3,
-              __attribute__ ((unused)) void* userdata) {
+                     __attribute__ ((unused)) int arg2,
+                     __attribute__ ((unused)) int arg3,
+                     __attribute__ ((unused)) void* userdata) {
   led_toggle(0);
   if (toggle) {
     buffer_eq (wbuf, ibuf);
@@ -44,18 +44,18 @@ static void write_cb(__attribute__ ((unused)) int arg0,
 // we do not start transfering until the button
 // has been pressed.
 static void button_cb(__attribute__((unused)) int btn_num,
-              __attribute__ ((unused)) int val,
-              __attribute__ ((unused)) int arg2,
-              __attribute__ ((unused)) void* userdata) {
+                      __attribute__ ((unused)) int val,
+                      __attribute__ ((unused)) int arg2,
+                      __attribute__ ((unused)) void* userdata) {
   if (val == 1) {
     if (toggle) {
-        // This is the first read write; note that this is
-        // inverted from the spi_slave_transfer, as we do
-        // not call spi_read_write until after the button
-        // is pressed.
-        spi_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
+      // This is the first read write; note that this is
+      // inverted from the spi_slave_transfer, as we do
+      // not call spi_read_write until after the button
+      // is pressed.
+      spi_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
     } else {
-        spi_read_write(rbuf, wbuf, BUF_SIZE, write_cb, NULL);
+      spi_read_write(rbuf, wbuf, BUF_SIZE, write_cb, NULL);
     }
     // Note that the toggle is reset inside the button callback,
     // not the write completed callback. This decision was arbitrary.

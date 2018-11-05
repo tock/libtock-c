@@ -1,6 +1,6 @@
-#include <tock.h>
 #include <ipc.h>
 #include <led.h>
+#include <tock.h>
 
 // This service can control the LEDs on a board.
 //
@@ -39,7 +39,7 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
         // Not enough here!
         return;
       }
-      uint8_t led_id = buffer[1];
+      uint8_t led_id    = buffer[1];
       uint8_t led_state = buffer[2] > 0;
 
       if (led_state == 0) {
