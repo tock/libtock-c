@@ -21,6 +21,8 @@ int getch(void);
 // Abort an ongoing receive call.
 int getnstr_abort(void);
 
+void console_override_default_uart(uint8_t new_uart);
+
 #ifdef __cplusplus
 }
 #endif
