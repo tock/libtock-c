@@ -78,14 +78,17 @@ void _start(void* app_start __attribute__((unused)),
     "movs r5, #7\n"
     "bic  r4, r4, r5\n"         // r4 = (mem_start + myhdr->stack_size + 7) & ~0x7
     //
-    // Compute the heap size
+    // Compute the app data size and where initial app brk should go.
+    // This includes the GOT, data, and BSS sections. However, we can't be sure
+    // the linker puts them back-to-back, but we do assume that BSS is last
+    // (i.e. myhdr->got_start < myhdr->bss_start && myhdr->data_start <
+    // myhdr->bss_start). With all of that true, then the size is equivalent
+    // to the end of the BSS section.
     //
-    // uint32_t heap_size = myhdr->got_size + myhdr->data_size + myhdr->bss_size;
-    "ldr  r5, [r0, #8]\n"       // r5 = myhdr->got_size
-    "ldr  r6, [r0, #20]\n"      // r6 = myhdr->data_size
-    "ldr  r7, [r0, #28]\n"      // r6 = myhdr->bss_size
-    "add  r5, r5, r6\n"         // r5 = got_size + data_size
-    "add  r5, r5, r7\n"         // r5 = got_size + data_size + bss_size
+    // uint32_t appdata_size = myhdr->bss_start + myhdr->bss_size;
+    "ldr  r5, [r0, #24]\n"      // r6 = myhdr->bss_start
+    "ldr  r6, [r0, #28]\n"      // r6 = myhdr->bss_size
+    "add  r5, r5, r6\n"         // r5 = bss_start + bss_size
     //
     // Move registers we need to keep over to callee-saved locations
     "movs r6, r0\n"
@@ -93,7 +96,7 @@ void _start(void* app_start __attribute__((unused)),
     //
     // Call `brk` to set to requested memory
     //
-    // memop(0, stacktop + heap_size);
+    // memop(0, stacktop + appdata_size);
     "movs r0, #0\n"
     "add  r1, r4, r5\n"
     "svc 4\n"                   // memop
@@ -107,7 +110,7 @@ void _start(void* app_start __attribute__((unused)),
     //
     // Debug support, tell the kernel the heap location
     //
-    // memop(11, stacktop + heap_size);
+    // memop(11, stacktop + appdata_size);
     "movs r0, #11\n"
     "add  r1, r4, r5\n"
     "svc 4\n"                   // memop
