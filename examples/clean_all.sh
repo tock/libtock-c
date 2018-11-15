@@ -5,7 +5,7 @@ normal=$(tput sgr0)
 
 set -e
 
-for mkfile in `find . -maxdepth 3 -name Makefile`; do
+for mkfile in `find . -maxdepth 4 -name Makefile`; do
 	dir=`dirname $mkfile`
 	if [ $dir == "." ]; then continue; fi
 	pushd $dir > /dev/null

@@ -1,8 +1,8 @@
 #include <stdbool.h>
 
 #include "gpio.h"
-#include "led.h"
 #include "ieee802154.h"
+#include "led.h"
 #include "timer.h"
 #include "tock.h"
 

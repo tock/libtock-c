@@ -1,8 +1,8 @@
 #include <stdbool.h>
 
+#include <gpio.h>
 #include <led.h>
 #include <spi_slave.h>
-#include <gpio.h>
 
 #define BUF_SIZE 200
 char rbuf[BUF_SIZE];
@@ -10,28 +10,28 @@ char wbuf[BUF_SIZE];
 bool toggle = true;
 
 static void write_cb(__attribute__ ((unused)) int arg0,
-              __attribute__ ((unused)) int arg2,
-              __attribute__ ((unused)) int arg3,
-              __attribute__ ((unused)) void* userdata) {
-    led_toggle(0);
-    if (toggle) {
-        spi_slave_read_write(rbuf, wbuf, BUF_SIZE, write_cb, NULL);
-    } else {
-        spi_slave_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
-    }
-    toggle = !toggle;
+                     __attribute__ ((unused)) int arg2,
+                     __attribute__ ((unused)) int arg3,
+                     __attribute__ ((unused)) void* userdata) {
+  led_toggle(0);
+  if (toggle) {
+    spi_slave_read_write(rbuf, wbuf, BUF_SIZE, write_cb, NULL);
+  } else {
+    spi_slave_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
+  }
+  toggle = !toggle;
 }
 
 static void selected_cb(__attribute__ ((unused)) int arg0,
-              __attribute__ ((unused)) int arg2,
-              __attribute__ ((unused)) int arg3,
-              __attribute__ ((unused)) void* userdata) {
-    if (toggle) {
-      led_on(0);
-    } else {
-      led_off(0);
-    }
-    toggle = !toggle;
+                        __attribute__ ((unused)) int arg2,
+                        __attribute__ ((unused)) int arg3,
+                        __attribute__ ((unused)) void* userdata) {
+  if (toggle) {
+    led_on(0);
+  } else {
+    led_off(0);
+  }
+  toggle = !toggle;
 }
 
 // This function can operate in one of two modes. Either

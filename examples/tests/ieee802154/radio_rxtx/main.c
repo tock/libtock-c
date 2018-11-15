@@ -1,8 +1,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "led.h"
 #include "ieee802154.h"
+#include "led.h"
 #include "timer.h"
 
 // IEEE 802.15.4 sample packet echo app.
@@ -13,7 +13,7 @@ bool toggle = true;
 
 int main(void) {
   unsigned short ADDR = 0x0802;
-  unsigned short PAN = 0xABCD;
+  unsigned short PAN  = 0xABCD;
   ieee802154_set_address(ADDR);
   ieee802154_set_pan(PAN);
   ieee802154_config_commit();

@@ -1,5 +1,5 @@
-#include <rng.h>
 #include <ble.h>
+#include <rng.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <timer.h>
@@ -7,7 +7,7 @@
 
 #define NRF5X_POS_4_DBM   0x04
 #define NRF5X_POS_3_DBM   0x03
-#define NRF5X_0_DBM       0x00 
+#define NRF5X_0_DBM       0x00
 #define NRF5X_NEG_4_DBM   0xfc
 #define NRF5X_NEG_8_DBM   0xf8
 #define NRF5X_NEG_12_DBM  0xf4
@@ -29,9 +29,7 @@ int main(void) {
         printf("Test failed \t power_level %d could not be configured\r\n", i);
         return 0;
       }
-    }
-
-    else {
+    } else {
       err = ble_set_tx_power(i);
       if (err >= TOCK_SUCCESS) {
         printf("Test failed \t power_level %d is configured faulty\r\n", i);
@@ -44,13 +42,13 @@ int main(void) {
   return 0;
 }
 
-bool is_valid_power(uint8_t power) { 
+bool is_valid_power(uint8_t power) {
   switch (power) {
-    case NRF5X_POS_4_DBM: 
+    case NRF5X_POS_4_DBM:
       return true;
     case NRF5X_POS_3_DBM:
       return true;
-    case NRF5X_0_DBM: 
+    case NRF5X_0_DBM:
       return true;
     case NRF5X_NEG_4_DBM:
       return true;

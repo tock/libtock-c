@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <timer.h>
 #include <ipc.h>
+#include <timer.h>
 
 int _svc_num = 0;
 
@@ -40,7 +40,7 @@ int main(void) {
   sensor_update_t *update = (sensor_update_t*) buf;
   ipc_register_client_cb(_svc_num, ipc_callback, update);
 
-  update->type = SENSOR_HUMIDITY;
+  update->type  = SENSOR_HUMIDITY;
   update->value = 185;
   ipc_share(_svc_num, buf, 64);
 
