@@ -148,7 +148,7 @@ SECTIONS {
     PROVIDE_HIDDEN (__exidx_end = .);
 }
 
-ASSERT(_got < _bss, "
+ASSERT(_got <= _bss, "
 The GOT section must be before the BSS section for crt0 setup to be correct.");
-ASSERT(_data < _bss, "
+ASSERT(_data <= _bss, "
 The data section must be before the BSS section for crt0 setup to be correct.");
