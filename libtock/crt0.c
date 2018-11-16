@@ -94,6 +94,22 @@ void _start(void* app_start __attribute__((unused)),
     "movs r6, r0\n"
     "movs r7, r1\n"
     //
+    // Now we may want to move the stack pointer. If the kernel set the
+    // `app_heap_break` larger than we need (and we are going to call `brk()`
+    // to reduce it) then our stack pointer will fit and we can move it now.
+    // Otherwise after the first syscall (the memop to set the brk), the return
+    // will use a stack that is outside of the process accessible memory.
+    //
+    "add r1, r4, r5\n"          // r1 = stacktop + appdata_size
+    "cmp r1, r3\n"              // Compare `app_heap_break` with new brk
+    "bgt skip_set_sp\n"         // If our current `app_heap_break` is larger
+                                // then we need to move the stack pointer
+                                // before we call the `brk` syscall.
+    "mov  sp, r4\n"             // Update the stack pointer
+    "mov  r9, sp\n"
+    //
+    "skip_set_sp:\n"            // Back to regularly scheduled programming.
+    //
     // Call `brk` to set to requested memory
     //
     // memop(0, stacktop + appdata_size);
