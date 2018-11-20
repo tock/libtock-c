@@ -20,7 +20,7 @@ static void getnstr_cb(int result __attribute__ ((unused)),
 
 
 int main(void) {
-  int ret = getnstr_async(buf, 10, getnstr_cb, NULL);
+  int ret = getnstr_async(buf, 11, getnstr_cb, NULL);
   if (ret != TOCK_SUCCESS) {
     printf("[SHORT] Error doing UART receive: %i\n", ret);
   }
