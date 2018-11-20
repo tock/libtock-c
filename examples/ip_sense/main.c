@@ -21,12 +21,12 @@ void print_ipv6(ipv6_addr_t *ipv6_addr) {
 }
 
 int main(void) {
-  printf("[Sensors] Starting Sensors App.\n");
-  printf("[Sensors] All available sensors on the platform will be sampled.\n");
+  printf("[IPv6_Sense] Starting IPv6 Sensors App.\n");
+  printf("[IPv6_Sense] Sensors will be sampled and transmitted.\n");
 
-  unsigned int humi = 1;
-  int temp = 2;
-  int lux  = 3;
+  unsigned int humi = 0;
+  int temp = 0;
+  int lux  = 0;
   char packet[64];
 
   ieee802154_set_pan(0xABCD);
@@ -58,16 +58,12 @@ int main(void) {
   };
 
   while (1) {
-    // Some imixes are unable to read sensors due to hardware issues,
-    // so the below code is commented out. Feel free to try it on
-    // your imix to see if the sensors work.
-    /*
-       temperature_read_sync(&temp);
-       humidity_read_sync(&humi);
-       ambient_light_read_intensity_sync(&lux);
-     */
-    int len = snprintf(packet, sizeof(packet), "%d deg C; %d%%; %d lux;\n",
-                       temp, humi, lux);
+    temperature_read_sync(&temp);
+    humidity_read_sync(&humi);
+    ambient_light_read_intensity_sync(&lux);
+
+    int len = snprintf(packet, sizeof(packet), "%d deg C; %d%% humidity; %d lux;\n",
+                       temp / 100, humi / 100, lux);
     int max_tx_len = udp_get_max_tx_len();
     if (len > max_tx_len) {
       printf("Cannot send packets longer than %d bytes without changing"
