@@ -14,6 +14,7 @@ static void getnstr_cb(int result __attribute__ ((unused)),
                        int len,
                        int _z __attribute__ ((unused)),
                        void* ud __attribute__ ((unused))) {
+  printf("Userspace call to read console returned: ");
   for (int i = 0; i < len; i++) {
     printf("%c", buf[i]);
   }
