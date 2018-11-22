@@ -8,10 +8,9 @@ samples at 10 different frequencies from 25 Hz to 175000 Hz. Sample data
 converted to millivolts is printed to console. If the analog channels are not
 connected to any particular voltage, their values will vary.
 
-Note that the ADC is not virtualized and can currently only be used by a single
-application. Results are undefined if multiple applications (such as this and
-the `hail` app) attempt to use the ADC at once. All applications on the system
-can be erased with `tockloader erase-apps`.
+Since the ADC currently is not virtualized, results are undefined if multiple 
+applications (such as this and the `hail` app) attempt to use the ADC at once. 
+All applications on the system can be erased with `tockloader erase-apps`.
 
 
 Example Output
