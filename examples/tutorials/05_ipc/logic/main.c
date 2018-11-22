@@ -1,7 +1,7 @@
 #include <ipc.h>
 #include <stdio.h>
-#include <timer.h>
 #include <string.h>
+#include <timer.h>
 
 // Every 500 ms use the RNG service to randomly select an LED to turn on or
 // off and then use the LED service to control that LED.
@@ -25,7 +25,7 @@ static void ipc_callback(__attribute__ ((unused)) int pid,
 
 // Uses the LED service to get how many LEDs are on the board.
 static uint8_t get_number_of_leds(void) {
-  _done = false;
+  _done       = false;
   _led_buf[0] = 0;
   ipc_notify_svc(_led_service);
   yield_for(&_done);
@@ -39,14 +39,14 @@ static void set_led(uint8_t led_index, uint8_t led_state) {
   _led_buf[0] = 1;         // Set LED state.
   _led_buf[1] = led_index; // Choose the LED.
   _led_buf[2] = led_state; // Set the LED.
-  _done = false;
+  _done       = false;
   ipc_notify_svc(_led_service);
   yield_for(&_done);
 }
 
 // Use the RNG service to get two random bytes.
 static uint16_t get_two_random_bytes(void) {
-  _done = false;
+  _done       = false;
   _rng_buf[0] = 2;
   ipc_notify_svc(_rng_service);
   yield_for(&_done);

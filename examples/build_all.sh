@@ -20,7 +20,7 @@ function opt_rebuild {
 	fi
 }
 
-for mkfile in `find . -maxdepth 3 -name Makefile`; do
+for mkfile in `find . -maxdepth 4 -name Makefile`; do
 	dir=`dirname $mkfile`
 	if [ $dir == "." ]; then continue; fi
 	# Skip directories with leading _'s, useful for leaving test apps around

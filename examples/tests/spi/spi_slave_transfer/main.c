@@ -1,7 +1,7 @@
 #include <stdbool.h>
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include <led.h>
@@ -31,36 +31,36 @@ static void buffer_eq (char *buf1, char *buf2) {
 // pass us back the buffer we sent it. This is implemented in the
 // spi_master_transfer example.
 static void write_cb(__attribute__ ((unused)) int arg0,
-              __attribute__ ((unused)) int arg2,
-              __attribute__ ((unused)) int arg3,
-              __attribute__ ((unused)) void* userdata) {
+                     __attribute__ ((unused)) int arg2,
+                     __attribute__ ((unused)) int arg3,
+                     __attribute__ ((unused)) void* userdata) {
   printf("In write callback\n");
   if (toggle) {
-      // The transfer before the one that just completed (either the
-      // first transfer or a subsequent transfer), the master sent us
-      // the buffer with increasing numbers.
-      buffer_eq (rbuf, ibuf);
-      spi_slave_read_write(rbuf, wbuf, BUF_SIZE, write_cb, NULL);
+    // The transfer before the one that just completed (either the
+    // first transfer or a subsequent transfer), the master sent us
+    // the buffer with increasing numbers.
+    buffer_eq (rbuf, ibuf);
+    spi_slave_read_write(rbuf, wbuf, BUF_SIZE, write_cb, NULL);
   } else {
-      // The transfer before this one, we should have passed the master
-      // the zero buffer back.
-      buffer_eq (wbuf, zbuf);
-      spi_slave_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
+    // The transfer before this one, we should have passed the master
+    // the zero buffer back.
+    buffer_eq (wbuf, zbuf);
+    spi_slave_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
   }
   toggle = !toggle;
   printf("In write callback, before return\n");
 }
 
 static void selected_cb(__attribute__ ((unused)) int arg0,
-              __attribute__ ((unused)) int arg2,
-              __attribute__ ((unused)) int arg3,
-              __attribute__ ((unused)) void* userdata) {
+                        __attribute__ ((unused)) int arg2,
+                        __attribute__ ((unused)) int arg3,
+                        __attribute__ ((unused)) void* userdata) {
   printf("In subscribe callback\n");
 }
 
 // This function first initializes the write buffer to all zeroes. We
 // then wait until the master begins the transfer, and we then switch
-// buffers, so that the data the master sends is passed between the 
+// buffers, so that the data the master sends is passed between the
 // master and the slave. Further, after we receive the buffer with data, we
 // check to make sure we received the correct values. If not, we enable the LED
 // and never disable it.

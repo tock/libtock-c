@@ -1,6 +1,6 @@
-#include <tock.h>
 #include <ipc.h>
 #include <rng.h>
+#include <tock.h>
 
 // Random Number Generator Service
 //
@@ -20,7 +20,7 @@
 
 static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
   uint8_t* buffer = (uint8_t*) buf;
-  uint8_t rng[len];
+  uint8_t* rng;
 
   if (len < 1) {
     // Need at least one byte for the number of bytes
@@ -34,9 +34,15 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
     return;
   }
 
+  rng = malloc(len);
+  if (rng == NULL) {
+    return;
+  }
+
   // Fill the buffer with random bytes.
   int number_of_bytes_received = rng_sync(rng, len, number_of_bytes);
   memcpy(buffer, rng, number_of_bytes_received);
+  free(rng);
 
   // Signal done.
   ipc_notify_client(pid);

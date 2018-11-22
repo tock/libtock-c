@@ -13,14 +13,14 @@ uint8_t master_write_buf[BUF_SIZE];
 uint8_t master_read_buf[BUF_SIZE];
 uint8_t slave_write_buf[BUF_SIZE];
 uint8_t slave_read_buf[BUF_SIZE];
-bool    is_leader = false;
+bool is_leader = false;
 
 
 // In response to a
 static void i2c_callback(int callback_type,
-              __attribute__ ((unused)) int length,
-              __attribute__ ((unused)) int arg2,
-              __attribute__ ((unused)) void* userdata) {
+                         __attribute__ ((unused)) int length,
+                         __attribute__ ((unused)) int arg2,
+                         __attribute__ ((unused)) void* userdata) {
   // Watching for GPIO interrupts holds us in a higher power state, so stop
   // doing that once we don't care about button presses any more (the first
   // time having sent or received a message)
@@ -52,14 +52,14 @@ static void i2c_callback(int callback_type,
 // exchange. First, change the address to the BUTTON_ADDRESS to avoid
 // conflict with the other node, then send a message.
 static void button_cb(__attribute__((unused)) int btn_num,
-              __attribute__ ((unused)) int arg1,
-              __attribute__ ((unused)) int arg2,
-              __attribute__ ((unused)) void* userdata) {
+                      __attribute__ ((unused)) int arg1,
+                      __attribute__ ((unused)) int arg2,
+                      __attribute__ ((unused)) void* userdata) {
   // Only the first press is meaningfull
   static bool pressed = false;
 
   if (!pressed) {
-    pressed = true;
+    pressed   = true;
     is_leader = true;
 
     printf("Switching to master\n");

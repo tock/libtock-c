@@ -9,6 +9,8 @@
 #include <ieee802154.h>
 #include <udp.h>
 
+static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
+
 void print_ipv6(ipv6_addr_t *);
 
 void print_ipv6(ipv6_addr_t *ipv6_addr) {
@@ -42,8 +44,13 @@ int main(void) {
 
   printf("Opening socket on ");
   print_ipv6(&ifaces[0]);
-  printf(" : %d\n", addr.port);
-  udp_socket(&handle, &addr);
+  printf(" : %d, and binding to that socket.\n", addr.port);
+  int bind_return = udp_bind(&handle, &addr, BUF_BIND_CFG);
+
+  if (bind_return < 0) {
+    printf("Failed to bind to port: failure=%d\n", bind_return);
+    return -1;
+  }
 
   sock_addr_t destination = {
     ifaces[1],
@@ -51,7 +58,9 @@ int main(void) {
   };
 
   while (1) {
-    // TODO: Below lines caused code to hang, commented out until fixed
+    // Some imixes are unable to read sensors due to hardware issues,
+    // so the below code is commented out. Feel free to try it on
+    // your imix to see if the sensors work.
     /*
        temperature_read_sync(&temp);
        humidity_read_sync(&humi);
@@ -59,24 +68,25 @@ int main(void) {
      */
     int len = snprintf(packet, sizeof(packet), "%d deg C; %d%%; %d lux;\n",
                        temp, humi, lux);
-
+    int max_tx_len = udp_get_max_tx_len();
+    if (len > max_tx_len) {
+      printf("Cannot send packets longer than %d bytes without changing"
+             " constants in kernel\n", max_tx_len);
+      return 0;
+    }
     printf("Sending packet (length %d) --> ", len);
     print_ipv6(&(destination.addr));
     printf(" : %d\n", destination.port);
-    ssize_t result = udp_send_to(&handle, packet, len, &destination);
+    ssize_t result = udp_send_to(packet, len, &destination);
 
     switch (result) {
       case TOCK_SUCCESS:
-        printf("Packet sent.\n");
-        break;
-      case TOCK_ENOACK:
-        printf("Sent but not acknowledged\n");
+        printf("Packet sent.\n\n");
         break;
       default:
-        printf("Error sending packet %d\n", result);
+        printf("Error sending packet %d\n\n", result);
     }
-    delay_ms(1000);
-  }
 
-  udp_close(&handle);
+    delay_ms(4000);
+  }
 }
