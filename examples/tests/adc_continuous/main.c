@@ -18,8 +18,8 @@
 // Buffer size
 // Given a sampling frequency, we will receive callbacks every
 // BUF_SIZE/FREQ seconds. At 44100 Hz and 4410 samples, this is a callback
-// every 100 ms
-#define BUF_SIZE 4410
+// every 50 ms
+#define BUF_SIZE 2205
 
 // data buffers
 static uint16_t sample_buffer1[BUF_SIZE] = {0};
@@ -157,4 +157,3 @@ int main(void) {
   // for us
   return 0;
 }
-
