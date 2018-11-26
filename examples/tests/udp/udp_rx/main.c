@@ -8,9 +8,12 @@
 #include <ieee802154.h>
 #include <udp.h>
 
-// UDP sample packet reception app.
-// Receives packets at the specified address and port for 30 seconds,
-// then closes the socket.
+/*
+ * UDP sample packet reception app.
+ * Receives packets at the specified address and port for 30 seconds,
+ * then closes the socket.
+ * Each time a packet is received, the user LED blinks
+ */
 
 #define MAX_RX_PACKET_LEN 200
 
@@ -64,7 +67,7 @@ int main(void) {
   handle = &h;
   udp_bind(handle, &addr, BUF_BIND_CFG);
 
-  ieee802154_set_address(0x802);
+  ieee802154_set_address(49138); // Corresponds to the dst mac addr set in kernel
   ieee802154_set_pan(0xABCD);
   ieee802154_config_commit();
   ieee802154_up();
