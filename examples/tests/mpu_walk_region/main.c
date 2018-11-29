@@ -61,25 +61,12 @@ int main(void) {
   uint8_t* memory_end   = tock_app_memory_ends_at();
   uint8_t* flash_start  = tock_app_flash_begins_at();
   uint8_t* flash_end    = tock_app_flash_ends_at();
-  uint8_t* grant_start  = tock_app_grant_begins_at();
-
-  unsigned grant_len = memory_end - grant_start;
-  // http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
-  grant_len--;
-  grant_len |= grant_len >> 1;
-  grant_len |= grant_len >> 2;
-  grant_len |= grant_len >> 4;
-  grant_len |= grant_len >> 8;
-  grant_len |= grant_len >> 16;
-  grant_len++;
-
-  uint8_t* memory_limit = (uint8_t*) (((unsigned) grant_start) & (~(grant_len - 1)));
+  uint8_t* memory_limit = sbrk(0);
 
   printf("\n[TEST] MPU Walk Regions\n");
   putchar('\n');
 
   printf("  app_memory:            %p-%p\n", memory_start, memory_end);
-  printf("  app_grant:             %p-%p\n", grant_start, memory_end);
   printf("  app_memory_accessible: %p-%p\n", memory_start, memory_limit);
   printf("  app_flash:             %p-%p\n", flash_start, flash_end);
 
