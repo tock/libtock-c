@@ -8,6 +8,8 @@ extern "C" {
 
 #define DRIVER_NUM_HUMIDITY 0x60001
 
+// units: humidity in hundredths of percent.
+
 // function to be called when the humidity measurement is finished
 //
 // callback       - pointer to function to be called

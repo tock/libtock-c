@@ -8,6 +8,8 @@ extern "C" {
 
 #define DRIVER_NUM_TEMPERATURE 0x60000
 
+// units: temperature in hundredths of degrees centigrade.
+
 // function to be called when the temperature measurement is finished
 //
 // callback       - pointer to function to be called

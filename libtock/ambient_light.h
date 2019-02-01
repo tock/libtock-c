@@ -8,6 +8,8 @@ extern "C" {
 
 #define DRIVER_NUM_AMBIENT_LIGHT 0x60002
 
+// units: ambient light reading in lux (lx).
+
 int ambient_light_subscribe(subscribe_cb callback, void* userdata);
 int ambient_light_start_intensity_reading(void);
 
