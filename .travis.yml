@@ -33,7 +33,7 @@ os:
   - linux
 
 rust:
-  - nightly-2018-06-26
+  - stable
 
 before_install:
   - ./.travis-install-gcc

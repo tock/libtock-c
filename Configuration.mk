@@ -34,7 +34,7 @@ TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
-ELF2TAB_EXISTS := $(shell $(ELF2TAB) -o k --stack 1 --app-heap 1 --kernel-heap 1 2> /dev/null)
+ELF2TAB_EXISTS := $(shell $(SHELL) -c "command -v $(ELF2TAB)")
 ifndef ELF2TAB_EXISTS
   $(shell cargo install elf2tab)
 endif
