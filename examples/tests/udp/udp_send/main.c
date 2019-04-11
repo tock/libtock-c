@@ -14,7 +14,7 @@
 
 #define DEBUG 1
 
-static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
+static sock_addr_t BUF_BIND_CFG[2];
 
 void print_ipv6(ipv6_addr_t *);
 int serialize_to_json(char* packet, int len, uint32_t rand, int temp, int humi, int lux);

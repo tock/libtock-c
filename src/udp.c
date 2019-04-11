@@ -20,7 +20,7 @@ static const int COMMAND_GET_TX_LEN = 4;
 static unsigned char BUF_TX_CFG[2 * sizeof(sock_addr_t)];
 static unsigned char zero_addr[2 * sizeof(sock_addr_t)];
 
-int udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned char *buf_bind_cfg) {
+int udp_bind(sock_handle_t *handle, sock_addr_t *addr, sock_addr_t buf_bind_cfg[2]) {
   // Pass interface to listen on and space for kernel to write src addr
   // of received packets
   // In current design, buf_bind_cfg will still be written with addresses of external

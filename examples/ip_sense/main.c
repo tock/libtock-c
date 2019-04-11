@@ -9,7 +9,7 @@
 #include <ieee802154.h>
 #include <udp.h>
 
-static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
+static sock_addr_t BUF_BIND_CFG[2];
 
 void print_ipv6(ipv6_addr_t *);
 

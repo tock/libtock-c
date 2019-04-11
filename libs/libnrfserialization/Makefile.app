@@ -1,4 +1,4 @@
-LIBNRFSER_DIR := $(TOCK_USERLAND_BASE_DIR)/libnrfserialization
+LIBNRFSER_DIR := $(TOCK_USERLAND_BASE_DIR)/libs/libnrfserialization
 
 # So it doesn't think it's on the nRF and try to include nRF code.
 override CFLAGS += -D__TOCK__

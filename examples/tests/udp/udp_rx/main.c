@@ -18,7 +18,7 @@
 #define MAX_RX_PACKET_LEN 200
 
 char packet_rx[MAX_RX_PACKET_LEN];
-static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
+static sock_addr_t BUF_BIND_CFG[2];
 sock_handle_t* handle;
 
 void print_ipv6(ipv6_addr_t *);
@@ -40,7 +40,7 @@ static void callback(int payload_len,
 #if PRINT_STRING
   printf("[UDP_RCV]: Rcvd UDP Packet from: ");
   print_ipv6((ipv6_addr_t*)&BUF_BIND_CFG);
-  printf(" : %d\n", (uint16_t)(BUF_BIND_CFG[16]) + ((uint16_t)(BUF_BIND_CFG[17]) << 8));
+  printf(" : %d\n", BUF_BIND_CFG[0].port);
   printf("Packet Payload: %.*s\n", payload_len, packet_rx);
 #else
   for (i = 0; i < payload_len; i++) {

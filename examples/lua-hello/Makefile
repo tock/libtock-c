@@ -7,9 +7,9 @@ TOCK_USERLAND_BASE_DIR = ../..
 C_SRCS := $(wildcard *.c)
 
 # External libraries used
-EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/lua53
+EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/libs/lua53
 
-override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/lua53/include
+override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libs/lua53/include
 
 STACK_SIZE    = 3072
 

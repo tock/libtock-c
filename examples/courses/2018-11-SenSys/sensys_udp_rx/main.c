@@ -14,7 +14,7 @@
 #define MAX_RX_PACKET_LEN 200
 
 char packet_rx[MAX_RX_PACKET_LEN];
-static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
+static sock_addr_t BUF_BIND_CFG[2];
 sock_handle_t* handle;
 
 void print_ipv6(ipv6_addr_t *);
@@ -35,8 +35,8 @@ static void callback(int payload_len,
 #define PRINT_STRING 0
 #if PRINT_STRING
   printf("[UDP_RCV]: Rcvd UDP Packet from: ");
-  print_ipv6((ipv6_addr_t*)&BUF_BIND_CFG);
-  printf(" : %d\n", (uint16_t)(BUF_BIND_CFG[16]) + ((uint16_t)(BUF_BIND_CFG[17]) << 8));
+  print_ipv6(&BUF_BIND_CFG[0].addr);
+  printf(" : %d\n", BUF_BIND_CFG[0].addr.port);
   printf("Packet Payload: %.*s\n", payload_len, packet_rx);
 #endif // PRINT_STRING
   // Serialize packet to UART. Format:
@@ -45,13 +45,13 @@ static void callback(int payload_len,
   // - 16 byte ipv6 address
   // - 2 byte payload length in network order
   // - payload
-  ipv6_addr_t sender_addr = *((ipv6_addr_t*)BUF_BIND_CFG);
+  ipv6_addr_t *sender_addr = &BUF_BIND_CFG[0].addr;
   uint8_t header[2 + 1 + 16];
   header[0] = 0x80;
   header[1] = 0x81;
   header[2] = (char)(payload_len & 0xff);
   for (int i = 0; i < 16; i++) {
-    header[3 + i] = 1 + sender_addr.addr[i];
+    header[3 + i] = 1 + sender_addr->addr[i];
   }
   write(0, header, sizeof(header));
   write(0, packet_rx, payload_len);

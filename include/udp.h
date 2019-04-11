@@ -32,7 +32,7 @@ int udp_socket(sock_handle_t *handle, sock_addr_t *addr);
 // the bound port, and ensures that all sent packets will have
 // the bound port as their src address.
 // Returns 0 on successful bind, negative on failure.
-int udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned char *buf_bind_cfg);
+int udp_bind(sock_handle_t *handle, sock_addr_t *addr, sock_addr_t buf_bind_cfg[2]);
 
 // Closes a socket.
 // Currently only one socket can exist per app, so this fn

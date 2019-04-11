@@ -12,7 +12,7 @@ APP_HEAP_SIZE := 2048
 STACK_SIZE := 4096
 
 # External libraries used
-EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/libnrfserialization
+EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/libs/libnrfserialization
 
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.

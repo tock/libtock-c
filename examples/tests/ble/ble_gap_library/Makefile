@@ -4,7 +4,7 @@
 TOCK_USERLAND_BASE_DIR = ../../../..
 
 # External libraries used
-EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/simple-ble
+EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/libs/simple-ble
 
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
@@ -14,4 +14,4 @@ C_SRCS := $(wildcard *.c)
 include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
 
 #Include simple-ble's Makefile so it's rebuilt automatically
-include $(TOCK_USERLAND_BASE_DIR)/simple-ble/Makefile
+include $(TOCK_USERLAND_BASE_DIR)/libs/simple-ble/Makefile

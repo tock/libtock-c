@@ -14,7 +14,7 @@ include $(TOCK_USERLAND_BASE_DIR)/Configuration.mk
 include $(TOCK_USERLAND_BASE_DIR)/Helpers.mk
 
 # Include the libtock makefile. Adds rules that will rebuild library when needed
-include $(TOCK_USERLAND_BASE_DIR)/libtock/Makefile
+include $(TOCK_USERLAND_BASE_DIR)/Makefile
 
 # Connection to the Tock kernel. Apps need the ability to be loaded onto a
 # board, and that method is board-specific. So for now, we have the TOCK_BOARD
@@ -26,11 +26,11 @@ TOCK_BOARD ?= hail
 include $(TOCK_USERLAND_BASE_DIR)/Program.mk
 
 # Single-arch libraries, to be phased out
-LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/newlib/libc.a
-LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/newlib/libm.a
-LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/libc++/libstdc++.a
-LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/libc++/libsupc++.a
-LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/libc++/libgcc.a
+LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/libs/newlib/libc.a
+LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/libs/newlib/libm.a
+LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/libs/libc++/libstdc++.a
+LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/libs/libc++/libsupc++.a
+LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/libs/libc++/libgcc.a
 
 
 
@@ -124,7 +124,7 @@ OBJS_$(1) += $$(patsubst %.cpp,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cpp, $$(CXX_SRC
 OBJS_$(1) += $$(patsubst %.cxx,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cxx, $$(CXX_SRCS)))
 
 # Collect all desired built output.
-$$(BUILDDIR)/$(1)/$(1).elf: $$(OBJS_$(1)) $$(TOCK_USERLAND_BASE_DIR)/newlib/libc.a $$(LIBS_$(1)) $$(LAYOUT) | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(1).elf: $$(OBJS_$(1)) $$(TOCK_USERLAND_BASE_DIR)/libs/newlib/libc.a $$(LIBS_$(1)) $$(LAYOUT) | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
 	$$(Q)$$(CC) $$(CFLAGS) -mcpu=$(1) $$(CPPFLAGS) $$(CPPFLAGS_$(1))\
 	    --entry=_start\
@@ -204,7 +204,7 @@ else
 endif
 
 # Step 2: Create a new ELF with the layout that matches what's loaded
-$$(BUILDDIR)/$(1)/$(1).userland_debug.elf: $$(OBJS_$(1)) $$(TOCK_USERLAND_BASE_DIR)/newlib/libc.a $$(LIBS_$(1)) $$(BUILDDIR)/$(1)/$(1).userland_debug.ld | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(1).userland_debug.elf: $$(OBJS_$(1)) $$(TOCK_USERLAND_BASE_DIR)/libs/newlib/libc.a $$(LIBS_$(1)) $$(BUILDDIR)/$(1)/$(1).userland_debug.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
 	$$(Q)$$(CC) $$(CFLAGS) -mcpu=$(1) $$(CPPFLAGS)\
 	    --entry=_start\
