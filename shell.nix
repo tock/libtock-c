@@ -50,6 +50,7 @@ in
   stdenv.mkDerivation {
     name = "tock-dev";
     buildInputs = [
+      cmake
       elf2tab
       gcc-arm-embedded
       python3Full
