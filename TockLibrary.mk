@@ -93,12 +93,12 @@ $$($(LIBNAME)_BUILDDIR)/$(1):
 
 $$($(LIBNAME)_BUILDDIR)/$(1)/%.o: %.c | $$($(LIBNAME)_BUILDDIR)/$(1)
 	$$(TRACE_CC)
-	$$(Q)$$(CC) $$(CFLAGS) -mcpu=$(1) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
-	$$(Q)$$(CC) $$(CFLAGS) -mcpu=$(1) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
+	$$(Q)$(2)$$(CC) $$(CFLAGS) -mcpu=$(1) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
+	$$(Q)$(2)$$(CC) $$(CFLAGS) -mcpu=$(1) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
 $$($(LIBNAME)_BUILDDIR)/$(1)/%.o: %.S | $$($(LIBNAME)_BUILDDIR)/$(1)
 	$$(TRACE_AS)
-	$$(Q)$$(AS) $$(ASFLAGS) -mcpu=$(1) $$(CPPFLAGS) -c -o $$@ $$<
+	$$(Q)$(2)$$(AS) $$(ASFLAGS) -mcpu=$(1) $$(CPPFLAGS) -c -o $$@ $$<
 
 $(LIBNAME)_OBJS_$(1) += $$(patsubst %.s,$$($(LIBNAME)_BUILDDIR)/$(1)/%.o,$$(filter %.s, $$($(LIBNAME)_SRCS_FLAT)))
 $(LIBNAME)_OBJS_$(1) += $$(patsubst %.c,$$($(LIBNAME)_BUILDDIR)/$(1)/%.o,$$(filter %.c, $$($(LIBNAME)_SRCS_FLAT)))
@@ -120,8 +120,8 @@ $(LIBNAME)_OBJS_$(1) += $$(patsubst %.cxx,$$($(LIBNAME)_BUILDDIR)/$(1)/%.o,$$(fi
 
 $$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME).a: $$($(LIBNAME)_OBJS_$(1)) | $$($(LIBNAME)_BUILDDIR)/$(1)
 	$$(TRACE_AR)
-	$$(Q)$$(AR) rc $$@ $$^
-	$$(Q)$$(RANLIB) $$@
+	$$(Q)$(2)$$(AR) rc $$@ $$^
+	$$(Q)$(2)$$(RANLIB) $$@
 
 # If we're building this library as part of a bigger build, add ourselves to
 # the list of libraries
@@ -140,14 +140,17 @@ endif
 LIBS_$(1) += $$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME).a
 endef
 
+ARCH_FN = $(firstword $(subst |, ,$1))
+TOOLCHAIN_FN = $(word 2,$(subst |, ,$1))
+
 # uncomment to print generated rules
-# $(info $(foreach arch,$(TOCK_ARCHS), $(call LIB_RULES,$(arch))))
+# $(info $(foreach platform,$(TOCK_ARCHS), $(call LIB_RULES,$(call ARCH_FN,$(platform)),$(call TOOLCHAIN_FN,$(platform)))))
 # actually generate the rules for each architecture
-$(foreach arch,$(TOCK_ARCHS),$(eval $(call LIB_RULES,$(arch))))
+$(foreach platform,$(TOCK_ARCHS),$(eval $(call LIB_RULES,$(call ARCH_FN,$(platform)),$(call TOOLCHAIN_FN,$(platform)))))
 
 # add each architecture as a target
 .PHONY: all
-all: $(foreach arch, $(TOCK_ARCHS),$($(LIBNAME)_BUILDDIR)/$(arch)/$(LIBNAME).a)
+all: $(foreach platform, $(TOCK_ARCHS),$($(LIBNAME)_BUILDDIR)/$(call ARCH_FN,$(platform))/$(LIBNAME).a)
 
 
 # Force LIBNAME to be expanded now
