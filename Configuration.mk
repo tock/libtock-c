@@ -11,15 +11,14 @@ MAKEFLAGS += -r
 MAKEFLAGS += -R
 
 # Toolchain programs
-TOOLCHAIN := arm-none-eabi
-AR := $(TOOLCHAIN)-ar
-AS := $(TOOLCHAIN)-as
-CC := $(TOOLCHAIN)-gcc
-CXX := $(TOOLCHAIN)-g++
-OBJDUMP := $(TOOLCHAIN)-objdump
-RANLIB := $(TOOLCHAIN)-ranlib
-READELF := $(TOOLCHAIN)-readelf
-SIZE := $(TOOLCHAIN)-size
+AR := -ar
+AS := -as
+CC := -gcc
+CXX := -g++
+OBJDUMP := -objdump
+RANLIB := -ranlib
+READELF := -readelf
+SIZE := -size
 
 # Set default region sizes
 STACK_SIZE       ?= 2048
@@ -30,7 +29,7 @@ KERNEL_HEAP_SIZE ?= 1024
 PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 
 # Tock supported architectures
-TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4
+TOCK_ARCHS ?= cortex-m0|arm-none-eabi cortex-m3|arm-none-eabi cortex-m4|arm-none-eabi
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
@@ -242,8 +241,6 @@ ifneq ($(V),)
   $(info TOCK_ARCHS=$(TOCK_ARCHS))
   $(info TOCK_USERLAND_BASE_DIR=$(TOCK_USERLAND_BASE_DIR))
   $(info TOOLCHAIN=$(TOOLCHAIN))
-  $(info )
-  $(info $(CC) --version = $(shell $(CC) --version))
   $(info **************************************************)
   $(info )
 endif
