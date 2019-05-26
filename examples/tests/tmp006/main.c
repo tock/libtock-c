@@ -38,6 +38,7 @@ static void temp_callback(int temp_value,
                           __attribute__ ((unused)) void* callback_args) {
   temp_reading = (int16_t) temp_value;
   error_val    = error_code;
+  *((bool*)callback_args) = 1;
 }
 
 // Start periodic temperature sampling, then print data, sleeping in between
@@ -47,15 +48,16 @@ static void read_periodic (void) {
 
   // start sampling at 1 sample per second (0x2)
   printf("Start Subscribe.\n");
-  err = tmp006_start_sampling(0x2, temp_callback, NULL);
+  static bool resume = 0;
+  err = tmp006_start_sampling(0x2, temp_callback, &resume);
   if (error_val != 0) {
     printf("\tError(%d) [0x%X]\n\n", err, err);
   }
-
   while (1) {
     // yield for callbacks
     printf("Sleeping...\n");
-    yield();
+    yield_for(&resume);
+    resume = 0;
 
     // print new temp reading
     printf("\tValue(%d) [0x%X]\n\n", temp_reading, (unsigned) temp_reading);

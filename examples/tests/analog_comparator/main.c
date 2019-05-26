@@ -28,17 +28,20 @@ static void analog_comparator_callback (__attribute__ ((unused)) int arg0,
                                         __attribute__ ((unused)) int arg2,
                                         __attribute__ ((unused)) void* userdata) {
   callback_channel = arg0;
+  *((bool*)userdata) = 1;
 }
 
 static void analog_comparator_comparison_interrupt(uint8_t channel) {
   // Enable AC interrupts on the desired channel (i.e. two pins)
   analog_comparator_start_comparing(channel);
 
+  static bool resume = 0;
   // Set callback for AC interrupts
-  analog_comparator_interrupt_callback(analog_comparator_callback, NULL);
+  analog_comparator_interrupt_callback(analog_comparator_callback, &resume);
 
   while (1) {
-    yield();
+    yield_for(&resume);
+    resume = 0;
     printf("Interrupt received on channel %d, Vinp > Vinn!\n", callback_channel);
   }
 }
