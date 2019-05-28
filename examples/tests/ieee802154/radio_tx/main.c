@@ -32,7 +32,13 @@ int main(void) {
                               NULL,
                               packet,
                               BUF_SIZE);
-    if (err != TOCK_SUCCESS) {
+    if (err == TOCK_SUCCESS) {
+      printf("Transmitted successfully.\n");
+    } else if (err == TOCK_ENOACK) {
+      printf("Transmitted but packet not acknowledged.\n");
+      gpio_toggle(0);
+    } else {
+      printf("Transmit failed with error %i.\n", err);
       gpio_toggle(0);
     }
     delay_ms(250);
