@@ -1,5 +1,16 @@
 /* vim: set sw=2 expandtab tw=80: */
 
+/* This application can operate in three modes: input, output
+ * or interrupt. The mode is set as a constant in main(). 
+ *   - Output mode uses the pin connected to LED 0 (through the led()
+ *   system call interface.
+ *   - Input mode uses userspace GPIO pin 0 (the 0th pin made available
+ *   to userspace programs. Consult the boot sequence of your board or 
+ *   its documentation to determine which hardware pin this is.
+ *   - Interrupt mode uses userspace GPIO pin 0 (see input mode above).
+ *   It executes a callback when the pin goes from low to high. To test
+ *   this, connect the pin to Vdd.
+ */ 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,7 +29,7 @@ static void timer_cb (__attribute__ ((unused)) int arg0,
                       __attribute__ ((unused)) void* userdata) {}
 
 // **************************************************
-// GPIO output example
+// GPIO output example: toggles LED.
 // **************************************************
 static void gpio_output(void) {
   printf("Periodically blinking LED\n");
@@ -34,13 +45,13 @@ static void gpio_output(void) {
 }
 
 // **************************************************
-// GPIO input example
+// GPIO input example: reads userspace pin 0.
 // **************************************************
 static void gpio_input(void) {
   printf("Periodically reading value of the GPIO 0 pin\n");
   printf("Jump pin high to test (defaults to low)\n");
 
-  // set LED pin as input and start repeating timer
+  // set userspace pin 0 as input and start repeating timer
   // pin is configured with a pull-down resistor, so it should read 0 as default
   gpio_enable_input(0, PullDown);
   tock_timer_t timer;
@@ -63,13 +74,13 @@ static void gpio_cb (__attribute__ ((unused)) int pin_num,
                      __attribute__ ((unused)) void* userdata) {}
 
 static void gpio_interrupt(void) {
-  printf("Print GPIO 0 pin reading whenever its value changes\n");
+  printf("Print upserspace GPIO 0 pin reading whenever its value changes\n");
   printf("Jump pin high to test\n");
 
   // set callback for GPIO interrupts
   gpio_interrupt_callback(gpio_cb, NULL);
 
-  // set LED as input and enable interrupts on it
+  // set userspace pin 0 as input and enable interrupts on it
   gpio_enable_input(0, PullDown);
   gpio_enable_interrupt(0, Change);
 
