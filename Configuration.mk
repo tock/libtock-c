@@ -29,7 +29,7 @@ KERNEL_HEAP_SIZE ?= 1024
 PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 
 # Tock supported architectures
-TOCK_ARCHS ?= cortex-m0|arm-none-eabi cortex-m3|arm-none-eabi cortex-m4|arm-none-eabi
+TOCK_ARCHS ?= rv32imac|riscv64-unknown-elf
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
