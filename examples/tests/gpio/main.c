@@ -1,16 +1,16 @@
 /* vim: set sw=2 expandtab tw=80: */
 
 /* This application can operate in three modes: input, output
- * or interrupt. The mode is set as a constant in main(). 
+ * or interrupt. The mode is set as a constant in main().
  *   - Output mode uses the pin connected to LED 0 (through the led()
  *   system call interface.
  *   - Input mode uses userspace GPIO pin 0 (the 0th pin made available
- *   to userspace programs. Consult the boot sequence of your board or 
+ *   to userspace programs. Consult the boot sequence of your board or
  *   its documentation to determine which hardware pin this is.
  *   - Interrupt mode uses userspace GPIO pin 0 (see input mode above).
  *   It executes a callback when the pin goes from low to high. To test
  *   this, connect the pin to Vdd.
- */ 
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -74,7 +74,7 @@ static void gpio_cb (__attribute__ ((unused)) int pin_num,
                      __attribute__ ((unused)) void* userdata) {}
 
 static void gpio_interrupt(void) {
-  printf("Print upserspace GPIO 0 pin reading whenever its value changes\n");
+  printf("Print userspace GPIO 0 pin reading whenever its value changes\n");
   printf("Jump pin high to test\n");
 
   // set callback for GPIO interrupts
