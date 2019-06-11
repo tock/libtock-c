@@ -25,13 +25,6 @@ TOCK_BOARD ?= hail
 # Include the makefile that has the programming functions for each board.
 include $(TOCK_USERLAND_BASE_DIR)/Program.mk
 
-# Single-arch libraries, to be phased out
-LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/newlib/libc.a
-LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/newlib/libm.a
-LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/libc++/libstdc++.a
-LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/libc++/libsupc++.a
-LEGACY_LIBS += $(TOCK_USERLAND_BASE_DIR)/libc++/libgcc.a
-
 
 
 # Rules to incorporate external libraries
@@ -126,7 +119,7 @@ OBJS_$(1) += $$(patsubst %.cpp,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cpp, $$(CXX_SRC
 OBJS_$(1) += $$(patsubst %.cxx,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cxx, $$(CXX_SRCS)))
 
 # Collect all desired built output.
-$$(BUILDDIR)/$(1)/$(1).elf: $$(OBJS_$(1)) $$(TOCK_USERLAND_BASE_DIR)/newlib/libc.a $$(LIBS_$(1)) $$(LAYOUT) | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(1).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(LAYOUT) | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
 	$$(Q)$(2)$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1))\
 	    --entry=_start\
@@ -135,7 +128,7 @@ $$(BUILDDIR)/$(1)/$(1).elf: $$(OBJS_$(1)) $$(TOCK_USERLAND_BASE_DIR)/newlib/libc
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
 	    -T $$(LAYOUT)\
 	    -nostdlib\
-	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS) -Wl,--end-group\
+	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) -Wl,--end-group\
 	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(1).Map\
 	    -o $$@
 
@@ -206,7 +199,7 @@ else
 endif
 
 # Step 2: Create a new ELF with the layout that matches what's loaded
-$$(BUILDDIR)/$(1)/$(1).userland_debug.elf: $$(OBJS_$(1)) $$(TOCK_USERLAND_BASE_DIR)/newlib/libc.a $$(LIBS_$(1)) $$(BUILDDIR)/$(1)/$(1).userland_debug.ld | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(1).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(1).userland_debug.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
 	$$(Q)$(2)$$(CC) $$(CFLAGS) -mcpu=$(1) $$(CPPFLAGS)\
 	    --entry=_start\
@@ -215,7 +208,7 @@ $$(BUILDDIR)/$(1)/$(1).userland_debug.elf: $$(OBJS_$(1)) $$(TOCK_USERLAND_BASE_D
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
 	    -T $$(BUILDDIR)/$(1)/$(1).userland_debug.ld\
 	    -nostdlib\
-	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS) -Wl,--end-group\
+	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) -Wl,--end-group\
 	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(1).Map\
 	    -o $$@
 
