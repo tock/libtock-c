@@ -27,7 +27,7 @@ static void analog_comparator_callback (__attribute__ ((unused)) int arg0,
                                         __attribute__ ((unused)) int arg1,
                                         __attribute__ ((unused)) int arg2,
                                         __attribute__ ((unused)) void* userdata) {
-  callback_channel = arg0;
+  callback_channel   = arg0;
   *((bool*)userdata) = 1;
 }
 

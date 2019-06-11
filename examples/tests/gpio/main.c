@@ -17,7 +17,7 @@ static void timer_cb (__attribute__ ((unused)) int arg0,
                       __attribute__ ((unused)) int arg1,
                       __attribute__ ((unused)) int arg2,
                       __attribute__ ((unused)) void* userdata) {
-  callback_count = callback_count + 1;
+  callback_count     = callback_count + 1;
   *((bool*)userdata) = 1;
 }
 
@@ -34,7 +34,7 @@ static void gpio_output(void) {
 
   while (1) {
     yield_for(&resume);
-    resume = 0; 
+    resume = 0;
     led_toggle(0);
   }
 }
