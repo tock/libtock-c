@@ -46,25 +46,59 @@ ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap 
 override ASFLAGS += -mthumb
 override CFLAGS  += -std=gnu11
 override CPPFLAGS += \
-	    -frecord-gcc-switches\
-	    -gdwarf-2\
-	    -Os\
-	    -fdata-sections -ffunction-sections\
-	    -fstack-usage -Wstack-usage=$(STACK_SIZE)\
-	    -Wall\
-	    -Wextra\
-	    -Wl,--warn-common\
-	    -Wl,--gc-sections\
-	    -Wl,--emit-relocs\
-	    -fPIC\
-	    -mthumb\
-	    -mfloat-abi=soft\
-	    -msingle-pic-base\
-	    -mpic-register=r9\
-	    -mno-pic-data-is-text-relative
+      -frecord-gcc-switches\
+      -gdwarf-2\
+      -Os\
+      -fdata-sections -ffunction-sections\
+      -fstack-usage -Wstack-usage=$(STACK_SIZE)\
+      -Wall\
+      -Wextra\
+      -Wl,--warn-common\
+      -Wl,--gc-sections\
+      -Wl,--emit-relocs\
+      -fPIC
+
+# Add different flags for different architectures
+override CPPFLAGS_rv32imac += \
+      -march=rv32imac\
+      -mabi=ilp32\
+      -mcmodel=medlow\
+      -Wl,--no-relax   # Prevent use of global_pointer for riscv
+
+override CPPFLAGS_cortex-m += \
+      -mthumb\
+      -mfloat-abi=soft\
+      -msingle-pic-base\
+      -mpic-register=r9\
+      -mno-pic-data-is-text-relative
+
+override CPPFLAGS_cortex-m4 += $(CPPFLAGS_cortex-m) \
+      -mcpu=cortex-m4
+
+override CPPFLAGS_cortex-m3 += $(CPPFLAGS_cortex-m) \
+      -mcpu=cortex-m3
 
 # Work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85606
-override CPPFLAGS_cortex-m0 += -march=armv6s-m
+override CPPFLAGS_cortex-m0 += $(CPPFLAGS_cortex-m) \
+      -mcpu=cortex-m0\
+      -march=armv6s-m
+
+# Single-arch libraries, to be phased out
+override LEGACY_LIBS_cortex-m += \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/libm.a\
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libstdc++.a\
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libsupc++.a\
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libgcc.a
+
+override LEGACY_LIBS_cortex-m4 += $(LEGACY_LIBS_cortex-m)
+override LEGACY_LIBS_cortex-m3 += $(LEGACY_LIBS_cortex-m)
+override LEGACY_LIBS_cortex-m0 += $(LEGACY_LIBS_cortex-m)
+
+# Single-arch libraries, to be phased out
+override LEGACY_LIBS_rv32imac += \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32imac/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32imac/libm.a
 
 # This allows Tock to add additional warnings for functions that frequently cause problems.
 # See the included header for more details.
