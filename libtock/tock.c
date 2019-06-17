@@ -42,10 +42,6 @@ void yield_for(bool *cond) {
 
 #if defined(__thumb__)
 
-//
-// IMPLEMENATTION FOR CORTEX-M THUMB BASED PLATFORMS
-//
-
 void yield(void) {
   if (task_cur != task_last) {
     tock_task_t task = task_queue[task_cur];
@@ -144,9 +140,11 @@ void* memop(uint32_t op_type, int arg1) {
 
 #elif defined(__riscv)
 
+// Implementation of the syscalls for generic RISC-V platforms.
 //
-// IMPLEMENATTION FOR RISC-V BASED PLATFORMS
-//
+// For RISC-V, the arguments are passed through registers a0-a4. Generally,
+// the syscall number is put in a0, and the required arguments are specified in
+// a1-a4. Nothing specifically syscall related is pushed to the process stack.
 
 void yield(void) {
   if (task_cur != task_last) {
@@ -225,6 +223,7 @@ void* memop(uint32_t op_type, int arg1) {
     : "memory");
   return ret;
 }
+
 #endif
 
 void* tock_app_memory_begins_at(void) {
