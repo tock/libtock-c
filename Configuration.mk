@@ -88,9 +88,6 @@ override CPPFLAGS_cortex-m0 += $(CPPFLAGS_cortex-m) \
 override LEGACY_LIBS_cortex-m += \
       $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/libc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/libm.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libstdc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libsupc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libgcc.a
 
 override LEGACY_LIBS_cortex-m4 += $(LEGACY_LIBS_cortex-m)
 override LEGACY_LIBS_cortex-m3 += $(LEGACY_LIBS_cortex-m)
@@ -100,9 +97,6 @@ override LEGACY_LIBS_cortex-m0 += $(LEGACY_LIBS_cortex-m)
 override LEGACY_LIBS_rv32imac += \
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32imac/libc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32imac/libm.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32imac/libstdc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32imac/libsupc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32imac/libgcc.a
 
 # This allows Tock to add additional warnings for functions that frequently cause problems.
 # See the included header for more details.
