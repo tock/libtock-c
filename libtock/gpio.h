@@ -8,7 +8,9 @@ extern "C" {
 
 #define GPIO_DRIVER_NUM 0x4
 
-// GPIO pin enum is defined externally in platform headers
+// GPIO pins exposed to userspace are defined in platform definitions. The index of each 
+// pin in the array corresponds to the value of GPIO_Pin_t in userspace.
+// For example, on imix board, pin8's GPIO_Pin_t value is 6.
 typedef uint32_t GPIO_Pin_t;
 
 typedef enum {
