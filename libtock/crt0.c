@@ -215,11 +215,10 @@ void _start(void* app_start __attribute__((unused)),
     "ecall\n"                   // memop
     //
     // Setup initial stack pointer for normal execution
-    "mv   sp, s1\n"             // sp = stacktop
-    "mv   s0, sp\n"             // Set the frame pointer to sp.
-    //
     // Call into the rest of startup. This should never return.
+    "mv   sp, s1\n"             // sp = stacktop
     "mv   a0, s0\n"             // first arg is app_start
+    "mv   s0, sp\n"             // Set the frame pointer to sp.
     "mv   a1, s1\n"             // second arg is stacktop
     "jal  _c_start\n"
     );
