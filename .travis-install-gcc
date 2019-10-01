@@ -10,3 +10,7 @@ if [ ! -x gcc-arm-none-eabi-9-2019-q4-major/bin/arm-none-eabi-gcc ]; then
   tar -xjvf gcc.tar.bz2
 fi
 
+if [ ! -x riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc ]; then
+  wget https://static.dev.sifive.com/dev-tools/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14.tar.gz -O gcc-riscv.tar.bz2
+  tar -xvf gcc-riscv.tar.bz2
+fi
