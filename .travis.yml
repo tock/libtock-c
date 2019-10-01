@@ -28,6 +28,7 @@ cache:
   cargo: true
   directories:
     - $HOME/gcc-arm-none-eabi-9-2019-q4-major
+    - $HOME/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14
 
 os:
   - linux
@@ -38,6 +39,7 @@ rust:
 before_install:
   - ./.travis-install-gcc
   - export PATH="$PATH:$HOME/gcc-arm-none-eabi-9-2019-q4-major/bin"
+  - export PATH="$PATH:$HOME/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14/bin"
   - export PATH="$PATH:$HOME/uncrustify-uncrustify-0.65/build"
 
 script:
