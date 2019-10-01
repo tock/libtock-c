@@ -16,22 +16,22 @@ endif
 #
 ifeq ("$(TOCK_BOARD)","hail")
 PROGRAM = $(TOCKLOADER) $(TOCKLOADER_GENERAL_FLAGS) install $<
-FLASH = $(TOCKLOADER) $(TOCKLOADER_GENERAL_FLAGS) install --jtag $<
+FLASH = $(TOCKLOADER) $(TOCKLOADER_GENERAL_FLAGS) install --jlink $<
 
 else ifeq ("$(TOCK_BOARD)","imix")
 # Change program region offset
 TOCKLOADER_INSTALL_FLAGS += --app-address 0x40000
 PROGRAM = $(TOCKLOADER) $(TOCKLOADER_GENERAL_FLAGS) install $(TOCKLOADER_INSTALL_FLAGS) $<
-FLASH = $(TOCKLOADER) $(TOCKLOADER_GENERAL_FLAGS) install $(TOCKLOADER_INSTALL_FLAGS) --jtag $<
+FLASH = $(TOCKLOADER) $(TOCKLOADER_GENERAL_FLAGS) install $(TOCKLOADER_INSTALL_FLAGS) --jlink $<
 
 else ifeq ("$(TOCK_BOARD)","ek-tm4c1294xl")
 FLASH = $(OPENOCD) -c "source [find board/ek-tm4c1294xl.cfg]; init; reset halt; flash write_image erase $< 0x00020000 bin; reset; shutdown"
 
 else ifeq ("$(TOCK_BOARD)","nrf51dk")
-FLASH = $(TOCK_USERLAND_BASE_DIR)/tools/program/nrf51dk.py $<
+FLASH = $(TOCKLOADER) install --jlink --board nrf51dk $<
 
 else ifeq ("$(TOCK_BOARD)","nrf52dk")
-FLASH = $(TOCK_USERLAND_BASE_DIR)/tools/program/nrf52dk.py $<
+FLASH = $(TOCKLOADER) install --jlink --board nrf52dk $<
 
 endif
 
