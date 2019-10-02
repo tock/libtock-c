@@ -1,5 +1,5 @@
 05_ipc
 ======
 
-See the [tutorial](../../../../doc/tutorials/05_ipc.md) for a
+See the [tutorial](https://book.tockos.org/tutorials/05_ipc.html) for a
 description of this application.

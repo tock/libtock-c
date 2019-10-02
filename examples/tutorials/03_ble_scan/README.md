@@ -1,5 +1,5 @@
 03_ble_scan
 ===========
 
-See the [tutorial](../../../../doc/tutorials/03_ble_scan.md) for a
+See the [tutorial](https://book.tockos.org/tutorials/03_ble_scan.html) for a
 description of this application.
