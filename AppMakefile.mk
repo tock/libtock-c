@@ -147,6 +147,13 @@ ifndef TOCK_NO_CHECK_SWITCHES
 	$$(Q)$(2)$$(READELF) -p .GCC.command.line $$< | grep -q -- -msingle-pic-base && $$(READELF) -p .GCC.command.line $$< | grep -q -- -mpic-register=r9 && $$(READELF) -p .GCC.command.line $$< | grep -q -- -mno-pic-data-is-text-relative || { echo "Error: Missing required build flags."; echo ""; echo "Tock requires applications are built with"; echo "  -msingle-pic-base"; echo "  -mpic-register=r9"; echo "  -mno-pic-data-is-text-relative"; echo "But one or more of these flags are missing"; echo ""; echo "To see the flags your application was built with, run"; echo "$$(READELF) -p .GCC.command.line $$<"; echo ""; exit 1; }
 endif
 
+# rules to print the size of the built binaries
+.PHONY: size-$(1)
+size-$(1):	$$(BUILDDIR)/$(1)/$(1).elf
+	@echo Application size report for architecture $(1):
+	$$(Q)$(2)$$(SIZE) $$^
+
+size::	size-$(1)
 
 
 ############################################################################################
@@ -244,9 +251,8 @@ $(BUILDDIR)/$(PACKAGE_NAME).tab: $(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/
 .PHONY:	all
 all:	$(BUILDDIR)/$(PACKAGE_NAME).tab size
 
+# The size target accumlates dependencies in the platform build rule creation
 .PHONY: size
-size:	$(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call ARCH_FN,$(platform)).elf)
-	@$(SIZE) $^
 
 .PHONY: debug
 debug:	$(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call ARCH_FN,$(platform)).userland_debug.lst)
