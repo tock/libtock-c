@@ -6,6 +6,8 @@ Example Output
 --------------
 
 ```
+ADC driver exists with 6 channels
+
 Single Samples
 Channel 0: 27102 mV (raw: 0x8360)
 Channel 1: 27644 mV (raw: 0x8600)
