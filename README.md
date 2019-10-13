@@ -18,7 +18,12 @@ Getting Started
   $ brew tap ARMmbed/homebrew-formulae && brew update && brew install arm-none-eabi-gcc
   ```
 
-  Ubuntu:
+  Ubuntu (18.04LTS or later):
+  ```
+  $ sudo apt install gcc-arm-none-eabi
+  ```
+
+  Ubuntu (before 18.04):
   ```
   $ sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa && sudo apt update && sudo apt install gcc-arm-embedded
   ```
