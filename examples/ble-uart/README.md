@@ -13,3 +13,9 @@ To use:
 
 It should be straightforward to re-purpose this app for easy communication
 between BLE devices.
+
+Supported Boards
+----------------
+
+- Hail
+- imix
