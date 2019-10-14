@@ -13,5 +13,4 @@ The application does the following:
 
 Supported Boards
 -----------------
-nRF51-DK
-nRF52-DK
+- nRF52-DK
