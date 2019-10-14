@@ -28,9 +28,9 @@ Prerequisites
 
 1. Clone this repository.
 
-    ```bash
-    git clone https://github.com/tock/libtock-c
-    cd libtock-c
+    ```
+    $ git clone https://github.com/tock/libtock-c
+    $ cd libtock-c
     ```
 
 1. The main requirement to build the C applications in this repository
@@ -78,21 +78,19 @@ Compiling and Running Applications
 To compile all the examples, switch to the `examples` directory and
 execute the build script:
 
-    $ cd examlples
+    $ cd examples
     $ ./build_all.sh
 
 This will install `elf2tab` if it is not yet installed and compile all
-the examples for cortex-m0, cortex-m3 and cortex-m4. It does this
+the examples for cortex-m0, cortex-m3, and cortex-m4. It does this
 because the compiler emits slightly different instructions for each
-variant. Compiled applications can also depend on specific drivers,
-which not all boards provide; if you load an application onto a board
-that does not support every driver/system call it uses, some system
-calls will return error codes (`ENODEVICE` or `ENOSUPPORT`).
+variant. When installing the application, `tockloader` will select the
+correct version for the architecture of the board being programmed.
 
-The build process will also create a `tab` file (a "Tock Application
+The build process will ultimately create a `tab` file (a "Tock Application
 Bundle") for each example application. The `tab` contains the
 executable code for the supported architectures and can be
-deployed to a board using `tockloader`, for example to one of the
+deployed to a board using `tockloader`. For example to one of the
 Nordic development boards:
 
 ```
@@ -109,6 +107,16 @@ You can remove an application with
 or remove all installed applications with
 
     $ tockloader uninstall --board nrf52dk --jlink
+
+Tock applications are designed to be generic and run on any Tock-compatible
+board. However, compiled applications typically depend on specific drivers,
+which not all boards provide. For example, some applications expect an IEEE
+802.15.4 radio interface which not all boards support. If you load an
+application onto a board that does not support every driver/system call it
+uses, some system calls will return error codes (`ENODEVICE` or `ENOSUPPORT`).
+
+Next Steps
+----------
 
 The next step is to read the [overview](doc/overview.md) that
 describes how applications in TockOS are structured and then look at
