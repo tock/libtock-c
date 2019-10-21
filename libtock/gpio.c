@@ -1,5 +1,9 @@
 #include "gpio.h"
 
+int gpio_count(void) {
+  return command(GPIO_DRIVER_NUM, 0, 0, 0);
+}
+
 int gpio_enable_output(GPIO_Pin_t pin) {
   return command(GPIO_DRIVER_NUM, 1, pin, 0);
 }

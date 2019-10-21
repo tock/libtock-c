@@ -8,8 +8,8 @@ extern "C" {
 
 #define GPIO_DRIVER_NUM 0x4
 
-// GPIO pins exposed to userspace are defined in platform definitions. The index of each 
-// pin in the array corresponds to the value of GPIO_Pin_t in userspace.
+// GPIO pins exposed to userspace are defined in platform definitions. The index
+// of each pin in the array corresponds to the value of GPIO_Pin_t in userspace.
 // For example, on imix board, pin8's GPIO_Pin_t value is 6.
 typedef uint32_t GPIO_Pin_t;
 
@@ -24,6 +24,9 @@ typedef enum {
   RisingEdge,
   FallingEdge,
 } GPIO_InterruptMode_t;
+
+// Returns the number of GPIO pins configured on the board.
+int gpio_count(void);
 
 int gpio_enable_output(GPIO_Pin_t pin);
 int gpio_set(GPIO_Pin_t pin);
