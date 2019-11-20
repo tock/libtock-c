@@ -50,6 +50,7 @@ int ieee802154_up(void) {
   while (!ieee802154_is_up()) {
     delay_ms(10);
   }
+  delay_ms(10); //without this delay, immediate calls to send can still fail.
   return TOCK_SUCCESS;
 }
 
