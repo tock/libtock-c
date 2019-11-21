@@ -7,7 +7,7 @@
 
 #include <console.h>
 
-char hello[] = "Hello World!\r\n";
+// char hello[] = "Hello World!\r\n";
 
 static void nop(
   int a __attribute__((unused)),
@@ -16,6 +16,6 @@ static void nop(
   void* d __attribute__((unused))) {}
 
 int main(void) {
-  putnstr_async(hello, sizeof(hello), nop, NULL);
+  putnstr_async("Hello World!\r\n", 14, nop, NULL);
   return 0;
 }
