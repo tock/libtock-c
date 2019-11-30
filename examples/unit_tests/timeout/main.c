@@ -21,7 +21,7 @@ static bool test_timeout(void) {
 }
 
 int main(void) {
-  unit_test_fun tests[3] = { test_pass, test_fail, test_timeout };
+  unit_test_fun tests[3] = { TEST(pass), TEST(fail), TEST(timeout) };
   unit_test_runner(tests, 3, 300, "org.tockos.unit_test");
   return 0;
 }

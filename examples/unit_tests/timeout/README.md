@@ -1,17 +1,17 @@
 # Timeout unit test
 
 This simple unit test is a designed to validate that the unit test
-infrastructure itself works correctly. It provides three tests, which 
+infrastructure itself works correctly. It provides three tests, which
 pass, fail, and timeout, respectively.
 
 
-If you load this app along with the `unit_test_supervisor` in `examples/services/`, 
+If you load this app along with the `unit_test_supervisor` in `examples/services/`,
 you should see the following console output:
 
 ```
-1.0: [✓]
-1.1: [FAILED]
-1.2: [ERROR: Timeout]
+2.000: pass             [✓]
+2.001: fail             [FAILED]
+2.002: timeout          [ERROR: Timeout]
 Summary 1: [1/3] Passed, [1/3] Failed, [1/3] Incomplete
 ```
 
