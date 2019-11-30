@@ -2,29 +2,37 @@
 
 This test is designed to execute most functions provided by the nRF52840-DK.
 
-To run, it requres certain conections:
+To run, it requires certain connections:
 
 ## GPIO
 
 Register 0:
+```
 P4.09 -> P4.10
+```
 
 Register 1:
+```
 P3.01 -> P3.02
+```
 
 ## LED
 
+```
 P24.03 -> P3.07
 P24.04 -> P3.08
 P24.05 -> P4.01
 P24.06 -> P4.02
+```
 
 ## Button
 
+```
 P24.01 -> R2k2 -> P3.03
 P24.02 -> R2k2 -> P3.04
 P24.14 -> R2k2 -> P3.05
 P24.15 -> R2k2 -> P3.06
+```
 
 ## Expected results:
 
