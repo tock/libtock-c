@@ -40,7 +40,6 @@ simple_ble_config_t ble_config = {
 // State for UART library.
 static ble_nus_t m_nus;
 
-__attribute__ ((const))
 void ble_address_set (void) {
   // nop
 }

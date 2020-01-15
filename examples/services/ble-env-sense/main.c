@@ -35,7 +35,6 @@ simple_ble_config_t ble_config = {
   .max_conn_interval = MSEC_TO_UNITS(1250, UNIT_1_25_MS)
 };
 
-__attribute__ ((const))
 void ble_address_set (void) {
   // nop
 }
