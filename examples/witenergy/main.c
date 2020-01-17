@@ -79,7 +79,6 @@ static const ble_gap_scan_params_t _scan_param = {
 
 
 // Override. Don't need for serialization.
-__attribute__ ((const))
 void ble_address_set (void) {
   // nop
 }
