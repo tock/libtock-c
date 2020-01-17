@@ -1,7 +1,7 @@
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <assert.h>
 
 #include <button.h>
 #include <timer.h>
@@ -42,7 +42,7 @@ int main(void) {
     1000 // kernel tries to bind this after me
   };
 
-  int len = snprintf(packet, sizeof(packet), "Hello World - App/Kernel virt\n");
+  int len        = snprintf(packet, sizeof(packet), "Hello World - App/Kernel virt\n");
   ssize_t result = udp_send_to(packet, len, &destination);
   assert(result < 0); // should fail because we have not bound
 
@@ -52,16 +52,16 @@ int main(void) {
     printf(" : %d\n", addr.port);
   }
   int bind_return = udp_bind(&handle, &addr, BUF_BIND_CFG);
-  assert(bind_return >= 0); //bind should succeed
+  assert(bind_return >= 0); // bind should succeed
 
-  delay_ms(3000); //resync with kernel
+  delay_ms(3000); // resync with kernel
 
   sock_addr_t addr2 = {
     ifaces[0],
-    1001 //same as what kernel has successfuly bound to
+    1001 // same as what kernel has successfuly bound to
   };
   bind_return = udp_bind(&handle, &addr2, BUF_BIND_CFG);
-  assert(bind_return < 0); //bind should fail bc kernel has bound this
+  assert(bind_return < 0); // bind should fail bc kernel has bound this
   sock_addr_t addr3 = {
     ifaces[0],
     1002 // new port
@@ -69,7 +69,7 @@ int main(void) {
   bind_return = udp_bind(&handle, &addr3, BUF_BIND_CFG);
   assert(bind_return >= 0);
 
-  delay_ms(1000); //should be synced with kernel test 2 starting now.
+  delay_ms(1000); // should be synced with kernel test 2 starting now.
 
   if (DEBUG) {
     printf("Sending packet (length %d) --> ", len);
@@ -77,7 +77,7 @@ int main(void) {
     printf(" : %d\n", destination.port);
   }
   result = udp_send_to(packet, len, &destination);
-  assert(result == TOCK_SUCCESS); //send should succeed
+  assert(result == TOCK_SUCCESS); // send should succeed
 
   printf("App part of app/kernel test successful!\n");
 }
