@@ -108,6 +108,10 @@ SECTIONS {
         . = ALIGN(4); /* Make sure we're word-aligned here */
         _data = .;
         KEEP(*(.data*))
+	/* Include the "small data" in the data section. Otherwise it will be
+	 * dropped when the TBF is created.
+	 */
+        KEEP(*(.sdata*))
         . = ALIGN(4); /* Make sure we're word-aligned at the end of flash */
     } > SRAM AT > FLASH
 
