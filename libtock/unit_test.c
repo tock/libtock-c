@@ -67,6 +67,9 @@ struct unit_test_t {
   // Current test number being run by this test runner.
   uint32_t current;
 
+  // Current test name
+  char name[24];
+
   // Timeout window for determining when tests have failed to complete.
   uint32_t timeout_ms;
 
@@ -84,6 +87,9 @@ struct unit_test_t {
 
   // Result of the most recently completed test.
   unit_test_result_t result;
+
+  // The reason a test has failed;
+  char reason[72];
 
   // Interior linked list element, points to the next test runner in the
   // queue.
@@ -144,7 +150,7 @@ static bool list_contains(linked_list_t *list, unit_test_t *test) {
  * This must be aligned because the test runners share their buffers with the
  * test supervisor via the `ipc_share` mechanism.
  */
-#define TEST_BUF_SZ 128
+#define TEST_BUF_SZ 256
 static char test_buf[TEST_BUF_SZ] __attribute__((aligned(TEST_BUF_SZ)));
 
 /**
@@ -162,6 +168,16 @@ static linked_list_t pending_pids;
 /*******************************************************************************
  * TEST RUNNER FUNCTIONS
  ******************************************************************************/
+
+/** \brief A test setup function */
+__attribute__((weak))
+bool test_setup(void) {
+  return true;
+}
+
+/** \brief A test teardown function */
+__attribute__((weak))
+void test_teardown(void) {}
 
 /** \brief Set the `done` condition variable when notified by the supervisor.
  *
@@ -181,6 +197,11 @@ static void sync_with_supervisor(int svc) {
   done = false;
   ipc_notify_svc(svc);
   yield_for(&done);
+}
+
+static char failure_reason[sizeof(((unit_test_t *) 0)->reason)];
+void set_failure_reason(const char *reason) {
+  strncpy(failure_reason, reason, sizeof(failure_reason));
 }
 
 /** \brief Run a sequence of unit tests and report the results.
@@ -222,18 +243,24 @@ void unit_test_runner(unit_test_fun *tests, uint32_t test_count,
 
   uint32_t i = 0;
   for (i = 0; i < test_count; i++) {
+    memcpy(test->name, tests[i].name, sizeof(test->name));
+
     // Await approval to start the current test.
     test->cmd = TestStart;
     sync_with_supervisor(test_svc);
 
     // Run the test.
-    bool passed = tests[i]();
+    test_setup();
+    failure_reason[0] = '\0';
+    bool passed = tests[i].fun();
+    test_teardown();
 
     // Record the result. If the test timed out, the supervisor will have
     // marked the result already.
     if (test->result != Timeout) {
       test->result = passed ? Passed : Failed;
     }
+    strncpy(test->reason, failure_reason, sizeof(test->reason));
 
     // Indicate test completion.
     test->cmd = TestEnd;
@@ -255,13 +282,17 @@ void unit_test_runner(unit_test_fun *tests, uint32_t test_count,
 /** \brief Print the individual test result to the console.
  */
 static void print_test_result(unit_test_t *test) {
-  printf("%d.%lu: ", test->pid, test->current);
+  char name_buf[sizeof(test->name) + 1]     = {0};
+  char reason_buf[sizeof(test->reason) + 1] = {0};
+  memcpy(name_buf, test->name, sizeof(test->name));
+  memcpy(reason_buf, test->reason, sizeof(test->reason));
+  printf("%d.%03lu: %-24s ", test->pid, test->current, name_buf);
   switch (test->result) {
     case Passed:
       puts("[✓]");
       break;
     case Failed:
-      puts("[FAILED]");
+      printf("[FAILED] %s\n", reason_buf);
       break;
     case Timeout:
       puts("[ERROR: Timeout]");

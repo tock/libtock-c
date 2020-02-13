@@ -5,16 +5,16 @@ infrastructure itself works correctly. It provides six tests, which alternate
 between passing and failing.
 
 
-If you load this app along with the `unit_test_supervisor` in `examples/services/`, 
+If you load this app along with the `unit_test_supervisor` in `examples/services/`,
 you should see the following console output:
 
 ```
-1.0: [✓]
-1.1: [✓]
-1.2: [✓]
-1.3: [FAILED]
-1.4: [FAILED]
-1.5: [✓]
+2.000: pass             [✓]
+2.001: pass             [✓]
+2.002: pass             [✓]
+2.003: fail             [FAILED]
+2.004: fail             [FAILED]
+2.005: pass             [✓]
 Summary 1: [4/6] Passed, [2/6] Failed, [0/6] Incomplete
 ```
 

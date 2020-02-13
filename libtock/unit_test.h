@@ -14,9 +14,10 @@
  * forget it. Just make sure it's loaded onto the board with your test runner
  * when it's time to run the tests!
  *
- * To write a test runner, simply write each test as a function which returns
- * true or false depending on whether the test passes. Then pass an array of the
- * test functions to `unit_test_runner`. That's it!
+ * To write a test runner, simply write each test as a function whose name starts
+ * with `test_` and which returns true or false depending on whether the test
+ * passes. Then pass an array of the test functions to `unit_test_runner` using
+ * the TEST macro. That's it!
  *
  * ## Example
  *
@@ -50,7 +51,7 @@
  *    }
  *
  *    int main(void) {
- *      unit_test_fun tests[3] = { test_pass, test_fail, test_timeout };
+ *      unit_test_fun tests[3] = { TEST(pass), TEST(fail), TEST(timeout) };
  *      uint32_t test_timeout_ms = 300;
  *
  *      unit_test_runner(tests, 3, test_timeout_ms, "org.tockos.unit_test");
@@ -62,10 +63,9 @@
  * In this case, if you load both applications on the board, the serial output
  * will be:
  *
- *    1.0: [✓]
- *    1.1: [FAILED]
- *    1.2: [ERROR: Timeout]
- *    Summary 1: [1/3] Passed, [1/3] Failed, [1/3] Incomplete
+ *    2.000: pass             [✓]
+ *    2.001: fail             [FAILED]
+ *    2.002: timeout          [ERROR: Timeout]
  *
  * Author: Shane Leonard <shanel@stanford.edu>
  * Modified: 8/13/2017
@@ -84,7 +84,27 @@ extern "C" {
  * All unit tests should return a boolean representing true for PASS and false
  * for FAIL.
  */
-typedef bool (*unit_test_fun)(void);
+typedef struct unit_test_fun_s {
+    bool (*fun)(void);
+    char name[24];
+} unit_test_fun;
+
+#define TEST(NAME) { \
+    test_##NAME,     \
+    #NAME            \
+}
+
+/** \brief remember the reason a test has failed */
+void set_failure_reason(const char *reason);
+
+
+#define CHECK(x) if (!(x)) { set_failure_reason(#x); return false; }
+
+/** \brief A test setup function */
+bool test_setup(void);
+
+/** \brief A test teardown function */
+void test_teardown(void);
 
 /** \brief Unit test runner.
  *
