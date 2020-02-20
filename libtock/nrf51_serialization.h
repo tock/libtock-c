@@ -8,6 +8,10 @@ extern "C" {
 
 #define DRIVER_NUM_NRF_SERIALIZATION 0x80004
 
+// Toggle the reset line to the nRF51 chip to reset the BLE MCU.
+__attribute__ ((warn_unused_result))
+int nrf51_serialization_reset (void);
+
 // Give the BLE Serialization / UART layer a callback to call when
 // a packet is received and when a TX is finished.
 __attribute__ ((warn_unused_result))

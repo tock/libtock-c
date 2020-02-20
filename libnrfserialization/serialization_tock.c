@@ -321,6 +321,10 @@ uint32_t ser_phy_open (ser_phy_events_handler_t events_handler) {
         return NRF_ERROR_INVALID_STATE;
     }
 
+    // Start by doing a reset.
+    ret = nrf51_serialization_reset();
+    if (ret < 0) return NRF_ERROR_INTERNAL;
+
     // Configure the serialization layer in the kernel
     ret = nrf51_serialization_subscribe(ble_serialization_callback);
     if (ret < 0) return NRF_ERROR_INTERNAL;
