@@ -1,5 +1,10 @@
 #include "nrf51_serialization.h"
 
+int nrf51_serialization_reset (void) {
+  // Reset the nRF51 chip
+  return command(DRIVER_NUM_NRF_SERIALIZATION, 2, 0, 0);
+}
+
 int nrf51_serialization_subscribe (subscribe_cb cb) {
   // get some callback love
   return subscribe(DRIVER_NUM_NRF_SERIALIZATION, 0, cb, NULL);
