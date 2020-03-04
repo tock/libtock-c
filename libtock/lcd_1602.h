@@ -7,10 +7,9 @@
 */
 #pragma once
 
-#include <timer.h>
-#include <string.h>
 #include <stdarg.h>
-#include "gpio.h"
+#include <string.h>
+#include <timer.h>
 
 #ifdef __cplusplus
 extern "C" {
