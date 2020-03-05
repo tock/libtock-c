@@ -15,7 +15,7 @@ int d2 = 2;
 int d3 = 1;
 
 int main(void) {
-  char str[12] = "Hello, world!";
+  char str[14] = "Hello, world!";
 
   LCD_16x2 lcd;
   lcd_1602_start(&lcd, 6, rs, en, d0, d1, d2, d3);
