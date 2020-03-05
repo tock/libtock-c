@@ -15,7 +15,7 @@ int d2 = 2;
 int d3 = 1;
 
 int main(void) {
-  char str[12] = "Hello world";
+  char str[12] = "Hello, world!";
 
   LCD_16x2 lcd;
   lcd_1602_start(&lcd, 6, rs, en, d0, d1, d2, d3);
@@ -23,7 +23,7 @@ int main(void) {
 
   lcd_1602_print_string(&lcd, str);
   lcd_1602_set_cursor(&lcd, 0, 1);
-  lcd_1602_print_number(&lcd, 123456);
+  lcd_1602_print_number(&lcd, 2020);
 
   delay_ms(2000);
 
