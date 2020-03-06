@@ -12,7 +12,19 @@ The application does the following:
   * Sets the cursor on the second line by calling lcd_1602_set_cursor
   * Prints a number (2020) to the LCD on the second line by calling lcd_1602_print_number
 
-Datasheet for the LCD: https://www.sparkfun.com/datasheets/LCD/HD44780.pdf 
+Datasheet for the LCD: https://www.sparkfun.com/datasheets/LCD/HD44780.pdf
+LCD: https://en.wikipedia.org/wiki/Hitachi_HD44780_LCD_controller 
+
+GPIO pins 
+-----------------
+- I connected the following pins:
+  - RS: D7
+  - EN: D5
+  - data_pin_4 : D4 
+  - data_pin_5 : D3
+  - data_pin_6 : D2 
+  - data_pin_7 : D1
+
 
 Supported Boards
 -----------------
