@@ -3,7 +3,7 @@
     Tested on NUCLEO-F429ZI
  */
 
-#include <lcd_1602.h>
+#include "lcd_1602.h"
 #include <string.h>
 #include <timer.h>
 
