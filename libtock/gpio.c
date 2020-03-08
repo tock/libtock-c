@@ -44,3 +44,7 @@ int gpio_interrupt_callback(subscribe_cb callback, void* callback_args) {
   return subscribe(GPIO_DRIVER_NUM, 0, callback, callback_args);
 }
 
+int gpio_get_pin_by_id(GPIO_Pin_ID_t pin_id) {
+  return command(GPIO_DRIVER_NUM, 10, pin_id, 0);
+}
+

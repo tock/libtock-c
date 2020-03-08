@@ -12,6 +12,7 @@ extern "C" {
 // of each pin in the array corresponds to the value of GPIO_Pin_t in userspace.
 // For example, on imix board, pin8's GPIO_Pin_t value is 6.
 typedef uint32_t GPIO_Pin_t;
+typedef size_t GPIO_Pin_ID_t;
 
 typedef enum {
   PullNone=0,
@@ -38,6 +39,7 @@ int gpio_enable_interrupt(GPIO_Pin_t pin, GPIO_InterruptMode_t irq_config);
 int gpio_disable_interrupt(GPIO_Pin_t pin);
 int gpio_disable(GPIO_Pin_t pin);
 int gpio_interrupt_callback(subscribe_cb callback, void* callback_args);
+int gpio_get_pin_by_id(GPIO_Pin_ID_t pin_id);
 
 #ifdef __cplusplus
 }
