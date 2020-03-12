@@ -11,7 +11,9 @@ Advertisement::Advertisement(const unsigned char* buf, int len)
   std::memcpy(&header_, &buf[HEADER_START], HEADER_SIZE);
   std::memcpy(&address_, &buf[ADDRESS_START], ADDRESS_SIZE);
   unsigned char data_len = len - HEADER_SIZE - ADDRESS_SIZE;
-  if (data_len > DATA_MAX_SIZE) data_len = DATA_MAX_SIZE;
+  if (data_len > DATA_MAX_SIZE) {
+    data_len = DATA_MAX_SIZE;
+  }
   std::memcpy(&data_, &buf[DATA_START], data_len);
 }
 
@@ -37,8 +39,9 @@ void Advertisement::print() const
   printf("Address: %02x %02x %02x %02x %02x %02x\r\n", address_[5],
          address_[4], address_[3], address_[2], address_[1], address_[0]);
   printf("Data: ");
-  for (int i = 0; i < pduLength() - ADDRESS_SIZE; i++)
+  for (int i = 0; i < pduLength() - ADDRESS_SIZE; i++) {
     printf("%02x ", data_[i]);
+  }
   printf("\r\n\r\n");
 }
 
@@ -84,7 +87,7 @@ const char* Advertisement::pduTypeStr() const
   }
 }
 
-bool Advertisement::validAdvertisement(const unsigned char* buf, int len)
+bool Advertisement::checkScanResult(const unsigned char* buf, int len)
 {
   if (buf == nullptr) {
     printf("Malformed scan result: Buffer was null!\n");

@@ -32,11 +32,11 @@ class Advertisement {
     bool device_detected(const Advertisement& other) const;
     bool operator==(const Advertisement& other) const;
     bool operator!=(const Advertisement& other) const;
-    static bool validAdvertisement(const unsigned char* buf, int len);
     unsigned char pduType() const;
     const char* pduTypeStr() const;
     bool pduTxAddSet() const;
     bool pduRxAddSet() const;
     unsigned char pduLength() const;
     void print() const;
+    static bool checkScanResult(const unsigned char* buf, int len);
 };
