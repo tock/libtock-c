@@ -12,7 +12,7 @@ const unsigned char DATA_MAX_SIZE = 31;
 const unsigned char ADV_MIN_SIZE = 8;
 const unsigned char ADV_MAX_SIZE = HEADER_SIZE + ADDRESS_SIZE + DATA_MAX_SIZE;
 
-const unsigned char PDU_ADDRESS_HEADER_MASK = 0x3F;
+const unsigned char PDU_LEN_HEADER_MASK = 0x3F;
 const unsigned char PDU_TYPE_HEADER_MASK = 0xF;
 const unsigned char PDU_TXADD_HEADER_MASK = 0x40;
 const unsigned char PDU_RXADD_HEADER_MASK = 0x80;

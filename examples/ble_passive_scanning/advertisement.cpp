@@ -47,7 +47,7 @@ void Advertisement::print() const
 
 unsigned char Advertisement::pduLength() const
 {
-  return header_[1] & PDU_ADDRESS_HEADER_MASK;
+  return header_[1] & PDU_LEN_HEADER_MASK;
 }
 
 unsigned char Advertisement::pduType() const
