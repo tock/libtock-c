@@ -16,7 +16,7 @@ static void callback(int result, int len, __attribute__((unused)) int unused2,
                      __attribute__((unused)) void* ud)
 {
   if (result == TOCK_SUCCESS) {
-    if (Advertisement::validAdvertisement(scan, len)) {
+    if (Advertisement::checkScanResult(scan, len)) {
       Advertisement advertisement(scan, len);
 
       if (list.tryAdd(advertisement)) {
