@@ -1,5 +1,12 @@
 #include "gpio.h"
 #include "lcd_1602.h"
+#include <console.h>
+
+static void nop(
+  int a __attribute__((unused)),
+  int b __attribute__((unused)),
+  int c __attribute__((unused)),
+  void* d __attribute__((unused))) {}
 
 /*
  * lcd_1602_start is the first function to be called and initializes the
@@ -19,67 +26,77 @@
  *  or
  *  lcd_1602_start(&lcd, 11, rs, rw, en, d0, d1, d2, d3, d4, d5, d6, d7);
  */
-void lcd_1602_start(LCD_16x2* lcd_struct, int arg_count, ...)
+void lcd_1602_start()
 {
-  int rs, rw, en, d0, d1, d2, d3, d4, d5, d6, d7;
-  va_list arg_list;
-  va_start(arg_list, arg_count);
-  switch (arg_count)
-  {
-    case 11:
-      rs = va_arg(arg_list, int);
-      rw = va_arg(arg_list, int);
-      en = va_arg(arg_list, int);
-      d0 = va_arg(arg_list, int);
-      d1 = va_arg(arg_list, int);
-      d2 = va_arg(arg_list, int);
-      d3 = va_arg(arg_list, int);
-      d4 = va_arg(arg_list, int);
-      d5 = va_arg(arg_list, int);
-      d6 = va_arg(arg_list, int);
-      d7 = va_arg(arg_list, int);
-      va_end(arg_list);
-      lcd_1602_init(lcd_struct, 0, rs, rw, en, d0, d1, d2, d3, d4, d5, d6, d7);
-      break;
-    case 10:
-      rs = va_arg(arg_list, int);
-      en = va_arg(arg_list, int);
-      d0 = va_arg(arg_list, int);
-      d1 = va_arg(arg_list, int);
-      d2 = va_arg(arg_list, int);
-      d3 = va_arg(arg_list, int);
-      d4 = va_arg(arg_list, int);
-      d5 = va_arg(arg_list, int);
-      d6 = va_arg(arg_list, int);
-      d7 = va_arg(arg_list, int);
-      va_end(arg_list);
-      lcd_1602_init(lcd_struct, 0, rs, 255, en, d0, d1, d2, d3, d4, d5, d6, d7);
-      break;
-    case 7:
-      rs = va_arg(arg_list, int);
-      rw = va_arg(arg_list, int);
-      en = va_arg(arg_list, int);
-      d0 = va_arg(arg_list, int);
-      d1 = va_arg(arg_list, int);
-      d2 = va_arg(arg_list, int);
-      d3 = va_arg(arg_list, int);
-      va_end(arg_list);
-      lcd_1602_init(lcd_struct, 1, rs, rw, en, d0, d1, d2, d3, 0, 0, 0, 0);
-      break;
-    case 6:
-      rs = va_arg(arg_list, int);
-      en = va_arg(arg_list, int);
-      d0 = va_arg(arg_list, int);
-      d1 = va_arg(arg_list, int);
-      d2 = va_arg(arg_list, int);
-      d3 = va_arg(arg_list, int);
-      va_end(arg_list);
-      lcd_1602_init(lcd_struct, 1, rs, 255, en, d0, d1, d2, d3, 0, 0, 0, 0);
-      break;
-    default:
-    {}
-  }
+  command(DRIVER_LCD_NUM, 0, 16, 1);
+  command(DRIVER_LCD_NUM, 0, 16, 2);
+  
 }
+
+void lcd_test()
+{
+  int ret = command(DRIVER_LCD_NUM, 2, 0, 43);
+}
+// {
+//   int rs, rw, en, d0, d1, d2, d3, d4, d5, d6, d7;
+//   va_list arg_list;
+//   va_start(arg_list, arg_count);
+//   switch (arg_count)
+//   {
+//     case 11:
+//       rs = va_arg(arg_list, int);
+//       rw = va_arg(arg_list, int);
+//       en = va_arg(arg_list, int);
+//       d0 = va_arg(arg_list, int);
+//       d1 = va_arg(arg_list, int);
+//       d2 = va_arg(arg_list, int);
+//       d3 = va_arg(arg_list, int);
+//       d4 = va_arg(arg_list, int);
+//       d5 = va_arg(arg_list, int);
+//       d6 = va_arg(arg_list, int);
+//       d7 = va_arg(arg_list, int);
+//       va_end(arg_list);
+//       lcd_1602_init(lcd_struct, 0, rs, rw, en, d0, d1, d2, d3, d4, d5, d6, d7);
+//       break;
+//     case 10:
+//       rs = va_arg(arg_list, int);
+//       en = va_arg(arg_list, int);
+//       d0 = va_arg(arg_list, int);
+//       d1 = va_arg(arg_list, int);
+//       d2 = va_arg(arg_list, int);
+//       d3 = va_arg(arg_list, int);
+//       d4 = va_arg(arg_list, int);
+//       d5 = va_arg(arg_list, int);
+//       d6 = va_arg(arg_list, int);
+//       d7 = va_arg(arg_list, int);
+//       va_end(arg_list);
+//       lcd_1602_init(lcd_struct, 0, rs, 255, en, d0, d1, d2, d3, d4, d5, d6, d7);
+//       break;
+//     case 7:
+//       rs = va_arg(arg_list, int);
+//       rw = va_arg(arg_list, int);
+//       en = va_arg(arg_list, int);
+//       d0 = va_arg(arg_list, int);
+//       d1 = va_arg(arg_list, int);
+//       d2 = va_arg(arg_list, int);
+//       d3 = va_arg(arg_list, int);
+//       va_end(arg_list);
+//       lcd_1602_init(lcd_struct, 1, rs, rw, en, d0, d1, d2, d3, 0, 0, 0, 0);
+//       break;
+//     case 6:
+//       rs = va_arg(arg_list, int);
+//       en = va_arg(arg_list, int);
+//       d0 = va_arg(arg_list, int);
+//       d1 = va_arg(arg_list, int);
+//       d2 = va_arg(arg_list, int);
+//       d3 = va_arg(arg_list, int);
+//       va_end(arg_list);
+//       lcd_1602_init(lcd_struct, 1, rs, 255, en, d0, d1, d2, d3, 0, 0, 0, 0);
+//       break;
+//     default:
+//     {}
+//   }
+// }
 
 /* lcd_1602_init sets the communication parameters with the LCD and usually
  * is called by lcd_1602_start.
@@ -153,32 +170,42 @@ void lcd_1602_begin(LCD_16x2* lcd_struct, uint8_t cols, uint8_t lines)
   if (!(lcd_struct->_displayfunction & LCD_8BITMODE)) {
     lcd_1602_write_4_bits(lcd_struct, 0x03);
     delay_ms(5);
-
+// begin 01 ^ begin 1 jos
     lcd_1602_write_4_bits(lcd_struct, 0x03);
-    delay_ms(5);
+    delay_ms(5); // begin 12
 
+    // begin2
     lcd_1602_write_4_bits(lcd_struct, 0x03);
-    delay_ms(1);
+    delay_ms(1); //begin23
 
+  // begin 3
     lcd_1602_write_4_bits(lcd_struct, 0x02);
   } else {
+    // 4 & 5
     lcd_1602_command(lcd_struct, LCD_FUNCTIONSET | lcd_struct->_displayfunction);
 
+    // 56
     delay_ms(5);
 
+    // 6 & 7
     lcd_1602_command(lcd_struct, LCD_FUNCTIONSET | lcd_struct->_displayfunction);
+    //78
     delay_ms(1);
-
+    // 8 & 9
     lcd_1602_command(lcd_struct, LCD_FUNCTIONSET | lcd_struct->_displayfunction);
   }
 
+  // 11 & 10
   lcd_1602_command(lcd_struct, LCD_FUNCTIONSET | lcd_struct->_displayfunction);
 
+  // 13 & 12
   lcd_struct->_displaycontrol = LCD_DISPLAYON | LCD_CURSORON | LCD_BLINKOFF;
   lcd_1602_display(lcd_struct);
 
+  // 15 & 16 & 14
   lcd_1602_clear(lcd_struct);
 
+  // 18 & 17
   lcd_struct->_displaymode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
   lcd_1602_command(lcd_struct, LCD_ENTRYMODESET | lcd_struct->_displaymode);
 }
@@ -354,7 +381,7 @@ void lcd_1602_no_autoscroll(LCD_16x2* lcd_struct)
  * Example:
  *	lcd_1602_print_string(&lcd, "Here I am!");
  */
-uint8_t lcd_1602_print_string(LCD_16x2* lcd_struct, char* string)
+uint8_t lcd_1602_print_string(char* string)
 {
   char buff[128];
   uint8_t len = strlen(string);
@@ -362,10 +389,11 @@ uint8_t lcd_1602_print_string(LCD_16x2* lcd_struct, char* string)
   while (n < len) {
     uint8_t to_write = get_min(sizeof(buff), len - n);
     memcpy(buff, string, to_write);
-    int8_t written = lcd_1602_write(lcd_struct, (uint8_t *) buff, to_write);
-    n      += written;
-    string += written;
-    if (written < 0)
+    // int8_t written = lcd_1602_write(lcd_struct, (uint8_t *) buff, to_write);
+    int ret = allow(DRIVER_LCD_NUM, 1, (void* )buff, to_write);
+    n      += to_write;
+    string += to_write;
+    if (to_write < 0)
       break;
   }
   return n;
@@ -380,11 +408,11 @@ uint8_t lcd_1602_print_string(LCD_16x2* lcd_struct, char* string)
  * Example:
  *	lcd_1602_print_number(&lcd, 123456789);
  */
-uint8_t lcd_1602_print_number(LCD_16x2* lcd_struct, uint32_t value)
+uint8_t lcd_1602_print_number(uint32_t value)
 {
   char string[16];
   snprintf(string, 16, "%u", (unsigned int) value);
-  return lcd_1602_print_string(lcd_struct, string);
+  return lcd_1602_print_string(string);
 }
 
 void lcd_1602_set_row_offsets(LCD_16x2* lcd_struct, uint8_t row0, uint8_t row1, uint8_t row2, uint8_t row3)
@@ -405,17 +433,24 @@ void lcd_1602_set_row_offsets(LCD_16x2* lcd_struct, uint8_t row0, uint8_t row1, 
  * Example:
  *	lcd_1602_set_cursor(&lcd, 5, 1);
  */
-void lcd_1602_set_cursor(LCD_16x2* lcd_struct, uint8_t col, uint8_t row)
+uint8_t _row_offsets[4];
+void lcd_1602_set_cursor(uint8_t col, uint8_t row)
 {
-  const size_t max_lines = sizeof(lcd_struct->_row_offsets) / sizeof(*(lcd_struct->_row_offsets));
-  if ( row >= max_lines ) {
-    row = max_lines - 1;    // we count rows starting w/0
-  }
-  if ( row >= lcd_struct->_numlines ) {
-    row = lcd_struct->_numlines - 1;      // we count rows starting w/0
-  }
+  const size_t max_lines = sizeof(_row_offsets) / sizeof(*(_row_offsets));
+  // if (row) {
+  command(DRIVER_LCD_NUM, 5, col, row);
+  // } else {
+  //   command(DRIVER_LCD_NUM, 5, col, max_lines);
+  // }
+  // const size_t max_lines = sizeof(lcd_struct->_row_offsets) / sizeof(*(lcd_struct->_row_offsets));
+  // if ( row >= max_lines ) {
+  //   row = max_lines - 1;    // we count rows starting w/0
+  // }
+  // if ( row >= lcd_struct->_numlines ) {
+  //   row = lcd_struct->_numlines - 1;      // we count rows starting w/0
+  // }
 
-  lcd_1602_command(lcd_struct, LCD_SETDDRAMADDR | (col + lcd_struct->_row_offsets[row]));
+  // lcd_1602_command(lcd_struct, LCD_SETDDRAMADDR | (col + lcd_struct->_row_offsets[row]));
 }
 
 /*********** mid level commands, for sending data/cmds */
@@ -510,6 +545,7 @@ void lcd_1602_send(LCD_16x2* lcd_struct, uint8_t value, uint8_t command)
  */
 void lcd_1602_write_4_bits(LCD_16x2* lcd_struct, uint8_t data)
 {
+  // debug! ("printam {}", value);
   for (int i = 0; i < 4; i++) {
     if ((data >> i) & 0x01) {
       gpio_set(lcd_struct->_data_pins[i]);

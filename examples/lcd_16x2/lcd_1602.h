@@ -56,6 +56,8 @@ extern "C" {
 #define LCD_5x10DOTS 0x04
 #define LCD_5x8DOTS 0x00
 
+#define DRIVER_LCD_NUM 0x00008
+
 typedef struct {
 
 	uint8_t _rs_pin; // LOW: command.  HIGH: character.
@@ -74,7 +76,9 @@ typedef struct {
 } LCD_16x2;
 
 // intializing functions
-void lcd_1602_start(LCD_16x2* lcd_struct, int arg_count, ...);
+// void lcd_1602_start(LCD_16x2* lcd_struct, int arg_count, ...);
+void lcd_1602_start();
+void lcd_test();
 void lcd_1602_init(LCD_16x2* lcd_struct, int four_bit_mode, uint8_t rs, uint8_t rw, uint8_t en, uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7);
 void lcd_1602_begin(LCD_16x2* lcd_struct, uint8_t cols, uint8_t lines);
 
@@ -95,11 +99,11 @@ void lcd_1602_right_to_left(LCD_16x2* lcd_struct);
 void lcd_1602_autoscroll(LCD_16x2* lcd_struct);
 void lcd_1602_no_autoscroll(LCD_16x2* lcd_struct);
 
-uint8_t lcd_1602_print_string(LCD_16x2* lcd_struct, char* str);
-uint8_t lcd_1602_print_number(LCD_16x2* lcd_struct, uint32_t value);
+uint8_t lcd_1602_print_string(char* str);
+uint8_t lcd_1602_print_number(uint32_t value);
 
 void lcd_1602_set_row_offsets(LCD_16x2* lcd_struct, uint8_t row0, uint8_t row1, uint8_t row2, uint8_t row3);
-void lcd_1602_set_cursor(LCD_16x2* lcd_struct, uint8_t line, uint8_t position);
+void lcd_1602_set_cursor(uint8_t line, uint8_t position);
 uint8_t lcd_1602_write(LCD_16x2* lcd_struct, uint8_t* buffer, uint8_t size);
 void lcd_1602_command(LCD_16x2* lcd_struct, uint8_t command);
 
