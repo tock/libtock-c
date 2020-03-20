@@ -58,60 +58,28 @@ extern "C" {
 
 #define DRIVER_LCD_NUM 0x00008
 
-typedef struct {
+void lcd_1602_begin();
 
-	uint8_t _rs_pin; // LOW: command.  HIGH: character.
-	uint8_t _rw_pin; // LOW: write to LCD.  HIGH: read from LCD.
-	uint8_t _enable_pin; // activated by a HIGH pulse.
-	uint8_t _data_pins[8];
+void lcd_1602_clear();
+void lcd_1602_home();
 
-	uint8_t _displayfunction;
-	uint8_t _displaycontrol;
-	uint8_t _displaymode;
+void lcd_1602_no_display();
+void lcd_1602_display();
+void lcd_1602_no_blink();
+void lcd_1602_blink();
+void lcd_1602_no_cursor();
+void lcd_1602_cursor();
 
-	uint8_t _initialized;
-
-	uint8_t _numlines;
-	uint8_t _row_offsets[4];
-} LCD_16x2;
-
-// intializing functions
-// void lcd_1602_start(LCD_16x2* lcd_struct, int arg_count, ...);
-void lcd_1602_start();
-void lcd_test();
-void lcd_1602_init(LCD_16x2* lcd_struct, int four_bit_mode, uint8_t rs, uint8_t rw, uint8_t en, uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7);
-void lcd_1602_begin(LCD_16x2* lcd_struct, uint8_t cols, uint8_t lines);
-
-void lcd_1602_clear(LCD_16x2* lcd_struct);
-void lcd_1602_home(LCD_16x2* lcd_struct);
-
-void lcd_1602_no_display(LCD_16x2* lcd_struct);
-void lcd_1602_display(LCD_16x2* lcd_struct);
-void lcd_1602_no_blink(LCD_16x2* lcd_struct);
-void lcd_1602_blink(LCD_16x2* lcd_struct);
-void lcd_1602_no_cursor(LCD_16x2* lcd_struct);
-void lcd_1602_cursor(LCD_16x2* lcd_struct);
-
-void lcd_1602_scroll_display_left(LCD_16x2* lcd_struct);
-void lcd_1602_scroll_display_right(LCD_16x2* lcd_struct);
-void lcd_1602_left_to_right(LCD_16x2* lcd_struct);
-void lcd_1602_right_to_left(LCD_16x2* lcd_struct);
-void lcd_1602_autoscroll(LCD_16x2* lcd_struct);
-void lcd_1602_no_autoscroll(LCD_16x2* lcd_struct);
+void lcd_1602_scroll_display_left();
+void lcd_1602_scroll_display_right();
+void lcd_1602_left_to_right();
+void lcd_1602_right_to_left();
+void lcd_1602_autoscroll();
+void lcd_1602_no_autoscroll();
+void lcd_1602_set_cursor(uint8_t line, uint8_t position);
 
 uint8_t lcd_1602_print_string(char* str);
 uint8_t lcd_1602_print_number(uint32_t value);
-
-void lcd_1602_set_row_offsets(LCD_16x2* lcd_struct, uint8_t row0, uint8_t row1, uint8_t row2, uint8_t row3);
-void lcd_1602_set_cursor(uint8_t line, uint8_t position);
-uint8_t lcd_1602_write(LCD_16x2* lcd_struct, uint8_t* buffer, uint8_t size);
-void lcd_1602_command(LCD_16x2* lcd_struct, uint8_t command);
-
-uint8_t lcd_1602_send_ret(LCD_16x2* lcd_struct, uint8_t* value, uint8_t command);
-void lcd_1602_send(LCD_16x2* lcd_struct, uint8_t value, uint8_t command);
-void lcd_1602_write_4_bits(LCD_16x2* lcd_struct, uint8_t data);
-void lcd_1602_write_8_bits(LCD_16x2* lcd_struct, uint8_t data);
-void lcd_1602_pulse_enable(LCD_16x2* lcd_struct);
 
 uint32_t get_min(uint32_t a, uint32_t b);
 

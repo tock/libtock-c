@@ -7,29 +7,14 @@
 #include <string.h>
 #include <timer.h>
 
-// int rs = 7;
-// int en = 5;
-// int d0 = 4;
-// int d1 = 3;
-// int d2 = 2;
-// int d3 = 1;
 
 int main(void) {
   char str[14] = "Hello, world!";
-  // LCD_16x2 lcd;
-  lcd_1602_start();
-  // lcd_1602_set_cursor(0, 0);
-  // delay_ms(2000);
-  // lcd_1602_set_cursor(0, 1);
-  // lcd_test();
-  // lcd_1602_begin(&lcd, 16, 2);
+  lcd_1602_begin();
 
-  // lcd_1602_print_string(str);
-  // lcd_1602_set_cursor(0, 1);
-  lcd_1602_print_number(2020);
   lcd_1602_print_string(str);
-
-  // delay_ms(2000);
+  lcd_1602_set_cursor(0, 1);
+  lcd_1602_print_number(2020);
 
   while (1) {
     //
