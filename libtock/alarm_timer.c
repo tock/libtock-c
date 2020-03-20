@@ -68,8 +68,8 @@ static void callback( __attribute__ ((unused)) int unused0,
     uint32_t now = alarm_read();
     // has the alarm not expired yet? (distance from `now` has to be larger or
     // equal to distance from current clock value.
-    if (alarm->expiration - alarm->t0 > now - alarm->t0) {
-      alarm_internal_set(alarm->expiration);
+    if (alarm->expiration > now - alarm->t0) {
+      alarm_internal_relative_set(alarm->expiration);
       break;
     } else {
       root_pop();
@@ -97,7 +97,7 @@ void alarm_at(uint32_t expiration, subscribe_cb cb, void* ud, alarm_t* alarm) {
 
   if (root_peek() == alarm) {
     alarm_internal_subscribe((subscribe_cb*)callback, NULL);
-    alarm_internal_set(alarm->expiration);
+    alarm_internal_relative_set(alarm->expiration);
   }
 }
 
@@ -112,7 +112,7 @@ void alarm_cancel(alarm_t* alarm) {
   if (root == alarm) {
     root = alarm->next;
     if (root != NULL) {
-      alarm_internal_set(root->expiration);
+      alarm_internal_relative_set(root->expiration);
     }
   }
 
@@ -130,8 +130,8 @@ uint32_t alarm_read(void) {
 void timer_in(uint32_t ms, subscribe_cb cb, void* ud, tock_timer_t *timer) {
   uint32_t frequency  = alarm_internal_frequency();
   uint32_t interval   = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
-  uint32_t now        = alarm_read();
-  uint32_t expiration = now + interval;
+  // uint32_t now        = alarm_read();
+  uint32_t expiration = interval;
   alarm_at(expiration, cb, ud, &timer->alarm);
 }
 
@@ -141,7 +141,7 @@ static void repeating_cb( uint32_t now,
                           void* ud) {
   tock_timer_t* repeating = (tock_timer_t*)ud;
   uint32_t interval       = repeating->interval;
-  uint32_t expiration     = now + interval;
+  uint32_t expiration     = interval;
   uint32_t cur_exp        = repeating->alarm.expiration;
   alarm_at(expiration, (subscribe_cb*)repeating_cb,
            (void*)repeating, &repeating->alarm);
@@ -156,8 +156,8 @@ void timer_every(uint32_t ms, subscribe_cb cb, void* ud, tock_timer_t* repeating
   repeating->cb       = cb;
   repeating->ud       = ud;
 
-  uint32_t now        = alarm_read();
-  uint32_t expiration = now + interval;
+  // uint32_t now        = alarm_read();
+  uint32_t expiration = interval;
 
   alarm_at(expiration, (subscribe_cb*)repeating_cb,
            (void*)repeating, &repeating->alarm);

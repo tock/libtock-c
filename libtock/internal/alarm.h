@@ -27,6 +27,15 @@ int alarm_internal_subscribe(subscribe_cb cb, void *userdata);
  */
 int alarm_internal_set(uint32_t tics);
 
+/*
+ * Starts a oneshot alarm
+ *
+ * expiration - absolute expiration value in clock tics relative to now
+ *
+ * Side-effects: cancels any existing/outstanding timers
+ */
+int alarm_internal_relative_set(uint32_t delta_tics);
+
 
 /*
  * Stops any outstanding hardware alarm.

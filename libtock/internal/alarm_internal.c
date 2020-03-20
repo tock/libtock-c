@@ -8,6 +8,10 @@ int alarm_internal_set(uint32_t tics) {
   return command(DRIVER_NUM_ALARM, 4, (int)tics, 0);
 }
 
+int alarm_internal_relative_set(uint32_t delta_tics) {
+  return command(DRIVER_NUM_ALARM, 5, (int)delta_tics, 0);
+}
+
 int alarm_internal_stop(void) {
   return command(DRIVER_NUM_ALARM, 3, 0, 0);
 }
