@@ -1,20 +1,34 @@
 /*
-    Example for lcd_1602 library
+    Example for hd44780 library
     Tested on NUCLEO-F429ZI
  */
 
-#include "lcd_1602.h"
+#include <hd44780.h>
 #include <string.h>
 #include <timer.h>
 
 
 int main(void) {
-  char str[14] = "Hello, world!";
-  lcd_1602_begin();
+  char string[3];
+  int ret, to_write;
+  hd44780_begin();
+  hd44780_set_cursor(0, 0);
 
-  lcd_1602_print_string(str);
-  lcd_1602_set_cursor(0, 1);
-  lcd_1602_print_number(2020);
+  for (int i = 0; i < 200; i++) {
+    snprintf(string, 16, "%u", (unsigned int) i);
+    ret = hd44780_print_string(string);
+    if (i > 99) {
+      to_write = 3;
+    } else if (i > 9) {
+      to_write = 2;
+    } else to_write = 1;
+    while (ret != to_write) {
+      delay_ms(500);
+      int current = hd44780_print_string(&string[ret]);
+      ret += current;
+    }
+    // delay_ms(10);
+  }
 
   while (1) {
     //
