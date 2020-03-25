@@ -14,7 +14,7 @@ int main(void) {
   hd44780_begin();
   hd44780_set_cursor(0, 0);
 
-  for(int i = 0; i < 200; i++) {
+  for (int i = 0; i < 200; i++) {
     snprintf(string, 16, "%u", (unsigned int) i);
     ret = hd44780_print_string(string);
     if (i > 99) {
