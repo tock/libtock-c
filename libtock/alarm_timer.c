@@ -23,7 +23,7 @@ static void root_insert(alarm_t* alarm) {
   alarm_t **cur = &root;
   alarm_t *prev = NULL;
   while (*cur != NULL) {
-    if (cmp_exp(alarm->t0, alarm->expiration, (*cur)->expiration) < 0) {
+    if (cmp_exp(alarm->t0, alarm->interval, (*cur)->interval) < 0) {
       // insert before
       alarm_t *tmp = *cur;
       *cur        = alarm;
@@ -68,26 +68,26 @@ static void callback( __attribute__ ((unused)) int unused0,
     uint32_t now = alarm_read();
     // has the alarm not expired yet? (distance from `now` has to be larger or
     // equal to distance from current clock value.
-    if (alarm->expiration > now - alarm->t0) {
-      alarm_internal_relative_set(alarm->expiration);
+    if (alarm->interval > now - alarm->t0) {
+      alarm_internal_relative_set(alarm->interval);
       break;
     } else {
       root_pop();
 
       if (alarm->callback) {
-        tock_enqueue(alarm->callback, now, alarm->expiration, 0, alarm->ud);
+        tock_enqueue(alarm->callback, now, alarm->interval, 0, alarm->ud);
       }
     }
   }
 }
 
-void alarm_at(uint32_t expiration, subscribe_cb cb, void* ud, alarm_t* alarm) {
-  alarm->t0         = alarm_read();
-  alarm->expiration = expiration;
-  alarm->callback   = cb;
-  alarm->ud         = ud;
-  alarm->prev       = NULL;
-  alarm->next       = NULL;
+void alarm_at(uint32_t interval, subscribe_cb cb, void* ud, alarm_t* alarm) {
+  alarm->t0       = alarm_read();
+  alarm->interval = interval;
+  alarm->callback = cb;
+  alarm->ud       = ud;
+  alarm->prev     = NULL;
+  alarm->next     = NULL;
 
   root_insert(alarm);
   int i = 0;
@@ -97,7 +97,7 @@ void alarm_at(uint32_t expiration, subscribe_cb cb, void* ud, alarm_t* alarm) {
 
   if (root_peek() == alarm) {
     alarm_internal_subscribe((subscribe_cb*)callback, NULL);
-    alarm_internal_relative_set(alarm->expiration);
+    alarm_internal_relative_set(alarm->interval);
   }
 }
 
@@ -112,7 +112,7 @@ void alarm_cancel(alarm_t* alarm) {
   if (root == alarm) {
     root = alarm->next;
     if (root != NULL) {
-      alarm_internal_relative_set(root->expiration);
+      alarm_internal_relative_set(root->interval);
     }
   }
 
@@ -139,9 +139,8 @@ static void repeating_cb( uint32_t now,
                           void* ud) {
   tock_timer_t* repeating = (tock_timer_t*)ud;
   uint32_t interval       = repeating->interval;
-  uint32_t expiration     = interval;
-  uint32_t cur_exp        = repeating->alarm.expiration;
-  alarm_at(expiration, (subscribe_cb*)repeating_cb,
+  uint32_t cur_exp        = repeating->alarm.interval;
+  alarm_at(interval, (subscribe_cb*)repeating_cb,
            (void*)repeating, &repeating->alarm);
   repeating->cb(now, cur_exp, 0, repeating->ud);
 }
