@@ -14,6 +14,8 @@ int ninedof_subscribe(subscribe_cb callback, void* userdata);
 int ninedof_start_accel_reading(void);
 // Read magnetometer and relay to callback function
 int ninedof_start_magnetometer_reading(void);
+// Read gyroscope and relay to callback function
+int ninedof_start_gyro_reading(void);
 // Read square of magnitude of acceleration (blocking)
 double ninedof_read_accel_mag(void);
 
@@ -22,6 +24,9 @@ int ninedof_read_acceleration_sync(int* x, int* y, int* z);
 
 // Get a reading from the magnetometer. Blocking.
 int ninedof_read_magnetometer_sync(int* x, int* y, int* z);
+
+// Get a reading from the gyroscope. Blocking.
+int ninedof_read_gyroscope_sync(int* x, int* y, int* z);
 
 #ifdef __cplusplus
 }

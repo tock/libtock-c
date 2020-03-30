@@ -52,6 +52,10 @@ int ninedof_start_magnetometer_reading(void) {
   return command(DRIVER_NUM_NINEDOF, 100, 0, 0);
 }
 
+int ninedof_start_gyro_reading(void) {
+  return command(DRIVER_NUM_NINEDOF, 200, 0, 0);
+}
+
 int ninedof_read_acceleration_sync(int* x, int* y, int* z) {
   int err;
   res.fired = false;
@@ -80,6 +84,26 @@ int ninedof_read_magnetometer_sync(int* x, int* y, int* z) {
   if (err < 0) return err;
 
   err = ninedof_start_magnetometer_reading();
+  if (err < 0) return err;
+
+  // Wait for the callback.
+  yield_for(&res.fired);
+
+  *x = res.x;
+  *y = res.y;
+  *z = res.z;
+
+  return 0;
+}
+
+int ninedof_read_gyroscope_sync(int* x, int* y, int* z) {
+  int err;
+  res.fired = false;
+
+  err = ninedof_subscribe(ninedof_cb, (void*) &res);
+  if (err < 0) return err;
+
+  err = ninedof_start_gyro_reading();
   if (err < 0) return err;
 
   // Wait for the callback.

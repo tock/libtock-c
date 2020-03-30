@@ -42,23 +42,23 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
   if (humidity)     humidity_read_sync(&humi);
   if (ninedof)      ninedof_read_acceleration_sync(&ninedof_x, &ninedof_y, &ninedof_z);
 
-  if (isl29035)       printf("ISL29035:   Light Intensity: %d\n", light);
-  if (tmp006)         printf("TMP006:     Temperature:     %d\n", tmp006_temp);
-  if (tsl2561)        printf("TSL2561:    Light:           %d lux\n", tsl2561_lux);
-  if (lps25hb)        printf("LPS25HB:    Pressure:        %d\n", lps25hb_pressure);
-  if (temp)           printf("Temperature:                 %d deg C\n", temp/100);
-  if (humi)           printf("Humidity:                    %u%%\n", humi/100);
-  if (ninedof)        printf("FXOS8700CQ: X:               %d\n", ninedof_x);
-  if (ninedof)        printf("FXOS8700CQ: Y:               %d\n", ninedof_y);
-  if (ninedof)        printf("FXOS8700CQ: Z:               %d\n", ninedof_z);
+  if (isl29035)       printf("ISL29035:   Light Intensity: %d\r\n", light);
+  if (tmp006)         printf("TMP006:     Temperature:     %d\r\n", tmp006_temp);
+  if (tsl2561)        printf("TSL2561:    Light:           %d lux\r\n", tsl2561_lux);
+  if (lps25hb)        printf("LPS25HB:    Pressure:        %d\r\n", lps25hb_pressure);
+  if (temp)           printf("Temperature:                 %d deg C\r\n", temp/100);
+  if (humi)           printf("Humidity:                    %u%%\r\n", humi/100);
+  if (ninedof)        printf("FXOS8700CQ: X:               %d\r\n", ninedof_x);
+  if (ninedof)        printf("FXOS8700CQ: Y:               %d\r\n", ninedof_y);
+  if (ninedof)        printf("FXOS8700CQ: Z:               %d\r\n", ninedof_z);
   /* *INDENT-ON* */
 
-  printf("\n");
+  printf("\r\n");
 }
 
 int main(void) {
-  printf("[Sensors] Starting Sensors App.\n");
-  printf("[Sensors] All available sensors on the platform will be sampled.\n");
+  printf("[Sensors] Starting Sensors App.\r\n");
+  printf("[Sensors] All available sensors on the platform will be sampled.\r\n");
 
   isl29035    = driver_exists(DRIVER_NUM_AMBIENT_LIGHT);
   tmp006      = driver_exists(DRIVER_NUM_TMP006);
