@@ -1,9 +1,5 @@
 /*
-	hd44780.h - C implementation of the LiquidCrystal class, providing basic
-	API for communicating with the 16x2 HD44780 LCD; 
-
-	The code was developed based on the basic Arduino Library for the LCD: 
-		https://github.com/arduino-libraries/LiquidCrystal.git
+	hd44780.h - C implementation for hd44780 capsule
 */
 #pragma once
 
