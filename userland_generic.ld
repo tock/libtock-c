@@ -135,7 +135,9 @@ SECTIONS {
      * This contains compiler-generated support for unwinding the stack,
      * consisting of key-value pairs of function addresses and information on
      * how to unwind stack frames.
-     * https://wiki.linaro.org/KenWerner/Sandbox/libunwind?action=AttachFile&do=get&target=libunwind-LDS.pdf
+     * https://wiki-archive.linaro.org/KenWerner/Sandbox/libunwind
+     * (See also https://github.com/tock/libtock-c/issues/48)
+     *
      *
      * .ARM.exidx is sorted, so has to go in its own output section.
      *
