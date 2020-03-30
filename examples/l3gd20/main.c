@@ -26,8 +26,7 @@ int main(void) {
   printf ("enable hpf %d\r\n", l3gd20_enable_hpf (true));
   while (1)
   {
-    if (l3gd20_read_xyz (&xyz) == TOCK_SUCCESS && l3gd20_read_temperature (&temp) == TOCK_SUCCESS)
-    {
+    if (l3gd20_read_xyz (&xyz) == TOCK_SUCCESS && l3gd20_read_temperature (&temp) == TOCK_SUCCESS) {
       printf ("temperature %d x %d.%d y %d.%d z %d.%d\r\n", temp, integer(xyz.x), decimals(xyz.x, 3),
               integer(xyz.y), decimals(xyz.y, 3), integer(xyz.z), decimals(xyz.z, 3));
     }
