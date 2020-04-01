@@ -35,8 +35,6 @@ bool l3gd20_is_present (void) {
   if (command (DRIVER_NUM_L3GD20, 1, 0, 0) == TOCK_SUCCESS) {
     yield_for (&(response.done));
   }
-  // unsubscribe
-  l3gd20_subscribe (NULL, NULL);
   return response.data1 ? true : false;
 }
 
@@ -50,8 +48,6 @@ int l3gd20_power_on (void) {
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
   }
-  // unsubscribe
-  l3gd20_subscribe (NULL, NULL);
   return evalue;
 }
 
@@ -67,8 +63,6 @@ int l3gd20_set_scale (unsigned char scale) {
     scale_factor = scale;
     yield_for (&(response.done));
   }
-  // unsubscribe
-  l3gd20_subscribe (NULL, NULL);
   return evalue;
 }
 
@@ -82,8 +76,6 @@ int l3gd20_enable_hpf (bool enabled) {
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
   }
-  // unsubscribe
-  l3gd20_subscribe (NULL, NULL);
   return evalue;
 }
 
@@ -97,8 +89,6 @@ int l3gd20_set_hpf_parameters (unsigned char mode, unsigned char divider) {
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
   }
-  // unsubscribe
-  l3gd20_subscribe (NULL, NULL);
   return evalue;
 }
 
@@ -117,8 +107,6 @@ int l3gd20_read_xyz (L3GD20XYZ *xyz) {
       xyz->z = (float)response.data3 * SCALE_FACTOR[scale_factor] * 0.001;
     }
   }
-  // unsubscribe
-  l3gd20_subscribe (NULL, NULL);
   return evalue;
 }
 
@@ -135,7 +123,5 @@ int l3gd20_read_temperature (int *temperature) {
       *temperature = response.data1;
     }
   }
-  // unsubscribe
-  l3gd20_subscribe (NULL, NULL);
   return evalue;
 }
