@@ -8,6 +8,7 @@ typedef struct l3gd20_response {
   bool done;  // the callback has been called
 } L3GD20Response;
 
+// see manual page 9
 const float SCALE_FACTOR[3] = {8.75, 17.5, 70.0};
 
 unsigned char scale_factor = 0;

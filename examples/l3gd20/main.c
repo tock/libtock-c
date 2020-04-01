@@ -22,15 +22,15 @@ int main(void) {
         if (l3gd20_read_xyz (&xyz) == TOCK_SUCCESS && l3gd20_read_temperature (&temp) == TOCK_SUCCESS) {
           printf ("temperature %d x %d.%d y %d.%d z %d.%d\r\n", temp, (int)xyz.x, decimals(xyz.x, 3),
                   (int)xyz.y, decimals(xyz.y, 3), (int)xyz.z, decimals(xyz.z, 3));
-        }else  {
+        } else {
           printf ("Error while reading gyroscope and temperature\n");
         }
         delay_ms (10);
       }
-    }else  {
+    } else {
       printf ("L3GD20 device is not present\n");
     }
-  }else  {
+  } else {
     printf ("L3GD20 sensor driver not present\n");
   }
   return 0;

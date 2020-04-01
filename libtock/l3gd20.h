@@ -1,3 +1,9 @@
+/*L3GD20 3 axis gyroscope and temperature sensor
+*
+* <https://www.pololu.com/file/0J563/L3GD20.pdf>
+*
+*/
+
 #pragma once
 
 #include "tock.h"
