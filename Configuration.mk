@@ -59,6 +59,12 @@ override CPPFLAGS += \
       -fPIC
 
 # Add different flags for different architectures
+override CPPFLAGS_rv32imc += \
+      -march=rv32imc\
+      -mabi=ilp32\
+      -mcmodel=medlow\
+      -Wl,--no-relax   # Prevent use of global_pointer for riscv
+
 override CPPFLAGS_rv32imac += \
       -march=rv32imac\
       -mabi=ilp32\
