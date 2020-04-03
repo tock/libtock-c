@@ -59,11 +59,21 @@ override CPPFLAGS += \
       -fPIC
 
 # Add different flags for different architectures
+override CPPFLAGS_rv32imc += \
+      -march=rv32imc\
+      -mabi=ilp32\
+      -mcmodel=medlow\
+      -Wl,--no-relax   # Prevent use of global_pointer for riscv
+override LINK_LIBS_rv32imc += \
+      -lc -lgcc\
+
 override CPPFLAGS_rv32imac += \
       -march=rv32imac\
       -mabi=ilp32\
       -mcmodel=medlow\
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
+override LINK_LIBS_rv32imac += \
+      -lc -lgcc\
 
 override CPPFLAGS_cortex-m += \
       -mthumb\
@@ -94,11 +104,6 @@ override LEGACY_LIBS_cortex-m += \
 override LEGACY_LIBS_cortex-m4 += $(LEGACY_LIBS_cortex-m)
 override LEGACY_LIBS_cortex-m3 += $(LEGACY_LIBS_cortex-m)
 override LEGACY_LIBS_cortex-m0 += $(LEGACY_LIBS_cortex-m)
-
-# Single-arch libraries, to be phased out
-override LEGACY_LIBS_rv32imac += \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32imac/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32imac/libm.a
 
 # This allows Tock to add additional warnings for functions that frequently cause problems.
 # See the included header for more details.
