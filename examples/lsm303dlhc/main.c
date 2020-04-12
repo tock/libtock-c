@@ -44,7 +44,7 @@ int main(void) {
           }
           delay_ms (1000);
         }
-      }else  {
+      } else {
         printf ("LSM303DLHC device set scale failed\n");
       }
     } else {
