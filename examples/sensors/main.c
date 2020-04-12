@@ -42,11 +42,6 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
   if (lps25hb)      lps25hb_pressure = lps25hb_get_pressure_sync();
   if (temperature)  temperature_read_sync(&temp);
   if (humidity)     humidity_read_sync(&humi);
-  if (ninedof)      { 
-    ninedof_read_acceleration_sync(&ninedof_accel_x, &ninedof_accel_y, &ninedof_accel_z);
-    ninedof_read_magnetometer_sync(&ninedof_magneto_x, &ninedof_magneto_y, &ninedof_magneto_z);
-    ninedof_read_gyroscope_sync(&ninedof_gyro_x, &ninedof_gyro_y, &ninedof_gyro_z);
-  }
 
   if (isl29035)       printf("ISL29035:   Light Intensity: %d\n", light);
   if (tmp006)         printf("TMP006:     Temperature:     %d\n", tmp006_temp);
@@ -55,9 +50,18 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
   if (temp)           printf("Temperature:                 %d deg C\n", temp/100);
   if (humi)           printf("Humidity:                    %u%%\n", humi/100);
   if (ninedof)   {
-     printf("Acceleration: X: %d Y: %d Z: %d\n", ninedof_accel_x, ninedof_accel_y, ninedof_accel_z);
-     printf("Magnetometer: X: %d Y: %d Z: %d\n", ninedof_magneto_x, ninedof_magneto_y, ninedof_magneto_z);
-     printf("Gyro: X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
+    if (ninedof_read_acceleration_sync(&ninedof_accel_x, &ninedof_accel_y, &ninedof_accel_z) == TOCK_SUCCESS)
+    {
+      printf("Acceleration: X: %d Y: %d Z: %d\n", ninedof_accel_x, ninedof_accel_y, ninedof_accel_z);
+    }
+    if (ninedof_read_magnetometer_sync(&ninedof_magneto_x, &ninedof_magneto_y, &ninedof_magneto_z) == TOCK_SUCCESS)
+    {
+      printf("Magnetometer: X: %d Y: %d Z: %d\n", ninedof_magneto_x, ninedof_magneto_y, ninedof_magneto_z);
+    }
+    if (ninedof_read_gyroscope_sync(&ninedof_gyro_x, &ninedof_gyro_y, &ninedof_gyro_z) == TOCK_SUCCESS)
+    {
+      printf("Gyro: X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
+    }
   }
 
   /* *INDENT-ON* */
