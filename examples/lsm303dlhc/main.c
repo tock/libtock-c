@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <timer.h>
 
-#define SIGN(f) (f<0?'-':' ')
+#define SIGN(f) (f < 0 ? '-' : ' ')
 
 static int decimals (float f, int n)
 {
@@ -44,9 +44,7 @@ int main(void) {
           }
           delay_ms (1000);
         }
-      }
-      else
-      {
+      }else  {
         printf ("LSM303DLHC device set scale failed\n");
       }
     } else {

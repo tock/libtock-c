@@ -30,23 +30,23 @@ static int lsm303dlhc_command (uint32_t command_num, uint32_t data1, uint32_t da
 // Accelerometer Scale Factor
 // Manual table 27, page 27
 const float SCALE_FACTOR[4] = {
-  2.0/32768.0, 
-  4.0/32768.0, 
-  8.0/32768.0, 
-  16.0/32768.0
+  2.0 / 32768.0,
+  4.0 / 32768.0,
+  8.0 / 32768.0,
+  16.0 / 32768.0
 };
 
 // Magnetometer Range Factor
 // Manual table 75, page 38
 const int RANGE_FACTOR_X_Y[8] = {
   1000, // placeholder
-  1100, 
-  855, 
-  670, 
+  1100,
+  855,
+  670,
   450,
-  400, 
-  330, 
-  230, 
+  400,
+  330,
+  230,
 };
 
 // Magnetometer Range Factor
@@ -82,10 +82,10 @@ bool lsm303dlhc_set_power_mode (unsigned char power_mode, bool low_power) {
   int evalue;
   LSM303DLHCResponse response;
   response.data1 = 0;
-  response.done = false;
+  response.done  = false;
   // subscribe
   lsm303dlhc_subscribe (command_callback_yield, &response);
-  evalue = lsm303dlhc_command (2, power_mode, low_power?1:0);
+  evalue = lsm303dlhc_command (2, power_mode, low_power ? 1 : 0);
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
   }
@@ -97,14 +97,13 @@ bool lsm303dlhc_set_accelerometer_scale_and_resolution (unsigned char scale, boo
   int evalue;
   LSM303DLHCResponse response;
   response.data1 = 0;
-  response.done = false;
+  response.done  = false;
   // subscribe
   lsm303dlhc_subscribe (command_callback_yield, &response);
-  evalue = lsm303dlhc_command (3, scale, high_resolution?1:0);
+  evalue = lsm303dlhc_command (3, scale, high_resolution ? 1 : 0);
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
-    if (response.data1 == 1)
-    {
+    if (response.data1 == 1) {
       scale_factor = scale;
     }
   }
@@ -115,10 +114,10 @@ bool lsm303dlhc_set_temperature_and_magnetometer_rate (bool temperature, unsigne
   int evalue;
   LSM303DLHCResponse response;
   response.data1 = 0;
-  response.done = false;
+  response.done  = false;
   // subscribe
   lsm303dlhc_subscribe (command_callback_yield, &response);
-  evalue = lsm303dlhc_command (4, temperature?1:0, rate);
+  evalue = lsm303dlhc_command (4, temperature ? 1 : 0, rate);
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
   }
@@ -129,14 +128,13 @@ bool lsm303dlhc_set_magnetometer_range (unsigned char range) {
   int evalue;
   LSM303DLHCResponse response;
   response.data1 = 0;
-  response.done = false;
+  response.done  = false;
   // subscribe
   lsm303dlhc_subscribe (command_callback_yield, &response);
   evalue = lsm303dlhc_command (5, range, 0);
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
-    if (response.data1 == 1)
-    {
+    if (response.data1 == 1) {
       range_factor = range;
     }
   }
