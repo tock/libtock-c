@@ -21,7 +21,7 @@ int main(void) {
       printf ("LSM303DLHC device set power mode\n");
       if (lsm303dlhc_set_accelerometer_scale_and_resolution (LSM303DLHC_SCALE_8G, false)) {
         printf ("LSM303DLHC device set scale\n");
-        lsm303dlhc_set_temperature_and_magnetometer_rate (true, LSM303DLHC_M_22_0HZ);
+        lsm303dlhc_set_temperature_and_magnetometer_rate (true, LSM303DLHC_M_220_0HZ);
         lsm303dlhc_set_magnetometer_range (LSM303DLHC_RANGE_4_7G);
         while (1)
         {
