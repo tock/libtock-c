@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <timer.h>
 
+#define SIGN(f) (f<0?'-':' ')
+
 static int decimals (float f, int n)
 {
   return (int)((fabs(f - (int)(f))) * pow (10, n));
@@ -24,19 +26,19 @@ int main(void) {
         while (1)
         {
           if (lsm303dlhc_read_acceleration_xyz (&xyz) == TOCK_SUCCESS) {
-            printf ("acceleration x %d.%d y %d.%d z %d.%d\r\n", (int)xyz.x, decimals(xyz.x, 3),
-                    (int)xyz.y, decimals(xyz.y, 3), (int)xyz.z, decimals(xyz.z, 3));
+            printf ("acceleration x %c%d.%d y %c%d.%d z %c%d.%d\n", SIGN(xyz.x), (int)xyz.x, decimals(xyz.x, 3),
+                    SIGN(xyz.y), (int)xyz.y, decimals(xyz.y, 3), SIGN(xyz.z), (int)xyz.z, decimals(xyz.z, 3));
           } else {
             printf ("Error while reading acceleration\n");
           }
           if (lsm303dlhc_read_temperature (&temp) == TOCK_SUCCESS) {
-            printf ("temperature %d.%d\r\n", (int)temp, decimals(temp, 1));
+            printf ("temperature %c%d.%d\n", SIGN(temp), (int)temp, decimals(temp, 1));
           } else {
             printf ("Error while reading temperature\n");
           }
           if (lsm303dlhc_read_magnetometer_xyz (&xyz) == TOCK_SUCCESS) {
-            printf ("magnetometer x %d.%d y %d.%d z %d.%d\r\n", (int)xyz.x, decimals(xyz.x, 3),
-                    (int)xyz.y, decimals(xyz.y, 3), (int)xyz.z, decimals(xyz.z, 3));
+            printf ("magnetometer x %c%d.%d y %c%d.%d z %c%d.%d\n", SIGN(xyz.x), (int)xyz.x, decimals(xyz.x, 3),
+                    SIGN(xyz.y), (int)xyz.y, decimals(xyz.y, 3), SIGN(xyz.z), (int)xyz.z, decimals(xyz.z, 3));
           } else {
             printf ("Error while reading magnetometer\n");
           }
@@ -47,8 +49,6 @@ int main(void) {
       {
         printf ("LSM303DLHC device set scale failed\n");
       }
-      // l3gd20_set_hpf_parameters (L3GD20_HPF_MODE_NORMAL, L3GD20_HPF_DIV_64);
-      // l3gd20_enable_hpf (true);
     } else {
       printf ("LSM303DLHC device set power mode failed\n");
     }

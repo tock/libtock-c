@@ -27,6 +27,8 @@ static int lsm303dlhc_command (uint32_t command_num, uint32_t data1, uint32_t da
   return command(DRIVER_NUM_LSM303DLHC, command_num, data1, data2);
 }
 
+// Accelerometer Scale Factor
+// Manual table 27, page 27
 const float SCALE_FACTOR[4] = {
   2.0/32768.0, 
   4.0/32768.0, 
@@ -34,8 +36,10 @@ const float SCALE_FACTOR[4] = {
   16.0/32768.0
 };
 
-const float RANGE_FACTOR_X_Y[8] = {
-  1, // placeholder
+// Magnetometer Range Factor
+// Manual table 75, page 38
+const int RANGE_FACTOR_X_Y[8] = {
+  1000, // placeholder
   1100, 
   855, 
   670, 
@@ -45,8 +49,10 @@ const float RANGE_FACTOR_X_Y[8] = {
   230, 
 };
 
-const float RANGE_FACTOR_Z[8] = {
-  1, // placeholder
+// Magnetometer Range Factor
+// Manual table 75, page 38
+const int RANGE_FACTOR_Z[8] = {
+  1000, // placeholder
   980,
   760,
   600,
@@ -180,6 +186,7 @@ int lsm303dlhc_read_magnetometer_xyz (LSM303DLHCXYZ *xyz) {
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
     if (xyz != NULL) {
+      printf ("x %d range %d z %d\r\n", response.data1, RANGE_FACTOR_X_Y[range_factor], response.data3);
       xyz->x = (float)response.data1 / RANGE_FACTOR_X_Y[range_factor];
       xyz->y = (float)response.data2 / RANGE_FACTOR_X_Y[range_factor];
       xyz->z = (float)response.data3 / RANGE_FACTOR_Z[range_factor];

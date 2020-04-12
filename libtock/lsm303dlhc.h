@@ -18,7 +18,8 @@ extern "C" {
 #define LSM303DLHC_NORMAL 0
 #define LSM303DLHC_LOW_POWER 1
 
-// Data Rate
+// Accelerometer Data Rate
+// Manual page Table 20, page 25
 #define LSM303DLHC_OFF 0
 #define LSM303DLHC_1HZ 1
 #define LSM303DLHC_10HZ 2
@@ -35,6 +36,8 @@ extern "C" {
 #define LSM303DLHC_SCALE_8G 2
 #define LSM303DLHC_SCALE_16G 3
 
+// Accelerometer Data Range
+// Manual table 75, page 38
 #define LSM303DLHC_RANGE_1G 0
 #define LSM303DLHC_RANGE_1_3G 1
 #define LSM303DLHC_RANGE_1_9G 2
@@ -44,6 +47,8 @@ extern "C" {
 #define LSM303DLHC_RANGE_5_6G 6
 #define LSM303DLHC_RANGE_8_1G 7
 
+// Magnetometer Data Rate
+// Manual table 72, page 25
 #define LSM303DLHC_M_0_75HZ 0
 #define LSM303DLHC_M_1_55HZ 1
 #define LSM303DLHC_M_3_0HZ 2
@@ -51,7 +56,7 @@ extern "C" {
 #define LSM303DLHC_M_15_0HZ 4
 #define LSM303DLHC_M_30_0HZ 5
 #define LSM303DLHC_M_75_0HZ 6
-#define LSM303DLHC_M_22_0HZ 7
+#define LSM303DLHC_M_220_0HZ 7
 
 // Experimental
 #define LSM303DLHC_TEMPERATURE_OFFSET 17
