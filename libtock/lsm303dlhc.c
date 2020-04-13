@@ -117,7 +117,7 @@ bool lsm303dlhc_set_temperature_and_magnetometer_rate (bool temperature, unsigne
   response.done  = false;
   // subscribe
   lsm303dlhc_subscribe (command_callback_yield, &response);
-  evalue = lsm303dlhc_command (4, temperature ? 1 : 0, rate);
+  evalue = lsm303dlhc_command (4, rate, temperature ? 1 : 0);
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
   }
