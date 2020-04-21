@@ -11,11 +11,13 @@
 #include <adc.h>
 #include <ambient_light.h>
 #include <button.h>
+#include <crc.h>
 #include <gpio.h>
 #include <humidity.h>
 #include <led.h>
 #include <ninedof.h>
 #include <nrf51_serialization.h>
+#include <rng.h>
 #include <temperature.h>
 #include <timer.h>
 
@@ -46,6 +48,16 @@ static void button_callback(__attribute__ ((unused)) int btn_num,
   } else {
     led_off(1);
   }
+}
+
+// Callback for gpio interrupts.
+//   - pin_num: The index of the pin associated with the callback.
+//   - pin_state: 1 if high, 0 if low.
+static void gpio_callback(  int pin_num,
+                            int pin_state,
+                            __attribute__ ((unused)) int arg2,
+                            __attribute__ ((unused)) void *ud) {
+  printf("GPIO Interrupt: pin: %i, state: %i\n", pin_num, pin_state);
 }
 
 static void sample_sensors (void) {
@@ -80,6 +92,14 @@ static void sample_sensors (void) {
   int d6 = gpio_read(2);
   int d7 = gpio_read(3);
 
+  // Random bytes
+  uint8_t rand[5];
+  rng_sync(rand, 5, 5);
+
+  // CRC of the random bytes
+  uint32_t crc;
+  crc_compute(rand, 5, CRC_32, &crc);
+
   // print results
   printf("[Hail Sensor Reading]\n");
   printf("  Temperature:  %d 1/100 degrees C\n", temp);
@@ -96,6 +116,8 @@ static void sample_sensors (void) {
   printf("  D1:           %d\n", d1);
   printf("  D6:           %d\n", d6);
   printf("  D7:           %d\n", d7);
+  printf("  Random:       %#04x %#04x %#04x %#04x %#04x\n", rand[0], rand[1], rand[2], rand[3], rand[4]);
+  printf("  CRC:          %#010lx\n", crc);
   printf("\n");
 
   // toggle the blue LED
@@ -121,6 +143,10 @@ int main(void) {
   gpio_enable_input(1, PullDown); // D1
   gpio_enable_input(2, PullDown); // D6
   gpio_enable_input(3, PullDown); // D7
+
+  // Enable interrupts on D7
+  gpio_interrupt_callback(gpio_callback, NULL);
+  gpio_enable_interrupt(3, Change);
 
   // sample sensors every second
   while (1) {
