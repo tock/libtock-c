@@ -79,7 +79,9 @@ static void gpio_input(void) {
 static void gpio_cb (__attribute__ ((unused)) int pin_num,
                      __attribute__ ((unused)) int arg2,
                      __attribute__ ((unused)) int arg3,
-                     __attribute__ ((unused)) void* userdata) {}
+                     void* userdata) {
+  *((bool*) userdata) = true;
+}
 
 static void gpio_interrupt(void) {
   printf("Print userspace GPIO 0 pin reading whenever its value changes\n");
