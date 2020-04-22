@@ -11,8 +11,8 @@
 int main(void) {
   char string[3];
   int ret, to_write;
-  hd44780_begin();
-  hd44780_set_cursor(0, 0);
+  ret = hd44780_begin();
+  ret = hd44780_set_cursor(0, 0);
 
   for (int i = 0; i < 200; i++) {
     snprintf(string, 16, "%u", (unsigned int) i);
@@ -27,10 +27,6 @@ int main(void) {
       int current = hd44780_print_string(&string[ret]);
       ret += current;
     }
-  }
-
-  while (1) {
-    //
   }
   return 0;
 }
