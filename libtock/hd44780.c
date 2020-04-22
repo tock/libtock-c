@@ -1,6 +1,6 @@
 #include "gpio.h"
-#include "tock.h"
 #include "hd44780.h"
+#include "tock.h"
 
 #define ALLOW_BAD_VALUE 200
 
