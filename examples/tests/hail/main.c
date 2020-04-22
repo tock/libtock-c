@@ -21,6 +21,29 @@
 #include <temperature.h>
 #include <timer.h>
 
+
+/////////////////////////////////////////////////////////////////////
+// Software CRC implementation for validating CRC driver
+//
+// From http://home.thep.lu.se/~bjorn/crc/ (April 22, 2020)
+static uint32_t crc32_for_byte(uint32_t r) {
+  for (int j = 0; j < 8; ++j)
+    r = (r & 1 ? 0 : (uint32_t)0xEDB88320L) ^ r >> 1;
+  return r ^ (uint32_t)0xFF000000L;
+}
+
+static void reference_crc32(const void *data, size_t n_bytes, uint32_t* crc) {
+  static uint32_t table[0x100];
+  if (!*table)
+    for (size_t i = 0; i < 0x100; ++i)
+      table[i] = crc32_for_byte(i);
+  for (size_t i = 0; i < n_bytes; ++i)
+    *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
+}
+/////////////////////////////////////////////////////////////////////
+
+
+
 // Intervals for BLE advertising and connections
 simple_ble_config_t ble_config = {
   .platform_id       = 0x13,                // used as 4th octect in device BLE address
@@ -99,6 +122,8 @@ static void sample_sensors (void) {
   // CRC of the random bytes
   uint32_t crc;
   crc_compute(rand, 5, CRC_32, &crc);
+  uint32_t reference_crc = 0;
+  reference_crc32(rand, 5, &reference_crc);
 
   // print results
   printf("[Hail Sensor Reading]\n");
@@ -117,7 +142,8 @@ static void sample_sensors (void) {
   printf("  D6:           %d\n", d6);
   printf("  D7:           %d\n", d7);
   printf("  Random:       %#04x %#04x %#04x %#04x %#04x\n", rand[0], rand[1], rand[2], rand[3], rand[4]);
-  printf("  CRC:          %#010lx\n", crc);
+  printf("  CRC:          %#010lx (%s reference implementation)\n", crc,
+         (crc == reference_crc) ? "Matches" : "!! Does not match");
   printf("\n");
 
   // toggle the blue LED
