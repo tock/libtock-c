@@ -14,12 +14,15 @@
 static bool isl29035 = false;
 // TODO: modify tmp006 to comply with the generic temperature interface
 // and then remove tmp006!!!
-static bool tmp006      = false;
-static bool tsl2561     = false;
-static bool lps25hb     = false;
-static bool temperature = false;
-static bool humidity    = false;
-static bool ninedof     = false;
+static bool tmp006        = false;
+static bool tsl2561       = false;
+static bool lps25hb       = false;
+static bool temperature   = false;
+static bool humidity      = false;
+static bool ninedof       = false;
+static bool ninedof_accel = false;
+static bool ninedof_mag   = false;
+static bool ninedof_gyro  = false;
 
 static void timer_fired(__attribute__ ((unused)) int arg0,
                         __attribute__ ((unused)) int arg1,
@@ -49,21 +52,10 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
   if (lps25hb)        printf("LPS25HB:    Pressure:        %d\n", lps25hb_pressure);
   if (temp)           printf("Temperature:                 %d deg C\n", temp/100);
   if (humi)           printf("Humidity:                    %u%%\n", humi/100);
-  if (ninedof)   {
-    if (ninedof_read_acceleration_sync(&ninedof_accel_x, &ninedof_accel_y, &ninedof_accel_z) == TOCK_SUCCESS)
-    {
-      printf("Acceleration: X: %d Y: %d Z: %d\n", ninedof_accel_x, ninedof_accel_y, ninedof_accel_z);
-    }
-    if (ninedof_read_magnetometer_sync(&ninedof_magneto_x, &ninedof_magneto_y, &ninedof_magneto_z) == TOCK_SUCCESS)
-    {
-      printf("Magnetometer: X: %d Y: %d Z: %d\n", ninedof_magneto_x, ninedof_magneto_y, ninedof_magneto_z);
-    }
-    if (ninedof_read_gyroscope_sync(&ninedof_gyro_x, &ninedof_gyro_y, &ninedof_gyro_z) == TOCK_SUCCESS)
-    {
-      printf("Gyro:         X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
-    }
-  }
-
+  if (ninedof_accel)  printf("Acceleration: X: %d Y: %d Z: %d\n", ninedof_accel_x, ninedof_accel_y, ninedof_accel_z);
+  if (ninedof_mag)    printf("Magnetometer: X: %d Y: %d Z: %d\n", ninedof_magneto_x, ninedof_magneto_y, ninedof_magneto_z);
+  if (ninedof_gyro)   printf("Gyro:         X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
+    
   /* *INDENT-ON* */
 
   printf("\n");
@@ -80,6 +72,15 @@ int main(void) {
   temperature = driver_exists(DRIVER_NUM_TEMPERATURE);
   humidity    = driver_exists(DRIVER_NUM_HUMIDITY);
   ninedof     = driver_exists(DRIVER_NUM_NINEDOF);
+
+  if (ninedof)
+  {
+    int buffer;
+    ninedof_accel = (ninedof_read_acceleration_sync(&buffer, &buffer, &buffer) == TOCK_SUCCESS);
+    ninedof_mag = (ninedof_read_magnetometer_sync(&buffer, &buffer, &buffer) == TOCK_SUCCESS);
+    ninedof_gyro = (ninedof_read_gyroscope_sync(&buffer, &buffer, &buffer) == TOCK_SUCCESS);
+  }
+
 
   // Setup periodic timer to sample the sensors.
   static tock_timer_t timer;
