@@ -15,13 +15,10 @@
  */
 int hd44780_begin(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 0, 16, 1);
+  return command(DRIVER_HD44780_NUM, 0, 16, 1);
   if (ret)
     return TOCK_EBUSY;
-  ret = command(DRIVER_HD44780_NUM, 0, 16, 2);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 0, 16, 2);
 }
 
 /* hd44780_clear clears the display and sets the cursor posiziton to zero
@@ -31,10 +28,7 @@ int hd44780_begin(void)
  */
 int hd44780_clear(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 3, 0, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 3, 0, 0);
 }
 
 /* hd44780_home, as hd44780_clear, clears the display and sets the cursor posiziton to zero
@@ -44,10 +38,7 @@ int hd44780_clear(void)
  */
 int hd44780_home(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 2, 0, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 2, 0, 0);
 }
 
 /* hd44780_no_display turns the display off very quickly
@@ -57,10 +48,7 @@ int hd44780_home(void)
  */
 int hd44780_no_display(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 7, 1, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 7, 1, 0);
 }
 
 /* hd44780_display turns the display on very quickly
@@ -70,10 +58,7 @@ int hd44780_no_display(void)
  */
 int hd44780_display(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 7, 0, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 7, 0, 0);
 }
 
 /* hd44780_no_blink turns off the blinking cursor display
@@ -83,10 +68,7 @@ int hd44780_display(void)
  */
 int hd44780_no_blink(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 8, 1, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 8, 1, 0);
 }
 
 /* hd44780_blink turns on the blinking cursor display
@@ -96,10 +78,7 @@ int hd44780_no_blink(void)
  */
 int hd44780_blink(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 8, 0, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 8, 0, 0);
 }
 
 /* hd44780_no_cursor turns off the underline cursor
@@ -109,10 +88,7 @@ int hd44780_blink(void)
  */
 int hd44780_no_cursor(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 6, 1, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 6, 1, 0);
 }
 
 /* hd44780_cursor turns on the underline cursor
@@ -122,10 +98,7 @@ int hd44780_no_cursor(void)
  */
 int hd44780_cursor(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 6, 0, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 6, 0, 0);
 }
 
 /* hd44780_scroll_display_left scrolls the display to the left without
@@ -136,10 +109,7 @@ int hd44780_cursor(void)
  */
 int hd44780_scroll_display_left(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 9, 0, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 9, 0, 0);
 }
 
 /* hd44780_scroll_display_right scrolls the display to the right without
@@ -150,10 +120,7 @@ int hd44780_scroll_display_left(void)
  */
 int hd44780_scroll_display_right(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 9, 1, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 9, 1, 0);
 }
 
 /* hd44780_left_to_right should flow the text from left to right on the display
@@ -163,10 +130,7 @@ int hd44780_scroll_display_right(void)
  */
 int hd44780_left_to_right(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 4, 0, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 4, 0, 0);
 }
 
 /* hd44780_right_to_left should flow the text from right to left on the display
@@ -176,10 +140,7 @@ int hd44780_left_to_right(void)
  */
 int hd44780_right_to_left(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 4, 1, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 4, 1, 0);
 }
 
 /* hd44780_autoscroll will 'right justify' the text from the cursor
@@ -189,10 +150,7 @@ int hd44780_right_to_left(void)
  */
 int hd44780_autoscroll(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 5, 0, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 5, 0, 0);
 }
 
 /* hd44780_no_autoscroll will 'left justify' the text from the cursor
@@ -202,10 +160,7 @@ int hd44780_autoscroll(void)
  */
 int hd44780_no_autoscroll(void)
 {
-  int ret = command(DRIVER_HD44780_NUM, 5, 1, 0);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 5, 1, 0);
 }
 
 /* hd44780_print_full_string will do some checks for the number of bytes to
@@ -275,8 +230,5 @@ uint8_t hd44780_print_string(char* string)
 
 int hd44780_set_cursor(uint8_t col, uint8_t row)
 {
-  int ret = command(DRIVER_HD44780_NUM, 1, col, row);
-  if (ret)
-    return TOCK_EBUSY;
-  return TOCK_SUCCESS;
+  return command(DRIVER_HD44780_NUM, 1, col, row);
 }
