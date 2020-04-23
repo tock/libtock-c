@@ -60,7 +60,7 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
     }
     if (ninedof_read_gyroscope_sync(&ninedof_gyro_x, &ninedof_gyro_y, &ninedof_gyro_z) == TOCK_SUCCESS)
     {
-      printf("Gyro: X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
+      printf("Gyro:         X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
     }
   }
 
@@ -81,7 +81,7 @@ int main(void) {
   humidity    = driver_exists(DRIVER_NUM_HUMIDITY);
   ninedof     = driver_exists(DRIVER_NUM_NINEDOF);
 
-  // // Setup periodic timer to sample the sensors.
+  // Setup periodic timer to sample the sensors.
   static tock_timer_t timer;
   timer_every(1000, timer_fired, NULL, &timer);
 
