@@ -55,7 +55,7 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
   if (ninedof_accel)  printf("Acceleration: X: %d Y: %d Z: %d\n", ninedof_accel_x, ninedof_accel_y, ninedof_accel_z);
   if (ninedof_mag)    printf("Magnetometer: X: %d Y: %d Z: %d\n", ninedof_magneto_x, ninedof_magneto_y, ninedof_magneto_z);
   if (ninedof_gyro)   printf("Gyro:         X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
-    
+
   /* *INDENT-ON* */
 
   printf("\n");
@@ -73,14 +73,12 @@ int main(void) {
   humidity    = driver_exists(DRIVER_NUM_HUMIDITY);
   ninedof     = driver_exists(DRIVER_NUM_NINEDOF);
 
-  if (ninedof)
-  {
+  if (ninedof) {
     int buffer;
     ninedof_accel = (ninedof_read_acceleration_sync(&buffer, &buffer, &buffer) == TOCK_SUCCESS);
-    ninedof_mag = (ninedof_read_magnetometer_sync(&buffer, &buffer, &buffer) == TOCK_SUCCESS);
-    ninedof_gyro = (ninedof_read_gyroscope_sync(&buffer, &buffer, &buffer) == TOCK_SUCCESS);
+    ninedof_mag   = (ninedof_read_magnetometer_sync(&buffer, &buffer, &buffer) == TOCK_SUCCESS);
+    ninedof_gyro  = (ninedof_read_gyroscope_sync(&buffer, &buffer, &buffer) == TOCK_SUCCESS);
   }
-
 
   // Setup periodic timer to sample the sensors.
   static tock_timer_t timer;
