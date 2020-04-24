@@ -15,7 +15,7 @@
  */
 int hd44780_begin(void)
 {
-  return command(DRIVER_HD44780_NUM, 0, 16, 1);
+  int ret = command(DRIVER_HD44780_NUM, 0, 16, 1);
   if (ret)
     return TOCK_EBUSY;
   return command(DRIVER_HD44780_NUM, 0, 16, 2);
