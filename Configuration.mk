@@ -52,7 +52,7 @@ PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 # isn't as easily obtained as we would like), we intend to make the RISC-V
 # targets build by default as well.
 ifeq ($(RISCV),)
-TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4
+TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4 cortex-m7
 else
 # Include the RISC-V targets.
 #  rv32imac|rv32imac.0x20040040.0x80002400 # RISC-V for HiFive1b
@@ -61,6 +61,7 @@ else
 TOCK_TARGETS ?= cortex-m0\
                 cortex-m3\
                 cortex-m4\
+                cortex-m7\
                 rv32imac|rv32imac.0x20040040.0x80002400|0x20040040|0x80002400\
                 rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000\
                 rv32imac|rv32imac.0x40440060.0x80007000|0x40440060|0x80007000\
@@ -83,6 +84,7 @@ ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap 
 TOOLCHAIN_cortex-m0 := arm-none-eabi
 TOOLCHAIN_cortex-m3 := arm-none-eabi
 TOOLCHAIN_cortex-m4 := arm-none-eabi
+TOOLCHAIN_cortex-m7 := arm-none-eabi
 TOOLCHAIN_rv32imac := riscv64-unknown-elf
 TOOLCHAIN_rv32imc := riscv64-unknown-elf
 
@@ -141,6 +143,9 @@ override CPPFLAGS_cortex-m += \
       -mpic-register=r9\
       -mno-pic-data-is-text-relative
 
+override CPPFLAGS_cortex-m7 += $(CPPFLAGS_cortex-m) \
+      -mcpu=cortex-m7
+
 override CPPFLAGS_cortex-m4 += $(CPPFLAGS_cortex-m) \
       -mcpu=cortex-m4
 
@@ -160,6 +165,7 @@ override LEGACY_LIBS_cortex-m += \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libsupc++.a\
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libgcc.a
 
+override LEGACY_LIBS_cortex-m7 += $(LEGACY_LIBS_cortex-m)
 override LEGACY_LIBS_cortex-m4 += $(LEGACY_LIBS_cortex-m)
 override LEGACY_LIBS_cortex-m3 += $(LEGACY_LIBS_cortex-m)
 override LEGACY_LIBS_cortex-m0 += $(LEGACY_LIBS_cortex-m)
@@ -172,6 +178,7 @@ override CPPFLAGS += -include $(TOCK_USERLAND_BASE_DIR)/support/warning_header.h
 OBJDUMP_FLAGS += --disassemble-all --source -C --section-headers
 
 override OBJDUMP_FLAGS_cortex-m  += --disassembler-options=force-thumb
+override OBJDUMP_FLAGS_cortex-m7 += $(OBJDUMP_FLAGS_cortex-m)
 override OBJDUMP_FLAGS_cortex-m4 += $(OBJDUMP_FLAGS_cortex-m)
 override OBJDUMP_FLAGS_cortex-m3 += $(OBJDUMP_FLAGS_cortex-m)
 override OBJDUMP_FLAGS_cortex-m0 += $(OBJDUMP_FLAGS_cortex-m)
