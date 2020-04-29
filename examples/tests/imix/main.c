@@ -43,7 +43,7 @@ static void button_callback(__attribute__ ((unused)) int btn_num,
                             __attribute__ ((unused)) int arg2,
                             __attribute__ ((unused)) void *ud) {
   if (val == 1) {
-    led_on(0); // kernel
+    led_on(0);
   } else {
     led_off(0);
   }
@@ -114,7 +114,7 @@ static void send_ieee802154_packet(void) {
                             NULL,   // unused since SEC_LEVEL_NONE
                             packet,
                             len);
-  if (err != TOCK_SUCCESS) {
+  if (err != TOCK_SUCCESS && err != TOCK_ENOACK) {
     printf("Error sending packet %d\n", err);
   }
 }
