@@ -6,7 +6,6 @@ static void st7735_callback(__attribute__ ((unused)) int value,
                        __attribute__ ((unused)) int unused1,
                        __attribute__ ((unused)) int unused2,
                        void* ud) {
-  printf ("done\n");
   *(bool*)ud = true;
 }
 
@@ -25,6 +24,7 @@ int st7735_reset (void)
     int v = st7735_command (1, 0, 0);
     printf ("%d\n", v);
     if (v == TOCK_SUCCESS) yield_for (&done);
+    st7735_subscribe (NULL, NULL);
     return v;
 }
 
@@ -34,5 +34,6 @@ int st7735_fill (int color)
     st7735_subscribe (st7735_callback, &done);
     int v = st7735_command (2, color, 0);
     if (v == TOCK_SUCCESS) yield_for (&done);
+    st7735_subscribe (NULL, NULL);
     return v;
 }
