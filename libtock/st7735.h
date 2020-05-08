@@ -1,4 +1,4 @@
-/*L3GD20 3 axis gyroscope and temperature sensor
+/*ST7735 LCD screen
 *
 * <https://www.pololu.com/file/0J563/L3GD20.pdf>
 *
