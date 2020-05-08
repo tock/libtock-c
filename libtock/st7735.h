@@ -23,7 +23,7 @@ extern "C" {
 #define ST7735_COLOR_YELLOW  0xFFE0  
 #define ST7735_COLOR_WHITE   0xFFFF
 
-int st7735_reset (void);
+int st7735_init (void);
 int st7735_fill (int color);
 
 #ifdef __cplusplus
