@@ -27,13 +27,12 @@ int main(void) {
     framebuffer_set_window (0, 0, 128, 160);
     framebuffer_fill (0);
     bool invert = false;
-    // for (int pos = 0; pos < BUFFER_SIZE/2; pos++) framebuffer_set_color (pos, 0x07E0);
     for (int i = 0; ; i++) {
       if (i % 4 == 3) {
         invert = !invert;
         if (invert) {
           framebuffer_invert_on();
-        }else  {
+        } else {
           framebuffer_invert_off();
         }
       }
@@ -53,21 +52,8 @@ int main(void) {
       framebuffer_set_window (0, 0, width, height);
       framebuffer_fill (0x0000);
     }
-    // framebuffer_fill (0);
-    //
-    // framebuffer_set_window (0, 0, 128, 160);
-    //
-    // framebuffer_write (5000);
-  }else  {
+  }else {
     printf ("buffer allocation failed\n");
   }
-  // while (1)
-  // {
-  //   st7735_fill (ST7735_COLOR_BLACK);
-  //   delay_ms (1000);
-  //   st7735_fill (ST7735_COLOR_BLUE);
-  //   delay_ms (1000);
-  // }
-
   return 0;
 }
