@@ -22,6 +22,13 @@ extern "C" {
 int framebuffer_count_resolutions (void);
 int framebuffer_get_resolution_size (size_t index, size_t *width, size_t *height);
 
+int framebuffer_screen_init (void);
+int framebuffer_screen_on (void);
+int framebuffer_screen_off (void);
+
+int framebuffer_invert_on (void);
+int framebuffer_invert_off (void);
+
 int framebuffer_count_color_depths (void);
 int framebuffer_get_color_depth_bits (size_t index, size_t *depth);
 
