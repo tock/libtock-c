@@ -6,7 +6,7 @@ TOCK_USERLAND_BASE_DIR = ../..
 LVGL_DIR = $(TOCK_USERLAND_BASE_DIR)/lvgl
 
 override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/lvgl -DLVGL -DLV_CONF_INCLUDE_SIMPLE -I.
-include $(TOCK_USERLAND_BASE_DIR)/lvgl/lvgl/lvgl.mk
+include $(TOCK_USERLAND_BASE_DIR)/lvgl/lvgl.mk
 
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
