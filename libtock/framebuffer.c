@@ -134,6 +134,11 @@ int framebuffer_init (size_t len)
   return r;
 }
 
+uint8_t * framebuffer_buffer (void)
+{
+  return buffer;
+}
+
 int framebuffer_get_resolution (size_t *width, size_t *height) {
   FrameBufferReturn fbr;
   fbr.done = false;
@@ -142,7 +147,7 @@ int framebuffer_get_resolution (size_t *width, size_t *height) {
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
   *width  = fbr.data1;
   *height = fbr.data2;
-  return fbr.done;
+  return fbr.error;
 }
 
 int framebuffer_set_resolution (size_t width, size_t height) {
@@ -151,7 +156,7 @@ int framebuffer_set_resolution (size_t width, size_t height) {
   framebuffer_subscribe (framebuffer_callback, &fbr);
   fbr.error = framebuffer_command (24, width, height);
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
-  return fbr.done;
+  return fbr.error;
 }
 
 
@@ -162,7 +167,7 @@ int framebuffer_get_color_depth (size_t *bits) {
   fbr.error = framebuffer_command (25, 0, 0);
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
   *bits = fbr.data1;
-  return fbr.done;
+  return fbr.error;
 }
 
 int framebuffer_set_color_depth (size_t bits) {
@@ -171,7 +176,7 @@ int framebuffer_set_color_depth (size_t bits) {
   framebuffer_subscribe (framebuffer_callback, &fbr);
   fbr.error = framebuffer_command (26, bits, 0);
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
-  return fbr.done;
+  return fbr.error;
 }
 
 int framebuffer_get_rotation (size_t *rotation) {
@@ -181,7 +186,7 @@ int framebuffer_get_rotation (size_t *rotation) {
   fbr.error = framebuffer_command (21, 0, 0);
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
   *rotation = fbr.data1;
-  return fbr.done;
+  return fbr.error;
 }
 
 int framebuffer_set_rotation (size_t rotation) {
@@ -190,7 +195,7 @@ int framebuffer_set_rotation (size_t rotation) {
   framebuffer_subscribe (framebuffer_callback, &fbr);
   fbr.error = framebuffer_command (22, rotation, 0);
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
-  return fbr.done;
+  return fbr.error;
 }
 
 int framebuffer_set_color (size_t position, size_t color) {

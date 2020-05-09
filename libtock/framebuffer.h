@@ -33,6 +33,7 @@ int framebuffer_count_color_depths (void);
 int framebuffer_get_color_depth_bits (size_t index, size_t *depth);
 
 int framebuffer_init (size_t len);
+uint8_t * framebuffer_buffer (void);
 
 int framebuffer_get_resolution (size_t *width, size_t *height);
 int framebuffer_set_resolution (size_t width, size_t height);
