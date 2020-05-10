@@ -1,5 +1,3 @@
-#ifdef LVGL
-
 #include "lvgl_driver.h"
 
 static lv_disp_buf_t disp_buf;
@@ -51,5 +49,3 @@ void lvgl_driver_event (int millis) {
   lv_tick_inc(millis);
   lv_task_handler();
 }
-
-#endif

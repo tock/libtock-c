@@ -5,11 +5,13 @@ TOCK_USERLAND_BASE_DIR = ../..
 
 LVGL_DIR = $(TOCK_USERLAND_BASE_DIR)/lvgl
 
-override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/lvgl -DLVGL -DLV_CONF_INCLUDE_SIMPLE -I.
-include $(TOCK_USERLAND_BASE_DIR)/lvgl/lvgl.mk
+override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/lvgl -DLV_CONF_INCLUDE_SIMPLE -I.
 
 # Which files to compile.
-C_SRCS := $(wildcard *.c)
+C_SRCS += $(wildcard *.c)
+
+include $(TOCK_USERLAND_BASE_DIR)/lvgl/lvgl.mk
+
 C_SRCS+=$(CSRCS)
 
 APP_HEAP_SIZE := 20000

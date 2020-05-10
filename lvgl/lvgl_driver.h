@@ -1,5 +1,3 @@
-#ifdef LVGL
-
 #pragma once
 
 #include "tock.h"
@@ -9,9 +7,3 @@
 
 int lvgl_driver_init (int buffer_size);
 void lvgl_driver_event (int mills);
-
-#else
-
-#error "Please enable lvgl by defining LVGL"
-
-#endif
