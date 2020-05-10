@@ -1,5 +1,5 @@
-#include <lvgl_driver.h>
-#include <stdio.h>x
+#include "lvgl_driver.h"
+#include <stdio.h>
 #include <timer.h>
 
 int main (void)
