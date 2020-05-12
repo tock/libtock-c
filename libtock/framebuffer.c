@@ -35,7 +35,7 @@ static int framebuffer_allow (void* ptr, size_t size) {
   return allow(DRIVER_NUM_FRAMEBUFFER, 0, ptr, size);
 }
 
-int framebuffer_count_resolutions (void) {
+int framebuffer_get_supported_resolutions (void) {
   FrameBufferReturn fbr;
   fbr.data1 = 0;
   fbr.done  = false;
@@ -44,7 +44,7 @@ int framebuffer_count_resolutions (void) {
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
   return fbr.data1;
 }
-int framebuffer_get_resolution_size (size_t index, size_t *width, size_t *height) {
+int framebuffer_get_supported_resolution (size_t index, size_t *width, size_t *height) {
   FrameBufferReturn fbr;
   fbr.done = false;
   framebuffer_subscribe (framebuffer_callback, &fbr);
@@ -54,7 +54,7 @@ int framebuffer_get_resolution_size (size_t index, size_t *width, size_t *height
   *height = fbr.data2;
   return fbr.error;
 }
-int framebuffer_count_color_depths (void) {
+int framebuffer_get_supported_pixel_formats (void) {
   FrameBufferReturn fbr;
   fbr.data1 = 0;
   fbr.done  = false;
@@ -63,24 +63,16 @@ int framebuffer_count_color_depths (void) {
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
   return fbr.data1;
 }
-int framebuffer_get_color_depth_bits (size_t index, size_t *depth) {
+int framebuffer_get_supported_pixel_format (size_t index) {
   FrameBufferReturn fbr;
-  fbr.done = false;
+  fbr.data1 = SCREEN_PIXEL_FORMAT_NONE;
+  fbr.done  = false;
   framebuffer_subscribe (framebuffer_callback, &fbr);
   fbr.error = framebuffer_command (14, index, 0);
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
-  *depth = fbr.data1;
-  return fbr.error;
+  return fbr.data1;
 }
 
-int framebuffer_screen_init (void) {
-  FrameBufferReturn fbr;
-  fbr.done = false;
-  framebuffer_subscribe (framebuffer_callback, &fbr);
-  fbr.error = framebuffer_command (1, 0, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
-  return fbr.error;
-}
 int framebuffer_screen_on (void) {
   FrameBufferReturn fbr;
   fbr.done = false;
@@ -159,34 +151,56 @@ int framebuffer_set_resolution (size_t width, size_t height) {
   return fbr.error;
 }
 
+int framebuffer_get_bits_per_pixel (size_t format)
+{
+  switch (format) {
+    case SCREEN_PIXEL_FORMAT_MONO:
+      return 1;
 
-int framebuffer_get_color_depth (size_t *bits) {
+    case SCREEN_PIXEL_FORMAT_RGB_233:
+      return 8;
+
+    case SCREEN_PIXEL_FORMAT_RGB_565:
+      return 16;
+
+    case SCREEN_PIXEL_FORMAT_RGB_888:
+      return 24;
+
+    case SCREEN_PIXEL_FORMAT_ARGB_8888:
+      return 32;
+
+    default:
+      return 0;
+  }
+}
+
+int framebuffer_get_pixel_format (void) {
   FrameBufferReturn fbr;
-  fbr.done = false;
+  fbr.data1 = SCREEN_PIXEL_FORMAT_NONE;
+  fbr.done  = false;
   framebuffer_subscribe (framebuffer_callback, &fbr);
   fbr.error = framebuffer_command (25, 0, 0);
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
-  *bits = fbr.data1;
-  return fbr.error;
+  return fbr.data1;
 }
 
-int framebuffer_set_color_depth (size_t bits) {
+int framebuffer_set_pixel_format (size_t format) {
   FrameBufferReturn fbr;
   fbr.done = false;
   framebuffer_subscribe (framebuffer_callback, &fbr);
-  fbr.error = framebuffer_command (26, bits, 0);
+  fbr.error = framebuffer_command (26, format, 0);
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
   return fbr.error;
 }
 
-int framebuffer_get_rotation (size_t *rotation) {
+int framebuffer_get_rotation (void) {
   FrameBufferReturn fbr;
-  fbr.done = false;
+  fbr.data1 = SCREEN_ROTATION_NORMAL;
+  fbr.done  = false;
   framebuffer_subscribe (framebuffer_callback, &fbr);
   fbr.error = framebuffer_command (21, 0, 0);
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
-  *rotation = fbr.data1;
-  return fbr.error;
+  return fbr.data1;
 }
 
 int framebuffer_set_rotation (size_t rotation) {

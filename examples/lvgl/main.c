@@ -4,7 +4,6 @@
 
 int main (void)
 {
-  framebuffer_screen_init ();
   framebuffer_screen_on ();
   if (lvgl_driver_init (5) == TOCK_SUCCESS) {
     /* LittlevGL's Hello World tutorial example */
