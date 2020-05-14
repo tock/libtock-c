@@ -65,12 +65,16 @@ int framebuffer_get_supported_pixel_formats (void) {
 }
 int framebuffer_get_supported_pixel_format (size_t index) {
   FrameBufferReturn fbr;
-  fbr.data1 = SCREEN_PIXEL_FORMAT_NONE;
+  fbr.data1 = SCREEN_PIXEL_FORMAT_ERROR;
   fbr.done  = false;
   framebuffer_subscribe (framebuffer_callback, &fbr);
   fbr.error = framebuffer_command (14, index, 0);
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
   return fbr.data1;
+}
+
+bool framebuffer_setup_enabled (void) {
+  return framebuffer_command (1, 0, 0) != 0;
 }
 
 int framebuffer_screen_on (void) {
@@ -176,7 +180,7 @@ int framebuffer_get_bits_per_pixel (size_t format)
 
 int framebuffer_get_pixel_format (void) {
   FrameBufferReturn fbr;
-  fbr.data1 = SCREEN_PIXEL_FORMAT_NONE;
+  fbr.data1 = SCREEN_PIXEL_FORMAT_ERROR;
   fbr.done  = false;
   framebuffer_subscribe (framebuffer_callback, &fbr);
   fbr.error = framebuffer_command (25, 0, 0);

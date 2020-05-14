@@ -6,7 +6,6 @@
 #define BUFFER_SIZE 10 * 1024
 
 int main(void) {
-  framebuffer_screen_on ();
   printf ("available resolutions\n");
   int resolutions = framebuffer_get_supported_resolutions ();
   for (int idx = 0; idx < resolutions; idx++) {
@@ -17,11 +16,12 @@ int main(void) {
   printf ("available colors depths\n");
   int pixel_format = framebuffer_get_supported_pixel_formats ();
   for (int idx = 0; idx < pixel_format; idx++) {
-    size_t bits = framebuffer_get_supported_pixel_format (idx);
+    size_t bits = framebuffer_get_bits_per_pixel (framebuffer_get_supported_pixel_format (idx));
     printf ("  %d bpp\n", bits);
   }
   if (framebuffer_init (BUFFER_SIZE) == TOCK_SUCCESS) {
     printf ("framebuffer init\n");
+    framebuffer_screen_on ();
     framebuffer_set_window (0, 0, 128, 160);
     framebuffer_fill (0);
     bool invert = false;

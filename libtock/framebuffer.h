@@ -13,12 +13,13 @@
 #define SCREEN_ROTATION_180 2
 #define SCREEN_ROTATION_270 3
 
-#define SCREEN_PIXEL_FORMAT_NONE 0
-#define SCREEN_PIXEL_FORMAT_MONO 1
-#define SCREEN_PIXEL_FORMAT_RGB_233 2
-#define SCREEN_PIXEL_FORMAT_RGB_565 3
-#define SCREEN_PIXEL_FORMAT_RGB_888 4
-#define SCREEN_PIXEL_FORMAT_ARGB_8888 5
+#define SCREEN_PIXEL_FORMAT_MONO 0
+#define SCREEN_PIXEL_FORMAT_RGB_233 1
+#define SCREEN_PIXEL_FORMAT_RGB_565 2
+#define SCREEN_PIXEL_FORMAT_RGB_888 3
+#define SCREEN_PIXEL_FORMAT_ARGB_8888 4
+
+#define SCREEN_PIXEL_FORMAT_ERROR -1
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +32,7 @@ int framebuffer_init (size_t len);
 uint8_t * framebuffer_buffer (void);
 
 // query
+bool framebuffer_setup_enabled (void);
 int framebuffer_get_supported_resolutions (void);
 int framebuffer_get_supported_resolution (size_t index, size_t *width, size_t *height);
 int framebuffer_get_supported_pixel_formats (void);
