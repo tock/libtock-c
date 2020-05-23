@@ -39,8 +39,7 @@ int framebuffer_get_supported_pixel_formats (void);
 int framebuffer_get_supported_pixel_format (size_t index);
 
 // power
-int framebuffer_screen_on (void);
-int framebuffer_screen_off (void);
+int framebuffer_set_brightness (size_t brightness);
 int framebuffer_invert_on (void);
 int framebuffer_invert_off (void);
 
@@ -58,7 +57,7 @@ int framebuffer_set_rotation (size_t rotation);
 
 // drawing
 int framebuffer_set_color (size_t position, size_t color);
-int framebuffer_set_window (uint16_t x, uint16_t y, uint16_t width, uint16_t height);
+int framebuffer_set_frame (uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 int framebuffer_fill (size_t color);
 int framebuffer_write (size_t length);
 

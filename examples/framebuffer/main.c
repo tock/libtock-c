@@ -21,8 +21,8 @@ int main(void) {
   }
   if (framebuffer_init (BUFFER_SIZE) == TOCK_SUCCESS) {
     printf ("framebuffer init\n");
-    framebuffer_screen_on ();
-    framebuffer_set_window (0, 0, 128, 160);
+    framebuffer_set_brightness (100);
+    framebuffer_set_frame (0, 0, 128, 160);
     framebuffer_fill (0);
     bool invert = false;
     for (int i = 0; ; i++) {
@@ -35,19 +35,19 @@ int main(void) {
         }
       }
       framebuffer_set_rotation (i % 4);
-      framebuffer_set_window (10, 20, 30, 30);
+      framebuffer_set_frame (10, 20, 30, 30);
       framebuffer_fill (0xF800);
-      framebuffer_set_window (88, 20, 30, 30);
+      framebuffer_set_frame (88, 20, 30, 30);
       framebuffer_fill (0);
       delay_ms (1000);
-      framebuffer_set_window (10, 20, 30, 30);
+      framebuffer_set_frame (10, 20, 30, 30);
       framebuffer_fill (0);
-      framebuffer_set_window (88, 20, 30, 30);
+      framebuffer_set_frame (88, 20, 30, 30);
       framebuffer_fill (0x07F0);
       delay_ms (1000);
       size_t width, height;
       framebuffer_get_resolution (&width, &height);
-      framebuffer_set_window (0, 0, width, height);
+      framebuffer_set_frame (0, 0, width, height);
       framebuffer_fill (0x0000);
     }
   }else {

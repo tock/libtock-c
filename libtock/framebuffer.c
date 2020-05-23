@@ -77,20 +77,11 @@ bool framebuffer_setup_enabled (void) {
   return framebuffer_command (1, 0, 0) != 0;
 }
 
-int framebuffer_screen_on (void) {
+int framebuffer_set_brightness (size_t brightness) {
   FrameBufferReturn fbr;
   fbr.done = false;
   framebuffer_subscribe (framebuffer_callback, &fbr);
-  fbr.error = framebuffer_command (2, 0, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
-  return fbr.error;
-}
-
-int framebuffer_screen_off (void) {
-  FrameBufferReturn fbr;
-  fbr.done = false;
-  framebuffer_subscribe (framebuffer_callback, &fbr);
-  fbr.error = framebuffer_command (3, 0, 0);
+  fbr.error = framebuffer_command (3, brightness, 0);
   if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
   return fbr.error;
 }
@@ -228,7 +219,7 @@ int framebuffer_set_color (size_t position, size_t color) {
   return r;
 }
 
-int framebuffer_set_window (uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
+int framebuffer_set_frame (uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
   return framebuffer_command (100, ((x & 0xFFFF) << 16) | ((y & 0xFFFF)),
                               ((width & 0xFFFF) << 16) | ((height & 0xFFFF)));
 }

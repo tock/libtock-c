@@ -14,7 +14,7 @@ void framebuffer_lvgl_driver(lv_disp_drv_t * disp, const lv_area_t * area,
   y = area->y1;
   int w = area->x2 - area->x1;
   int h = area->y2 - area->y1;
-  framebuffer_set_window (x, y, w, h);
+  framebuffer_set_frame (x, y, w, h);
   framebuffer_write ((w + h) * sizeof(lv_color_t));
 
   lv_disp_flush_ready(disp);           /* Indicate you are ready with the flushing*/
