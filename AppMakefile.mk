@@ -79,12 +79,17 @@ endif
 # These will be used to create the different architecture versions of an app.
 #
 # - Argument $(1) is the Architecture (e.g. cortex-m0) to build for.
-# - Argument $(2) is the prefix for the toolchain to use (e.g. arm-none-eabi).
+# - Argument $(2) is the flash address to use for linking.
+# - Argument $(3) is the RAM address to use for linking.
 #
 # Note: all variables, other than $(1), used within this block must be double
 # dollar-signed so that their values will be evaluated when run, not when
 # generated
 define BUILD_RULES
+
+# Force this to be built every time so we always generate the needed ld file
+# with the correct addresses.
+.PHONY: _FORCE_USERLAND_LD_CUSTOM
 
 # BUILDDIR holds architecture dependent, but board-independent outputs
 $$(BUILDDIR)/$(1):
@@ -95,38 +100,51 @@ $$(BUILDDIR)/$(1):
 # More info on our approach here: http://stackoverflow.com/questions/97338
 $$(BUILDDIR)/$(1)/%.o: %.c | $$(BUILDDIR)/$(1)
 	$$(TRACE_CC)
-	$$(Q)$(2)$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
-	$$(Q)$(2)$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
 $$(BUILDDIR)/$(1)/%.o: %.cc | $$(BUILDDIR)/$(1)
 	$$(TRACE_CXX)
-	$$(Q)$(2)$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
-	$$(Q)$(2)$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
 $$(BUILDDIR)/$(1)/%.o: %.cpp | $$(BUILDDIR)/$(1)
 	$$(TRACE_CXX)
-	$$(Q)$(2)$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
-	$$(Q)$(2)$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
 $$(BUILDDIR)/$(1)/%.o: %.cxx | $$(BUILDDIR)/$(1)
 	$$(TRACE_CXX)
-	$$(Q)$(2)$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
-	$$(Q)$(2)$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
 OBJS_$(1) += $$(patsubst %.c,$$(BUILDDIR)/$(1)/%.o,$$(C_SRCS))
 OBJS_$(1) += $$(patsubst %.cc,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cc, $$(CXX_SRCS)))
 OBJS_$(1) += $$(patsubst %.cpp,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cpp, $$(CXX_SRCS)))
 OBJS_$(1) += $$(patsubst %.cxx,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cxx, $$(CXX_SRCS)))
 
+$$(BUILDDIR)/$(1)/$(1).custom.ld: $$(LAYOUT) _FORCE_USERLAND_LD_CUSTOM | $$(BUILDDIR)/$(1)
+	@# Start with a copy of the template / generic ld script
+	$$(Q)cp $$< $$@
+	@# And with apologies to future readers, this is easier as one shell
+	@# command/script so we can set intervening variables. We want to replace
+	@# the flash and RAM addresses with specific versions in the generic file.
+	@#
+	@# #616 #635: sed is not cross-platform
+	@# https://stackoverflow.com/a/22247781/358675 <-- Use perl in place of sed
+	$$(Q)set -e ;\
+	  perl -pi -e "s/(FLASH.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$(2)\$$$$3/" $$@ ;\
+	  perl -pi -e "s/(SRAM.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$(3)\$$$$3/" $$@
+
 # Collect all desired built output.
-$$(BUILDDIR)/$(1)/$(1).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(LAYOUT) | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(1).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(1).custom.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
-	$$(Q)$(2)$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1))\
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1))\
 	    --entry=_start\
 	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
 	    -Xlinker --defsym=APP_HEAP_SIZE=$$(APP_HEAP_SIZE)\
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
-	    -T $$(LAYOUT)\
+	    -T $$(BUILDDIR)/$(1)/$(1).custom.ld\
 	    -nostdlib\
 	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(LINK_LIBS_$(1)) -Wl,--end-group\
 	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(1).Map\
@@ -136,22 +154,22 @@ $$(BUILDDIR)/$(1)/$(1).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(
 #       (i.e. at address 0x80000000). This is not likely what you want.
 $$(BUILDDIR)/$(1)/$(1).lst: $$(BUILDDIR)/$(1)/$(1).elf
 	$$(TRACE_LST)
-	$$(Q)$(2)$$(OBJDUMP) $$(OBJDUMP_FLAGS) $$(OBJDUMP_FLAGS_$(1)) $$< > $$@
+	$$(Q)$$(TOOLCHAIN_$(1))$$(OBJDUMP) $$(OBJDUMP_FLAGS) $$(OBJDUMP_FLAGS_$(1)) $$< > $$@
 
 # checks compiled ELF files to ensure that all libraries and applications were
 # built with the correct flags in order to work on a Tock board
 .PHONY: validate_gcc_flags
 validate_gcc_flags:: $$(BUILDDIR)/$(1)/$(1).elf
 ifndef TOCK_NO_CHECK_SWITCHES
-	$$(Q)$(2)$$(READELF) -p .GCC.command.line $$< 2>&1 | grep -q "does not exist" && { echo "Error: Missing section .GCC.command.line"; echo ""; echo "Tock requires that applications are built with"; echo "  -frecord-gcc-switches"; echo "to validate that all required flags were used"; echo ""; echo "You can skip this check by defining the make variable TOCK_NO_CHECK_SWITCHES"; exit 1; } || exit 0
-	$$(Q)$(2)$$(READELF) -p .GCC.command.line $$< | grep -q -- -msingle-pic-base && $$(READELF) -p .GCC.command.line $$< | grep -q -- -mpic-register=r9 && $$(READELF) -p .GCC.command.line $$< | grep -q -- -mno-pic-data-is-text-relative || { echo "Error: Missing required build flags."; echo ""; echo "Tock requires applications are built with"; echo "  -msingle-pic-base"; echo "  -mpic-register=r9"; echo "  -mno-pic-data-is-text-relative"; echo "But one or more of these flags are missing"; echo ""; echo "To see the flags your application was built with, run"; echo "$$(READELF) -p .GCC.command.line $$<"; echo ""; exit 1; }
+	$$(Q)$$(TOOLCHAIN_$(1))$$(READELF) -p .GCC.command.line $$< 2>&1 | grep -q "does not exist" && { echo "Error: Missing section .GCC.command.line"; echo ""; echo "Tock requires that applications are built with"; echo "  -frecord-gcc-switches"; echo "to validate that all required flags were used"; echo ""; echo "You can skip this check by defining the make variable TOCK_NO_CHECK_SWITCHES"; exit 1; } || exit 0
+	$$(Q)$$(TOOLCHAIN_$(1))$$(READELF) -p .GCC.command.line $$< | grep -q -- -msingle-pic-base && $$(READELF) -p .GCC.command.line $$< | grep -q -- -mpic-register=r9 && $$(READELF) -p .GCC.command.line $$< | grep -q -- -mno-pic-data-is-text-relative || { echo "Error: Missing required build flags."; echo ""; echo "Tock requires applications are built with"; echo "  -msingle-pic-base"; echo "  -mpic-register=r9"; echo "  -mno-pic-data-is-text-relative"; echo "But one or more of these flags are missing"; echo ""; echo "To see the flags your application was built with, run"; echo "$$(READELF) -p .GCC.command.line $$<"; echo ""; exit 1; }
 endif
 
 # rules to print the size of the built binaries
 .PHONY: size-$(1)
 size-$(1):	$$(BUILDDIR)/$(1)/$(1).elf
 	@echo Application size report for architecture $(1):
-	$$(Q)$(2)$$(SIZE) $$^
+	$$(Q)$$(TOOLCHAIN_$(1))$$(SIZE) $$^
 
 size::	size-$(1)
 
@@ -198,7 +216,7 @@ else
 	@# #616 #635: sed is not cross-platform
 	@# https://stackoverflow.com/a/22247781/358675 <-- Use perl in place of sed
 	$$(Q)set -e ;\
-	  ORIGINAL_ENTRY=`$(2)$$(READELF) -h $$(BUILDDIR)/$(1)/$(1).elf | grep Entry | awk '{print $$$$4}'` ;\
+	  ORIGINAL_ENTRY=`$$(TOOLCHAIN_$(1))$$(READELF) -h $$(BUILDDIR)/$(1)/$(1).elf | grep Entry | awk '{print $$$$4}'` ;\
 	  INIT_OFFSET=$$$$(($$$$ORIGINAL_ENTRY - 0x80000000)) ;\
 	  FLASH_START=$$$$(($$$$FLASH_INIT-$$$$INIT_OFFSET)) ;\
 	  perl -pi -e "s/(FLASH.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$$$$FLASH_START\$$$$3/" $$@ ;\
@@ -208,7 +226,7 @@ endif
 # Step 2: Create a new ELF with the layout that matches what's loaded
 $$(BUILDDIR)/$(1)/$(1).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(1).userland_debug.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
-	$$(Q)$(2)$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1))\
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1))\
 	    --entry=_start\
 	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
 	    -Xlinker --defsym=APP_HEAP_SIZE=$$(APP_HEAP_SIZE)\
@@ -222,21 +240,23 @@ $$(BUILDDIR)/$(1)/$(1).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY
 # Step 3: Now we can finally generate an LST
 $$(BUILDDIR)/$(1)/$(1).userland_debug.lst: $$(BUILDDIR)/$(1)/$(1).userland_debug.elf
 	$$(TRACE_LST)
-	$$(Q)$(2)$$(OBJDUMP) $$(OBJDUMP_FLAGS) $$(OBJDUMP_FLAGS_$(1)) $$< > $$@
+	$$(Q)$$(TOOLCHAIN_$(1))$$(OBJDUMP) $$(OBJDUMP_FLAGS) $$(OBJDUMP_FLAGS_$(1)) $$< > $$@
 	@echo $$$$(tput bold)Listings generated at $$@$$$$(tput sgr0)
 
 # END DEBUGGING STUFF
 ############################################################################################
 endef
 
+# Functions to parse the `TOCK_ARCHS` array. Entries 2 and 3 default to the PIC
+# addresses if they are not specified.
 ARCH_FN = $(firstword $(subst |, ,$1))
-TOOLCHAIN_FN = $(word 2,$(subst |, ,$1))
-
+FLASH_ADDRESS_FN = $(if $(word 2,$(subst |, ,$1)), $(word 2,$(subst |, ,$1)), 0x80000000)
+RAM_ADDRESS_FN = $(if $(word 3,$(subst |, ,$1)), $(word 3,$(subst |, ,$1)), 0x00000000)
 
 # To see the generated rules, run:
-# $(info $(foreach platform, $(TOCK_ARCHS), $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call TOOLCHAIN_FN,$(platform)))))
+# $(info $(foreach platform, $(TOCK_ARCHS), $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call FLASH_ADDRESS_FN,$(platform)),$(call RAM_ADDRESS_FN,$(platform)))))
 # Actually generate the rules for each architecture
-$(foreach platform, $(TOCK_ARCHS), $(eval $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call TOOLCHAIN_FN,$(platform)))))
+$(foreach platform, $(TOCK_ARCHS), $(eval $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call FLASH_ADDRESS_FN,$(platform)),$(call RAM_ADDRESS_FN,$(platform)))))
 
 
 

@@ -28,8 +28,21 @@ KERNEL_HEAP_SIZE ?= 1024
 # PACKAGE_NAME is used to identify the application for IPC and for error reporting
 PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 
-# Tock supported architectures
-TOCK_ARCHS ?= cortex-m0|arm-none-eabi cortex-m3|arm-none-eabi cortex-m4|arm-none-eabi
+# Tock supported architectures.
+#
+# This is a list of all of the different targets to build an app for which will
+# all be bundled into a TAB. This allows us to build an app for any board Tock
+# supports, and wait until a TAB is installed onto a board to figure out which
+# specific binary that hardware platform needs.
+#
+# Each entry is itself a list:
+#
+# 1. The name of the architecture. This is used for naming generated files and
+#    variables in the Makefiles. It is generally just a human-readable name.
+# 2. (Optional) The address to use as the fixed start of flash.
+# 3. (Optional) The address to use as the fixed start of RAM.
+TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4
+TOCK_ARCHS += rv32imac|0x20040040|0x80002400
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
@@ -39,6 +52,12 @@ ifndef ELF2TAB_EXISTS
 endif
 ELF2TAB_ARGS += -n $(PACKAGE_NAME)
 ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE)
+
+# Setup the correct toolchain for each architecture.
+override TOOLCHAIN_cortex-m0 = arm-none-eabi
+override TOOLCHAIN_cortex-m3 = arm-none-eabi
+override TOOLCHAIN_cortex-m4 = arm-none-eabi
+override TOOLCHAIN_rv32imac = riscv64-unknown-elf
 
 # Flags for building app Assembly, C, C++ files
 # n.b. make convention is that CPPFLAGS are shared for C and C++ sources
