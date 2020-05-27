@@ -254,9 +254,17 @@ all:	$(BUILDDIR)/$(PACKAGE_NAME).tab size
 # The size target accumulates dependencies in the platform build rule creation
 .PHONY: size
 
+# Generate helpful output for debugging userland applications.
 .PHONY: debug
 debug:	$(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call ARCH_FN,$(platform)).userland_debug.lst)
 
+# Generate a .lst file for each architecture using the RAM and flash addresses
+# specified in the linker file. This will create a valid assembly file, but the
+# addresses of the instructions will be wrong unless the application was
+# compiled for specific addresses. Notably, on cortex-m platforms, which use
+# position-independent code, the addresses will be wrong, and you should use
+# `make debug` instead. For architectures without PIC support (like RISC-V),
+# `make lst` will work since the linker files uses the correct addresses.
 .PHONY: lst
 lst:	$(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call ARCH_FN,$(platform)).lst)
 
