@@ -39,10 +39,11 @@ PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 #
 # 1. The name of the architecture. This is used for naming generated files and
 #    variables in the Makefiles. It is generally just a human-readable name.
-# 2. (Optional) The address to use as the fixed start of flash.
-# 3. (Optional) The address to use as the fixed start of RAM.
+# 2. (Optional) The name to use when creating the output file.
+# 3. (Optional) The address to use as the fixed start of flash.
+# 4. (Optional) The address to use as the fixed start of RAM.
 TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4
-TOCK_ARCHS += rv32imac|0x20040040|0x80002400
+TOCK_ARCHS += rv32imac|rv32imac.0x20040040.0x80002400|0x20040040|0x80002400
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab

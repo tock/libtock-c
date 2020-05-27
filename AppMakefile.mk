@@ -123,7 +123,7 @@ OBJS_$(1) += $$(patsubst %.cc,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cc, $$(CXX_SRCS)
 OBJS_$(1) += $$(patsubst %.cpp,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cpp, $$(CXX_SRCS)))
 OBJS_$(1) += $$(patsubst %.cxx,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cxx, $$(CXX_SRCS)))
 
-$$(BUILDDIR)/$(1)/$(1).custom.ld: $$(LAYOUT) _FORCE_USERLAND_LD_CUSTOM | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(2).custom.ld: $$(LAYOUT) _FORCE_USERLAND_LD_CUSTOM | $$(BUILDDIR)/$(1)
 	@# Start with a copy of the template / generic ld script
 	$$(Q)cp $$< $$@
 	@# And with apologies to future readers, this is easier as one shell
@@ -133,33 +133,33 @@ $$(BUILDDIR)/$(1)/$(1).custom.ld: $$(LAYOUT) _FORCE_USERLAND_LD_CUSTOM | $$(BUIL
 	@# #616 #635: sed is not cross-platform
 	@# https://stackoverflow.com/a/22247781/358675 <-- Use perl in place of sed
 	$$(Q)set -e ;\
-	  perl -pi -e "s/(FLASH.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$(2)\$$$$3/" $$@ ;\
-	  perl -pi -e "s/(SRAM.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$(3)\$$$$3/" $$@
+	  perl -pi -e "s/(FLASH.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$(3)\$$$$3/" $$@ ;\
+	  perl -pi -e "s/(SRAM.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$(4)\$$$$3/" $$@
 
 # Collect all desired built output.
-$$(BUILDDIR)/$(1)/$(1).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(1).custom.ld | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(2).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(2).custom.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1))\
 	    --entry=_start\
 	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
 	    -Xlinker --defsym=APP_HEAP_SIZE=$$(APP_HEAP_SIZE)\
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
-	    -T $$(BUILDDIR)/$(1)/$(1).custom.ld\
+	    -T $$(BUILDDIR)/$(1)/$(2).custom.ld\
 	    -nostdlib\
 	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(LINK_LIBS_$(1)) -Wl,--end-group\
-	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(1).Map\
+	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(2).Map\
 	    -o $$@
 
 # NOTE: This rule creates an lst file for the elf as flashed on the board
 #       (i.e. at address 0x80000000). This is not likely what you want.
-$$(BUILDDIR)/$(1)/$(1).lst: $$(BUILDDIR)/$(1)/$(1).elf
+$$(BUILDDIR)/$(1)/$(2).lst: $$(BUILDDIR)/$(1)/$(2).elf
 	$$(TRACE_LST)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(OBJDUMP) $$(OBJDUMP_FLAGS) $$(OBJDUMP_FLAGS_$(1)) $$< > $$@
 
 # checks compiled ELF files to ensure that all libraries and applications were
 # built with the correct flags in order to work on a Tock board
 .PHONY: validate_gcc_flags
-validate_gcc_flags:: $$(BUILDDIR)/$(1)/$(1).elf
+validate_gcc_flags:: $$(BUILDDIR)/$(1)/$(2).elf
 ifndef TOCK_NO_CHECK_SWITCHES
 	$$(Q)$$(TOOLCHAIN_$(1))$$(READELF) -p .GCC.command.line $$< 2>&1 | grep -q "does not exist" && { echo "Error: Missing section .GCC.command.line"; echo ""; echo "Tock requires that applications are built with"; echo "  -frecord-gcc-switches"; echo "to validate that all required flags were used"; echo ""; echo "You can skip this check by defining the make variable TOCK_NO_CHECK_SWITCHES"; exit 1; } || exit 0
 	$$(Q)$$(TOOLCHAIN_$(1))$$(READELF) -p .GCC.command.line $$< | grep -q -- -msingle-pic-base && $$(READELF) -p .GCC.command.line $$< | grep -q -- -mpic-register=r9 && $$(READELF) -p .GCC.command.line $$< | grep -q -- -mno-pic-data-is-text-relative || { echo "Error: Missing required build flags."; echo ""; echo "Tock requires applications are built with"; echo "  -msingle-pic-base"; echo "  -mpic-register=r9"; echo "  -mno-pic-data-is-text-relative"; echo "But one or more of these flags are missing"; echo ""; echo "To see the flags your application was built with, run"; echo "$$(READELF) -p .GCC.command.line $$<"; echo ""; exit 1; }
@@ -167,7 +167,7 @@ endif
 
 # rules to print the size of the built binaries
 .PHONY: size-$(1)
-size-$(1):	$$(BUILDDIR)/$(1)/$(1).elf
+size-$(1):	$$(BUILDDIR)/$(1)/$(2).elf
 	@echo Application size report for architecture $(1):
 	$$(Q)$$(TOOLCHAIN_$(1))$$(SIZE) $$^
 
@@ -197,7 +197,7 @@ ifdef RAM_START
   endif
 endif
 
-$$(BUILDDIR)/$(1)/$(1).userland_debug.ld: $$(TOCK_USERLAND_BASE_DIR)/userland_generic.ld $$(BUILDDIR)/$(1)/$(1).elf _FORCE_USERLAND_DEBUG_LD | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(2).userland_debug.ld: $$(TOCK_USERLAND_BASE_DIR)/userland_generic.ld $$(BUILDDIR)/$(1)/$(2).elf _FORCE_USERLAND_DEBUG_LD | $$(BUILDDIR)/$(1)
 ifndef _USERLAND_DEBUG_ALL_NEEDED_VARS
 	@echo "ERROR: Required variables RAM_START and FLASH_INIT are not set."
 	@echo "       These are needed to compute the offset your program was loaded at."
@@ -216,7 +216,7 @@ else
 	@# #616 #635: sed is not cross-platform
 	@# https://stackoverflow.com/a/22247781/358675 <-- Use perl in place of sed
 	$$(Q)set -e ;\
-	  ORIGINAL_ENTRY=`$$(TOOLCHAIN_$(1))$$(READELF) -h $$(BUILDDIR)/$(1)/$(1).elf | grep Entry | awk '{print $$$$4}'` ;\
+	  ORIGINAL_ENTRY=`$$(TOOLCHAIN_$(1))$$(READELF) -h $$(BUILDDIR)/$(1)/$(2).elf | grep Entry | awk '{print $$$$4}'` ;\
 	  INIT_OFFSET=$$$$(($$$$ORIGINAL_ENTRY - 0x80000000)) ;\
 	  FLASH_START=$$$$(($$$$FLASH_INIT-$$$$INIT_OFFSET)) ;\
 	  perl -pi -e "s/(FLASH.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$$$$FLASH_START\$$$$3/" $$@ ;\
@@ -224,21 +224,21 @@ else
 endif
 
 # Step 2: Create a new ELF with the layout that matches what's loaded
-$$(BUILDDIR)/$(1)/$(1).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(1).userland_debug.ld | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(2).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(2).userland_debug.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1))\
 	    --entry=_start\
 	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
 	    -Xlinker --defsym=APP_HEAP_SIZE=$$(APP_HEAP_SIZE)\
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
-	    -T $$(BUILDDIR)/$(1)/$(1).userland_debug.ld\
+	    -T $$(BUILDDIR)/$(1)/$(2).userland_debug.ld\
 	    -nostdlib\
 	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) -Wl,--end-group\
-	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(1).Map\
+	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(2).Map\
 	    -o $$@
 
 # Step 3: Now we can finally generate an LST
-$$(BUILDDIR)/$(1)/$(1).userland_debug.lst: $$(BUILDDIR)/$(1)/$(1).userland_debug.elf
+$$(BUILDDIR)/$(1)/$(2).userland_debug.lst: $$(BUILDDIR)/$(1)/$(2).userland_debug.elf
 	$$(TRACE_LST)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(OBJDUMP) $$(OBJDUMP_FLAGS) $$(OBJDUMP_FLAGS_$(1)) $$< > $$@
 	@echo $$$$(tput bold)Listings generated at $$@$$$$(tput sgr0)
@@ -247,22 +247,23 @@ $$(BUILDDIR)/$(1)/$(1).userland_debug.lst: $$(BUILDDIR)/$(1)/$(1).userland_debug
 ############################################################################################
 endef
 
-# Functions to parse the `TOCK_ARCHS` array. Entries 2 and 3 default to the PIC
+# Functions to parse the `TOCK_ARCHS` array. Entries 3 and 4 default to the PIC
 # addresses if they are not specified.
 ARCH_FN = $(firstword $(subst |, ,$1))
-FLASH_ADDRESS_FN = $(if $(word 2,$(subst |, ,$1)), $(word 2,$(subst |, ,$1)), 0x80000000)
-RAM_ADDRESS_FN = $(if $(word 3,$(subst |, ,$1)), $(word 3,$(subst |, ,$1)), 0x00000000)
+OUTPUT_NAME_FN = $(if $(word 2,$(subst |, ,$1)),$(word 2,$(subst |, ,$1)),$(firstword $(subst |, ,$1)))
+FLASH_ADDRESS_FN = $(if $(word 3,$(subst |, ,$1)),$(word 3,$(subst |, ,$1)),0x80000000)
+RAM_ADDRESS_FN = $(if $(word 4,$(subst |, ,$1)),$(word 4,$(subst |, ,$1)),0x00000000)
 
 # To see the generated rules, run:
-# $(info $(foreach platform, $(TOCK_ARCHS), $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call FLASH_ADDRESS_FN,$(platform)),$(call RAM_ADDRESS_FN,$(platform)))))
+#$(info $(foreach platform, $(TOCK_ARCHS), $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call OUTPUT_NAME_FN,$(platform)),$(call FLASH_ADDRESS_FN,$(platform)),$(call RAM_ADDRESS_FN,$(platform)))))
 # Actually generate the rules for each architecture
-$(foreach platform, $(TOCK_ARCHS), $(eval $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call FLASH_ADDRESS_FN,$(platform)),$(call RAM_ADDRESS_FN,$(platform)))))
+$(foreach platform, $(TOCK_ARCHS), $(eval $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call OUTPUT_NAME_FN,$(platform)),$(call FLASH_ADDRESS_FN,$(platform)),$(call RAM_ADDRESS_FN,$(platform)))))
 
 
 
 
 # TAB file generation. Used for Tockloader
-$(BUILDDIR)/$(PACKAGE_NAME).tab: $(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call ARCH_FN,$(platform)).elf)
+$(BUILDDIR)/$(PACKAGE_NAME).tab: $(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call OUTPUT_NAME_FN,$(platform)).elf)
 	$(Q)$(ELF2TAB) $(ELF2TAB_ARGS) -o $@ $^
 
 
@@ -276,7 +277,7 @@ all:	$(BUILDDIR)/$(PACKAGE_NAME).tab size
 
 # Generate helpful output for debugging userland applications.
 .PHONY: debug
-debug:	$(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call ARCH_FN,$(platform)).userland_debug.lst)
+debug:	$(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call OUTPUT_NAME_FN,$(platform)).userland_debug.lst)
 
 # Generate a .lst file for each architecture using the RAM and flash addresses
 # specified in the linker file. This will create a valid assembly file, but the
@@ -286,7 +287,7 @@ debug:	$(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform)
 # `make debug` instead. For architectures without PIC support (like RISC-V),
 # `make lst` will work since the linker files uses the correct addresses.
 .PHONY: lst
-lst:	$(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call ARCH_FN,$(platform)).lst)
+lst:	$(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call OUTPUT_NAME_FN,$(platform)).lst)
 
 .PHONY:
 clean::
