@@ -112,11 +112,10 @@ override CPPFLAGS += -include $(TOCK_USERLAND_BASE_DIR)/support/warning_header.h
 # Flags for creating application Object files
 OBJDUMP_FLAGS += --disassemble-all --source -C --section-headers
 
-override CPPFLAGS_cortex-m += \
-      -disassembler-options=force-thumb
-override OBJDUMP_cortex-m4 += $(CPPFLAGS_cortex-m)
-override OBJDUMP_cortex-m3 += $(CPPFLAGS_cortex-m)
-override OBJDUMP_cortex-m0 += $(CPPFLAGS_cortex-m)
+override OBJDUMP_FLAGS_cortex-m  += -disassembler-options=force-thumb
+override OBJDUMP_FLAGS_cortex-m4 += $(OBJDUMP_FLAGS_cortex-m)
+override OBJDUMP_FLAGS_cortex-m3 += $(OBJDUMP_FLAGS_cortex-m)
+override OBJDUMP_FLAGS_cortex-m0 += $(OBJDUMP_FLAGS_cortex-m)
 
 # Use a generic linker script that over provisions.
 LAYOUT ?= $(TOCK_USERLAND_BASE_DIR)/userland_generic.ld
