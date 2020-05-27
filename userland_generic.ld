@@ -17,8 +17,8 @@ ENTRY(_start)
  * addresses will be changed automatically before the linking step.
  */
 MEMORY {
-    FLASH (rx) : ORIGIN = 0x4043003c, LENGTH = PROG_LENGTH
-    SRAM (RWX) : ORIGIN = 0x80004000, LENGTH = RAM_LENGTH
+    FLASH (rx) : ORIGIN = 0x80000000, LENGTH = PROG_LENGTH
+    SRAM (RWX) : ORIGIN = 0x00000000, LENGTH = RAM_LENGTH
 }
 
 SECTIONS {
