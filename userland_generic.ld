@@ -15,8 +15,8 @@ ENTRY(_start)
  * actual location in flash where the app is placed.
  */
 MEMORY {
-    FLASH (rx) : ORIGIN = 0x4043003c, LENGTH = PROG_LENGTH
-    SRAM (RWX) : ORIGIN = 0x80004000, LENGTH = RAM_LENGTH
+    FLASH (rx) : ORIGIN = 0x80000000, LENGTH = PROG_LENGTH
+    SRAM (RWX) : ORIGIN = 0x00000000, LENGTH = RAM_LENGTH
 }
 
 SECTIONS {
@@ -45,17 +45,17 @@ SECTIONS {
         /* Offset of GOT symbols in flash */
         LONG(LOADADDR(.got) - _beginning);
         /* Offset of GOT section in memory */
-        LONG(_got - ORIGIN(SRAM));
+        LONG(_got);
         /* Size of GOT section */
         LONG(SIZEOF(.got));
         /* Offset of data symbols in flash */
         LONG(LOADADDR(.data) - _beginning);
         /* Offset of data section in memory */
-        LONG(_data - ORIGIN(SRAM));
+        LONG(_data);
         /* Size of data section */
         LONG(SIZEOF(.data));
         /* Offset of BSS section in memory */
-        LONG(_bss - ORIGIN(SRAM));
+        LONG(_bss);
         /* Size of BSS section */
         LONG(SIZEOF(.bss));
         /* First address offset after program flash, where elf2tab places
