@@ -30,6 +30,11 @@ PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 
 # Tock supported architectures.
 #
+# Each app will be compiled for each of the architectures.
+TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4 rv32imac
+
+# Tock app targets.
+#
 # This is a list of all of the different targets to build an app for which will
 # all be bundled into a TAB. This allows us to build an app for any board Tock
 # supports, and wait until a TAB is installed onto a board to figure out which
@@ -42,8 +47,9 @@ PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 # 2. (Optional) The name to use when creating the output file.
 # 3. (Optional) The address to use as the fixed start of flash.
 # 4. (Optional) The address to use as the fixed start of RAM.
-TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4
-TOCK_ARCHS += rv32imac|rv32imac.0x20040040.0x80002400|0x20040040|0x80002400
+TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4
+TOCK_TARGETS += rv32imac|rv32imac.0x20040040.0x80002400|0x20040040|0x80002400
+TOCK_TARGETS += rv32imac|rv32imac.0x4043003c.0x80004000|0x4043003c|0x80004000
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
@@ -303,6 +309,7 @@ ifneq ($(V),)
   $(info MAKEFLAGS=$(MAKEFLAGS))
   $(info PACKAGE_NAME=$(PACKAGE_NAME))
   $(info TOCK_ARCHS=$(TOCK_ARCHS))
+  $(info TOCK_TARGETS=$(TOCK_TARGETS))
   $(info TOCK_USERLAND_BASE_DIR=$(TOCK_USERLAND_BASE_DIR))
   $(info TOOLCHAIN=$(TOOLCHAIN))
   $(info **************************************************)

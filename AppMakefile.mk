@@ -40,7 +40,7 @@ ifneq "$$(wildcard $(1)/include)" ""
 endif
 
 # Add arch-specific rules for each library
-$$(foreach platform, $$(TOCK_ARCHS), $$(eval LIBS_$$(call ARCH_FN,$$(platform)) += $(1)/build/$$(call ARCH_FN,$$(platform))/$(notdir $(1)).a))
+$$(foreach platform, $$(TOCK_TARGETS), $$(eval LIBS_$$(call ARCH_FN,$$(platform)) += $(1)/build/$$(call ARCH_FN,$$(platform))/$(notdir $(1)).a))
 
 endef
 
@@ -74,22 +74,10 @@ ifdef HEAP_SIZE
 endif
 
 
-
-# Rules to generate an app for a given architecture.
-# These will be used to create the different architecture versions of an app.
+# Rules to create object files for a specific architecture.
 #
-# - Argument $(1) is the Architecture (e.g. cortex-m0) to build for.
-# - Argument $(2) is the flash address to use for linking.
-# - Argument $(3) is the RAM address to use for linking.
-#
-# Note: all variables, other than $(1), used within this block must be double
-# dollar-signed so that their values will be evaluated when run, not when
-# generated
-define BUILD_RULES
-
-# Force this to be built every time so we always generate the needed ld file
-# with the correct addresses.
-.PHONY: _FORCE_USERLAND_LD_CUSTOM
+# - Argument $(1) is the architecture (e.g. cortex-m0) to compile for.
+define BUILD_RULES_PER_ARCH
 
 # BUILDDIR holds architecture dependent, but board-independent outputs
 $$(BUILDDIR)/$(1):
@@ -122,6 +110,26 @@ OBJS_$(1) += $$(patsubst %.c,$$(BUILDDIR)/$(1)/%.o,$$(C_SRCS))
 OBJS_$(1) += $$(patsubst %.cc,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cc, $$(CXX_SRCS)))
 OBJS_$(1) += $$(patsubst %.cpp,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cpp, $$(CXX_SRCS)))
 OBJS_$(1) += $$(patsubst %.cxx,$$(BUILDDIR)/$(1)/%.o,$$(filter %.cxx, $$(CXX_SRCS)))
+
+endef
+
+
+# Rules to generate an app for a given architecture and target. These actually
+# create the ELF which can be linked for a specific address as needed.
+#
+# - Argument $(1) is the architecture (e.g. cortex-m0) to build for.
+# - Argument $(2) is the output name to use for the .elf and other files.
+# - Argument $(3) is the flash address to use for linking.
+# - Argument $(4) is the RAM address to use for linking.
+#
+# Note: all variables, other than $(1), used within this block must be double
+# dollar-signed so that their values will be evaluated when run, not when
+# generated
+define BUILD_RULES
+
+# Force this to be built every time so we always generate the needed ld file
+# with the correct addresses.
+.PHONY: _FORCE_USERLAND_LD_CUSTOM
 
 $$(BUILDDIR)/$(1)/$(2).custom.ld: $$(LAYOUT) _FORCE_USERLAND_LD_CUSTOM | $$(BUILDDIR)/$(1)
 	@# Start with a copy of the template / generic ld script
@@ -166,12 +174,12 @@ ifndef TOCK_NO_CHECK_SWITCHES
 endif
 
 # rules to print the size of the built binaries
-.PHONY: size-$(1)
-size-$(1):	$$(BUILDDIR)/$(1)/$(2).elf
+.PHONY: size-$(1)-$(2)
+size-$(1)-$(2):	$$(BUILDDIR)/$(1)/$(2).elf
 	@echo Application size report for architecture $(1):
 	$$(Q)$$(TOOLCHAIN_$(1))$$(SIZE) $$^
 
-size::	size-$(1)
+size::	size-$(1)-$(2)
 
 
 ############################################################################################
@@ -247,7 +255,7 @@ $$(BUILDDIR)/$(1)/$(2).userland_debug.lst: $$(BUILDDIR)/$(1)/$(2).userland_debug
 ############################################################################################
 endef
 
-# Functions to parse the `TOCK_ARCHS` array. Entries 3 and 4 default to the PIC
+# Functions to parse the `TOCK_TARGETS` array. Entries 3 and 4 default to the PIC
 # addresses if they are not specified.
 ARCH_FN = $(firstword $(subst |, ,$1))
 OUTPUT_NAME_FN = $(if $(word 2,$(subst |, ,$1)),$(word 2,$(subst |, ,$1)),$(firstword $(subst |, ,$1)))
@@ -255,15 +263,17 @@ FLASH_ADDRESS_FN = $(if $(word 3,$(subst |, ,$1)),$(word 3,$(subst |, ,$1)),0x80
 RAM_ADDRESS_FN = $(if $(word 4,$(subst |, ,$1)),$(word 4,$(subst |, ,$1)),0x00000000)
 
 # To see the generated rules, run:
-#$(info $(foreach platform, $(TOCK_ARCHS), $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call OUTPUT_NAME_FN,$(platform)),$(call FLASH_ADDRESS_FN,$(platform)),$(call RAM_ADDRESS_FN,$(platform)))))
+#$(info $(foreach platform, $(TOCK_ARCHS), $(eval $(call BUILD_RULES_PER_ARCH,$(platform)))))
+#$(info $(foreach platform, $(TOCK_TARGETS), $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call OUTPUT_NAME_FN,$(platform)),$(call FLASH_ADDRESS_FN,$(platform)),$(call RAM_ADDRESS_FN,$(platform)))))
 # Actually generate the rules for each architecture
-$(foreach platform, $(TOCK_ARCHS), $(eval $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call OUTPUT_NAME_FN,$(platform)),$(call FLASH_ADDRESS_FN,$(platform)),$(call RAM_ADDRESS_FN,$(platform)))))
+$(foreach platform, $(TOCK_ARCHS), $(eval $(call BUILD_RULES_PER_ARCH,$(platform))))
+$(foreach platform, $(TOCK_TARGETS), $(eval $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call OUTPUT_NAME_FN,$(platform)),$(call FLASH_ADDRESS_FN,$(platform)),$(call RAM_ADDRESS_FN,$(platform)))))
 
 
 
 
 # TAB file generation. Used for Tockloader
-$(BUILDDIR)/$(PACKAGE_NAME).tab: $(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call OUTPUT_NAME_FN,$(platform)).elf)
+$(BUILDDIR)/$(PACKAGE_NAME).tab: $(foreach platform, $(TOCK_TARGETS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call OUTPUT_NAME_FN,$(platform)).elf)
 	$(Q)$(ELF2TAB) $(ELF2TAB_ARGS) -o $@ $^
 
 
@@ -277,7 +287,7 @@ all:	$(BUILDDIR)/$(PACKAGE_NAME).tab size
 
 # Generate helpful output for debugging userland applications.
 .PHONY: debug
-debug:	$(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call OUTPUT_NAME_FN,$(platform)).userland_debug.lst)
+debug:	$(foreach platform, $(TOCK_TARGETS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call OUTPUT_NAME_FN,$(platform)).userland_debug.lst)
 
 # Generate a .lst file for each architecture using the RAM and flash addresses
 # specified in the linker file. This will create a valid assembly file, but the
@@ -287,7 +297,7 @@ debug:	$(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform)
 # `make debug` instead. For architectures without PIC support (like RISC-V),
 # `make lst` will work since the linker files uses the correct addresses.
 .PHONY: lst
-lst:	$(foreach platform, $(TOCK_ARCHS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call OUTPUT_NAME_FN,$(platform)).lst)
+lst:	$(foreach platform, $(TOCK_TARGETS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call OUTPUT_NAME_FN,$(platform)).lst)
 
 .PHONY:
 clean::
@@ -327,5 +337,5 @@ fmt format::
 
 #########################################################################################
 # Include dependency rules for picking up header changes (by convention at bottom of makefile)
-OBJS_NO_ARCHIVES += $(filter %.o,$(foreach platform, $(TOCK_ARCHS), $(OBJS_$(call ARCH_FN,$(platform)))))
+OBJS_NO_ARCHIVES += $(filter %.o,$(foreach platform, $(TOCK_TARGETS), $(OBJS_$(call ARCH_FN,$(platform)))))
 -include $(OBJS_NO_ARCHIVES:.o=.d)
