@@ -144,11 +144,11 @@ endef
 # uncomment to print generated rules
 # $(info $(foreach platform,$(TOCK_ARCHS), $(call LIB_RULES,$(call ARCH_FN,$(platform)))))
 # actually generate the rules for each architecture
-$(foreach platform,$(TOCK_ARCHS),$(eval $(call LIB_RULES,$(platform))))
+$(foreach arch,$(TOCK_ARCHS),$(eval $(call LIB_RULES,$(arch))))
 
 # add each architecture as a target
 .PHONY: all
-all: $(foreach platform, $(TOCK_ARCHS),$($(LIBNAME)_BUILDDIR)/$(platform)/$(LIBNAME).a)
+all: $(foreach arch, $(TOCK_ARCHS),$($(LIBNAME)_BUILDDIR)/$(arch)/$(LIBNAME).a)
 
 
 # Force LIBNAME to be expanded now
