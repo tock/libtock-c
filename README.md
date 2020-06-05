@@ -33,14 +33,15 @@ Prerequisites
     $ cd libtock-c
     ```
 
-1. The main requirement to build the C applications in this repository
-   is a cross compiler for embedded targets. Currently, the only
-   supportetd target is ARM Cortex M, so you will need an
-   `arm-none-eabi` toolchain.
+1. The main requirement to build the C applications in this repository is having
+   cross compilers for embedded targets. You will need an `arm-none-eabi`
+   toolchain for Cortex-M targets, and `riscv64-unknown-elf` toolchain for
+   RISC-V targets.
 
    MacOS:
    ```
    $ brew tap ARMmbed/homebrew-formulae && brew update && brew install arm-none-eabi-gcc
+   $ brew install riscv-gnu-toolchain --with-multilib
    ```
 
    Ubuntu (18.04LTS or later):
@@ -52,6 +53,8 @@ Prerequisites
    ```
    $ sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa && sudo apt update && sudo apt install gcc-arm-embedded
    ```
+
+   The RISC-V binaries are pre-compiled from [SiFive](https://www.sifive.com/boards).
 
 1. You will also need an up-to-date version of [elf2tab](https://crates.io/crates/elf2tab).
    The build system will install and update this automatically for you, but you'll need Rust's
@@ -81,11 +84,11 @@ execute the build script:
     $ cd examples
     $ ./build_all.sh
 
-This will install `elf2tab` if it is not yet installed and compile all
-the examples for cortex-m0, cortex-m3, and cortex-m4. It does this
-because the compiler emits slightly different instructions for each
-variant. When installing the application, `tockloader` will select the
-correct version for the architecture of the board being programmed.
+This will install `elf2tab` if it is not yet installed and compile all the
+examples for cortex-m0, cortex-m3, cortex-m4, and rv32imac. It does this because
+the compiler emits slightly (or significantly) different instructions for each
+variant. When installing the application, `tockloader` will select the correct
+version for the architecture of the board being programmed.
 
 The build process will ultimately create a `tab` file (a "Tock Application
 Bundle") for each example application. The `tab` contains the
