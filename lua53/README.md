@@ -21,7 +21,7 @@ Using `lua53` in Tock
 To use `lua53`, add the following include to the application's
 Makefile:
 
-    EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/lu53
+    EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/lua53
 
 
 
@@ -30,11 +30,9 @@ Re-compiling `lua53`
 
 Checkout the lua submodule in this directory
 
-    $ git submodule init -- userland/lua
+    $ git submodule init -- lua
     $ git submodule update
 
 then run `make`
 
-    $ cd userland/lua
     $ make
-
