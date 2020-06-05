@@ -48,7 +48,9 @@ TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4 rv32imac
 # 3. (Optional) The address to use as the fixed start of flash.
 # 4. (Optional) The address to use as the fixed start of RAM.
 TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4
+# RISC-V for HiFive1b
 TOCK_TARGETS += rv32imac|rv32imac.0x20040040.0x80002400|0x20040040|0x80002400
+# RISC-V for arty-e21
 TOCK_TARGETS += rv32imac|rv32imac.0x4043003c.0x80004000|0x4043003c|0x80004000
 
 # Check if elf2tab exists, if not, install it using cargo.
