@@ -101,7 +101,9 @@ override CPPFLAGS_rv32imac += \
       -mcmodel=medlow\
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
 override LINK_LIBS_rv32imac += \
-      -lc -lgcc\
+      -lc\
+      -lgcc\
+      -lm
 
 override CPPFLAGS_cortex-m += \
       -mthumb\
