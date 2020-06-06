@@ -49,12 +49,12 @@ TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4 rv32imac
 # 4. (Optional) The address to use as the fixed start of RAM.
 #
 #  rv32imac|rv32imac.0x20040040.0x80002400|0x20040040|0x80002400 # RISC-V for HiFive1b
-#  rv32imac|rv32imac.0x4043003c.0x80004000|0x4043003c|0x80004000 # RISC-V for arty-e21
+#  rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000 # RISC-V for arty-e21
 TOCK_TARGETS ?= cortex-m0\
                 cortex-m3\
                 cortex-m4\
                 rv32imac|rv32imac.0x20040040.0x80002400|0x20040040|0x80002400\
-                rv32imac|rv32imac.0x4043003c.0x80004000|0x4043003c|0x80004000
+                rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
