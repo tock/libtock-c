@@ -4,7 +4,7 @@
 TOCK_USERLAND_BASE_DIR = ../..
 
 # This app only compiles (due to C++) for Cortex-M platforms.
-TOCK_TARGETS = cortex-m0 cortex-m3 cortex-m4
+TOCK_TARGETS := cortex-m0 cortex-m3 cortex-m4
 
 # Which files to compile.
 CXX_SRCS := $(wildcard *.cpp)

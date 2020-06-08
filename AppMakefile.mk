@@ -140,8 +140,8 @@ $$(BUILDDIR)/$(1)/$(2).custom.ld: $$(LAYOUT) _FORCE_USERLAND_LD_CUSTOM | $$(BUIL
 	@#
 	@# #616 #635: sed is not cross-platform
 	@# https://stackoverflow.com/a/22247781/358675 <-- Use perl in place of sed
-	$$(Q)set -e ;\
-	  perl -pi -e "s/(FLASH.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$(3)\$$$$3/" $$@ ;\
+	$$(Q)\
+	  perl -pi -e "s/(FLASH.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$(3)\$$$$3/" $$@ &&\
 	  perl -pi -e "s/(SRAM.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$(4)\$$$$3/" $$@
 
 # Collect all desired built output.
