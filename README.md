@@ -38,28 +38,39 @@ Prerequisites
    toolchain for Cortex-M targets, and `riscv64-unknown-elf` toolchain for
    RISC-V targets.
 
-   MacOS:
+   **MacOS**:
    ```
    $ brew tap ARMmbed/homebrew-formulae && brew update && brew install arm-none-eabi-gcc
-   $ brew install riscv-gnu-toolchain --with-multilib
+   $ brew tap riscv/riscv && brew update && brew install riscv-gnu-toolchain --with-multilib
    ```
 
-   Ubuntu (18.04LTS or later):
+   You can also download a pre-built RISC-V toolchain
+   [here](http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-mac.zip).
+
+   **Ubuntu (18.04LTS or later)**:
    ```
    $ sudo apt install gcc-arm-none-eabi
    ```
 
-   Ubuntu (before 18.04):
+   You will also need a `riscv64` toolchain. You can download a pre-built
+   toolchain
+   [here](http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-linux.zip),
+   or follow [these
+   instructions](https://github.com/riscv/riscv-gnu-toolchain#installation-newlib)
+   (just the "Installation (Newlib)") and pass the `--enable-multilib` flag to
+   `./configure` to build your own.
+
+   **Arch**:
    ```
-   $ sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa && sudo apt update && sudo apt install gcc-arm-embedded
+   $ sudo pacman -Syu gcc make arm-none-eabi-gcc riscv64-elf-gcc riscv32-elf-newlib
    ```
 
-   The RISC-V binaries are pre-compiled from [SiFive](https://www.sifive.com/boards).
-
-1. You will also need an up-to-date version of [elf2tab](https://crates.io/crates/elf2tab).
-   The build system will install and update this automatically for you, but you'll need Rust's
-   [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) installed.
-   If you have followed the getting started guide, everything should be in place.
+1. You will also need an up-to-date version of
+   [elf2tab](https://crates.io/crates/elf2tab). The build system will install
+   and update this automatically for you, but you'll need Rust's
+   [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html)
+   installed. If you have followed the getting started guide, everything should
+   be in place.
 
 1. You will also likely need [Tockloader](https://github.com/tock/tockloader), a
    tool for programming apps onto boards. If you haven't installed it
