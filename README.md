@@ -54,7 +54,7 @@ Prerequisites
 
    You will also need a `riscv64` toolchain. You can download a pre-built
    toolchain
-   [here](http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-linux.zip),
+   [here](http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-9.2.0-linux.zip),
    or follow [these
    instructions](https://github.com/riscv/riscv-gnu-toolchain#installation-newlib)
    (just the "Installation (Newlib)") and pass the `--enable-multilib` flag to
