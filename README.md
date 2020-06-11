@@ -50,15 +50,31 @@ Prerequisites
    **Ubuntu (18.04LTS or later)**:
    ```
    $ sudo apt install gcc-arm-none-eabi
+   $ sudo apt install gcc-riscv64-unknown-elf
    ```
 
-   You will also need a `riscv64` toolchain. You can download a pre-built
-   toolchain
-   [here](http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-9.2.0-linux.zip),
-   or follow [these
-   instructions](https://github.com/riscv/riscv-gnu-toolchain#installation-newlib)
-   (just the "Installation (Newlib)") and pass the `--enable-multilib` flag to
-   `./configure` to build your own.
+   Unfortunately, Ubuntu does not currently (June 2020) provide a package for
+   RISC-V libc. We have created a .deb file you can use to install a suitable
+   libc based on newlib:
+   ```
+   $ wget http://cs.virginia.edu/~bjc8c/archive/newlib_3.3.0-1_amd64.deb
+   $ sudo dpkg -i newlib_3.3.0-1_amd64.deb
+   ```
+
+   If you would rather compile your own, follow these steps:
+   ```
+   # Download newlib 3.3 from https://sourceware.org/newlib/
+   wget ftp://sourceware.org/pub/newlib/newlib-3.3.0.tar.gz
+   tar -xvf newlib-3.3.0.tar.gz
+   cd newlib-3.3.0
+   # Disable stdlib for building
+   export CFLAGS=-nostdlib
+   # Run configure
+   ./configure --disable-newlib-supplied-syscalls --with-gnu-ld --with-newlib --enable-languages=c --target=riscv64-unknown-elf --host=x86 --disable-multi-lib --prefix /usr
+   # Build and then install
+   make -j8
+   sudo make install
+   ```
 
    **Arch**:
    ```
