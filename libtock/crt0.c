@@ -17,37 +17,47 @@ extern int main(void);
 #pragma GCC diagnostic ignored "-Wmissing-declarations"
 #pragma GCC diagnostic ignored "-Wmissing-prototypes"
 
-/*
- * The structure populated by the linker script at the very beginning of the
- * text segment. It represents sizes and offsets from the text segment of
- * sections that need some sort of loading and/or relocation.
- */
+// The structure populated by the linker script at the very beginning of the
+// text segment. It represents sizes and offsets from the text segment of
+// sections that need some sort of loading and/or relocation.
 struct hdr {
-  //  0: Offset of GOT symbols in flash
+  //  0: Offset of GOT symbols in flash from the start of the application
+  //     binary.
   uint32_t got_sym_start;
-  //  4: Offset of GOT section in memory
+  //  4: Offset of where the GOT section needs to be placed in memory from the
+  //     start of the application's memory region.
   uint32_t got_start;
-  //  8: Size of GOT section
+  //  8: Size of GOT section.
   uint32_t got_size;
-  // 12: Offset of data symbols in flash
+  // 12: Offset of data symbols in flash from the start of the application
+  //     binary.
   uint32_t data_sym_start;
-  // 16: Offset of data section in memory
+  // 16: Offset of where the data section needs to be placed in memory from the
+  //     start of the application's memory region.
   uint32_t data_start;
-  // 20: Size of data section
+  // 20: Size of data section.
   uint32_t data_size;
-  // 24: Offset of BSS section in memory
+  // 24: Offset of where the BSS section needs to be placed in memory from the
+  //     start of the application's memory region.
   uint32_t bss_start;
-  // 28: Size of BSS section
+  // 28: Size of BSS section.
   uint32_t bss_size;
   // 32: First address offset after program flash, where elf2tab places
   //     .rel.data section
   uint32_t reldata_start;
-  // 36: The size of the stack requested by this application
+  // 36: The size of the stack requested by this application.
   uint32_t stack_size;
 };
 
+// The structure of the relative data section. This structure comes from the
+// compiler.
 struct reldata {
+  // Number of relative addresses.
   uint32_t len;
+  // Array of offsets of the address to be updated relative to the start of the
+  // application's memory region. Each address at these offsets needs to be
+  // adjusted to be a fixed address relative to the start of the app's actual
+  // flash or RAM start address.
   uint32_t data[];
 };
 
@@ -85,14 +95,15 @@ void _start(void* app_start __attribute__((unused)),
     // myhdr->bss_start). With all of that true, then the size is equivalent
     // to the end of the BSS section.
     //
-    // uint32_t appdata_size = myhdr->bss_start + myhdr->bss_size;
+    // uint32_t app_brk = mem_start + myhdr->bss_start + myhdr->bss_size;
     "ldr  r5, [r0, #24]\n"      // r6 = myhdr->bss_start
     "ldr  r6, [r0, #28]\n"      // r6 = myhdr->bss_size
     "add  r5, r5, r6\n"         // r5 = bss_start + bss_size
+    "add  r5, r5, r1\n"         // r5 = mem_start + bss_start + bss_size = app_brk
     //
     // Move registers we need to keep over to callee-saved locations
-    "movs r6, r0\n"
-    "movs r7, r1\n"
+    "movs r6, r0\n"             // r6 = app_start
+    "movs r7, r1\n"             // r7 = mem_start
     //
     // Now we may want to move the stack pointer. If the kernel set the
     // `app_heap_break` larger than we need (and we are going to call `brk()`
@@ -100,21 +111,20 @@ void _start(void* app_start __attribute__((unused)),
     // Otherwise after the first syscall (the memop to set the brk), the return
     // will use a stack that is outside of the process accessible memory.
     //
-    "add r1, r4, r5\n"          // r1 = stacktop + appdata_size
-    "cmp r1, r3\n"              // Compare `app_heap_break` with new brk
+    "cmp r5, r3\n"              // Compare `app_heap_break` with new brk.
     "bgt skip_set_sp\n"         // If our current `app_heap_break` is larger
                                 // then we need to move the stack pointer
                                 // before we call the `brk` syscall.
-    "mov  sp, r4\n"             // Update the stack pointer
+    "mov  sp, r4\n"             // Update the stack pointer.
     "mov  r9, sp\n"
     //
     "skip_set_sp:\n"            // Back to regularly scheduled programming.
     //
     // Call `brk` to set to requested memory
     //
-    // memop(0, stacktop + appdata_size);
+    // memop(0, app_brk);
     "movs r0, #0\n"
-    "add  r1, r4, r5\n"
+    "movs r1, r5\n"
     "svc 4\n"                   // memop
     //
     // Debug support, tell the kernel the stack location
@@ -126,9 +136,9 @@ void _start(void* app_start __attribute__((unused)),
     //
     // Debug support, tell the kernel the heap location
     //
-    // memop(11, stacktop + appdata_size);
+    // memop(11, app_brk);
     "movs r0, #11\n"
-    "add  r1, r4, r5\n"
+    "movs r1, r5\n"
     "svc 4\n"                   // memop
     //
     // Setup initial stack pointer for normal execution
@@ -139,7 +149,7 @@ void _start(void* app_start __attribute__((unused)),
     // This should never return, if it does, trigger a breakpoint (which will
     // promote to a HardFault in the absence of a debugger)
     "movs r0, r6\n"             // first arg is app_start
-    "movs r1, r4\n"             // second arg is stacktop
+    "movs r1, r7\n"             // second arg is mem_start
     "bl _c_start\n"
     "bkpt #255\n"
     );
@@ -165,15 +175,16 @@ void _start(void* app_start __attribute__((unused)),
     // myhdr->bss_start). With all of that true, then the size is equivalent
     // to the end of the BSS section.
     //
-    // uint32_t appdata_size = myhdr->bss_start + myhdr->bss_size;
+    // uint32_t app_brk = mem_start + myhdr->bss_start + myhdr->bss_size;
     "lw   t1, 24(a0)\n"         // t1 = myhdr->bss_start
     "lw   t2, 28(a0)\n"         // t2 = myhdr->bss_size
-    "lw   t3,  4(a0)\n"         // t3 = myhdr->got_start
     "add  t1, t1, t2\n"         // t1 = bss_start + bss_size
+    "add  t1, t1, a1\n"         // t1 = mem_start + bss_start + bss_size = app_brk
     //
     // Move arguments we need to keep over to callee-saved locations.
     "mv   s0, a0\n"             // s0 = void* app_start
     "mv   s1, t0\n"             // s1 = stack_top
+    "mv   s2, a1\n"             // s2 = mem_start
     //
     // Now we may want to move the stack pointer. If the kernel set the
     // `app_heap_break` larger than we need (and we are going to call `brk()`
@@ -181,8 +192,7 @@ void _start(void* app_start __attribute__((unused)),
     // Otherwise after the first syscall (the memop to set the brk), the return
     // will use a stack that is outside of the process accessible memory.
     //
-    "add t2, t0, t1\n"          // t2 = stacktop + appdata_size
-    "bgt t2, a3, skip_set_sp\n" // Compare `app_heap_break` with new brk.
+    "bgt t1, a3, skip_set_sp\n" // Compare `app_heap_break` with new brk.
                                 // If our current `app_heap_break` is larger
                                 // then we need to move the stack pointer
                                 // before we call the `brk` syscall.
@@ -195,7 +205,7 @@ void _start(void* app_start __attribute__((unused)),
     // memop(0, stacktop + appdata_size);
     "li  a0, 4\n"               // a0 = 4   // memop syscall
     "li  a1, 0\n"               // a1 = 0
-    "mv  a2, t2\n"              // a2 = stacktop + appdata_size
+    "mv  a2, t1\n"              // a2 = app_brk
     "ecall\n"                   // memop
     //
     // Debug support, tell the kernel the stack location
@@ -208,18 +218,18 @@ void _start(void* app_start __attribute__((unused)),
     //
     // Debug support, tell the kernel the heap location
     //
-    // memop(11, stacktop + appdata_size);
+    // memop(11, app_brk);
     "li  a0, 4\n"               // a0 = 4   // memop syscall
-    "li  a1, 11\n"              // a1 = 10
-    "mv  a2, t2\n"              // a2 = stacktop + appdata_size
+    "li  a1, 11\n"              // a1 = 11
+    "mv  a2, t1\n"              // a2 = app_brk
     "ecall\n"                   // memop
     //
     // Setup initial stack pointer for normal execution
-    // Call into the rest of startup. This should never return.
     "mv   sp, s1\n"             // sp = stacktop
+    // Call into the rest of startup. This should never return.
     "mv   a0, s0\n"             // first arg is app_start
     "mv   s0, sp\n"             // Set the frame pointer to sp.
-    "mv   a1, s1\n"             // second arg is stacktop
+    "mv   a1, s2\n"             // second arg is mem_start
     "jal  _c_start\n"
     );
 
@@ -228,37 +238,82 @@ void _start(void* app_start __attribute__((unused)),
 #endif
 }
 
+// C startup routine that configures memory for the process. This also handles
+// PIC fixups that are required for the application.
+//
+// Arguments:
+// - `app_start`: The address of where the app binary starts in flash. This does
+//   not include the TBF header or any padding before the app.
+// - `mem_start`: The starting address of the memory region assigned to this
+//   app.
 __attribute__((noreturn))
-void _c_start(uint32_t* app_start, uint32_t stacktop) {
+void _c_start(uint32_t app_start, uint32_t mem_start) {
   struct hdr* myhdr = (struct hdr*)app_start;
 
-  // fix up GOT
-  volatile uint32_t* got_start     = (uint32_t*)(myhdr->got_start + stacktop);
-  volatile uint32_t* got_sym_start = (uint32_t*)(myhdr->got_sym_start + (uint32_t)app_start);
+  // Fix up the Global Offset Table (GOT).
+
+  // Get the address in memory of where the table should go.
+  volatile uint32_t* got_start = (uint32_t*)(myhdr->got_start + mem_start);
+  // Get the address in flash of where the table currently is.
+  volatile uint32_t* got_sym_start = (uint32_t*)(myhdr->got_sym_start + app_start);
+  // Iterate all entries in the table and correct the addresses.
   for (uint32_t i = 0; i < (myhdr->got_size / (uint32_t)sizeof(uint32_t)); i++) {
+    // Use the sentinel here. If the most significant bit is 0, then we know
+    // this offset is pointing to an address in memory. If the MSB is 1, then
+    // the offset refers to a value in flash.
     if ((got_sym_start[i] & 0x80000000) == 0) {
-      got_start[i] = got_sym_start[i] + stacktop;
+      // This is an address for something in memory, and we need to correct the
+      // address now that we know where this app is actually running in memory.
+      // This equation is really:
+      //
+      //     got_entry = (got_stored_entry - original_RAM_start_address) + actual_RAM_start_address
+      //
+      // However, we compiled the app where `original_RAM_start_address` is 0x0,
+      // so we can omit that.
+      got_start[i] = got_sym_start[i] + mem_start;
     } else {
-      got_start[i] = (got_sym_start[i] ^ 0x80000000) + (uint32_t)app_start;
+      // Otherwise, this address refers to something in flash. Now that we know
+      // where the app has actually been loaded, we can reference from the
+      // actual `app_start` address. We also have to remove our fake flash
+      // address sentinel (by ORing with 0x80000000).
+      got_start[i] = (got_sym_start[i] ^ 0x80000000) + app_start;
     }
   }
 
-  // load data section
-  void* data_start     = (void*)(myhdr->data_start + stacktop);
-  void* data_sym_start = (void*)(myhdr->data_sym_start + (uint32_t)app_start);
+  // Load the data section from flash into RAM. We use the offsets from our
+  // crt0 header so we know where this starts and where it should go.
+  void* data_start     = (void*)(myhdr->data_start + mem_start);
+  void* data_sym_start = (void*)(myhdr->data_sym_start + app_start);
   memcpy(data_start, data_sym_start, myhdr->data_size);
 
-  // zero BSS
-  char* bss_start = (char*)(myhdr->bss_start + stacktop);
+  // Zero BSS segment. Again, we know where this should be in the process RAM
+  // based on the crt0 header.
+  char* bss_start = (char*)(myhdr->bss_start + mem_start);
   memset(bss_start, 0, myhdr->bss_size);
 
+  // Do relative data address fixups. We know these entries are stored at the end
+  // of flash and can be located using the crt0 header.
+  //
+  // The data structure used for these is `struct reldata`, where a 32 bit
+  // length field is followed by that many entries. We iterate each entry and
+  // correct addresses.
   struct reldata* rd = (struct reldata*)(myhdr->reldata_start + (uint32_t)app_start);
   for (uint32_t i = 0; i < (rd->len / (int)sizeof(uint32_t)); i += 2) {
-    uint32_t* target = (uint32_t*)(rd->data[i] + stacktop);
+    // The entries are offsets from the beginning of the app's memory region.
+    // First, we get a pointer to the location of the address we need to fix.
+    uint32_t* target = (uint32_t*)(rd->data[i] + mem_start);
     if ((*target & 0x80000000) == 0) {
-      *target += stacktop;
+      // Again, we use our sentinel. If the address at that location has a MSB
+      // of 0, then we know this is an address in RAM. We need to fix the
+      // address by including the offset where the app actual ended up in
+      // memory. This is a simple addition since the app was compiled with a
+      // memory address of zero.
+      *target += mem_start;
     } else {
-      *target = (*target ^ 0x80000000) + (uint32_t)app_start;
+      // When the MSB is 1, the address is in flash. We clear our sentinel, and
+      // then make the address an offset from the start of where the app is
+      // located in flash.
+      *target = (*target ^ 0x80000000) + app_start;
     }
   }
 
@@ -267,4 +322,3 @@ void _c_start(uint32_t* app_start, uint32_t stacktop) {
     yield();
   }
 }
-
