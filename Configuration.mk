@@ -31,7 +31,7 @@ PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 # Tock supported architectures.
 #
 # Each app will be compiled for each of the architectures.
-TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4 rv32imac
+TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4 rv32imac rv32imc
 
 # Tock app targets.
 #
@@ -48,14 +48,16 @@ TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4 rv32imac
 # 3. (Optional) The address to use as the fixed start of flash.
 # 4. (Optional) The address to use as the fixed start of RAM.
 #
-#  rv32imac|rv32imac.0x20040040.0x80002400|0x20040040|0x80002400 # RISC-V for HiFive1b
-#  rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000 # RISC-V for arty-e21
+#  rv32imac|rv32imac.0x20040040.0x80002400 # RISC-V for HiFive1b
+#  rv32imac|rv32imac.0x4043*.0x8000*       # RISC-V for arty-e21
+#  rv32imc|rv32imc.0x20030040.0x10002D00   # RISC-V for OpenTitan
 TOCK_TARGETS ?= cortex-m0\
                 cortex-m3\
                 cortex-m4\
                 rv32imac|rv32imac.0x20040040.0x80002400|0x20040040|0x80002400\
                 rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000\
-                rv32imac|rv32imac.0x40434060.0x80006000|0x40434060|0x80006000
+                rv32imac|rv32imac.0x40434060.0x80006000|0x40434060|0x80006000\
+                rv32imc|rv32imc.0x20030040.0x10002D00|0x20030040|0x10002D00
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
@@ -71,6 +73,7 @@ override TOOLCHAIN_cortex-m0 = arm-none-eabi
 override TOOLCHAIN_cortex-m3 = arm-none-eabi
 override TOOLCHAIN_cortex-m4 = arm-none-eabi
 override TOOLCHAIN_rv32imac = riscv64-unknown-elf
+override TOOLCHAIN_rv32imc = riscv64-unknown-elf
 
 # Flags for building app Assembly, C, C++ files
 # n.b. make convention is that CPPFLAGS are shared for C and C++ sources

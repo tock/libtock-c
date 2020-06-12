@@ -6,6 +6,9 @@ TOCK_USERLAND_BASE_DIR = ../..
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
 
+# no sqrt on rv32imc
+TOCK_TARGETS := cortex-m0 cortex-m3 cortex-m4 rv32imac
+
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.
 include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
