@@ -149,7 +149,7 @@ override CPPFLAGS += -include $(TOCK_USERLAND_BASE_DIR)/support/warning_header.h
 # Flags for creating application Object files
 OBJDUMP_FLAGS += --disassemble-all --source -C --section-headers
 
-override OBJDUMP_FLAGS_cortex-m  += -disassembler-options=force-thumb
+override OBJDUMP_FLAGS_cortex-m  += --disassembler-options=force-thumb
 override OBJDUMP_FLAGS_cortex-m4 += $(OBJDUMP_FLAGS_cortex-m)
 override OBJDUMP_FLAGS_cortex-m3 += $(OBJDUMP_FLAGS_cortex-m)
 override OBJDUMP_FLAGS_cortex-m0 += $(OBJDUMP_FLAGS_cortex-m)
