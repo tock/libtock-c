@@ -241,7 +241,7 @@ $$(BUILDDIR)/$(1)/$(2).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
 	    -T $$(BUILDDIR)/$(1)/$(2).userland_debug.ld\
 	    -nostdlib\
-	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) -Wl,--end-group\
+	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(LINK_LIBS_$(1)) -Wl,--end-group\
 	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(2).Map\
 	    -o $$@
 

@@ -45,4 +45,5 @@ before_install:
 script:
   - pushd examples; ./build_all.sh || exit; popd
   - pushd examples; ./format_all.sh || exit; popd
+  - pushd examples/blink; make debug RAM_START=0x20004000 FLASH_INIT=0x30051 || exit; popd
 
