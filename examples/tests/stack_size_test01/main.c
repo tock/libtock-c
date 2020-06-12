@@ -6,6 +6,8 @@ int main(void) {
   asm volatile ("MOV %0, sp\n" : "=r" (stack_pointer));
 #elif defined(__riscv)
   asm volatile ("mv %0, sp\n" : "=r" (stack_pointer));
+#else
+#error Unknown architecture
 #endif
 
   printf("Current stack pointer: 0x%lx\n", stack_pointer);
