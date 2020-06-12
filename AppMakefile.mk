@@ -134,10 +134,6 @@ define BUILD_RULES
 $$(BUILDDIR)/$(1)/$(2).custom.ld: $$(LAYOUT) _FORCE_USERLAND_LD_CUSTOM | $$(BUILDDIR)/$(1)
 	@# Start with a copy of the template / generic ld script
 	$$(Q)cp $$< $$@
-	@# And with apologies to future readers, this is easier as one shell
-	@# command/script so we can set intervening variables. We want to replace
-	@# the flash and RAM addresses with specific versions in the generic file.
-	@#
 	@# #616 #635: sed is not cross-platform
 	@# https://stackoverflow.com/a/22247781/358675 <-- Use perl in place of sed
 	$$(Q)\
@@ -163,6 +159,7 @@ $$(BUILDDIR)/$(1)/$(2).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(
 $$(BUILDDIR)/$(1)/$(2).lst: $$(BUILDDIR)/$(1)/$(2).elf
 	$$(TRACE_LST)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(OBJDUMP) $$(OBJDUMP_FLAGS) $$(OBJDUMP_FLAGS_$(1)) $$< > $$@
+	@echo $$$$(tput bold)Listings generated at $$@$$$$(tput sgr0)
 
 # checks compiled ELF files to ensure that all libraries and applications were
 # built with the correct flags in order to work on a Tock board
