@@ -47,7 +47,7 @@ Prerequisites
    You can also download a pre-built RISC-V toolchain
    [here](http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-mac.zip).
 
-   **Ubuntu (18.04LTS or later)**:
+   **Ubuntu (19.10 or later)**:
    ```
    $ sudo apt install gcc-arm-none-eabi
    $ sudo apt install gcc-riscv64-unknown-elf
@@ -61,7 +61,7 @@ Prerequisites
    $ sudo dpkg -i newlib_3.3.0-1_amd64.deb
    ```
 
-   If you would rather compile your own, follow these steps:
+   If you would rather compile your own newlib-based libc, follow these steps:
    ```
    # Download newlib 3.3 from https://sourceware.org/newlib/
    wget ftp://sourceware.org/pub/newlib/newlib-3.3.0.tar.gz
@@ -74,6 +74,20 @@ Prerequisites
    # Build and then install
    make -j8
    sudo make install
+   ```
+
+   **Ubuntu (18.04LTS or earlier)**:
+   ```
+   $ sudo apt install gcc-arm-none-eabi
+   ```
+
+   The GCC-based RISC-V toolchain is relatively new, and there aren't packages
+   for earlier versions of Ubuntu. You can use a pre-compiled toolchain that
+   we created:
+   ```
+   $ wget http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
+   $ unzip gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
+   # add gcc-riscv64-unknown-elf-8.3.0-ubuntu/bin to your `$PATH` variable.
    ```
 
    **Arch**:
