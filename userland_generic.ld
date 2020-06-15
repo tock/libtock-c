@@ -10,9 +10,11 @@ RAM_LENGTH  = 0x00010000;
 
 ENTRY(_start)
 
-/* Note: Because apps are relocated, the FLASH address here acts as a sentinel
- * value for relocation fixup routines. The application loader will select the
- * actual location in flash where the app is placed.
+/* Note: On platforms where apps are position-independent and relocatable, the
+ * FLASH address here acts as a sentinel value for relocation fixup routines.
+ * The application loader will select the actual location in flash where the app
+ * is placed. On platforms where apps are compiled for fixed addresses, these
+ * addresses will be changed automatically before the linking step.
  */
 MEMORY {
     FLASH (rx) : ORIGIN = 0x80000000, LENGTH = PROG_LENGTH
@@ -25,7 +27,6 @@ SECTIONS {
      */
     .crt0_header :
     {
-        _beginning = .; /* Start of the app in flash. */
         /**
          * Populate the header expected by `crt0`:
          *
@@ -42,25 +43,30 @@ SECTIONS {
          *    uint32_t stack_size;
          *  };
          */
-        /* Offset of GOT symbols in flash */
-        LONG(LOADADDR(.got) - _beginning);
-        /* Offset of GOT section in memory */
-        LONG(_got);
-        /* Size of GOT section */
+        /* Offset of GOT symbols in flash from the start of the application
+         * binary. */
+        LONG(LOADADDR(.got) - ORIGIN(FLASH));
+        /* Offset of where the GOT section will be placed in memory from the
+         * beginning of the app's assigned memory. */
+        LONG(_got - ORIGIN(SRAM));
+        /* Size of GOT section. */
         LONG(SIZEOF(.got));
-        /* Offset of data symbols in flash */
-        LONG(LOADADDR(.data) - _beginning);
-        /* Offset of data section in memory */
-        LONG(_data);
-        /* Size of data section */
+        /* Offset of data symbols in flash from the start of the application
+         * binary. */
+        LONG(LOADADDR(.data) - ORIGIN(FLASH));
+        /* Offset of where the data section will be placed in memory from the
+         * beginning of the app's assigned memory. */
+        LONG(_data - ORIGIN(SRAM));
+        /* Size of data section. */
         LONG(SIZEOF(.data));
-        /* Offset of BSS section in memory */
-        LONG(_bss);
+        /* Offset of where the BSS section will be placed in memory from the
+         * beginning of the app's assigned memory. */
+        LONG(_bss - ORIGIN(SRAM));
         /* Size of BSS section */
         LONG(SIZEOF(.bss));
         /* First address offset after program flash, where elf2tab places
          * .rel.data section */
-        LONG(LOADADDR(.endflash) - _beginning);
+        LONG(LOADADDR(.endflash) - ORIGIN(FLASH));
         /* The size of the stack requested by this application */
         LONG(STACK_SIZE);
     } > FLASH =0xFF
@@ -89,6 +95,27 @@ SECTIONS {
         . = ALIGN(4); /* Make sure we're word-aligned here */
     } > FLASH =0xFF
 
+    /* Need to reserve room for the stack in the linker file. This makes the
+     * _got addresses used by the compiler match what they will be when the
+     * app is loaded into memory. This is not necessary for full PIC supported
+     * platforms (like Cortex-M), but is needed when an app is compiled for a
+     * fixed address.
+     */
+    .stack :
+    {
+        /* Be conservative about our alignment for the stack. Different
+         * architectures require different values (8 for ARM, 16 for RISC-V),
+         * so we choose the largest value. In practice, this likely will not
+         * matter since the start of SRAM is unlikely to be at a very peculiar
+         * address.
+         */
+        . = ALIGN(16);
+        _stack = .;
+        . = _stack + STACK_SIZE;
+        . = ALIGN(16);
+    } > SRAM
+
+
     /* Global Offset Table */
     .got :
     {
@@ -108,9 +135,9 @@ SECTIONS {
         . = ALIGN(4); /* Make sure we're word-aligned here */
         _data = .;
         KEEP(*(.data*))
-	/* Include the "small data" in the data section. Otherwise it will be
-	 * dropped when the TBF is created.
-	 */
+        /* Include the "small data" in the data section. Otherwise it will be
+         * dropped when the TBF is created.
+         */
         KEEP(*(.sdata*))
         . = ALIGN(4); /* Make sure we're word-aligned at the end of flash */
     } > SRAM AT > FLASH
