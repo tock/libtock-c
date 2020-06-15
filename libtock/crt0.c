@@ -334,12 +334,6 @@ __attribute__((noreturn))
 void _c_start_nopic(uint32_t app_start, uint32_t mem_start) {
   struct hdr* myhdr = (struct hdr*)app_start;
 
-  // Load the GOT from flash into RAM. We use the offsets from our
-  // crt0 header so we know where this starts and where it should go.
-  void* got_start     = (void*)(myhdr->got_start + mem_start);
-  void* got_sym_start = (void*)(myhdr->got_sym_start + app_start);
-  memcpy(got_start, got_sym_start, myhdr->got_size);
-
   // Load the data section from flash into RAM. We use the offsets from our
   // crt0 header so we know where this starts and where it should go.
   void* data_start     = (void*)(myhdr->data_start + mem_start);

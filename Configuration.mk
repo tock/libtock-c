@@ -89,7 +89,16 @@ override CPPFLAGS += \
       -Wall\
       -Wextra\
       -Wl,--warn-common\
-      -Wl,--gc-sections\
+      -Wl,--gc-sections
+
+# Generic PIC flags for architectures with compiler support for FDPIC. Note!
+# These flags are not sufficient for full PIC support as Tock requires. The
+# `-fPIC` flag generally only allows the .text and .data sections to be at
+# different relative addresses. However, the .text and RAM sections are not
+# fully relocatable. Therefore, just including these flags is not sufficient to
+# build a full PIC app for Tock. So, we split these out, and only include them
+# for architectures where we have full PIC support.
+override CPPFLAGS_PIC += \
       -Wl,--emit-relocs\
       -fPIC
 
@@ -113,6 +122,7 @@ override LINK_LIBS_rv32imac += \
       -lm
 
 override CPPFLAGS_cortex-m += \
+      $(CPPFLAGS_PIC)\
       -mthumb\
       -mfloat-abi=soft\
       -msingle-pic-base\
