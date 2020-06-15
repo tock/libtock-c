@@ -103,10 +103,16 @@ SECTIONS {
      */
     .stack :
     {
+        /* Be conservative about our alignment for the stack. Different
+         * architectures require different values (8 for ARM, 16 for RISC-V),
+         * so we choose the largest value. In practice, this likely will not
+         * matter since the start of SRAM is unlikely to be at a very peculiar
+         * address.
+         */
+        . = ALIGN(16);
         _stack = .;
-        . = ALIGN(4); /* Make sure we're word-aligned here */
         . = _stack + STACK_SIZE;
-        . = ALIGN(4);
+        . = ALIGN(16);
     } > SRAM
 
 
@@ -129,9 +135,9 @@ SECTIONS {
         . = ALIGN(4); /* Make sure we're word-aligned here */
         _data = .;
         KEEP(*(.data*))
-	    /* Include the "small data" in the data section. Otherwise it will be
-	     * dropped when the TBF is created.
-	     */
+        /* Include the "small data" in the data section. Otherwise it will be
+         * dropped when the TBF is created.
+         */
         KEEP(*(.sdata*))
         . = ALIGN(4); /* Make sure we're word-aligned at the end of flash */
     } > SRAM AT > FLASH
