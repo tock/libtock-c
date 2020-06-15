@@ -44,9 +44,6 @@ Prerequisites
    $ brew tap riscv/riscv && brew update && brew install riscv-gnu-toolchain --with-multilib
    ```
 
-   You can also download a pre-built RISC-V toolchain
-   [here](http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-mac.zip).
-
    **Ubuntu (19.10 or later)**:
    ```
    $ sudo apt install gcc-arm-none-eabi
