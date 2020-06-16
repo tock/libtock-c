@@ -28,11 +28,6 @@ KERNEL_HEAP_SIZE ?= 1024
 # PACKAGE_NAME is used to identify the application for IPC and for error reporting
 PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 
-# Tock supported architectures.
-#
-# Each app will be compiled for each of the architectures.
-TOCK_ARCHS ?= cortex-m0 cortex-m3 cortex-m4 rv32imac rv32imc
-
 # Tock app targets.
 #
 # This is a list of all of the different targets to build an app for which will
@@ -58,6 +53,9 @@ TOCK_TARGETS ?= cortex-m0\
                 rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000\
                 rv32imac|rv32imac.0x40434060.0x80006000|0x40434060|0x80006000\
                 rv32imc|rv32imc.0x20030040.0x10002D00|0x20030040|0x10002D00
+
+# Generate TOCK_ARCHS, the set of architectures listed in TOCK_TARGETS
+TOCK_ARCHS := $(sort $(foreach target, $(TOCK_TARGETS), $(firstword $(subst |, ,$(target)))))
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
