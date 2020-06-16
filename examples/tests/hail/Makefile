@@ -6,9 +6,6 @@ TOCK_USERLAND_BASE_DIR = ../../..
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
 
-# We only compile this for Cortex-M4 since that is what Hail board uses.
-TOCK_TARGETS := cortex-m4
-
 APP_HEAP_SIZE := 2048
 
 # External libraries used
