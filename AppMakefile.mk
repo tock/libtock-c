@@ -173,7 +173,7 @@ endif
 # rules to print the size of the built binaries
 .PHONY: size-$(1)-$(2)
 size-$(1)-$(2):	$$(BUILDDIR)/$(1)/$(2).elf
-	@echo Application size report for architecture $(1):
+	@echo Application size report for target $(2):
 	$$(Q)$$(TOOLCHAIN_$(1))$$(SIZE) $$^
 
 size::	size-$(1)-$(2)
