@@ -334,5 +334,5 @@ fmt format::
 
 #########################################################################################
 # Include dependency rules for picking up header changes (by convention at bottom of makefile)
-OBJS_NO_ARCHIVES += $(filter %.o,$(foreach platform, $(TOCK_TARGETS), $(OBJS_$(call ARCH_FN,$(platform)))))
+OBJS_NO_ARCHIVES += $(filter %.o,$(foreach platform, $(TOCK_ARCHS), $(OBJS_$(platform))))
 -include $(OBJS_NO_ARCHIVES:.o=.d)
