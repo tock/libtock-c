@@ -108,18 +108,18 @@ override CPPFLAGS_rv32imc += \
       -mabi=ilp32\
       -mcmodel=medlow\
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
-override LINK_LIBS_rv32imc += \
-      -lc -lgcc\
 
 override CPPFLAGS_rv32imac += \
       -march=rv32imac\
       -mabi=ilp32\
       -mcmodel=medlow\
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
-override LINK_LIBS_rv32imac += \
-      -lc\
-      -lgcc\
-      -lm
+
+override LINK_LIBS_rv32 += \
+      -lc -lgcc -lm
+
+override LINK_LIBS_rv32imc  += $(LINK_LIBS_rv32)
+override LINK_LIBS_rv32imac += $(LINK_LIBS_rv32)
 
 override CPPFLAGS_cortex-m += \
       $(CPPFLAGS_PIC)\

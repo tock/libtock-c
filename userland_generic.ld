@@ -115,6 +115,7 @@ SECTIONS {
         . = ALIGN(16);
     } > SRAM
 
+
     /* Global Offset Table */
     .got :
     {
