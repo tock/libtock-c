@@ -43,6 +43,18 @@ PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 # 3. (Optional) The address to use as the fixed start of flash.
 # 4. (Optional) The address to use as the fixed start of RAM.
 #
+# By default we currently only build the Cortex-M targets. To enable the RISC-V
+# targets, set the RISCV variable like so:
+#
+#     $ make RISCV=1
+#
+# Once the RV32 toolchain distribution stabilizes (as of June 2020 the toolchain
+# isn't as easily obtained as we would like), we intend to make the RISC-V
+# targets build by default as well.
+ifeq ($(RISCV),)
+TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4
+else
+# Include the RISC-V targets.
 #  rv32imac|rv32imac.0x20040040.0x80002400 # RISC-V for HiFive1b
 #  rv32imac|rv32imac.0x4043*.0x8000*       # RISC-V for arty-e21
 #  rv32imc|rv32imc.0x20030040.0x10002D00   # RISC-V for OpenTitan
@@ -53,6 +65,7 @@ TOCK_TARGETS ?= cortex-m0\
                 rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000\
                 rv32imac|rv32imac.0x40434060.0x80006000|0x40434060|0x80006000\
                 rv32imc|rv32imc.0x20030040.0x10002D00|0x20030040|0x10002D00
+endif
 
 # Generate TOCK_ARCHS, the set of architectures listed in TOCK_TARGETS
 TOCK_ARCHS := $(sort $(foreach target, $(TOCK_TARGETS), $(firstword $(subst |, ,$(target)))))

@@ -35,18 +35,43 @@ Prerequisites
 
 1. The main requirement to build the C applications in this repository is having
    cross compilers for embedded targets. You will need an `arm-none-eabi`
-   toolchain for Cortex-M targets, and `riscv64-unknown-elf` toolchain for
-   RISC-V targets.
+   toolchain for Cortex-M targets.
 
    **MacOS**:
    ```
    $ brew tap ARMmbed/homebrew-formulae && brew update && brew install arm-none-eabi-gcc
+   ```
+
+   **Ubuntu (18.04LTS or later)**:
+   ```
+   $ sudo apt install gcc-arm-none-eabi
+   ```
+
+   **Arch**:
+   ```
+   $ sudo pacman -Syu arm-none-eabi-gcc
+   ```
+
+1. Optional: libtock-c also includes support for building for RISC-V targets.
+   These are not included by default since obtaining the toolchain can be
+   difficult (as of June 2020). You will need a `riscv64-unknown-elf` GCC
+   toolchain that supports rv32 targets as well (i.e. is compiled with multilib
+   support).
+
+   To actually build for the RISC-V targets, add `RISCV=1` to the make command:
+
+       $ make RISCV=1
+
+   **MacOS**:
+   ```
    $ brew tap riscv/riscv && brew update && brew install riscv-gnu-toolchain --with-multilib
    ```
+   Warning: this will compile from source, and takes a while. Also this will
+   build a bleeding-edge version of GCC, and there is a small chance it will not
+   work. However, we have successfully obtained a toolchain this way.
 
    **Ubuntu (19.10 or later)**:
    ```
-   $ sudo apt install gcc-arm-none-eabi
    $ sudo apt install gcc-riscv64-unknown-elf
    ```
 
@@ -73,14 +98,8 @@ Prerequisites
    sudo make install
    ```
 
-   **Ubuntu (18.04LTS or earlier)**:
-   ```
-   $ sudo apt install gcc-arm-none-eabi
-   ```
-
-   The GCC-based RISC-V toolchain is relatively new, and there aren't packages
-   for earlier versions of Ubuntu. You can use a pre-compiled toolchain that
-   we created:
+   Alternatively, you may use a pre-compiled toolchain that we created with
+   Crosstool-NG.
    ```
    $ wget http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
    $ unzip gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
@@ -89,7 +108,7 @@ Prerequisites
 
    **Arch**:
    ```
-   $ sudo pacman -Syu gcc make arm-none-eabi-gcc riscv64-elf-gcc riscv32-elf-newlib
+   $ sudo pacman -Syu riscv64-elf-gcc riscv32-elf-newlib
    ```
 
 1. You will also need an up-to-date version of
