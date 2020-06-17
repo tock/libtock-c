@@ -28,8 +28,47 @@ KERNEL_HEAP_SIZE ?= 1024
 # PACKAGE_NAME is used to identify the application for IPC and for error reporting
 PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 
-# Tock supported architectures
-TOCK_ARCHS ?= cortex-m0|arm-none-eabi cortex-m3|arm-none-eabi cortex-m4|arm-none-eabi
+# Tock app targets.
+#
+# This is a list of all of the different targets to build an app for which will
+# all be bundled into a TAB. This allows us to build an app for any board Tock
+# supports, and wait until a TAB is installed onto a board to figure out which
+# specific binary that hardware platform needs.
+#
+# Each entry is itself a list:
+#
+# 1. The name of the architecture. This is used for naming generated files and
+#    variables in the Makefiles. It is generally just a human-readable name.
+# 2. (Optional) The name to use when creating the output file.
+# 3. (Optional) The address to use as the fixed start of flash.
+# 4. (Optional) The address to use as the fixed start of RAM.
+#
+# By default we currently only build the Cortex-M targets. To enable the RISC-V
+# targets, set the RISCV variable like so:
+#
+#     $ make RISCV=1
+#
+# Once the RV32 toolchain distribution stabilizes (as of June 2020 the toolchain
+# isn't as easily obtained as we would like), we intend to make the RISC-V
+# targets build by default as well.
+ifeq ($(RISCV),)
+TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4
+else
+# Include the RISC-V targets.
+#  rv32imac|rv32imac.0x20040040.0x80002400 # RISC-V for HiFive1b
+#  rv32imac|rv32imac.0x4043*.0x8000*       # RISC-V for arty-e21
+#  rv32imc|rv32imc.0x20030040.0x10002D00   # RISC-V for OpenTitan
+TOCK_TARGETS ?= cortex-m0\
+                cortex-m3\
+                cortex-m4\
+                rv32imac|rv32imac.0x20040040.0x80002400|0x20040040|0x80002400\
+                rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000\
+                rv32imac|rv32imac.0x40434060.0x80006000|0x40434060|0x80006000\
+                rv32imc|rv32imc.0x20030040.0x10002D00|0x20030040|0x10002D00
+endif
+
+# Generate TOCK_ARCHS, the set of architectures listed in TOCK_TARGETS
+TOCK_ARCHS := $(sort $(foreach target, $(TOCK_TARGETS), $(firstword $(subst |, ,$(target)))))
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
@@ -39,6 +78,13 @@ ifndef ELF2TAB_EXISTS
 endif
 ELF2TAB_ARGS += -n $(PACKAGE_NAME)
 ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE)
+
+# Setup the correct toolchain for each architecture.
+override TOOLCHAIN_cortex-m0 = arm-none-eabi
+override TOOLCHAIN_cortex-m3 = arm-none-eabi
+override TOOLCHAIN_cortex-m4 = arm-none-eabi
+override TOOLCHAIN_rv32imac = riscv64-unknown-elf
+override TOOLCHAIN_rv32imc = riscv64-unknown-elf
 
 # Flags for building app Assembly, C, C++ files
 # n.b. make convention is that CPPFLAGS are shared for C and C++ sources
@@ -54,7 +100,16 @@ override CPPFLAGS += \
       -Wall\
       -Wextra\
       -Wl,--warn-common\
-      -Wl,--gc-sections\
+      -Wl,--gc-sections
+
+# Generic PIC flags for architectures with compiler support for FDPIC. Note!
+# These flags are not sufficient for full PIC support as Tock requires. The
+# `-fPIC` flag generally only allows the .text and .data sections to be at
+# different relative addresses. However, the .text and RAM sections are not
+# fully relocatable. Therefore, just including these flags is not sufficient to
+# build a full PIC app for Tock. So, we split these out, and only include them
+# for architectures where we have full PIC support.
+override CPPFLAGS_PIC += \
       -Wl,--emit-relocs\
       -fPIC
 
@@ -64,18 +119,21 @@ override CPPFLAGS_rv32imc += \
       -mabi=ilp32\
       -mcmodel=medlow\
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
-override LINK_LIBS_rv32imc += \
-      -lc -lgcc\
 
 override CPPFLAGS_rv32imac += \
       -march=rv32imac\
       -mabi=ilp32\
       -mcmodel=medlow\
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
-override LINK_LIBS_rv32imac += \
-      -lc -lgcc\
+
+override LINK_LIBS_rv32 += \
+      -lc -lgcc -lm -lstdc++ -lsupc++
+
+override LINK_LIBS_rv32imc  += $(LINK_LIBS_rv32)
+override LINK_LIBS_rv32imac += $(LINK_LIBS_rv32)
 
 override CPPFLAGS_cortex-m += \
+      $(CPPFLAGS_PIC)\
       -mthumb\
       -mfloat-abi=soft\
       -msingle-pic-base\
@@ -110,7 +168,12 @@ override LEGACY_LIBS_cortex-m0 += $(LEGACY_LIBS_cortex-m)
 override CPPFLAGS += -include $(TOCK_USERLAND_BASE_DIR)/support/warning_header.h
 
 # Flags for creating application Object files
-OBJDUMP_FLAGS += --disassemble-all --source --disassembler-options=force-thumb -C --section-headers
+OBJDUMP_FLAGS += --disassemble-all --source -C --section-headers
+
+override OBJDUMP_FLAGS_cortex-m  += --disassembler-options=force-thumb
+override OBJDUMP_FLAGS_cortex-m4 += $(OBJDUMP_FLAGS_cortex-m)
+override OBJDUMP_FLAGS_cortex-m3 += $(OBJDUMP_FLAGS_cortex-m)
+override OBJDUMP_FLAGS_cortex-m0 += $(OBJDUMP_FLAGS_cortex-m)
 
 # Use a generic linker script that over provisions.
 LAYOUT ?= $(TOCK_USERLAND_BASE_DIR)/userland_generic.ld
@@ -278,6 +341,7 @@ ifneq ($(V),)
   $(info MAKEFLAGS=$(MAKEFLAGS))
   $(info PACKAGE_NAME=$(PACKAGE_NAME))
   $(info TOCK_ARCHS=$(TOCK_ARCHS))
+  $(info TOCK_TARGETS=$(TOCK_TARGETS))
   $(info TOCK_USERLAND_BASE_DIR=$(TOCK_USERLAND_BASE_DIR))
   $(info TOOLCHAIN=$(TOOLCHAIN))
   $(info **************************************************)

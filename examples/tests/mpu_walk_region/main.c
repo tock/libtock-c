@@ -9,6 +9,7 @@
 #include <console.h>
 #include <timer.h>
 
+#if defined(__thumb__)
 static uint32_t read_cpsr(void) {
   register uint32_t ret asm ("r0");
   asm volatile (
@@ -19,6 +20,9 @@ static uint32_t read_cpsr(void) {
     );
   return ret;
 }
+#endif
+
+
 
 /*
    static void clear_priv(void) {
@@ -37,7 +41,9 @@ static void dowork(uint8_t* from, uint8_t* to, uint32_t incr) {
   volatile uint8_t* p_to   = to;
 
   printf("%p -> %p, incr 0x%lx\n", p_from, p_to, incr);
+#if defined(__thumb__)
   printf("       CPSR: %08lx\n", read_cpsr());
+#endif
 
   while (p_from < p_to) {
     printf("%p: ", p_from);

@@ -150,7 +150,7 @@ void _start(void* app_start __attribute__((unused)),
     // promote to a HardFault in the absence of a debugger)
     "movs r0, r6\n"             // first arg is app_start
     "movs r1, r7\n"             // second arg is mem_start
-    "bl _c_start\n"
+    "bl _c_start_pic\n"
     "bkpt #255\n"
     );
 
@@ -230,7 +230,7 @@ void _start(void* app_start __attribute__((unused)),
     "mv   a0, s0\n"             // first arg is app_start
     "mv   s0, sp\n"             // Set the frame pointer to sp.
     "mv   a1, s2\n"             // second arg is mem_start
-    "jal  _c_start\n"
+    "jal  _c_start_nopic\n"
     );
 
 #else
@@ -247,7 +247,7 @@ void _start(void* app_start __attribute__((unused)),
 // - `mem_start`: The starting address of the memory region assigned to this
 //   app.
 __attribute__((noreturn))
-void _c_start(uint32_t app_start, uint32_t mem_start) {
+void _c_start_pic(uint32_t app_start, uint32_t mem_start) {
   struct hdr* myhdr = (struct hdr*)app_start;
 
   // Fix up the Global Offset Table (GOT).
@@ -316,6 +316,34 @@ void _c_start(uint32_t app_start, uint32_t mem_start) {
       *target = (*target ^ 0x80000000) + app_start;
     }
   }
+
+  main();
+  while (1) {
+    yield();
+  }
+}
+
+// C startup routine for apps compiled with fixed addresses (i.e. no PIC).
+//
+// Arguments:
+// - `app_start`: The address of where the app binary starts in flash. This does
+//   not include the TBF header or any padding before the app.
+// - `mem_start`: The starting address of the memory region assigned to this
+//   app.
+__attribute__((noreturn))
+void _c_start_nopic(uint32_t app_start, uint32_t mem_start) {
+  struct hdr* myhdr = (struct hdr*)app_start;
+
+  // Load the data section from flash into RAM. We use the offsets from our
+  // crt0 header so we know where this starts and where it should go.
+  void* data_start     = (void*)(myhdr->data_start + mem_start);
+  void* data_sym_start = (void*)(myhdr->data_sym_start + app_start);
+  memcpy(data_start, data_sym_start, myhdr->data_size);
+
+  // Zero BSS segment. Again, we know where this should be in the process RAM
+  // based on the crt0 header.
+  char* bss_start = (char*)(myhdr->bss_start + mem_start);
+  memset(bss_start, 0, myhdr->bss_size);
 
   main();
   while (1) {

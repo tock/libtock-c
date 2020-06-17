@@ -28,6 +28,7 @@ cache:
   cargo: true
   directories:
     - $HOME/gcc-arm-none-eabi-9-2019-q4-major
+    - $HOME/gcc-riscv64-unknown-elf-8.3.0-ubuntu
 
 os:
   - linux
@@ -38,9 +39,11 @@ rust:
 before_install:
   - ./.travis-install-gcc
   - export PATH="$PATH:$HOME/gcc-arm-none-eabi-9-2019-q4-major/bin"
+  - export PATH="$PATH:$HOME/gcc-riscv64-unknown-elf-8.3.0-ubuntu/bin"
   - export PATH="$PATH:$HOME/uncrustify-uncrustify-0.65/build"
 
 script:
-  - pushd examples; ./build_all.sh || exit; popd
+  - pushd examples; RISCV=1 ./build_all.sh || exit; popd
   - pushd examples; ./format_all.sh || exit; popd
+  - pushd examples/blink; make debug RAM_START=0x20004000 FLASH_INIT=0x30051 || exit; popd
 
