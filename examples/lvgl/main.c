@@ -4,7 +4,7 @@
 
 int main (void)
 {
-  framebuffer_set_brightness (100);
+  screen_set_brightness (100);
   if (lvgl_driver_init (5) == TOCK_SUCCESS) {
     /* LittlevGL's Hello World tutorial example */
 
