@@ -110,7 +110,7 @@ SECTIONS {
 		 * elf2tab. elf2tab will use it to add a fixed address header in the
 		 * TBF header if needed.
 		 */
-	    _SRAM_ORIGIN = .;
+	    _sram_origin = .;
 
         /* Be conservative about our alignment for the stack. Different
          * architectures require different values (8 for ARM, 16 for RISC-V),
