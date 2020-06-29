@@ -1,6 +1,6 @@
-/*ST7735 LCD screen
+/* ST7735 LCD screen
 *
-* <https://www.pololu.com/file/0J563/L3GD20.pdf>
+* <https://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf>
 *
 */
 

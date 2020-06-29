@@ -1,8 +1,4 @@
-/*L3GD20 3 axis gyroscope and temperature sensor
-*
-* <https://www.pololu.com/file/0J563/L3GD20.pdf>
-*
-*/
+// Screen API 
 
 #pragma once
 

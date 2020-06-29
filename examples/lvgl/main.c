@@ -5,7 +5,8 @@
 int main (void)
 {
   screen_set_brightness (100);
-  if (lvgl_driver_init (5) == TOCK_SUCCESS) {
+  int status = lvgl_driver_init (5);
+  if (status == TOCK_SUCCESS) {
     /* LittlevGL's Hello World tutorial example */
 
     lv_obj_t * scr = lv_disp_get_scr_act(NULL);         /*Get the current screen*/
@@ -28,7 +29,7 @@ int main (void)
       lvgl_driver_event (5);
     }
   } else {
-    printf ("lvgl init error\n");
+    printf ("lvgl init error: %s\n", tock_strerror(status));
   }
   return 0;
 }
