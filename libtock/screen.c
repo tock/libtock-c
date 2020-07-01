@@ -220,8 +220,13 @@ int screen_set_color (size_t position, size_t color) {
 }
 
 int screen_set_frame (uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
-  return screen_command (100, ((x & 0xFFFF) << 16) | ((y & 0xFFFF)),
-                         ((width & 0xFFFF) << 16) | ((height & 0xFFFF)));
+  ScreenReturn fbr;
+  fbr.done = false;
+  screen_subscribe (screen_callback, &fbr);
+  fbr.error = screen_command (100, ((x & 0xFFFF) << 16) | ((y & 0xFFFF)),
+                              ((width & 0xFFFF) << 16) | ((height & 0xFFFF)));
+  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  return fbr.error;
 }
 
 int screen_fill (size_t color) {
