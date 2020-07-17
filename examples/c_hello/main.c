@@ -19,3 +19,4 @@ int main(void) {
   putnstr_async(hello, sizeof(hello), nop, NULL);
   return 0;
 }
+
