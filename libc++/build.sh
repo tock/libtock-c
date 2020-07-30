@@ -2,7 +2,7 @@
 
 GCC_SRC_DIR=$1
 
-NEWLIB_VERSION=2.5.0.20170421
+NEWLIB_VERSION=3.0.0.20180831
 
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 NEWLIB_INCLUDE_PATH=$SCRIPTPATH/../newlib/newlib-$NEWLIB_VERSION/newlib/libc/include
@@ -35,7 +35,6 @@ else
   extra_with=""
 fi
 
-# 6.2.0:
 $GCC_SRC_DIR/configure \
   --build=x86_64-linux-gnu \
   --host=x86_64-linux-gnu \
