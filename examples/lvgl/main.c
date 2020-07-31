@@ -2,6 +2,37 @@
 #include <stdio.h>
 #include <timer.h>
 
+static void event_handler(lv_obj_t * obj __attribute__((unused)), lv_event_t event)
+{
+  if (event == LV_EVENT_CLICKED) {
+    printf("Clicked\n");
+  }else if (event == LV_EVENT_VALUE_CHANGED)   {
+    printf("Toggled\n");
+  }
+}
+
+static void lv_ex_btn_1(void)
+{
+  lv_obj_t * label;
+
+  lv_obj_t * btn1 = lv_btn_create(lv_scr_act(), NULL);
+  lv_obj_set_event_cb(btn1, event_handler);
+  lv_obj_align(btn1, NULL, LV_ALIGN_CENTER, 0, -40);
+
+  label = lv_label_create(btn1, NULL);
+  lv_label_set_text(label, "Button");
+
+  lv_obj_t * btn2 = lv_btn_create(lv_scr_act(), NULL);
+  lv_obj_set_event_cb(btn2, event_handler);
+  lv_obj_align(btn2, NULL, LV_ALIGN_CENTER, 0, 40);
+  lv_btn_set_toggle(btn2, true);
+  lv_btn_toggle(btn2);
+  lv_btn_set_fit2(btn2, LV_FIT_NONE, LV_FIT_TIGHT);
+
+  label = lv_label_create(btn2, NULL);
+  lv_label_set_text(label, "Toggled");
+}
+
 int main (void)
 {
   screen_set_brightness (100);
@@ -21,6 +52,8 @@ int main (void)
      * NULL means align on parent (which is the screen now)
      * 0, 0 at the end means an x, y offset after alignment*/
     lv_obj_align(label1, NULL, LV_ALIGN_CENTER, 0, 0);
+
+    lv_ex_btn_1();
 
     /* main loop */
     while (1)
