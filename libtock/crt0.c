@@ -334,6 +334,15 @@ __attribute__((noreturn))
 void _c_start_nopic(uint32_t app_start, uint32_t mem_start) {
   struct hdr* myhdr = (struct hdr*)app_start;
 
+  // Copy over the Global Offset Table (GOT). The GOT seems to still get created
+  // and used in some cases, even though nothing is being relocated and the
+  // addresses are static. So, all we need to do is copy the GOT entries from
+  // flash to RAM, without doing any address changes. Of course, if the GOT
+  // length is 0 this is a no-op.
+  void* got_start     = (void*)(myhdr->got_start + mem_start);
+  void* got_sym_start = (void*)(myhdr->got_sym_start + app_start);
+  memcpy(got_start, got_sym_start, myhdr->got_size);
+
   // Load the data section from flash into RAM. We use the offsets from our
   // crt0 header so we know where this starts and where it should go.
   void* data_start     = (void*)(myhdr->data_start + mem_start);
