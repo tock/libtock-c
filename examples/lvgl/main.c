@@ -1,11 +1,23 @@
 #include "lvgl_driver.h"
 #include <stdio.h>
 #include <timer.h>
+#include <adc.h>
+
+lv_obj_t * label1 = NULL;
 
 static void event_handler(lv_obj_t * obj __attribute__((unused)), lv_event_t event)
 {
   if (event == LV_EVENT_CLICKED) {
     printf("Clicked\n");
+    uint16_t data;
+    adc_sample_sync (0, &data);
+    
+    char label[100];
+
+    snprintf (label, 23, "Potentiometer: %d", data);
+
+    /*Modify the Label's text*/
+    lv_label_set_text(label1, label);
   }else if (event == LV_EVENT_VALUE_CHANGED)   {
     printf("Toggled\n");
   }
@@ -43,7 +55,7 @@ int main (void)
     lv_obj_t * scr = lv_disp_get_scr_act(NULL);         /*Get the current screen*/
 
     /*Create a Label on the currently active screen*/
-    lv_obj_t * label1 =  lv_label_create(scr, NULL);
+    label1 =  lv_label_create(scr, NULL);
 
     /*Modify the Label's text*/
     lv_label_set_text(label1, "Hello world!");
