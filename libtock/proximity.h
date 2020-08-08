@@ -3,7 +3,7 @@
 #include "tock.h"
 
 
-#define DRIVER_NUM_PROXIMITY 0x60002  // Need to change this
+#define DRIVER_NUM_PROXIMITY 0x60003  // Need to change this
 
 #ifdef _cplusplus
 extern "C" {
