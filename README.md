@@ -111,6 +111,29 @@ Prerequisites
    $ sudo pacman -Syu riscv64-elf-gcc riscv32-elf-newlib
    ```
 
+   **newlib-nano**:
+
+   newlib can require a large amount of memory, espicially for printing.
+   If this is a concern you can instead use a more size optimised version.
+   As of August 2020 there are a few options for this.
+       * See if the version of newlib from your distro already has the flags
+         below enabled. If it does it's already size optimsed.
+       * See if your distro pacakges a newlib-nano (Debian does this) that
+         will already include the flags below.
+       * See if your distro packages picolibc, which is a optimised fork of newlib.
+       * You can compile newlib with these extra flags:
+        ```
+          --enable-newlib-reent-small \
+          --disable-newlib-fvwrite-in-streamio \
+          --disable-newlib-fseek-optimization \
+          --disable-newlib-wide-orient \
+          --enable-newlib-nano-malloc \
+          --disable-newlib-unbuf-stream-opt \
+          --enable-lite-exit \
+          --enable-newlib-global-atexit \
+          --enable-newlib-nano-formatted-io
+        ```
+
 1. You will also need an up-to-date version of
    [elf2tab](https://crates.io/crates/elf2tab). The build system will install
    and update this automatically for you, but you'll need Rust's
