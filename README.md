@@ -83,7 +83,9 @@ Prerequisites
    $ sudo dpkg -i newlib_3.3.0-1_amd64.deb
    ```
 
-   If you would rather compile your own newlib-based libc, follow these steps:
+   If you would rather compile your own newlib-based libc, follow the steps below.
+   Section [newlib-nano][newlib-nano] describes some extra config options to
+   build a size optimised newlib.
    ```
    # Download newlib 3.3 from https://sourceware.org/newlib/
    wget ftp://sourceware.org/pub/newlib/newlib-3.3.0.tar.gz
