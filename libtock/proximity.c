@@ -30,7 +30,7 @@ int proximity_set_callback(subscribe_cb callback , void* callback_args){
     return subscribe(DRIVER_NUM_PROXIMITY , 0 , callback , callback_args);
 }
 
-int proximity_read(){
+int proximity_read(void){
     return command(DRIVER_NUM_PROXIMITY , 1 , 0 , 0);
 }
 
