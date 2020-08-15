@@ -3,7 +3,7 @@
 #include "tock.h"
 
 
-#define DRIVER_NUM_PROXIMITY 0x60003  // Need to change this
+#define DRIVER_NUM_PROXIMITY 0x60003
 
 #ifdef _cplusplus
 extern "C" {
@@ -17,16 +17,16 @@ int proximity_set_callback (subscribe_cb callback, void* callback_args);
 
 int proximity_read(void);
 int proximity_read_sync(unsigned*);
-int proximity_read_on_interrupt(void);
+int proximity_read_on_interrupt(uint8_t lower, uint8_t upper);
 int proximity_read_on_interrupt_sync(unsigned* proximity);
+int proximity_set_interrupt_thresholds(uint8_t lower, uint8_t upper);
+
+/*
 int proximity_set_gain(uint8_t);
 int proximity_set_gain_sync(uint8_t);
 int proximity_set_interrupt_thresholds(uint8_t , uint8_t);
 int proximity_set_interrupt_thresholds_sync(uint8_t , uint8_t);
-
-
-
-
+*/
 
 #ifdef _cplusplus
 }
