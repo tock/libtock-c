@@ -5,7 +5,7 @@
 #include <tock.h>
 
 // Sizes in bytes
-#define DEVICE_NAME_SIZE 10
+#define DEVICE_NAME_SIZE 14
 
 /*******************************************************************************
  * MAIN
@@ -13,11 +13,11 @@
 
 int main(void) {
   int err;
-  printf("[Tutorial] BLE Advertising\n");
+  printf("[Example] Rubble-based BLE Advertising\n");
 
   // declarations of variables to be used in this BLE example application
   uint16_t advertising_interval_ms = 300;
-  uint8_t device_name[]            = "Rubble App";
+  uint8_t device_name[]            = "Rubble on Tock";
 
   static uint8_t adv_data_buf[ADV_DATA_MAX_SIZE];
 
