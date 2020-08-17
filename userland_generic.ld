@@ -89,6 +89,7 @@ SECTIONS {
         KEEP (*(.start))
         *(.text*)
         *(.rodata*)
+        *(.srodata*) /* for RISC-V */
         KEEP (*(.syscalls))
         _etext = .;
         *(.ARM.extab*)
@@ -157,6 +158,7 @@ SECTIONS {
         . = ALIGN(4); /* Make sure we're word-aligned here */
         _bss = .;
         KEEP(*(.bss*))
+        KEEP(*(.sbss*)) /* for RISC-V */
         *(COMMON)
         . = ALIGN(4);
     } > SRAM
