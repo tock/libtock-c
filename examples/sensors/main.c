@@ -77,7 +77,7 @@ static void timer_fired(__attribute__((unused)) int arg0,
   if (ninedof_gyro)
     printf("Gyro:         X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
   if (proxReading)
-    printf("PROXIMITY:                   %u%%\n", proxReading);
+    printf("PROXIMITY:                   %u\n", proxReading);
 
   /* *INDENT-ON* */
 
@@ -107,9 +107,11 @@ int main(void)
   }
 
   // Setup periodic timer to sample the sensors.
-  //static tock_timer_t timer;
-  //timer_every(5000, timer_fired, NULL, &timer);
-
+  static tock_timer_t timer;
+  timer_every(5000, timer_fired, NULL, &timer);
+  
+  // Examples prox sensor test program
+  /*
   if (proximity)
   {
     printf("Driver does exist\n");
@@ -125,9 +127,10 @@ int main(void)
   unsigned reading = 0;
   while (1)
   {
-    proximity_read_on_interrupt_sync(&reading);
+    proximity_read_sync(&reading);
     printf("Reading --> %u\n", reading);
   }
+  */
 
   return 0;
 }

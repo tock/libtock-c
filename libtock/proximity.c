@@ -8,6 +8,7 @@ struct thresholds
     uint8_t higherThresh;
 };
 
+// structure to store threshold values to be sent to the driver
 static struct thresholds threshes = {.lowerThresh = 0, .higherThresh = 175};
 
 struct data
@@ -100,47 +101,3 @@ int proximity_read_on_interrupt_sync(unsigned *proximity)
 
     return 0;
 }
-
-/*
-int proximity_set_gain(uint8_t gain){
-    return command(DRIVER_NUM_PROXIMITY , 3 , gain , 0);
-}
-
-int proximity_set_interrupt_thresholds(uint8_t low , uint8_t high){
-    return command(DRIVER_NUM_PROXIMITY , 4 , low , high);
-}
-
-int proximity_set_interrupt_thresholds_sync(uint8_t low , uint8_t high){
-
-    int err;
-    result.fired = false;
-
-    err = proximity_set_callback(cb , (void*) &result);
-    if (err < 0){ return err; }
-
-    err = proximity_set_interrupt_thresholds(low , high);
-    if (err < 0){ return err; }
-
-    yield_for(&result.fired);
-
-    return 0;
-
-}
-
-int proximity_set_gain_sync(uint8_t gain){
-
-    int err;
-    result.fired = false;
-
-    err = proximity_set_callback(cb , (void*) &result);
-    if (err < 0){ return err; }
-
-    err = proximity_set_gain(gain);
-    if (err < 0){ return err; }
-
-    yield_for(&result.fired);
-
-    return 0;
-
-}
-*/
