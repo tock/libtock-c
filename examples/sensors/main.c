@@ -11,6 +11,7 @@
 #include <tock.h>
 #include <tsl2561.h>
 #include <proximity.h>
+#include <led.h>
 
 static bool isl29035 = false;
 // TODO: modify tmp006 to comply with the generic temperature interface
@@ -105,32 +106,12 @@ int main(void)
     ninedof_mag = (ninedof_read_magnetometer_sync(&buffer, &buffer, &buffer) == TOCK_SUCCESS);
     ninedof_gyro = (ninedof_read_gyroscope_sync(&buffer, &buffer, &buffer) == TOCK_SUCCESS);
   }
-
-  // Setup periodic timer to sample the sensors.
-  static tock_timer_t timer;
-  timer_every(5000, timer_fired, NULL, &timer);
   
-  // Examples prox sensor test program
-  /*
-  if (proximity)
-  {
-    printf("Driver does exist\n");
-  }
-  else
-  {
-    printf("Driver does not exist\n");
-    return -1;
-  }
+  // Setup periodic timer to sample the sensors.
+   static tock_timer_t timer;
+   timer_every(5000, timer_fired, NULL, &timer);
+  
 
-  proximity_set_interrupt_thresholds(0, 175);
-
-  unsigned reading = 0;
-  while (1)
-  {
-    proximity_read_sync(&reading);
-    printf("Reading --> %u\n", reading);
-  }
-  */
 
   return 0;
 }
