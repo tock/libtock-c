@@ -108,7 +108,7 @@ int main(void)
 
   // Setup periodic timer to sample the sensors.
   static tock_timer_t timer;
-  timer_every(5000, timer_fired, NULL, &timer);
+  timer_every(1000, timer_fired, NULL, &timer);
 
   return 0;
 }
