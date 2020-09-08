@@ -11,7 +11,6 @@
 
 int main(void){
 
-    
     printf("Proximity Sensor Test\n");
 
     // Check if driver/sensor is on the board
@@ -23,7 +22,6 @@ int main(void){
         return -1;
     }
     
-
     // Check led count
     int numLeds = led_count();
     printf("Number of LEDs on the board: %d\n" , numLeds);
@@ -37,7 +35,6 @@ int main(void){
     proximity_set_interrupt_thresholds(0,175);
     proximity_read_on_interrupt_sync(&frequency);
 
-    
     while (true){
 
         for (int led = 0; led < numLeds; led++){
@@ -46,12 +43,11 @@ int main(void){
             led_off(led);
         }
 
-        proximity_read_sync(&frequency);
+        if (proximity_read_sync(&frequency) < 0){
+            printf("Could not read proximity");
+            return -1;
+        }
 
     }
-
-
     return 0;
-
-
 }
