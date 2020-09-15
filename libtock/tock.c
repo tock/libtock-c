@@ -224,6 +224,56 @@ void* memop(uint32_t op_type, int arg1) {
   return ret;
 }
 
+#elif defined (__x86_64__)
+
+static void * tock_syscall(uint64_t syscall_number, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4) {
+  syscall_number = 0x515CA110 | syscall_number;
+  register uint64_t rax asm ("%rax");
+  asm volatile (
+    ".intel_syntax\n"
+    "mov %%rax, %1\n"
+    "mov %%rbx, %2\n"
+    "mov %%rcx, %3\n"
+    "mov %%rdx, %4\n"
+    "mov %%r10, %5\n"
+    "mov [0], %%rax\n"
+    ".att_syntax\n"
+    : "=r" (rax)
+    : "r" (syscall_number), "r" (arg1), "r" (arg2), "r" (arg3), "r" (arg4)
+    : "rbx", "rcx", "rdx", "r10", "memory");
+  return (void*)rax;
+}
+
+void yield(void) {
+  if (task_cur != task_last) {
+    tock_task_t task = task_queue[task_cur];
+    task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
+    task.cb(task.arg0, task.arg1, task.arg2, task.ud);
+  } else {
+    tock_syscall (0, 0, 0, 0, 0);
+  }
+}
+
+#pragma GCC diagnostic ignored "-Wbad-function-cast"
+int subscribe(uint32_t driver, uint32_t subscribe,
+              subscribe_cb cb, void* userdata) {
+  return (int)(long)tock_syscall (1, driver, subscribe, (uint64_t)cb, (uint64_t)userdata);
+}
+
+#pragma GCC diagnostic ignored "-Wbad-function-cast"
+int command(uint32_t driver, uint32_t command, int data, int arg2) {
+  return (int)(long)tock_syscall (2, driver, command, data, arg2);
+}
+
+#pragma GCC diagnostic ignored "-Wbad-function-cast"
+int allow(uint32_t driver, uint32_t allow, void* ptr, size_t size) {
+  return (int)(long)tock_syscall (3, driver, allow, (uint64_t)ptr, size);
+}
+
+void* memop(uint32_t op_type, int arg1) {
+  return tock_syscall(4, op_type, arg1, 0, 0);
+}
+
 #endif
 
 void* tock_app_memory_begins_at(void) {
@@ -249,7 +299,7 @@ void* tock_app_grant_begins_at(void) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wbad-function-cast"
 int tock_app_number_writeable_flash_regions(void) {
-  return (int) memop(7, 0);
+  return (int) (long) memop(7, 0);
 }
 #pragma GCC diagnostic pop
 

@@ -67,6 +67,10 @@ TOCK_TARGETS ?= cortex-m0\
                 rv32imc|rv32imc.0x20030040.0x10003400|0x20030040|0x10003400
 endif
 
+ifneq ($(X86_64),)
+TOCK_TARGETS = x86_64
+endif
+
 # Generate TOCK_ARCHS, the set of architectures listed in TOCK_TARGETS
 TOCK_ARCHS := $(sort $(foreach target, $(TOCK_TARGETS), $(firstword $(subst |, ,$(target)))))
 
@@ -76,7 +80,7 @@ ELF2TAB_EXISTS := $(shell $(SHELL) -c "command -v $(ELF2TAB)")
 ifndef ELF2TAB_EXISTS
   $(shell cargo install elf2tab)
 endif
-ELF2TAB_ARGS += -n $(PACKAGE_NAME)
+ELF2TAB_ARGS += -n $(PACKAGE_NAME) --verbose
 ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE)
 
 # Setup the correct toolchain for each architecture.
@@ -132,6 +136,12 @@ override LINK_LIBS_rv32 += \
 override LINK_LIBS_rv32imc  += $(LINK_LIBS_rv32)
 override LINK_LIBS_rv32imac += $(LINK_LIBS_rv32)
 
+override CPPFLAGS_x86_64 += \
+      $(CPPFLAGS_PIC)\
+      -nostdlib\
+      -mcmodel=large\
+      -Wl,--no-dynamic-linker
+
 override CPPFLAGS_cortex-m += \
       $(CPPFLAGS_PIC)\
       -mthumb\
@@ -162,6 +172,9 @@ override LEGACY_LIBS_cortex-m += \
 override LEGACY_LIBS_cortex-m4 += $(LEGACY_LIBS_cortex-m)
 override LEGACY_LIBS_cortex-m3 += $(LEGACY_LIBS_cortex-m)
 override LEGACY_LIBS_cortex-m0 += $(LEGACY_LIBS_cortex-m)
+
+# override LEGACY_LIBS_x86_64 += \
+#       $(TOCK_USERLAND_BASE_DIR)/pdclib/build/libpdclib.a
 
 # This allows Tock to add additional warnings for functions that frequently cause problems.
 # See the included header for more details.

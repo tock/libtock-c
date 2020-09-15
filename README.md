@@ -62,6 +62,12 @@ Prerequisites
 
        $ make RISCV=1
 
+1. Optional: libtock-c also includes support for building for X86_64 targets.
+
+   To actually build for the X86_64 targets, add `X86_64=1` to the make command:
+
+       $ make X86_64=1
+
    **MacOS**:
    ```
    $ brew tap riscv/riscv && brew update && brew install riscv-gnu-toolchain --with-multilib

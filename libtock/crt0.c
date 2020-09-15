@@ -20,7 +20,7 @@ extern int main(void);
 // The structure populated by the linker script at the very beginning of the
 // text segment. It represents sizes and offsets from the text segment of
 // sections that need some sort of loading and/or relocation.
-struct hdr {
+struct __attribute__((__packed__)) hdr {
   //  0: Offset of GOT symbols in flash from the start of the application
   //     binary.
   uint32_t got_sym_start;
@@ -51,14 +51,38 @@ struct hdr {
 
 // The structure of the relative data section. This structure comes from the
 // compiler.
-struct reldata {
+
+#if defined (__x86_64__)
+
+#define FLASH_ADDRESS 0x80000000
+
+#define R_X86_64_PLT32 0x4
+#define R_X86_64_GOTPC64 0x1d
+#define R_X86_64_GOTOFF64 0x19
+#define R_X86_64_GOT64 0x1b
+#define R_X86_64_PLTOFF64 0x1f
+
+#endif
+
+
+struct __attribute__((__packed__)) relsym {
+  uint64_t offset;
+  uint64_t info;
+  int64_t addend;
+};
+
+struct __attribute__((__packed__)) reldata {
   // Number of relative addresses.
   uint32_t len;
   // Array of offsets of the address to be updated relative to the start of the
   // application's memory region. Each address at these offsets needs to be
   // adjusted to be a fixed address relative to the start of the app's actual
   // flash or RAM start address.
+  #if defined(__x86_64__)
+  struct relsym data[];
+  #else
   uint32_t data[];
+  #endif
 };
 
 __attribute__ ((section(".start"), used))
@@ -233,6 +257,83 @@ void _start(void* app_start __attribute__((unused)),
     "jal  _c_start_nopic\n"
     );
 
+#elif defined(__x86_64__)
+  asm volatile (
+    // Compute the stack top
+    //
+    // struct hdr* myhdr = (struct hdr*)app_start;
+    // uint32_t stacktop = (((uint32_t)mem_start + myhdr->stack_size + 7) & 0xfffffff8);
+    ".intel_syntax\n"      // rax = myhdr->stack_size
+    "mov  %eax, [%rdi + 36]\n"      // rax = myhdr->stack_size
+    "add  %rax, 7\n"             // rax = myhdr->stack_size + 7
+    "add  %rax, %rsi\n"         // rax = mem_start + myhdr->stack_size + 7
+    "and  %rax, -8\n"         // rax = (mem_start + myhdr->stack_size + 7) & ~0x7
+    "mov  %r12, %rax\n"         // r12 = rax
+    //
+    // Compute the app data size and where initial app brk should go.
+    // This includes the GOT, data, and BSS sections. However, we can't be sure
+    // the linker puts them back-to-back, but we do assume that BSS is last
+    // (i.e. myhdr->got_start < myhdr->bss_start && myhdr->data_start <
+    // myhdr->bss_start). With all of that true, then the size is equivalent
+    // to the end of the BSS section.
+    //
+    // uint32_t app_brk = mem_start + myhdr->bss_start + myhdr->bss_size;
+    "mov  %ebx, [%rdi + 24]\n"      // r10 = myhdr->bss_start
+    "mov  %r10, %rbx\n"      // r10 = myhdr->bss_start
+    "mov  %ebx, [%rdi + 28]\n"      // r11 = myhdr->bss_size
+    "mov  %r11, %rbx\n"      // r11 = myhdr->bss_size
+    "add  %r10, %r11\n"         // r10 = bss_start + bss_size
+    "add  %r10, %rsi\n"         // r5 = mem_start + bss_start + bss_size = app_brk
+    //
+    // Now we may want to move the stack pointer. If the kernel set the
+    // `app_heap_break` larger than we need (and we are going to call `brk()`
+    // to reduce it) then our stack pointer will fit and we can move it now.
+    // Otherwise after the first syscall (the memop to set the brk), the return
+    // will use a stack that is outside of the process accessible memory.
+    //
+    "cmp %r10, %rdx\n"              // Compare `app_heap_break` with new brk.
+    "jg skip_set_sp\n"         // If our current `app_heap_break` is larger
+    //                             // then we need to move the stack pointer
+    //                             // before we call the `brk` syscall.
+    "mov  %rsp, %r12\n"             // Update the stack pointer.
+    //
+    "skip_set_sp:\n"            // Back to regularly scheduled programming.
+    //
+    // Call `brk` to set to requested memory
+    //
+    // memop(0, app_brk);
+    "mov %rax, 0x515CA114\n"
+    "mov %rbx, 0\n"
+    "mov %rcx, %r10\n"
+    "mov [0], %rax\n"                   // memop
+    //
+    // Debug support, tell the kernel the stack location
+    //
+    // memop(10, stacktop);
+    "mov %rax, 0x515CA114\n"
+    "mov %rbx, 10\n"
+    "mov %rcx, %r12\n"
+    "mov [0], %rax\n"                   // memop
+    //
+    // Debug support, tell the kernel the heap location
+    //
+    // memop(11, app_brk);
+    "mov %rax, 0x515CA114\n"
+    "mov %rbx, 11\n"
+    "mov %rcx, %r10\n"
+    "mov [0], %rax\n"                   // memop
+    // //
+    // // Setup initial stack pointer for normal execution
+    "mov  %rsp, %r12\n"
+    // //
+    // Call into the rest of startup.
+    // This should never return, if it does, trigger a breakpoint (which will
+    // promote to a HardFault in the absence of a debugger)
+    // rdi and rsi remain unchanged, there is no need to reassign them
+    "jmp _c_start_pic\n"
+    "mov [0], %rax\n"
+    ".att_syntax\n"
+    );
 #else
 #error Missing initial stack setup trampoline for current arch.
 #endif
@@ -247,10 +348,191 @@ void _start(void* app_start __attribute__((unused)),
 // - `mem_start`: The starting address of the memory region assigned to this
 //   app.
 __attribute__((noreturn))
-void _c_start_pic(uint32_t app_start, uint32_t mem_start) {
+void _c_start_pic(size_t app_start, size_t mem_start) {
   struct hdr* myhdr = (struct hdr*)app_start;
 
-  // Fix up the Global Offset Table (GOT).
+#if defined(__x86_64__)
+  struct reldata* rd = (struct reldata*)(myhdr->reldata_start + (size_t)app_start);
+  if (rd->len > 0) {
+
+    // Fix up the Global Offset Table (GOT).
+
+    // Get the address in memory of where the table should go.
+    // volatile size_t* got_start = (size_t*)(myhdr->got_start + mem_start);
+    // memop (12, myhdr->got_start);
+    // Get the address in flash of where the table currently is.
+    // volatile size_t* got_sym_start = (size_t*)(myhdr->got_sym_start + app_start);
+
+    // memop (20, myhdr->got_sym_start);
+    // memop (21, myhdr->got_start);
+    // memop (22, myhdr->got_size);
+    // memop (23, myhdr->data_sym_start);
+    // memop (24, myhdr->data_start);
+    // memop (25, myhdr->data_size);
+    // memop (26, myhdr->bss_start);
+    // memop (27, myhdr->bss_size);
+    // memop (28, myhdr->reldata_start);
+    // memop (29, myhdr->stack_size);
+
+    // // subscribe (0, 0, (void*)mem_start+, 0);
+
+    // subscribe (0, 0, (void*)app_start, 0);
+    // subscribe (0, 0, (void*)mem_start, 0);
+    // subscribe (0, 0, (void*)myhdr->got_sym_start, 0);
+    // Iterate all entries in the table and correct the addresses.
+    // memop (12, myhdr->got_size);
+
+    // Load the data section from flash into RAM. We use the offsets from our
+    // crt0 header so we know where this starts and where it should go.
+    void* data_start     = (void*)(myhdr->data_start + mem_start);
+    void* data_sym_start = (void*)(myhdr->data_sym_start + app_start);
+    memcpy(data_start, data_sym_start, myhdr->data_size);
+
+    // // Zero BSS segment. Again, we know where this should be in the process RAM
+    // // based on the crt0 header.
+    char* bss_start = (char*)(myhdr->bss_start + mem_start);
+    memset(bss_start, 0, myhdr->bss_size);
+
+    // Do relative data address fixups. We know these entries are stored at the end
+    // of flash and can be located using the crt0 header.
+    //
+    // The data structure used for these is `struct reldata`, where a 32 bit
+    // length field is followed by that many entries. We iterate each entry and
+    // correct addresses.
+
+    int64_t sym_got = 0;
+    int64_t got     = 0;
+
+    // memop (21, rd->len);
+    for (size_t i = 0; i < (rd->len / (int)sizeof(struct relsym)); i += 1) {
+      switch (rd->data[i].info & 0xffffffff) {
+        case R_X86_64_PLT32:
+        {
+          // data = symbol + addend - offset
+          // no relocation needed, value is offset from PC
+          break;
+        }
+        case R_X86_64_GOTPC64:
+        {
+          // data = sym_got - offset + addend
+          // data = got - offset + addend
+          // compute got value
+          size_t address = app_start + rd->data[i].offset - FLASH_ADDRESS;
+          int64_t data   = *(int64_t*)(address);
+
+          if (sym_got == 0) {
+            sym_got = (rd->data[i].offset - rd->data[i].addend + data);
+            got     = mem_start + sym_got;
+          }
+
+          data = got - (rd->data[i].offset - FLASH_ADDRESS + app_start) + rd->data[i].addend;
+          // -(app_start + (rd->data[i].offset-FLASH_ADDRESS)) + rd->data[i].addend + got;
+
+          // no relocation needed, value is offset from PC
+          *(size_t*)(address) = data;
+          break;
+        }
+
+        case R_X86_64_GOT64:
+        {
+          // no relocation needed, symbols are not modified in got
+          size_t address = app_start + rd->data[i].offset - FLASH_ADDRESS;
+          int64_t data   = *(int64_t*)(address);
+          // TODO why does this work like this?
+          data = data - (sym_got - myhdr->got_start);
+          *(int64_t*)(address) = data;
+          break;
+        }
+
+        case R_X86_64_GOTOFF64:
+        {
+          // data = symbol + A - sym_got
+          size_t address = app_start + rd->data[i].offset - FLASH_ADDRESS;
+          int64_t data   = *(int64_t*)(address);
+
+          // data = symbol + A - got => symbol = data - A + got
+
+          int64_t symbol = data - rd->data[i].addend + sym_got;
+
+          if (symbol < FLASH_ADDRESS) {
+            // this is .data
+            data = mem_start + symbol + rd->data[i].addend - got;
+          }else  {
+            // this is .text or .rodata
+            data = app_start + (symbol - FLASH_ADDRESS) - got;
+          }
+          *(size_t*)(address) = data;
+
+          break;
+        }
+
+        case R_X86_64_PLTOFF64:
+        {
+          // data = plt - sym_got + addend
+          size_t address = app_start + rd->data[i].offset - FLASH_ADDRESS;
+          int64_t data   = *(int64_t*)(address);
+          uint64_t plt   = data + sym_got - rd->data[i].addend;
+
+          data = (plt - FLASH_ADDRESS + app_start) - got + rd->data[i].addend;
+
+          *(int64_t*)(address) = data;
+          break;
+        }
+
+        default:
+          // memop (23, rd->data[i].info >> 32);
+          break;
+      }
+    }
+
+    // use this as a marker not to relocate when the function is restarted
+    rd->len = 0;
+
+    int got_offset = sym_got - myhdr->got_start;
+
+    volatile uint64_t* got_start = (uint64_t*)(myhdr->got_start + mem_start);
+    // Get the address in flash of where the table currently is.
+    volatile uint64_t* got_sym_start = (uint64_t*)(myhdr->got_sym_start + app_start);
+
+    for (size_t i = 0; i < ((myhdr->got_size - got_offset) / (size_t)sizeof(size_t)); i++) {
+      // Use the sentinel here. If the most significant bit is 0, then we know
+      // this offset is pointing to an address in memory. If the MSB is 1, then
+      // the offset refers to a value in flash.
+      if ((got_sym_start[i] & 0x80000000) == 0) {
+        // This is an address for something in memory, and we need to correct the
+        // address now that we know where this app is actually running in memory.
+        // This equation is really:
+        //
+        //     got_entry = (got_stored_entry - original_RAM_start_address) + actual_RAM_start_address
+        //
+        // However, we compiled the app where `original_RAM_start_address` is 0x0,
+        // so we can omit that.
+        got_start[i + got_offset / sizeof(size_t)] = got_sym_start[i] + mem_start;
+        // subscribe (0, 0, (void*)got_sym_start[i], 0);
+      } else {
+        // Otherwise, this address refers to something in flash. Now that we know
+        // where the app has actually been loaded, we can reference from the
+        // actual `app_start` address. We also have to remove our fake flash
+        // address sentinel (by ORing with 0x80000000).
+        got_start[i + got_offset / sizeof(size_t)] = (got_sym_start[i] ^ 0x80000000) + app_start;
+      }
+    }
+
+    asm volatile (
+      ".intel_syntax\n"
+      "mov %%rdi, %0\n"
+      "mov %%rsi, %1\n"
+      // restart function as we did some relacations and the jmp will not work
+      // unless the function restarts (and does compute r11 using the relocations)
+      "jmp _c_start_pic\n"
+      ".att_syntax\n"
+      : : "r" (app_start), "r" (mem_start) : "rax", "rbx", "rcx"
+      );
+  }
+
+#else
+
+// Fix up the Global Offset Table (GOT).
 
   // Get the address in memory of where the table should go.
   volatile uint32_t* got_start = (uint32_t*)(myhdr->got_start + mem_start);
@@ -317,6 +599,8 @@ void _c_start_pic(uint32_t app_start, uint32_t mem_start) {
     }
   }
 
+#endif
+
   main();
   while (1) {
     yield();
@@ -331,7 +615,7 @@ void _c_start_pic(uint32_t app_start, uint32_t mem_start) {
 // - `mem_start`: The starting address of the memory region assigned to this
 //   app.
 __attribute__((noreturn))
-void _c_start_nopic(uint32_t app_start, uint32_t mem_start) {
+void _c_start_nopic(size_t app_start, size_t mem_start) {
   struct hdr* myhdr = (struct hdr*)app_start;
 
   // Copy over the Global Offset Table (GOT). The GOT seems to still get created
