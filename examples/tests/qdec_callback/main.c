@@ -1,7 +1,7 @@
 #include <led.h>
 #include <qdec.h>
-#include <tock.h>
 #include <timer.h>
+#include <tock.h>
 
 static void qdec_callback(int qdec_num,
                           __attribute__ ((unused)) int val,
