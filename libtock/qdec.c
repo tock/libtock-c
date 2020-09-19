@@ -1,10 +1,14 @@
 #include "qdec.h"
 
 bool qdec_exists(void) {
-  return command(DRIVER_NUM_QDEC, 1, 0, 0) >= 0;
+  return command(DRIVER_NUM_QDEC, 0, 0, 0) >= 0;
 }
 
 bool qdec_enable(void) {
+  return command(DRIVER_NUM_QDEC, 1, 0, 0) >= 0;
+}
+
+bool qdec_disable(void) {
   return command(DRIVER_NUM_QDEC, 2, 0, 0) >= 0;
 }
 

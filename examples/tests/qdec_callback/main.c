@@ -9,20 +9,17 @@ static void qdec_callback(int qdec_num,
                           __attribute__ ((unused)) void *ud) {
   printf("QDEC Absolute Position: %d\n", qdec_num);
 
-  // Set LEDs based on acc value
+  // Alter LED blink rate based on acc value
   // Note: LED rules arbitrarily chosen by developer
-  if (qdec_num > 0) {
-    led_on(0);
-    led_off(1);
-    led_off(2);
-  }  else if (qdec_num == 0) {
-    led_on(1);
-    led_off(0);
-    led_off(2);
-  } else if (qdec_num < 0) {
-    led_on(2);
-    led_off(0);
-    led_off(1);
+  int num_leds = led_count();
+  if (num_leds > 0) {
+    if (qdec_num > 0) {
+      led_off(1);
+    }  else if (qdec_num == 0) {
+      led_on(1);
+    } else if (qdec_num < 0) {
+      led_off(1);
+    }
   }
 }
 
