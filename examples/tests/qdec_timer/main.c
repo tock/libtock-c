@@ -9,22 +9,6 @@ static void timer_fired ( __attribute__ ((unused)) int arg0,
                           __attribute__ ((unused)) void *ud) {
   int qdec_num = qdec_displacement();
   printf("Displacement val: %d\n", qdec_num);
-
-  // Set LEDs based on acc value
-  // Note: LED rules arbitrarily chosen by developer
-  if (qdec_num % 2 == 0 && qdec_num > 0) {
-    led_on(0);
-    led_off(1);
-    led_off(2);
-  }  else if (qdec_num % 2 != 0)  {
-    led_on(1);
-    led_off(0);
-    led_off(2);
-  } else if (qdec_num % 2 == 0 && qdec_num < 0) {
-    led_on(2);
-    led_off(0);
-    led_off(1);
-  }
 }
 
 int main(void) {
