@@ -13,4 +13,4 @@ val: 4' for one timer fired instance and then return back to
 'Displacement val: 0'. Similarly, turning it in the negative 
 direction one click will change the print statement to 
 'Displacement val: -4' for one timer fired instance and then 
-return back to 'Displacement val: 0'..
+return back to 'Displacement val: 0'.
