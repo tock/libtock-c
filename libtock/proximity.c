@@ -3,12 +3,12 @@
 #include <stdio.h>
 
 struct thresholds {
-  uint8_t lowerThresh;
-  uint8_t higherThresh;
+  uint8_t lower_threshold;
+  uint8_t higher_threshold;
 };
 
 // structure to store threshold values to be sent to the driver
-static struct thresholds threshes = {.lowerThresh = 0, .higherThresh = 175};
+static struct thresholds threshes = {.lower_threshold = 0, .higher_threshold = 175};
 
 struct data {
   bool fired;
@@ -21,38 +21,31 @@ static struct data result = {.fired = false};
 static void cb(int proximity,
                __attribute__((unused)) int unused,
                __attribute__((unused)) int unused1,
-               void *ud)
-{
+               void *ud) {
   struct data *data = (struct data *)ud;
   data->proximity = proximity;
   data->fired     = true;
 }
 
-int proximity_set_callback(subscribe_cb callback, void *callback_args)
-{
+int proximity_set_callback(subscribe_cb callback, void *callback_args) {
   return subscribe(DRIVER_NUM_PROXIMITY, 0, callback, callback_args);
 }
 
-int proximity_read(void)
-{
+int proximity_read(void) {
   return command(DRIVER_NUM_PROXIMITY, 1, 0, 0);
 }
 
-int proximity_read_on_interrupt(uint8_t lower, uint8_t upper)
-{
+int proximity_read_on_interrupt(uint8_t lower, uint8_t upper) {
   return command(DRIVER_NUM_PROXIMITY, 2, lower, upper);
 }
 
-int proximity_set_interrupt_thresholds(uint8_t lower, uint8_t upper)
-{
-  threshes.lowerThresh  = lower;
-  threshes.higherThresh = upper;
+int proximity_set_interrupt_thresholds(uint8_t lower, uint8_t upper) {
+  threshes.lower_threshold  = lower;
+  threshes.higher_threshold = upper;
   return 0;
 }
 
-int proximity_read_sync(unsigned *proximity)
-{
-
+int proximity_read_sync(uint8_t *proximity) {
   int err;
   result.fired = false;
 
@@ -73,8 +66,7 @@ int proximity_read_sync(unsigned *proximity)
   return 0;
 }
 
-int proximity_read_on_interrupt_sync(unsigned *proximity)
-{
+int proximity_read_on_interrupt_sync(uint8_t *proximity) {
 
   int err;
   result.fired = false;
@@ -84,7 +76,7 @@ int proximity_read_on_interrupt_sync(unsigned *proximity)
     return err;
   }
 
-  err = proximity_read_on_interrupt(threshes.lowerThresh, threshes.higherThresh);
+  err = proximity_read_on_interrupt(threshes.lower_threshold, threshes.higher_threshold);
   if (err < 0) {
     return err;
   }

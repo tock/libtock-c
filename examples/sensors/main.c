@@ -3,7 +3,6 @@
 
 #include <ambient_light.h>
 #include <humidity.h>
-#include <led.h>
 #include <lps25hb.h>
 #include <ninedof.h>
 #include <proximity.h>
@@ -27,11 +26,10 @@ static bool ninedof_mag   = false;
 static bool ninedof_gyro  = false;
 static bool proximity     = false;
 
-static void timer_fired(__attribute__((unused)) int arg0,
-                        __attribute__((unused)) int arg1,
-                        __attribute__((unused)) int arg2,
-                        __attribute__((unused)) void *ud)
-{
+static void timer_fired(__attribute__ ((unused)) int arg0,
+                        __attribute__ ((unused)) int arg1,
+                        __attribute__ ((unused)) int arg2,
+                        __attribute__ ((unused)) void* ud) {
   int light = 0;
   int16_t tmp006_temp  = 0;
   int tsl2561_lux      = 0;
@@ -41,52 +39,34 @@ static void timer_fired(__attribute__((unused)) int arg0,
   int ninedof_accel_x = 0, ninedof_accel_y = 0, ninedof_accel_z = 0;
   int ninedof_magneto_x = 0, ninedof_magneto_y = 0, ninedof_magneto_z = 0;
   int ninedof_gyro_x = 0, ninedof_gyro_y = 0, ninedof_gyro_z = 0;
-  unsigned proxReading = 0;
+  uint8_t prox_reading = 0;
 
   /* *INDENT-OFF* */
-  if (isl29035)
-    ambient_light_read_intensity_sync(&light);
-  if (tmp006)
-    tmp006_read_sync(&tmp006_temp);
-  if (tsl2561)
-    tsl2561_lux = tsl2561_get_lux_sync();
-  if (lps25hb)
-    lps25hb_pressure = lps25hb_get_pressure_sync();
-  if (temperature)
-    temperature_read_sync(&temp);
-  if (humidity)
-    humidity_read_sync(&humi);
-  if (proximity)
-    proximity_read_sync(&proxReading);
+  if (isl29035)     ambient_light_read_intensity_sync(&light);
+  if (tmp006)       tmp006_read_sync(&tmp006_temp);
+  if (tsl2561)      tsl2561_lux = tsl2561_get_lux_sync();
+  if (lps25hb)      lps25hb_pressure = lps25hb_get_pressure_sync();
+  if (temperature)  temperature_read_sync(&temp);
+  if (humidity)     humidity_read_sync(&humi);
+  if (proximity)    proximity_read_sync(&prox_reading);
 
-  if (isl29035)
-    printf("ISL29035:   Light Intensity: %d\n", light);
-  if (tmp006)
-    printf("TMP006:     Temperature:     %d\n", tmp006_temp);
-  if (tsl2561)
-    printf("TSL2561:    Light:           %d lux\n", tsl2561_lux);
-  if (lps25hb)
-    printf("LPS25HB:    Pressure:        %d\n", lps25hb_pressure);
-  if (temp)
-    printf("Temperature:                 %d deg C\n", temp / 100);
-  if (humi)
-    printf("Humidity:                    %u%%\n", humi / 100);
-  if (ninedof_accel)
-    printf("Acceleration: X: %d Y: %d Z: %d\n", ninedof_accel_x, ninedof_accel_y, ninedof_accel_z);
-  if (ninedof_mag)
-    printf("Magnetometer: X: %d Y: %d Z: %d\n", ninedof_magneto_x, ninedof_magneto_y, ninedof_magneto_z);
-  if (ninedof_gyro)
-    printf("Gyro:         X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
-  if (proxReading)
-    printf("PROXIMITY:                   %u\n", proxReading);
+  if (isl29035)       printf("ISL29035:   Light Intensity: %d\n", light);
+  if (tmp006)         printf("TMP006:     Temperature:     %d\n", tmp006_temp);
+  if (tsl2561)        printf("TSL2561:    Light:           %d lux\n", tsl2561_lux);
+  if (lps25hb)        printf("LPS25HB:    Pressure:        %d\n", lps25hb_pressure);
+  if (temp)           printf("Temperature:                 %d deg C\n", temp/100);
+  if (humi)           printf("Humidity:                    %u%%\n", humi/100);
+  if (ninedof_accel)  printf("Acceleration: X: %d Y: %d Z: %d\n", ninedof_accel_x, ninedof_accel_y, ninedof_accel_z);
+  if (ninedof_mag)    printf("Magnetometer: X: %d Y: %d Z: %d\n", ninedof_magneto_x, ninedof_magneto_y, ninedof_magneto_z);
+  if (ninedof_gyro)   printf("Gyro:         X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
+  if (prox_reading)   printf("Proximity:                   %u\n", prox_reading);
 
   /* *INDENT-ON* */
 
   printf("\n");
 }
 
-int main(void)
-{
+int main(void) {
   printf("[Sensors] Starting Sensors App.\n");
   printf("[Sensors] All available sensors on the platform will be sampled.\n");
 
