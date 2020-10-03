@@ -5,6 +5,7 @@
 #include <humidity.h>
 #include <lps25hb.h>
 #include <ninedof.h>
+#include <proximity.h>
 #include <temperature.h>
 #include <timer.h>
 #include <tmp006.h>
@@ -23,6 +24,7 @@ static bool ninedof       = false;
 static bool ninedof_accel = false;
 static bool ninedof_mag   = false;
 static bool ninedof_gyro  = false;
+static bool proximity     = false;
 
 static void timer_fired(__attribute__ ((unused)) int arg0,
                         __attribute__ ((unused)) int arg1,
@@ -37,6 +39,7 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
   int ninedof_accel_x = 0, ninedof_accel_y = 0, ninedof_accel_z = 0;
   int ninedof_magneto_x = 0, ninedof_magneto_y = 0, ninedof_magneto_z = 0;
   int ninedof_gyro_x = 0, ninedof_gyro_y = 0, ninedof_gyro_z = 0;
+  uint8_t prox_reading = 0;
 
   /* *INDENT-OFF* */
   if (isl29035)     ambient_light_read_intensity_sync(&light);
@@ -45,6 +48,7 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
   if (lps25hb)      lps25hb_pressure = lps25hb_get_pressure_sync();
   if (temperature)  temperature_read_sync(&temp);
   if (humidity)     humidity_read_sync(&humi);
+  if (proximity)    proximity_read_sync(&prox_reading);
 
   if (isl29035)       printf("ISL29035:   Light Intensity: %d\n", light);
   if (tmp006)         printf("TMP006:     Temperature:     %d\n", tmp006_temp);
@@ -55,6 +59,7 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
   if (ninedof_accel)  printf("Acceleration: X: %d Y: %d Z: %d\n", ninedof_accel_x, ninedof_accel_y, ninedof_accel_z);
   if (ninedof_mag)    printf("Magnetometer: X: %d Y: %d Z: %d\n", ninedof_magneto_x, ninedof_magneto_y, ninedof_magneto_z);
   if (ninedof_gyro)   printf("Gyro:         X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
+  if (prox_reading)   printf("Proximity:                   %u\n", prox_reading);
 
   /* *INDENT-ON* */
 
@@ -72,6 +77,7 @@ int main(void) {
   temperature = driver_exists(DRIVER_NUM_TEMPERATURE);
   humidity    = driver_exists(DRIVER_NUM_HUMIDITY);
   ninedof     = driver_exists(DRIVER_NUM_NINEDOF);
+  proximity   = driver_exists(DRIVER_NUM_PROXIMITY);
 
   if (ninedof) {
     int buffer;
