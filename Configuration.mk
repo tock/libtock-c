@@ -100,7 +100,8 @@ override CPPFLAGS += \
       -Wall\
       -Wextra\
       -Wl,--warn-common\
-      -Wl,--gc-sections
+      -Wl,--gc-sections\
+      -Wl,--build-id=none
 
 # Generic PIC flags for architectures with compiler support for FDPIC. Note!
 # These flags are not sufficient for full PIC support as Tock requires. The
