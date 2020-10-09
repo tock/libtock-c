@@ -42,13 +42,16 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
   uint8_t prox_reading = 0;
 
   /* *INDENT-OFF* */
-  if (isl29035)     ambient_light_read_intensity_sync(&light);
-  if (tmp006)       tmp006_read_sync(&tmp006_temp);
-  if (tsl2561)      tsl2561_lux = tsl2561_get_lux_sync();
-  if (lps25hb)      lps25hb_pressure = lps25hb_get_pressure_sync();
-  if (temperature)  temperature_read_sync(&temp);
-  if (humidity)     humidity_read_sync(&humi);
-  if (proximity)    proximity_read_sync(&prox_reading);
+  if (isl29035)      ambient_light_read_intensity_sync(&light);
+  if (tmp006)        tmp006_read_sync(&tmp006_temp);
+  if (tsl2561)       tsl2561_lux = tsl2561_get_lux_sync();
+  if (lps25hb)       lps25hb_pressure = lps25hb_get_pressure_sync();
+  if (temperature)   temperature_read_sync(&temp);
+  if (humidity)      humidity_read_sync(&humi);
+  if (ninedof_accel) ninedof_read_acceleration_sync(&ninedof_accel_x, &ninedof_accel_y, &ninedof_accel_z);
+  if (ninedof_mag)   ninedof_read_magnetometer_sync(&ninedof_magneto_x, &ninedof_magneto_y, &ninedof_magneto_z);
+  if (ninedof_gyro)  ninedof_read_gyroscope_sync(&ninedof_gyro_x, &ninedof_gyro_y, &ninedof_gyro_z);
+  if (proximity)     proximity_read_sync(&prox_reading);
 
   if (isl29035)       printf("ISL29035:   Light Intensity: %d\n", light);
   if (tmp006)         printf("TMP006:     Temperature:     %d\n", tmp006_temp);
