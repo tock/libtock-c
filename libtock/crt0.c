@@ -116,7 +116,6 @@ void _start(void* app_start __attribute__((unused)),
                                 // then we need to move the stack pointer
                                 // before we call the `brk` syscall.
     "mov  sp, r4\n"             // Update the stack pointer.
-    "mov  r9, sp\n"
     //
     "skip_set_sp:\n"            // Back to regularly scheduled programming.
     //
@@ -141,9 +140,17 @@ void _start(void* app_start __attribute__((unused)),
     "movs r1, r5\n"
     "svc 4\n"                   // memop
     //
-    // Setup initial stack pointer for normal execution
+    // Setup initial stack pointer for normal execution. If we did this before
+    // then this is redundant and just a no-op. If not then no harm in
+    // re-setting it.
     "mov  sp, r4\n"
-    "mov  r9, sp\n"
+    //
+    // Set the special PIC register r9. This has to be set to the address of the
+    // beginning of the GOT section. The PIC code uses this as a reference point
+    // to enable the RAM section of the app to be at any address.
+    "ldr  r0, [r6, #4]\n"       // r0 = myhdr->got_start
+    "add  r0, r0, r7\n"         // r0 = myhdr->got_start + mem_start
+    "mov  r9, r0\n"             // r9 = r0
     //
     // Call into the rest of startup.
     // This should never return, if it does, trigger a breakpoint (which will
