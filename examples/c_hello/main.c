@@ -16,6 +16,6 @@ static void nop(
   void* d __attribute__((unused))) {}
 
 int main(void) {
-  putnstr_async(hello, sizeof(hello), nop, NULL);
+  putnstr_async(hello, strlen(hello), nop, NULL);
   return 0;
 }
