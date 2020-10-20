@@ -80,11 +80,11 @@ ELF2TAB_ARGS += -n $(PACKAGE_NAME)
 ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE)
 
 # Setup the correct toolchain for each architecture.
-override TOOLCHAIN_cortex-m0 = arm-none-eabi
-override TOOLCHAIN_cortex-m3 = arm-none-eabi
-override TOOLCHAIN_cortex-m4 = arm-none-eabi
-override TOOLCHAIN_rv32imac = riscv64-unknown-elf
-override TOOLCHAIN_rv32imc = riscv64-unknown-elf
+TOOLCHAIN_cortex-m0 := arm-none-eabi
+TOOLCHAIN_cortex-m3 := arm-none-eabi
+TOOLCHAIN_cortex-m4 := arm-none-eabi
+TOOLCHAIN_rv32imac := riscv64-unknown-elf
+TOOLCHAIN_rv32imc := riscv64-unknown-elf
 
 # Flags for building app Assembly, C, C++ files
 # n.b. make convention is that CPPFLAGS are shared for C and C++ sources
@@ -350,4 +350,3 @@ ifneq ($(V),)
 endif
 
 endif
-
