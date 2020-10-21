@@ -68,6 +68,11 @@ int main(void) {
     print_ipv6(&(destination.addr));
     printf(" : %d\n", destination.port);
   }
+
+  // We want this app to attempt to bind to addr2 after app1 has made the same
+  // attempt. However, udp_send can take more than 10ms for a multi-fragment packet,
+  // so putting the delay after the send still makes it possible for this app to
+  // bind first. Accordingly, put the delay before the send to ensure it sends second.
   delay_ms(10);
   result = udp_send_to(packet, len, &destination);
   assert(result == TOCK_SUCCESS); //finally, a valid send attempt
