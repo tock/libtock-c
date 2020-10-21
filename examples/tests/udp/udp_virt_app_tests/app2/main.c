@@ -68,10 +68,10 @@ int main(void) {
     print_ipv6(&(destination.addr));
     printf(" : %d\n", destination.port);
   }
+  delay_ms(10);
   result = udp_send_to(packet, len, &destination);
   assert(result == TOCK_SUCCESS); //finally, a valid send attempt
 
-  delay_ms(10);
   //of the two apps, app2 binds to port 80 second and should fail
   sock_addr_t addr2 = {
     ifaces[0],
