@@ -6,6 +6,8 @@
 extern "C" {
 #endif
 
+#define SPI_SLAVE 0x20002
+
 /* SPI system calls */
 /* Get chip select always returns 0 in slave mode. */
 int spi_slave_get_chip_select(void);
