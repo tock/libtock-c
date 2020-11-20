@@ -167,10 +167,11 @@ execute the build script:
     $ ./build_all.sh
 
 This will install `elf2tab` if it is not yet installed and compile all the
-examples for cortex-m0, cortex-m3, cortex-m4, and rv32imac. It does this because
-the compiler emits slightly (or significantly) different instructions for each
-variant. When installing the application, `tockloader` will select the correct
-version for the architecture of the board being programmed.
+examples for cortex-m0, cortex-m3, cortex-m4, cortex-m7, and rv32imac. It does
+this because the compiler emits slightly (or significantly) different
+instructions for each variant. When installing the application, `tockloader`
+will select the correct version for the architecture of the board being
+programmed.
 
 The build process will ultimately create a `tab` file (a "Tock Application
 Bundle") for each example application. The `tab` contains the
