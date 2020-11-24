@@ -34,16 +34,16 @@ let
   });
   elf2tab = pkgs.rustPlatform.buildRustPackage rec {
     name = "elf2tab-${version}";
-    version = "0.3.0";
+    version = "0.6.1";
 
     src = pkgs.fetchFromGitHub {
       owner = "tock";
       repo = "elf2tab";
       rev = "v${version}";
-      sha256 = "1sf3ccqmr6d70shgf0zzxaiqfgk28yahvwdbhalkwaf2sg3yivpk";
+      sha256 = "1illr6shr1nvq9w0h9ixkabi2r2hm5k5kpxw67yah5cd66cqipzj";
     };
 
-    cargoSha256 = "14w5haqbkd9pwdwc2rqknn4zzqkk93hf4ihdvh0q4lnih74wf7mj";
+    cargoSha256 = "1lqdlv11p831ych9q1ji7y4gjz6z4prsy928jzd2vy2k0mg215vj";
   };
 in
   with pkgs;
