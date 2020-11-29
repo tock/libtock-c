@@ -130,7 +130,7 @@ void* memop(uint32_t op_type, int arg1) {
   register int r1 asm ("r1")      = arg1;
   register void*   ret asm ("r0");
   asm volatile (
-    "svc 4"
+    "svc 5"
     : "=r" (ret)
     : "r" (r0), "r" (r1)
     : "memory"
