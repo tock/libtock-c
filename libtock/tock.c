@@ -128,7 +128,7 @@ int allow(uint32_t driver, uint32_t allow, void* ptr, size_t size) {
 int allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size) {
   register uint32_t r0 asm ("r0") = driver;
   register uint32_t r1 asm ("r1") = allow;
-  register void*    r2 asm ("r2") = ptr;
+  register const void*    r2 asm ("r2") = ptr;
   register size_t r3 asm ("r3")   = size;
   register int ret asm ("r0");
   asm volatile (
