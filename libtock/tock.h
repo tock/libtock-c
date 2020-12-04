@@ -25,6 +25,9 @@ int subscribe(uint32_t driver, uint32_t subscribe,
 __attribute__ ((warn_unused_result))
 int allow(uint32_t driver, uint32_t allow, void* ptr, size_t size);
 
+  __attribute__ ((warn_unused_result))
+int allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size);
+
 // op_type can be:
 // 0: brk, arg1 is pointer to new memory break
 // 1: sbrk, arg1 is increment to increase/decrease memory break
