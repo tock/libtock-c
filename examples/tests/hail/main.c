@@ -97,17 +97,17 @@ static void sample_sensors (void) {
   // Analog inputs: A0-A5
   uint16_t val;
   adc_sample_sync(0, &val);
-  int a0 = (val * 3300) / 4095;
+  int a0 = (val * 3300) / (4095 << 4);
   adc_sample_sync(1, &val);
-  int a1 = (val * 3300) / 4095;
+  int a1 = (val * 3300) / (4095 << 4);
   adc_sample_sync(2, &val);
-  int a2 = (val * 3300) / 4095;
+  int a2 = (val * 3300) / (4095 << 4);
   adc_sample_sync(3, &val);
-  int a3 = (val * 3300) / 4095;
+  int a3 = (val * 3300) / (4095 << 4);
   adc_sample_sync(4, &val);
-  int a4 = (val * 3300) / 4095;
+  int a4 = (val * 3300) / (4095 << 4);
   adc_sample_sync(5, &val);
-  int a5 = (val * 3300) / 4095;
+  int a5 = (val * 3300) / (4095 << 4);
 
   // Digital inputs: D0, D1, D6, D7
   int d0 = gpio_read(0);
