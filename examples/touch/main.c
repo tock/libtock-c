@@ -1,7 +1,7 @@
 #include <screen.h>
-#include <touch.h>
 #include <stdlib.h>
 #include <timer.h>
+#include <touch.h>
 
 static void tocuh_event (int status, int x, int y, void *ud __attribute__ ((unused))) {
   switch (status) {
