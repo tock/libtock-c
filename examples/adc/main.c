@@ -14,7 +14,7 @@ int main(void) {
       uint16_t value;
       if (adc_sample_sync (channel, &value) == TOCK_SUCCESS) {
         printf ("Channel %d: %d\n", channel, value);
-      }else  {
+      } else {
         printf ("Channel %d: error \n", channel);
       }
     }
