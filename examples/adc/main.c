@@ -10,15 +10,11 @@ int main(void) {
 
   while (true)
   {
-    for (int channel = 0; channel < num_adc; channel++)
-    {
+    for (int channel = 0; channel < num_adc; channel++) {
       uint16_t value;
-      if (adc_sample_sync (channel, &value) == TOCK_SUCCESS)
-      {
+      if (adc_sample_sync (channel, &value) == TOCK_SUCCESS) {
         printf ("Channel %d: %d\n", channel, value);
-      }
-      else
-      {
+      }else  {
         printf ("Channel %d: error \n", channel);
       }
     }
