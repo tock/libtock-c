@@ -1,8 +1,6 @@
-Blink App
+ADC App
 =========
 
-The canonical "blink" app for an embedded platform. This app will
-blink all of the LEDs that are registered with the kernel.
+The canonical "adc" app for an embedded platform. This app will
+read all the ADC channels of the board that are registered with the kernel.
 
-To learn more, please see the
-[Blink an LED](../../../doc/tutorials/01_running_blink.md) tutorial.
