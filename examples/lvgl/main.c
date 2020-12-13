@@ -1,7 +1,6 @@
 #include "lvgl_driver.h"
 #include <stdio.h>
 #include <timer.h>
-#include <adc.h>
 
 lv_obj_t * label1 = NULL;
 
@@ -9,16 +8,13 @@ static void event_handler(lv_obj_t * obj __attribute__((unused)), lv_event_t eve
 {
   if (event == LV_EVENT_CLICKED) {
     printf("Clicked\n");
-    uint16_t data;
-    adc_sample_sync (0, &data);
-    
-    char label[100];
 
-    snprintf (label, 23, "Potentiometer: %d", data);
+    char label[100];
+    snprintf (label, 23, "Clicked");
 
     /*Modify the Label's text*/
     lv_label_set_text(label1, label);
-  }else if (event == LV_EVENT_VALUE_CHANGED)   {
+  }else if (event == LV_EVENT_VALUE_CHANGED) {
     printf("Toggled\n");
   }
 }
