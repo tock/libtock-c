@@ -236,7 +236,7 @@ void* memop(uint32_t op_type, int arg1) {
   register uint32_t a2  asm ("a2") = arg1;
   register void*    ret asm ("a0");
   asm volatile (
-    "li    a0, 4\n"
+    "li    a0, 5\n"
     "ecall\n"
     : "=r" (ret)
     : "r" (a1), "r" (a2)
