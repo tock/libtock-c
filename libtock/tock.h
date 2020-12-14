@@ -8,8 +8,65 @@
 extern "C" {
 #endif
 
-typedef void (subscribe_cb)(int, int, int,void*);
+typedef void (subscribe_cb)(int, int, int, void*);
 
+typedef enum {
+  TOCK_SYSCALL_FAILURE             =   0,
+  TOCK_SYSCALL_FAILURE_U32         =   1,
+  TOCK_SYSCALL_FAILURE_U32_U32     =   2,
+  TOCK_SYSCALL_FAILURE_U64         =   3,
+  TOCK_SYSCALL_SUCCESS             = 128,
+  TOCK_SYSCALL_SUCCESS_U32         = 129,
+  TOCK_SYSCALL_SUCCESS_U32_U32     = 130,
+  TOCK_SYSCALL_SUCCESS_U64         = 131,
+  TOCK_SYSCALL_SUCCESS_U32_U32_U32 = 132,
+  TOCK_SYSCALL_SUCCESS_U64_U32     = 133
+} syscall_rtype_t;
+
+typedef enum {
+  TOCK_ERROR_FAIL        = 0,
+  TOCK_ERROR_BUSY        = 1,
+  TOCK_ERROR_ALREADY     = 2,
+  TOCK_ERROR_OFF         = 3,
+  TOCK_ERROR_RESERVE     = 4,
+  TOCK_ERROR_INVAL       = 5,
+  TOCK_ERROR_SIZE        = 6,
+  TOCK_ERROR_CANCEL      = 7,
+  TOCK_ERROR_NOMEM       = 8,
+  TOCK_ERROR_NOSUPPORT   = 9,
+  TOCK_ERROR_NODEVICE    = 10,
+  TOCK_ERROR_UNINSTALLED = 11,
+  TOCK_ERROR_NOACK       = 12
+} tock_error_t;
+
+typedef struct {
+  syscall_rtype_t type;
+  uint32_t data[3];
+} syscall_return_t;
+
+typedef struct {
+  bool success;
+  subscribe_cb* callback;
+  void* userdata;
+  tock_error_t error;
+} subscribe_return_t;
+
+typedef struct {
+  bool success;
+  void* ptr;
+  size_t size;
+  tock_error_t error;
+} allow_rw_return_t;
+
+typedef struct {
+  bool success;
+  const void* ptr;
+  size_t size;
+  tock_error_t error;
+} allow_ro_return_t;
+
+
+    
 int tock_enqueue(subscribe_cb cb, int arg0, int arg1, int arg2, void* ud);
 
 void yield(void);
@@ -19,14 +76,23 @@ __attribute__ ((warn_unused_result))
 int command(uint32_t driver, uint32_t command, int data, int arg2);
 
 __attribute__ ((warn_unused_result))
+syscall_return_t command2(uint32_t driver, uint32_t command, int data, int arg2);
+__attribute__ ((warn_unused_result))
 int subscribe(uint32_t driver, uint32_t subscribe,
               subscribe_cb cb, void* userdata);
 
 __attribute__ ((warn_unused_result))
+subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
+			      subscribe_cb cb, void* userdata);
+
+__attribute__ ((warn_unused_result))
 int allow(uint32_t driver, uint32_t allow, void* ptr, size_t size);
 
-  __attribute__ ((warn_unused_result))
-int allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size);
+__attribute__ ((warn_unused_result))
+allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, size_t size);
+
+__attribute__ ((warn_unused_result))
+allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size);
 
 // op_type can be:
 // 0: brk, arg1 is pointer to new memory break

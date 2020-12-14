@@ -94,6 +94,34 @@ int subscribe(uint32_t driver, uint32_t subscribe,
   return ret;
 }
 
+subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
+              subscribe_cb cb, void* userdata) {
+  register uint32_t r0 asm ("r0") = driver;
+  register uint32_t r1 asm ("r1") = subscribe;
+  register void*    r2 asm ("r2") = cb;
+  register void*    r3 asm ("r3") = userdata;
+  register int rtype asm ("r0");
+  register int rv1 asm ("r1");
+  register int rv2 asm ("r2");
+  register int rv3 asm ("r3");
+  asm volatile (
+    "svc 1"
+    : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
+    : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
+    : "memory");
+
+  if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    subscribe_return_t rval = {true, (subscribe_cb*)rv1, (void*)rv2, 0};
+    return rval;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
+    subscribe_return_t rval = {true, (subscribe_cb*)rv2, (void*)rv3, (tock_error_t)rv1};
+    return rval;
+  } else {
+    exit(-1);
+  }
+}
+
+
 
 int command(uint32_t driver, uint32_t command, int data, int arg2) {
   register uint32_t r0 asm ("r0") = driver;
@@ -110,6 +138,26 @@ int command(uint32_t driver, uint32_t command, int data, int arg2) {
   return ret;
 }
 
+syscall_return_t command2(uint32_t driver, uint32_t command, int data, int arg2) {
+  register uint32_t r0 asm ("r0") = driver;
+  register uint32_t r1 asm ("r1") = command;
+  register uint32_t r2 asm ("r2") = data;
+  register uint32_t r3 asm ("r3") = arg2;
+  register uint32_t rcode asm ("r0");
+  register uint32_t rv1 asm ("r1");
+  register uint32_t rv2 asm ("r2");
+  register uint32_t rv3 asm ("r3");
+  asm volatile (
+    "svc 2"
+    : "=r" (rcode), "=r" (rv1), "=r" (rv2), "=r" (rv3)
+    : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
+    : "memory"
+    );
+  syscall_return_t rval = {rcode, {rv1, rv2, rv3}};
+  return rval;
+}
+
+
 int allow(uint32_t driver, uint32_t allow, void* ptr, size_t size) {
   register uint32_t r0 asm ("r0") = driver;
   register uint32_t r1 asm ("r1") = allow;
@@ -125,19 +173,57 @@ int allow(uint32_t driver, uint32_t allow, void* ptr, size_t size) {
   return ret;
 }
 
-int allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size) {
+allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size) {
   register uint32_t r0 asm ("r0") = driver;
   register uint32_t r1 asm ("r1") = allow;
   register const void*    r2 asm ("r2") = ptr;
   register size_t r3 asm ("r3")   = size;
-  register int ret asm ("r0");
+  register int rtype asm ("r0");
+  register int rv1 asm ("r1");
+  register int rv2 asm ("r2");
+  register int rv3 asm ("r3");
   asm volatile (
     "svc 4"
-    : "=r" (ret)
+    : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
     : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
     : "memory"
     );
-  return ret;
+  if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    allow_ro_return_t rv = {true, (const void*)rv1, (size_t)rv2, 0};
+    return rv;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
+    allow_ro_return_t rv = {false, (const void*)rv2, (size_t)rv3, (tock_error_t)rv1};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(-1);
+  }
+}
+allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, size_t size) {
+  register uint32_t r0 asm ("r0") = driver;
+  register uint32_t r1 asm ("r1") = allow;
+  register const void*    r2 asm ("r2") = ptr;
+  register size_t r3 asm ("r3")   = size;
+  register int rtype asm ("r0");
+  register int rv1 asm ("r1");
+  register int rv2 asm ("r2");
+  register int rv3 asm ("r3");
+  asm volatile (
+    "svc 4"
+    : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
+    : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
+    : "memory"
+    );
+  if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    allow_rw_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
+    return rv;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
+    allow_rw_return_t rv = {false, (void*)rv2, (size_t)rv3, (tock_error_t)rv1};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(1);
+  }
 }
 
 void* memop(uint32_t op_type, int arg1) {
