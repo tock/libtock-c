@@ -4,7 +4,7 @@
 const int UDP_DRIVER = 0x30002;
 
 static const int ALLOW_RX     = 0;
-static const int ALLOW_TX     = 1;
+static const int ALLOW_RO_TX  = 1;
 static const int ALLOW_CFG    = 2;
 static const int ALLOW_RX_CFG = 3;
 
@@ -55,6 +55,10 @@ int udp_close(__attribute__ ((unused)) sock_handle_t *handle) {
 
   memset(zero_addr, 0, 2 * bytes);
   err = command(UDP_DRIVER, COMMAND_BIND, 0, 0);
+  if (err < 0) {
+    return err;
+  }
+  err = subscribe(UDP_DRIVER, SUBSCRIBE_RX, NULL, (void *) NULL);
   return err;
 }
 
@@ -76,7 +80,7 @@ ssize_t udp_send_to(void *buf, size_t len,
   memcpy(BUF_TX_CFG + bytes, dst_addr, bytes);
 
   // Set message buffer
-  int err = allow(UDP_DRIVER, ALLOW_TX, buf, len);
+  int err = allow_readonly(UDP_DRIVER, ALLOW_RO_TX, buf, len);
   if (err < 0) return err;
 
   bool tx_done = false;
@@ -128,8 +132,7 @@ ssize_t udp_recv(subscribe_cb callback, void *buf, size_t len) {
   int err = allow(UDP_DRIVER, ALLOW_RX, (void *) buf, len);
   if (err < 0) return err;
 
-  err = subscribe(UDP_DRIVER, SUBSCRIBE_RX, callback, NULL);
-  return err;
+  return subscribe(UDP_DRIVER, SUBSCRIBE_RX, callback, NULL);
 }
 
 int udp_list_ifaces(ipv6_addr_t *ifaces, size_t len) {
