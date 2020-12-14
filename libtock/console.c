@@ -89,7 +89,7 @@ int putnstr_async(const char *str, size_t len, subscribe_cb cb, void* userdata) 
   if (sub.success == 0) {
     return tock_error_to_rcode(sub.error);
   }
-  
+
   syscall_return_t com = command2(DRIVER_NUM_CONSOLE, 1, len, 0);
   if (com.type >= TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
@@ -108,7 +108,7 @@ int getnstr_async(char *buf, size_t len, subscribe_cb cb, void* userdata) {
   if (sub.success == 0) {
     return tock_error_to_rcode(sub.error);
   }
-  
+
   syscall_return_t com = command2(DRIVER_NUM_CONSOLE, 2, len, 0);
   if (com.type >= TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
@@ -142,7 +142,9 @@ int getnstr(char *str, size_t len) {
   getnstr_data.called = false;
 
   ret = getnstr_async(str, len, getnstr_cb, NULL);
-  if (ret < 0) return ret;
+  if (ret < 0) {
+    return ret;
+  }
 
   yield_for(&getnstr_data.called);
 
@@ -154,7 +156,6 @@ int getch(void) {
   char buf[1];
 
   r = getnstr(buf, 1);
-
   return (r == TOCK_SUCCESS) ? buf[0] : TOCK_FAIL;
 }
 
