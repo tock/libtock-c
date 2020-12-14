@@ -29,7 +29,7 @@ int main (void)
       lvgl_driver_event (5);
     }
   } else {
-    printf ("lvgl init error: %s\n", tock_strerror(status));
+    printf ("lvgl init error: %s\n", tock_strrcode(status));
   }
   return 0;
 }

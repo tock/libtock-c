@@ -34,6 +34,25 @@ int tock_enqueue(subscribe_cb cb, int arg0, int arg1, int arg2, void* ud) {
   return task_last;
 }
 
+int tock_error_to_rcode(tock_error_t err) {
+  switch (err) {
+  case TOCK_ERROR_FAIL:        return TOCK_FAIL;
+  case TOCK_ERROR_BUSY:        return TOCK_EBUSY;
+  case TOCK_ERROR_ALREADY:     return TOCK_EALREADY;
+  case TOCK_ERROR_OFF:         return TOCK_EOFF;
+  case TOCK_ERROR_RESERVE:     return TOCK_ERESERVE;
+  case TOCK_ERROR_INVAL:       return TOCK_EINVAL;
+  case TOCK_ERROR_SIZE:        return TOCK_ESIZE;
+  case TOCK_ERROR_CANCEL:      return TOCK_ECANCEL;
+  case TOCK_ERROR_NOMEM:       return TOCK_ENOMEM;
+  case TOCK_ERROR_NOSUPPORT:   return TOCK_ENOSUPPORT;
+  case TOCK_ERROR_NODEVICE:    return TOCK_ENODEVICE;
+  case TOCK_ERROR_UNINSTALLED: return TOCK_EUNINSTALLED;
+  case TOCK_ERROR_NOACK:       return TOCK_ENOACK;
+  default:                     return TOCK_FAIL;
+  }
+}
+
 void yield_for(bool *cond) {
   while (!*cond) {
     yield();
@@ -367,8 +386,12 @@ bool driver_exists(uint32_t driver) {
   return ret >= 0;
 }
 
-const char* tock_strerror(int tock_errno) {
-  switch (tock_errno) {
+const char* tock_strerr(tock_error_t err) {
+  return tock_strrcode(tock_error_to_rcode(err));
+}
+
+const char* tock_strrcode(int tock_rcode) {
+  switch (tock_rcode) {
     case TOCK_SUCCESS:
       return "Success";
     case TOCK_FAIL:
@@ -405,7 +428,7 @@ void tock_expect(int expected, int actual, const char* file, unsigned line) {
   if (expected != actual) {
     printf("Expectation failure in \"%s\" at line %u\n", file, line);
     printf("Expected value: %d\n", expected);
-    printf(" But got value: %d (possible error: %s)\n", actual, tock_strerror(actual));
+    printf(" But got value: %d (possible error: %s)\n", actual, tock_strrcode(actual));
     exit(-1);
   }
 }

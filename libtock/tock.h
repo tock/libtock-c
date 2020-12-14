@@ -65,7 +65,7 @@ typedef struct {
   tock_error_t error;
 } allow_ro_return_t;
 
-
+int tock_error_to_rcode(tock_error_t);
     
 int tock_enqueue(subscribe_cb cb, int arg0, int arg1, int arg2, void* ud);
 
@@ -134,7 +134,9 @@ bool driver_exists(uint32_t driver);
 // Pass this to the allow syscall as pointer to revoke the "allow"-syscall.
 #define TOCK_REVOKE_ALLOW           0
 
-const char* tock_strerror(int tock_errno);
+const char* tock_strerr(tock_error_t tock_errno);
+const char* tock_strrcode(int tock_rcode);
+ 
 void tock_expect(int expected, int actual, const char* file, unsigned line);
 #define TOCK_EXPECT(_e, _a) tock_expect((_e), (_a), __FILE__, __LINE__)
 
