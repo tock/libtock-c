@@ -133,7 +133,7 @@ subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
     subscribe_return_t rval = {true, (subscribe_cb*)rv1, (void*)rv2, 0};
     return rval;
   } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
-    subscribe_return_t rval = {true, (subscribe_cb*)rv2, (void*)rv3, (tock_error_t)rv1};
+    subscribe_return_t rval = {false, (subscribe_cb*)rv2, (void*)rv3, (tock_error_t)rv1};
     return rval;
   } else {
     exit(-1);
@@ -228,7 +228,7 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, si
   register int rv2 asm ("r2");
   register int rv3 asm ("r3");
   asm volatile (
-    "svc 4"
+    "svc 3"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
     : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
     : "memory"
