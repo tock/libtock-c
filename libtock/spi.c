@@ -54,16 +54,11 @@ static void spi_cb(__attribute__ ((unused)) int unused0,
   *((bool*)ud) = true;
 }
 
-int spi_write(const char* str,
+int spi_write(const char* buf,
               size_t len,
               subscribe_cb cb, bool* cond) {
   int err;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-  // in lieu of RO allow
-  void* buf = (void*) str;
-#pragma GCC diagnostic pop
-  err = allow(DRIVER_NUM_SPI, 1, buf, len);
+  err = allow_readonly(DRIVER_NUM_SPI, 0, buf, len);
   if (err < 0 ) {
     return err;
   }

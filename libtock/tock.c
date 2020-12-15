@@ -248,14 +248,19 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, si
 void* memop(uint32_t op_type, int arg1) {
   register uint32_t r0 asm ("r0") = op_type;
   register int r1 asm ("r1")      = arg1;
-  register void*   ret asm ("r0");
+  register void*   val asm ("r1");
+  register uint32_t code asm ("r0");
   asm volatile (
     "svc 5"
-    : "=r" (ret)
+    : "=r" (code), "=r" (val)
     : "r" (r0), "r" (r1)
     : "memory"
     );
-  return ret;
+  if (code == TOCK_SYSCALL_SUCCESS_U32) {
+    return val;
+  } else {
+    return 0;
+  }
 }
 
 #elif defined(__riscv)
