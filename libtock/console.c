@@ -81,7 +81,7 @@ int putnstr_async(const char *str, size_t len, subscribe_cb cb, void* userdata) 
 #pragma GCC diagnostic pop
 
   allow_ro_return_t ro = allow_readonly(DRIVER_NUM_CONSOLE, 1, buf, len);
-  if (ro.success == 0) {
+  if (!ro.success) {
     return tock_error_to_rcode(ro.error);
   }
 

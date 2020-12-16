@@ -128,6 +128,17 @@ bool driver_exists(uint32_t driver);
 #define TOCK_EUNINSTALLED -12
 #define TOCK_ENOACK       -13
 
+#define TOCK_SYSCALL_FAILURE                0
+#define TOCK_SYSCALL_FAILURE_U32            1
+#define TOCK_SYSCALL_FAILURE_U32_U32        2
+#define TOCK_SYSCALL_FAILURE_U64            3
+#define TOCK_SYSCALL_SUCCESS              128
+#define TOCK_SYSCALL_SUCCESS_U32          129
+#define TOCK_SYSCALL_SUCCESS_U32_U32      130
+#define TOCK_SYSCALL_SUCCESS_U64          131
+#define TOCK_SYSCALL_SUCCESS_U32_U32_U32  132
+#define TOCK_SYSCALL_SUCCESS_U64_U32      133
+  
 // Pass this to the subscribe syscall as a function pointer to deactivate the callback.
 #define TOCK_DEACTIVATE_CALLBACK    0
 
