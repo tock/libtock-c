@@ -91,17 +91,20 @@ int putnstr_async(const char *str, size_t len, subscribe_cb cb, void* userdata) 
   }
 
   syscall_return_t com = command2(DRIVER_NUM_CONSOLE, 1, len, 0);
-  if (com.type >= TOCK_SYSCALL_SUCCESS) {
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    // Returned an incorrect success code
+    return TOCK_FAIL; 
   } else {
     return tock_error_to_rcode(com.data[1]);
   }
 }
 
 int getnstr_async(char *buf, size_t len, subscribe_cb cb, void* userdata) {
-  allow_rw_return_t ro = allow_readwrite(DRIVER_NUM_CONSOLE, 1, buf, len);
-  if (ro.success == 0) {
-    return tock_error_to_rcode(ro.error);
+  allow_rw_return_t rw = allow_readwrite(DRIVER_NUM_CONSOLE, 1, buf, len);
+  if (rw.success == 0) {
+    return tock_error_to_rcode(rw.error);
   }
 
   subscribe_return_t sub = subscribe2(DRIVER_NUM_CONSOLE, 2, cb, userdata);
