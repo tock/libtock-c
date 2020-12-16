@@ -16,13 +16,13 @@ int main(void) {
   printf(" - Setting the device name... %s\n", device_name);
   int err = gap_add_device_name(&adv_data, device_name, sizeof(device_name)-1);
   if (err < TOCK_SUCCESS)
-    printf("ble_advertise_name, error: %s\r\n", tock_strerror(err));
+    printf("ble_advertise_name, error: %s\r\n", tock_strrcode(err));
 
   // start advertising
   printf(" - Begin advertising! %s\n", device_name);
   err = ble_start_advertising(ADV_NON_CONN_IND, adv_data.buf, adv_data.offset, advertising_interval_ms);
   if (err < TOCK_SUCCESS)
-    printf("ble_start_advertising, error: %s\r\n", tock_strerror(err));
+    printf("ble_start_advertising, error: %s\r\n", tock_strrcode(err));
 
   // configuration complete
   printf("Now advertising every %d ms as '%s'\n", advertising_interval_ms,

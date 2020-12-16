@@ -27,7 +27,7 @@ int main(void) {
 
   ret = app_state_load_sync();
   if (ret < 0) {
-    printf("Error loading application state: %s\n", tock_strerror(ret));
+    printf("Error loading application state: %s\n", tock_strrcode(ret));
     return ret;
   }
 
@@ -46,7 +46,7 @@ int main(void) {
 
   ret = app_state_save_sync();
   if (ret != 0) {
-    printf("ERROR saving application state: %s\n", tock_strerror(ret));
+    printf("ERROR saving application state: %s\n", tock_strrcode(ret));
     return ret;
   }
   printf("State saved successfully. Done.\n");

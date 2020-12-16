@@ -72,7 +72,6 @@ putnstr_fail_buf_alloc:
 }
 
 int putnstr_async(const char *str, size_t len, subscribe_cb cb, void* userdata) {
-  int ret;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
   // Currently, allow gives RW access, but we should have a richer set of
@@ -81,27 +80,44 @@ int putnstr_async(const char *str, size_t len, subscribe_cb cb, void* userdata) 
   void* buf = (void*) str;
 #pragma GCC diagnostic pop
 
-  ret = allow_readonly(DRIVER_NUM_CONSOLE, 1, buf, len);
-  if (ret < 0) return ret;
+  allow_ro_return_t ro = allow_readonly(DRIVER_NUM_CONSOLE, 1, buf, len);
+  if (!ro.success) {
+    return tock_error_to_rcode(ro.error);
+  }
 
-  ret = subscribe(DRIVER_NUM_CONSOLE, 1, cb, userdata);
-  if (ret < 0) return ret;
+  subscribe_return_t sub = subscribe2(DRIVER_NUM_CONSOLE, 1, cb, userdata);
+  if (sub.success == 0) {
+    return tock_error_to_rcode(sub.error);
+  }
 
-  ret = command(DRIVER_NUM_CONSOLE, 1, len, 0);
-  return ret;
+  syscall_return_t com = command2(DRIVER_NUM_CONSOLE, 1, len, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    // Returned an incorrect success code
+    return TOCK_FAIL; 
+  } else {
+    return tock_error_to_rcode(com.data[1]);
+  }
 }
 
-int getnstr_async(char *str, size_t len, subscribe_cb cb, void* userdata) {
-  int ret;
+int getnstr_async(char *buf, size_t len, subscribe_cb cb, void* userdata) {
+  allow_rw_return_t rw = allow_readwrite(DRIVER_NUM_CONSOLE, 1, buf, len);
+  if (rw.success == 0) {
+    return tock_error_to_rcode(rw.error);
+  }
 
-  ret = allow(DRIVER_NUM_CONSOLE, 1, str, len);
-  if (ret < 0) return ret;
+  subscribe_return_t sub = subscribe2(DRIVER_NUM_CONSOLE, 2, cb, userdata);
+  if (sub.success == 0) {
+    return tock_error_to_rcode(sub.error);
+  }
 
-  ret = subscribe(DRIVER_NUM_CONSOLE, 2, cb, userdata);
-  if (ret < 0) return ret;
-
-  ret = command(DRIVER_NUM_CONSOLE, 2, len, 0);
-  return ret;
+  syscall_return_t com = command2(DRIVER_NUM_CONSOLE, 2, len, 0);
+  if (com.type >= TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(com.data[1]);
+  }
 }
 
 typedef struct getnstr_data {
@@ -129,7 +145,9 @@ int getnstr(char *str, size_t len) {
   getnstr_data.called = false;
 
   ret = getnstr_async(str, len, getnstr_cb, NULL);
-  if (ret < 0) return ret;
+  if (ret < 0) {
+    return ret;
+  }
 
   yield_for(&getnstr_data.called);
 
@@ -141,7 +159,6 @@ int getch(void) {
   char buf[1];
 
   r = getnstr(buf, 1);
-
   return (r == TOCK_SUCCESS) ? buf[0] : TOCK_FAIL;
 }
 
