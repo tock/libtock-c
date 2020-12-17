@@ -4,9 +4,9 @@
 const int UDP_DRIVER = 0x30002;
 
 static const int ALLOW_RX     = 0;
-static const int ALLOW_RO_TX  = 1;
-static const int ALLOW_CFG    = 2;
-static const int ALLOW_RX_CFG = 3;
+static const int ALLOW_RO_TX  = 0;
+static const int ALLOW_CFG    = 1;
+static const int ALLOW_RX_CFG = 2;
 
 static const int SUBSCRIBE_RX = 0;
 static const int SUBSCRIBE_TX = 1;
