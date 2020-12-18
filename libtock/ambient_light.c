@@ -6,7 +6,7 @@ typedef struct {
   bool fired;
 } ambient_light_data_t;
 
-// internal callback for faking synchronous reads
+// callback for synchronous reads
 static void ambient_light_cb(int intensity,
                              __attribute__ ((unused)) int unused1,
                              __attribute__ ((unused)) int unused2, void* ud) {
