@@ -29,7 +29,7 @@ int ambient_light_read_intensity_sync(int* lux_value) {
   if (err != TOCK_SUCCESS) {
     return err;
   }
-  
+
   yield_for(&result.fired);
 
   *lux_value = result.intensity;
