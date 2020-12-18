@@ -38,10 +38,20 @@ int ambient_light_read_intensity_sync(int* lux_value) {
 }
 
 int ambient_light_subscribe(subscribe_cb callback, void* userdata) {
-  return subscribe(DRIVER_NUM_AMBIENT_LIGHT, 0, callback, userdata);
+  subscribe_return_t ret = subscribe2(DRIVER_NUM_AMBIENT_LIGHT, 0, callback, userdata);
+  if (ret.success) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(ret.error);
+  }
 }
 
 int ambient_light_start_intensity_reading(void) {
-  return command(DRIVER_NUM_AMBIENT_LIGHT, 1, 0, 0);
+  syscall_return_t ret = command2(DRIVER_NUM_AMBIENT_LIGHT, 1, 0, 0);
+  if (ret.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(ret.data[0]);
+  }
 }
 
