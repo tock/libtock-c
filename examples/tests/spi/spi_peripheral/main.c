@@ -2,7 +2,7 @@
 
 #include <gpio.h>
 #include <led.h>
-#include <spi_slave.h>
+#include <spi_peripheral.h>
 
 #define BUF_SIZE 200
 char rbuf[BUF_SIZE];
@@ -15,9 +15,9 @@ static void write_cb(__attribute__ ((unused)) int arg0,
                      __attribute__ ((unused)) void* userdata) {
   led_toggle(0);
   if (toggle) {
-    spi_slave_read_write(rbuf, wbuf, BUF_SIZE, write_cb, NULL);
+    spi_peripheral_read_write(rbuf, wbuf, BUF_SIZE, write_cb, NULL);
   } else {
-    spi_slave_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
+    spi_peripheral_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
   }
   toggle = !toggle;
 }
@@ -60,8 +60,8 @@ int main(void) {
     wbuf[i] = i;
   }
 
-  spi_slave_set_polarity(false);
-  spi_slave_set_phase(false);
-  spi_slave_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
-  spi_slave_chip_selected(selected_cb, NULL);
+  spi_peripheral_set_polarity(false);
+  spi_peripheral_set_phase(false);
+  spi_peripheral_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
+  spi_peripheral_chip_selected(selected_cb, NULL);
 }
