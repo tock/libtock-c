@@ -66,15 +66,15 @@ int spi_peripheral_read_buf(char* str, size_t len) {
 }
 
 static void spi_peripheral_cb(__attribute__ ((unused)) int unused0,
-                         __attribute__ ((unused)) int unused1,
-                         __attribute__ ((unused)) int unused2,
-                         __attribute__ ((unused)) void* ud) {
+                              __attribute__ ((unused)) int unused1,
+                              __attribute__ ((unused)) int unused2,
+                              __attribute__ ((unused)) void* ud) {
   *((bool*)ud) = true;
 }
 
 int spi_peripheral_write(const char* str,
-                    size_t len,
-                    subscribe_cb cb, bool* cond) {
+                         size_t len,
+                         subscribe_cb cb, bool* cond) {
   allow_ro_return_t aret = allow_readonly(SPI_SLAVE, 0, str, len);
   if (!aret.success) {
     return tock_error_to_rcode(aret.error);
@@ -93,9 +93,9 @@ int spi_peripheral_write(const char* str,
 }
 
 int spi_peripheral_read_write(const char* write,
-                         char* read,
-                         size_t len,
-                         subscribe_cb cb, bool* cond) {
+                              char* read,
+                              size_t len,
+                              subscribe_cb cb, bool* cond) {
 
   allow_rw_return_t aret = allow_readwrite(SPI_SLAVE, 0, (void*)read, len);
   if (!aret.success) {
@@ -105,7 +105,7 @@ int spi_peripheral_read_write(const char* write,
 }
 
 int spi_peripheral_write_sync(const char* write,
-                         size_t len) {
+                              size_t len) {
   bool cond = false;
   spi_peripheral_write(write, len, spi_peripheral_cb, &cond);
   yield_for(&cond);
@@ -113,8 +113,8 @@ int spi_peripheral_write_sync(const char* write,
 }
 
 int spi_peripheral_read_write_sync(const char* write,
-                              char* read,
-                              size_t len) {
+                                   char* read,
+                                   size_t len) {
   bool cond = false;
   int err   = spi_peripheral_read_write(write, read, len, spi_peripheral_cb, &cond);
   if (err < 0) {
