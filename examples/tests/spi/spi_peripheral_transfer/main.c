@@ -42,7 +42,7 @@ static void write_cb(__attribute__ ((unused)) int arg0,
     buffer_eq (rbuf, ibuf);
     spi_peripheral_read_write(rbuf, wbuf, BUF_SIZE, write_cb, NULL);
   } else {
-    // The transfer before this one, we should have passed the controller 
+    // The transfer before this one, we should have passed the controller
     // the zero buffer back.
     buffer_eq (wbuf, zbuf);
     spi_peripheral_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
@@ -61,7 +61,7 @@ static void selected_cb(__attribute__ ((unused)) int arg0,
 // This function first initializes the write buffer to all zeroes. We
 // then wait until the controller  begins the transfer, and we then switch
 // buffers, so that the data the controller  sends is passed between the
-// controller  and the peripheral. Further, after we receive the buffer with 
+// controller  and the peripheral. Further, after we receive the buffer with
 // data, we
 // check to make sure we received the correct values. If not, we enable the LED
 // and never disable it.
