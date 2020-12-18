@@ -15,7 +15,7 @@ int crc_request(enum crc_alg alg) {
   if (ret.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
-    //printf("Failure on crc_request: %s\n", tock_strerr(ret.data[0]));
+    // printf("Failure on crc_request: %s\n", tock_strerr(ret.data[0]));
     return tock_error_to_rcode(ret.data[0]);
   }
 }
@@ -25,7 +25,7 @@ int crc_subscribe(subscribe_cb callback, void *ud) {
   if (ret.success) {
     return TOCK_SUCCESS;
   } else {
-    //printf("Failure on crc_subscribe: %s\n", tock_strerr(ret.error));
+    // printf("Failure on crc_subscribe: %s\n", tock_strerr(ret.error));
     return tock_error_to_rcode(ret.error);
   }
 }
@@ -35,7 +35,7 @@ int crc_set_buffer(const void* buf, size_t len) {
   if (ret.success) {
     return TOCK_SUCCESS;
   } else {
-    //printf("Failure on crc_set_buffer: %s\n", tock_strerr(ret.error));
+    // printf("Failure on crc_set_buffer: %s\n", tock_strerr(ret.error));
     return tock_error_to_rcode(ret.error);
   }
 }
