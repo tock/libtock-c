@@ -116,7 +116,7 @@ int spi_write(const char* buf,
     return tock_error_to_rcode(comval.data[0]);
   } else {
     return TOCK_SUCCESS;
-  } 
+  }
 }
 
 int spi_read_write(const char* write,
