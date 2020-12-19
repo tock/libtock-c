@@ -29,7 +29,7 @@ int udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned char *buf_bind_c
   // does not have to read these addresses or worry about them.
   memcpy(&(handle->addr), addr, sizeof(sock_addr_t));
   int bytes = sizeof(sock_addr_t);
-  allow_rw_return_t rw   = allow_readwrite(UDP_DRIVER, ALLOW_RX_CFG, (void *) buf_bind_cfg, 2 * bytes);
+  allow_rw_return_t rw = allow_readwrite(UDP_DRIVER, ALLOW_RX_CFG, (void *) buf_bind_cfg, 2 * bytes);
   if (!rw.success) return rw.error;
 
   memcpy(buf_bind_cfg + bytes, &(handle->addr), bytes);
