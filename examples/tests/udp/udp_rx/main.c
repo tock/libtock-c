@@ -65,7 +65,11 @@ int main(void) {
   printf(" : %d, and binding to that socket.\n", addr.port);
   sock_handle_t h;
   handle = &h;
-  udp_bind(handle, &addr, BUF_BIND_CFG);
+  int ret = udp_bind(handle, &addr, BUF_BIND_CFG);
+  if (ret < 0) {
+    printf("Error in bind: %d\n", ret);
+  }
+  ;
 
   ieee802154_set_address(49138); // Corresponds to the dst mac addr set in kernel
   ieee802154_set_pan(0xABCD);
