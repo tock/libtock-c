@@ -4,8 +4,9 @@
 const int RADIO_DRIVER = 0x30001;
 
 const int ALLOW_RX  = 0;
-const int ALLOW_TX  = 1;
-const int ALLOW_CFG = 2;
+const int ALLOW_CFG = 1;
+
+const int ALLOW_RO_TX  = 0;
 
 const int SUBSCRIBE_RX = 0;
 const int SUBSCRIBE_TX = 1;
@@ -61,111 +62,201 @@ int ieee802154_down(void) {
 }
 
 bool ieee802154_is_up(void) {
-  return command(RADIO_DRIVER, COMMAND_STATUS, 0, 0) == TOCK_SUCCESS;
+  return command2(RADIO_DRIVER, COMMAND_STATUS, 0, 0).type == TOCK_SYSCALL_SUCCESS;
 }
 
 int ieee802154_set_address(unsigned short addr) {
-  return command(RADIO_DRIVER, COMMAND_SET_ADDR, (unsigned int) addr, 0);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_SET_ADDR, (unsigned int) addr, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
+
 }
 
 int ieee802154_set_address_long(unsigned char *addr_long) {
   if (!addr_long) return TOCK_EINVAL;
-  int err = allow(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
-  if (err < 0) return err;
-  return command(RADIO_DRIVER, COMMAND_SET_ADDR_LONG, 0, 0);
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
+  if (!rw.success) {
+    return tock_error_to_rcode(rw.error);
+  }
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_SET_ADDR_LONG, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 int ieee802154_set_pan(unsigned short pan) {
-  return command(RADIO_DRIVER, COMMAND_SET_PAN, (unsigned int) pan, 0);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_SET_PAN, (unsigned int) pan, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 int ieee802154_set_channel(unsigned char channel) {
-  return command(RADIO_DRIVER, COMMAND_SET_CHANNEL, (unsigned int) channel, 0);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_SET_CHANNEL, (unsigned int) channel, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 int ieee802154_set_power(char power) {
   // Cast the signed char to an unsigned char before zero-padding it.
-  return command(RADIO_DRIVER, COMMAND_SET_POWER, (unsigned int) (unsigned char) power, 0);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_SET_POWER, (unsigned int) (unsigned char) power, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 int ieee802154_config_commit(void) {
-  return command(RADIO_DRIVER, COMMAND_CONFIG_COMMIT, 0, 0);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_CONFIG_COMMIT, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 int ieee802154_get_address(unsigned short *addr) {
   if (!addr) return TOCK_EINVAL;
-  int err = command(RADIO_DRIVER, COMMAND_GET_ADDR, 0, 0);
-  if (err > 0) {
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_ADDR, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to make the value positive.
-    *addr = (unsigned short) (err - 1);
+    *addr = (unsigned short) (com.data[0] - 1);
+    return com.data[0];
+  } else if (com.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(com.data[0]);
+  } else {
+    // incorrect success type
+    return TOCK_FAIL;
   }
-  return err;
 }
 
 int ieee802154_get_address_long(unsigned char *addr_long) {
   if (!addr_long) return TOCK_EINVAL;
-  int err = allow(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
-  if (err < 0) return err;
-  return command(RADIO_DRIVER, COMMAND_GET_ADDR_LONG, 0, 0);
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
+  if (!rw.success) return tock_error_to_rcode(rw.error);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_ADDR_LONG, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 int ieee802154_get_pan(unsigned short *pan) {
   if (!pan) return TOCK_EINVAL;
-  int err = command(RADIO_DRIVER, COMMAND_GET_PAN, 0, 0);
-  if (err > 0) {
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_PAN, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to make the value positive.
-    *pan = (unsigned short) (err - 1);
+    *pan = (unsigned short) (com.data[0] - 1);
+    return com.data[0];
+  } else if (com.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(com.data[0]);
+  } else {
+    return TOCK_FAIL;
   }
-  return err;
 }
 
 int ieee802154_get_channel(unsigned char *channel) {
   if (!channel) return TOCK_EINVAL;
-  int err = command(RADIO_DRIVER, COMMAND_GET_PAN, 0, 0);
-  if (err > 0) {
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_PAN, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to make the value positive.
-    *channel = (unsigned char) (err - 1);
+    *channel = (unsigned char) (com.data[0] - 1);
+    return com.data[0];
+  } else if (com.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(com.data[0]);
+  } else {
+    return TOCK_FAIL;
   }
-  return err;
 }
 
 int ieee802154_get_power(char *power) {
   if (!power) return TOCK_EINVAL;
-  int err = command(RADIO_DRIVER, COMMAND_GET_POWER, 0, 0);
-  if (err > 0) {
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_POWER, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to the power after casting it to unsigned, so this works
-    *power = (char) (err - 1);
+    *power = (char) (com.data[0] - 1);
+    return com.data[0];
+  } else if (com.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(com.data[0]);
+  } else {
+    return TOCK_FAIL;
   }
-  return err;
 }
 
 int ieee802154_max_neighbors(void) {
-  int err = command(RADIO_DRIVER, COMMAND_MAX_NEIGHBORS, 0, 0);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_MAX_NEIGHBORS, 0, 0);
   // Driver adds 1 to ensure it is positive, but on error we want to return 0
-  return (err > 0) ? (err - 1) : 0;
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
+    // Driver adds 1 to the power after casting it to unsigned, so this works
+    return com.data[0] - 1;
+  } else {
+    return 0;
+  }
 }
 
 int ieee802154_num_neighbors(void) {
-  int err = command(RADIO_DRIVER, COMMAND_NUM_NEIGHBORS, 0, 0);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_NUM_NEIGHBORS, 0, 0);
   // Driver adds 1 to ensure it is positive, but on error we want to return 0
-  return (err > 0) ? (err - 1) : 0;
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
+    // Driver adds 1 to the power after casting it to unsigned, so this works
+    return com.data[0] - 1;
+  } else {
+    return 0;
+  }
 }
 
 int ieee802154_get_neighbor_address(unsigned index, unsigned short *addr) {
   if (!addr) return TOCK_EINVAL;
-  int err = command(RADIO_DRIVER, COMMAND_GET_NEIGHBOR_ADDR, (unsigned int) index, 0);
-  if (err > 0) {
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_NEIGHBOR_ADDR, (unsigned int) index, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to ensure it is positive.
-    *addr = (unsigned short) (err - 1);
+    *addr = (unsigned short) (com.data[0] - 1);
+    return com.data[0];
+  } else if (com.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(com.data[0]);
+  } else {
+    return TOCK_FAIL;
   }
-  return err;
 }
 
 int ieee802154_get_neighbor_address_long(unsigned index, unsigned char *addr_long) {
   if (!addr_long) return TOCK_EINVAL;
-  int err = allow(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
-  if (err < 0) return err;
-  return command(RADIO_DRIVER, COMMAND_GET_NEIGHBOR_ADDR_LONG, (unsigned int) index, 0);
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
+  if (!rw.success) return tock_error_to_rcode(rw.error);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_NEIGHBOR_ADDR_LONG, (unsigned int) index, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 int ieee802154_get_neighbor(unsigned index,
@@ -178,40 +269,65 @@ int ieee802154_get_neighbor(unsigned index,
 
 int ieee802154_add_neighbor(unsigned short addr, unsigned char *addr_long, unsigned *index) {
   if (!addr_long) return TOCK_EINVAL;
-  int err = allow(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
-  if (err < 0) return err;
-  err = command(RADIO_DRIVER, COMMAND_ADD_NEIGHBOR, (unsigned int) addr, 0);
-  if (err > 0 && index) {
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
+  if (!rw.success) return tock_error_to_rcode(rw.error);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_ADD_NEIGHBOR, (unsigned int) addr, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32 && index) {
     // Driver adds 1 to ensure it is positive.
-    *index = (unsigned) (err - 1);
+    *index = (unsigned) (com.data[0] - 1);
+    return com.data[0];
+  } else if (com.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(com.data[0]);
+  } else {
+    return TOCK_FAIL;
   }
-  return err;
 }
 
 int ieee802154_remove_neighbor(unsigned index) {
-  return command(RADIO_DRIVER, COMMAND_REMOVE_NEIGHBOR, (unsigned int) index, 0);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_REMOVE_NEIGHBOR, (unsigned int) index, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 int ieee802154_max_keys(void) {
-  int err = command(RADIO_DRIVER, COMMAND_MAX_KEYS, 0, 0);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_MAX_KEYS, 0, 0);
   // Driver adds 1 to ensure it is positive, but on error we want to return 0
-  return (err > 0) ? (err - 1) : 0;
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
+    // Driver adds 1 to the power after casting it to unsigned, so this works
+    return com.data[0] - 1;
+  } else {
+    return 0;
+  }
 }
 
 int ieee802154_num_keys(void) {
-  int err = command(RADIO_DRIVER, COMMAND_NUM_KEYS, 0, 0);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_NUM_KEYS, 0, 0);
   // Driver adds 1 to ensure it is positive, but on error we want to return 0
-  return (err > 0) ? (err - 1) : 0;
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
+    // Driver adds 1 to the power after casting it to unsigned, so this works
+    return com.data[0] - 1;
+  } else {
+    return 0;
+  }
 }
 
 int ieee802154_get_key_security_level(unsigned index, security_level_t *level) {
   if (!level) return TOCK_EINVAL;
-  int err = command(RADIO_DRIVER, COMMAND_GET_KEY_LEVEL, (unsigned int) index, 0);
-  if (err > 0) {
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_KEY_LEVEL, (unsigned int) index, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to ensure it is positive.
-    *level = (security_level_t) (err - 1);
+    *level = (security_level_t) (com.data[0] - 1);
+    return com.data[0];
+  } else if (com.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(com.data[0]);
+  } else {
+    return TOCK_FAIL;
   }
-  return err;
 }
 
 int ieee802154_key_id_bytes(key_id_mode_t key_id_mode) {
@@ -232,21 +348,32 @@ int ieee802154_get_key_id(unsigned index,
                           key_id_mode_t *key_id_mode,
                           unsigned char *key_id) {
   if (!key_id_mode || !key_id) return TOCK_EINVAL;
-  int err = allow(RADIO_DRIVER, ALLOW_CFG, (void *) BUF_CFG, 10);
-  if (err < 0) return err;
-  err = command(RADIO_DRIVER, COMMAND_GET_KEY_ID, (unsigned int) index, 0);
-  if (err == TOCK_SUCCESS) {
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) BUF_CFG, 10);
+  if (!rw.success) return tock_error_to_rcode(rw.error);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_KEY_ID, (unsigned int) index, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
     *key_id_mode = (key_id_mode_t) (BUF_CFG[0]);
     memcpy(key_id, BUF_CFG + 1, ieee802154_key_id_bytes(*key_id_mode));
+    return TOCK_SUCCESS;
+  } else if (com.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(com.data[0]);
+  } else {
+    return TOCK_FAIL;
   }
-  return err;
 }
 
 int ieee802154_get_key(unsigned index, unsigned char *key) {
   if (!key) return TOCK_EINVAL;
-  int err = allow(RADIO_DRIVER, ALLOW_CFG, (void *) key, 16);
-  if (err < 0) return err;
-  return command(RADIO_DRIVER, COMMAND_GET_KEY, (unsigned int) index, 0);
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) key, 16);
+  if (!rw.success) return tock_error_to_rcode(rw.error);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_KEY, (unsigned int) index, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 int ieee802154_get_key_desc(unsigned index,
@@ -267,8 +394,8 @@ int ieee802154_add_key(security_level_t level,
                        unsigned char *key,
                        unsigned *index) {
   if (!key) return TOCK_EINVAL;
-  int err = allow(RADIO_DRIVER, ALLOW_CFG, (void *) BUF_CFG, 27);
-  if (err < 0) return 0;
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) BUF_CFG, 27);
+  if (!rw.success) return tock_error_to_rcode(rw.error);
   BUF_CFG[0] = level;
   BUF_CFG[1] = key_id_mode;
   int bytes = ieee802154_key_id_bytes(key_id_mode);
@@ -276,16 +403,27 @@ int ieee802154_add_key(security_level_t level,
     memcpy(BUF_CFG + 2, key_id, bytes);
   }
   memcpy(BUF_CFG + 2 + 9, key, 16);
-  err = command(RADIO_DRIVER, COMMAND_ADD_KEY, 0, 0);
-  if (err > 0 && index) {
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_ADD_KEY, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32 && index) {
     // Driver adds 1 to ensure it is positive.
-    *index = (unsigned) (err - 1);
+    *index = (unsigned) (com.data[0] - 1);
+    return com.data[0];
+  } else if (com.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(com.data[0]);
+  } else {
+    return TOCK_FAIL;
   }
-  return err;
 }
 
 int ieee802154_remove_key(unsigned index) {
-  return command(RADIO_DRIVER, COMMAND_REMOVE_KEY, (unsigned int) index, 0);
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_REMOVE_KEY, (unsigned int) index, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 // Internal callback for transmission
@@ -306,27 +444,31 @@ int ieee802154_send(unsigned short addr,
                     unsigned char *key_id,
                     const char *payload,
                     unsigned char len) {
-  // Setup parameters in ALLOW_CFG and ALLOW_TX
-  int err = allow(RADIO_DRIVER, ALLOW_CFG, (void *) BUF_CFG, 11);
-  if (err < 0) return err;
+  // Setup parameters in ALLOW_CFG and ALLOW_RO_TX
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) BUF_CFG, 11);
+  if (!rw.success) return tock_error_to_rcode(rw.error);
   BUF_CFG[0] = level;
   BUF_CFG[1] = key_id_mode;
   int bytes = ieee802154_key_id_bytes(key_id_mode);
   if (bytes > 0) {
     memcpy(BUF_CFG + 2, key_id, bytes);
   }
-  err = allow(RADIO_DRIVER, ALLOW_TX, (void *) payload, len);
-  if (err < 0) return err;
+  allow_ro_return_t ro = allow_readonly(RADIO_DRIVER, ALLOW_RO_TX, (void *) payload, len);
+  if (!ro.success) return tock_error_to_rcode(ro.error);
 
   // Subscribe to the transmit callback
   bool tx_done = false;
-  err = subscribe(RADIO_DRIVER, SUBSCRIBE_TX,
-                  tx_done_callback, (void *) &tx_done);
-  if (err < 0) return err;
+  subscribe_return_t sub = subscribe2(RADIO_DRIVER, SUBSCRIBE_TX,
+                                     tx_done_callback, (void *) &tx_done);
+  if (!sub.success) return tock_error_to_rcode(sub.error);
 
   // Issue the send command and wait for the transmission to be done.
-  err = command(RADIO_DRIVER, COMMAND_SEND, (unsigned int) addr, 0);
-  if (err < 0) return err;
+  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_SEND, (unsigned int) addr, 0);
+  if (com.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(com.data[0]);
+  } else if (com.type != TOCK_SYSCALL_SUCCESS) {
+    return TOCK_FAIL;
+  }
   yield_for(&tx_done);
   if (tx_result != TOCK_SUCCESS) {
     return tx_result;
@@ -343,31 +485,43 @@ static void rx_done_callback(__attribute__ ((unused)) int pans,
                              __attribute__ ((unused)) int dst_addr,
                              __attribute__ ((unused)) int src_addr,
                              void* ud) {
+  ieee802154_unallow_rx_buf();
   *((bool*) ud) = true;
 }
 
 int ieee802154_receive_sync(const char *frame, unsigned char len) {
   // Provide the buffer to the kernel
-  int err = allow(RADIO_DRIVER, ALLOW_RX, (void *) frame, len);
-  if (err < 0) return err;
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, len);
+  if (!rw.success) return tock_error_to_rcode(rw.error);
 
   // Subscribe to the received callback
   bool rx_done = false;
-  err = subscribe(RADIO_DRIVER, SUBSCRIBE_RX, rx_done_callback, (void *) &rx_done);
-  if (err < 0) return err;
+  subscribe_return_t sub = subscribe2(RADIO_DRIVER, SUBSCRIBE_RX, rx_done_callback, (void *) &rx_done);
+  if (!sub.success) return tock_error_to_rcode(sub.error);
 
   // Wait for a frame
   yield_for(&rx_done);
   return TOCK_SUCCESS;
 }
 
+// must be called before accessing the contents of the "allowed" receive buffer
+bool ieee802154_unallow_rx_buf(void) {
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, NULL, 0);
+  return rw.success;
+}
+
 int ieee802154_receive(subscribe_cb callback,
                        const char *frame,
                        unsigned char len) {
   // Provide the buffer to the kernel
-  int err = allow(RADIO_DRIVER, ALLOW_RX, (void *) frame, len);
-  if (err < 0) return err;
-  return subscribe(RADIO_DRIVER, SUBSCRIBE_RX, callback, NULL);
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, len);
+  if (!rw.success) return tock_error_to_rcode(rw.error);
+  subscribe_return_t sub = subscribe2(RADIO_DRIVER, SUBSCRIBE_RX, callback, NULL);
+  if (!sub.success) {
+    return tock_error_to_rcode(sub.error);
+  } else {
+    return TOCK_SUCCESS;
+  }
 }
 
 int ieee802154_frame_get_length(const char *frame) {
