@@ -5,7 +5,7 @@ lv_disp_drv_t disp_drv;
 lv_indev_drv_t indev_drv;
 
 static int touchpad_x = 0, touchpad_y = 0, touchpad_status = TOUCH_STATUS_RELEASED;
-static void tocuh_event (int status, int x, int y, void *ud __attribute__ ((unused))) {
+static void touch_event (int status, int x, int y, void *ud __attribute__ ((unused))) {
   touchpad_x      = x;
   touchpad_y      = y;
   touchpad_status = status;
