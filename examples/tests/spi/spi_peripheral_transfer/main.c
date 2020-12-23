@@ -79,6 +79,6 @@ int main(void) {
   if (err < 0) {
     printf("Error: spi_peripheral_read_write: %d\n", err);
   }
-
+  printf("Starting spi_peripheral_transfer.\n");
   spi_peripheral_chip_selected(selected_cb, NULL);
 }
