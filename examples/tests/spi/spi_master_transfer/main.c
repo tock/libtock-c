@@ -19,9 +19,11 @@ static void buffer_eq (char *buf1, char *buf2) {
   for (i = 0; i < BUF_SIZE; i++) {
     if (buf1[i] != buf2[i]) {
       led_on(0);
+      printf("Buffers not equal: FAIL (%i: %i != %i\n", (int)i, (int)buf1[i], (int)buf2[i]);
       return;
     }
   }
+  printf("Buffers equal: PASS\n");
 }
 
 // This callback occurs when a read_write call completed.
@@ -33,10 +35,13 @@ static void write_cb(__attribute__ ((unused)) int arg0,
                      __attribute__ ((unused)) void* userdata) {
   led_toggle(0);
   if (toggle) {
+    printf("Check wbuf against ibuf.\n");
     buffer_eq (wbuf, ibuf);
   } else {
+    printf("Check rbuf against zbuf.\n");
     buffer_eq (rbuf, zbuf);
   }
+  printf("Transfer complete.\n");
 }
 
 // This is the callback for the button press.
@@ -61,6 +66,7 @@ static void button_cb(__attribute__((unused)) int btn_num,
     // not the write completed callback. This decision was arbitrary.
     toggle = !toggle;
   }
+  printf("Button pushed.\n");
 }
 
 // This function first initializes the various buffers to
@@ -83,7 +89,7 @@ int main(void) {
   spi_set_phase(false);
 
   button_subscribe(button_cb, NULL);
-
+  printf("Starting spi_controller_transfer.\n");
   int nbuttons = button_count();
   int j;
   for (j = 0; j < nbuttons; j++) {
