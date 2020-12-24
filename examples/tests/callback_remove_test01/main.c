@@ -28,9 +28,8 @@ int main(void) {
   uint32_t frequency  = alarm_internal_frequency();
   uint32_t interval   = (500 / 1000) * frequency + (500 % 1000) * (frequency / 1000);
   uint32_t now        = alarm_read();
-  uint32_t expiration = now + interval;
   alarm_internal_subscribe((subscribe_cb*) cb, NULL);
-  alarm_internal_set(expiration);
+  alarm_internal_set(now, interval);
 
   // Now block in this app for a while. This should give the timer time to
   // expire but not allow the kernel to deliver the callback to us just yet.
