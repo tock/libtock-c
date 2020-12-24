@@ -76,7 +76,7 @@ static void callback( __attribute__ ((unused)) int unused0,
       root_pop();
 
       if (alarm->callback) {
-	uint32_t expiration = alarm->reference + alarm->dt;
+        uint32_t expiration = alarm->reference + alarm->dt;
         tock_enqueue(alarm->callback, now, expiration, 0, alarm->ud);
       }
     }
@@ -84,12 +84,12 @@ static void callback( __attribute__ ((unused)) int unused0,
 }
 
 void alarm_at(uint32_t reference, uint32_t dt, subscribe_cb cb, void* ud, alarm_t* alarm) {
-  alarm->reference  = reference;
-  alarm->dt         = dt;
-  alarm->callback   = cb;
-  alarm->ud         = ud;
-  alarm->prev       = NULL;
-  alarm->next       = NULL;
+  alarm->reference = reference;
+  alarm->dt        = dt;
+  alarm->callback  = cb;
+  alarm->ud        = ud;
+  alarm->prev      = NULL;
+  alarm->next      = NULL;
 
   root_insert(alarm);
   int i = 0;
@@ -135,9 +135,9 @@ uint32_t alarm_read(void) {
 // Timer implementation
 
 void timer_in(uint32_t ms, subscribe_cb cb, void* ud, tock_timer_t *timer) {
-  uint32_t frequency  = alarm_internal_frequency();
-  uint32_t interval   = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
-  uint32_t now        = alarm_read();
+  uint32_t frequency = alarm_internal_frequency();
+  uint32_t interval  = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
+  uint32_t now       = alarm_read();
   alarm_at(now, interval, cb, ud, &timer->alarm);
 }
 
@@ -147,7 +147,7 @@ static void repeating_cb( uint32_t now,
                           void* ud) {
   tock_timer_t* repeating = (tock_timer_t*)ud;
   uint32_t interval       = repeating->interval;
-  uint32_t cur_exp = repeating->alarm.reference + interval;
+  uint32_t cur_exp        = repeating->alarm.reference + interval;
   alarm_at(cur_exp, interval, (subscribe_cb*)repeating_cb,
            (void*)repeating, &repeating->alarm);
   repeating->cb(now, cur_exp, 0, repeating->ud);
