@@ -25,9 +25,9 @@ static void cb(__attribute__ ((unused)) int now,
 int main(void) {
 
   // Setup an alarm for 500 ms in the future.
-  uint32_t frequency  = alarm_internal_frequency();
-  uint32_t interval   = (500 / 1000) * frequency + (500 % 1000) * (frequency / 1000);
-  uint32_t now        = alarm_read();
+  uint32_t frequency = alarm_internal_frequency();
+  uint32_t interval  = (500 / 1000) * frequency + (500 % 1000) * (frequency / 1000);
+  uint32_t now       = alarm_read();
   alarm_internal_subscribe((subscribe_cb*) cb, NULL);
   alarm_internal_set(now, interval);
 
