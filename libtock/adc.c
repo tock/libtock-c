@@ -182,7 +182,7 @@ int adc_set_double_buffer(uint16_t* buffer, uint32_t len) {
 }
 
 bool adc_is_present(void) {
-  return command2(DRIVER_NUM_ADC, 0, 0, 0) type == TOCK_SYSCALL_SUCCESS_U32;
+  return command2(DRIVER_NUM_ADC, 0, 0, 0).type == TOCK_SYSCALL_SUCCESS_U32;
 }
 
 int adc_channel_count(void) {
