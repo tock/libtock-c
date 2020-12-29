@@ -97,7 +97,7 @@ int putnstr_async(const char *str, size_t len, subscribe_cb cb, void* userdata) 
     // Returned an incorrect success code
     return TOCK_FAIL;
   } else {
-    return tock_error_to_rcode(com.data[1]);
+    return tock_error_to_rcode(com.data[0]);
   }
 }
 
@@ -116,7 +116,7 @@ int getnstr_async(char *buf, size_t len, subscribe_cb cb, void* userdata) {
   if (com.type >= TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
-    return tock_error_to_rcode(com.data[1]);
+    return tock_error_to_rcode(com.data[0]);
   }
 }
 
