@@ -1,6 +1,6 @@
+#include <rng.h>
 #include <stdlib.h>
 #include <tock.h>
-#include <rng.h>
 
 struct rng_data {
   bool fired;
@@ -22,7 +22,7 @@ static void rng_cb(__attribute__ ((unused)) int callback_type,
 }
 
 allow_rw_return_t rng_set_buffer(uint8_t* buf, uint32_t len) {
-   return allow_readwrite(DRIVER_NUM_RNG, 0, (void*) buf, len);
+  return allow_readwrite(DRIVER_NUM_RNG, 0, (void*) buf, len);
 }
 
 subscribe_return_t rng_set_callback(subscribe_cb callback, void* callback_args) {
@@ -42,12 +42,12 @@ int rng_async(subscribe_cb callback, uint8_t* buf, uint32_t len, uint32_t num) {
 
   syscall_return_t res = rng_get_random(num);
   if (res.type == TOCK_SYSCALL_SUCCESS) {
-      return TOCK_SUCCESS;
+    return TOCK_SUCCESS;
   } else if (res.type == TOCK_SYSCALL_FAILURE) {
-      return tock_error_to_rcode(res.data[0]);
+    return tock_error_to_rcode(res.data[0]);
   } else {
-      // Unexpected return code variant
-      exit(-1);
+    // Unexpected return code variant
+    exit(-1);
   }
 }
 
@@ -61,13 +61,13 @@ int rng_sync(uint8_t* buf, uint32_t len, uint32_t num) {
   result.fired = false;
   syscall_return_t res = rng_get_random(num);
   if (res.type == TOCK_SYSCALL_SUCCESS) {
-      return TOCK_SUCCESS;
+    return TOCK_SUCCESS;
   } else if (res.type == TOCK_SYSCALL_FAILURE) {
-      // We assume that after an error the callback is not called
-      return tock_error_to_rcode(res.data[0]);
+    // We assume that after an error the callback is not called
+    return tock_error_to_rcode(res.data[0]);
   } else {
-      // Unexpected return code variant
-      exit(-1);
+    // Unexpected return code variant
+    exit(-1);
   }
 
   yield_for(&result.fired);
