@@ -1,7 +1,7 @@
 #include <spi_peripheral.h>
 
 int spi_peripheral_get_chip_select(void) {
-  syscall_return_t cret = command2(SPI_SLAVE, 2, 0, 0);
+  syscall_return_t cret = command2(SPI_PERIPHERAL, 2, 0, 0);
   if (cret.type == TOCK_SYSCALL_SUCCESS_U32) {
     return cret.data[0];
   } else {
@@ -10,7 +10,7 @@ int spi_peripheral_get_chip_select(void) {
 }
 
 int spi_peripheral_set_phase(bool phase) {
-  syscall_return_t cret = command2(SPI_SLAVE, 3, (unsigned char)phase, 0);
+  syscall_return_t cret = command2(SPI_PERIPHERAL, 3, (unsigned char)phase, 0);
   if (cret.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -19,7 +19,7 @@ int spi_peripheral_set_phase(bool phase) {
 }
 
 int spi_peripheral_get_phase(void) {
-  syscall_return_t cret = command2(SPI_SLAVE, 4, 0, 0);
+  syscall_return_t cret = command2(SPI_PERIPHERAL, 4, 0, 0);
   if (cret.type == TOCK_SYSCALL_SUCCESS_U32) {
     return cret.data[0];
   } else {
@@ -28,7 +28,7 @@ int spi_peripheral_get_phase(void) {
 }
 
 int spi_peripheral_set_polarity(bool pol) {
-  syscall_return_t cret = command2(SPI_SLAVE, 5, (unsigned char)pol, 0);
+  syscall_return_t cret = command2(SPI_PERIPHERAL, 5, (unsigned char)pol, 0);
   if (cret.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -37,7 +37,7 @@ int spi_peripheral_set_polarity(bool pol) {
 }
 
 int spi_peripheral_get_polarity(void) {
-  syscall_return_t cret = command2(SPI_SLAVE, 6, 0, 0);
+  syscall_return_t cret = command2(SPI_PERIPHERAL, 6, 0, 0);
   if (cret.type == TOCK_SYSCALL_SUCCESS_U32) {
     return cret.data[0];
   } else {
@@ -48,7 +48,7 @@ int spi_peripheral_get_polarity(void) {
 
 /* This registers a callback for when the peripheral is selected. */
 int spi_peripheral_chip_selected(subscribe_cb cb, bool* cond) {
-  subscribe_return_t sret = subscribe2(SPI_SLAVE, 1, cb, cond);
+  subscribe_return_t sret = subscribe2(SPI_PERIPHERAL, 1, cb, cond);
   if (sret.success) {
     return TOCK_SUCCESS;
   } else {
@@ -57,7 +57,7 @@ int spi_peripheral_chip_selected(subscribe_cb cb, bool* cond) {
 }
 
 int spi_peripheral_read_buf(char* str, size_t len) {
-  allow_rw_return_t aret = allow_readwrite(SPI_SLAVE, 0, str, len);
+  allow_rw_return_t aret = allow_readwrite(SPI_PERIPHERAL, 0, str, len);
   if (aret.success) {
     return TOCK_SUCCESS;
   } else {
@@ -75,16 +75,16 @@ static void spi_peripheral_cb(__attribute__ ((unused)) int unused0,
 int spi_peripheral_write(const char* str,
                          size_t len,
                          subscribe_cb cb, bool* cond) {
-  allow_ro_return_t aret = allow_readonly(SPI_SLAVE, 0, str, len);
+  allow_ro_return_t aret = allow_readonly(SPI_PERIPHERAL, 0, str, len);
   if (!aret.success) {
     return tock_error_to_rcode(aret.error);
   }
-  subscribe_return_t sret = subscribe2(SPI_SLAVE, 0, cb, cond);
+  subscribe_return_t sret = subscribe2(SPI_PERIPHERAL, 0, cb, cond);
   if (!sret.success) {
     return tock_error_to_rcode(sret.error);
   }
 
-  syscall_return_t cret = command2(SPI_SLAVE, 1, len, 0);
+  syscall_return_t cret = command2(SPI_PERIPHERAL, 1, len, 0);
   if (cret.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -97,7 +97,7 @@ int spi_peripheral_read_write(const char* write,
                               size_t len,
                               subscribe_cb cb, bool* cond) {
 
-  allow_rw_return_t aret = allow_readwrite(SPI_SLAVE, 0, (void*)read, len);
+  allow_rw_return_t aret = allow_readwrite(SPI_PERIPHERAL, 0, (void*)read, len);
   if (!aret.success) {
     return tock_error_to_rcode(aret.error);
   }

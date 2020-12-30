@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-#define SPI_SLAVE 0x20002
+#define SPI_PERIPHERAL 0x20002
 
 /* SPI system calls */
 /* Get chip select always returns 0 in peripheral mode. */
