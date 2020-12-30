@@ -36,3 +36,6 @@ int gesture_set_callback (gesture_callback cb, void* ud);
 
 int read_touch (int index, unsigned char *id, unsigned char *type, unsigned short *x, unsigned short *y);
 int read_touch_full (int index, unsigned char *id, unsigned char *type, unsigned short *x, unsigned short *y, unsigned char *size, unsigned char *pressure);
+
+// Every multi touch event needs to be acked
+int multi_touch_next (void);

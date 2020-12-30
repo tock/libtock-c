@@ -119,3 +119,12 @@ int read_touch_full (int index, unsigned char *id, unsigned char *type, unsigned
     return TOCK_ENOMEM;
   }
 }
+
+int multi_touch_next (void) {
+  syscall_return_t res = touch_command(10, 0, 0);
+  if (res.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode (res.data[0]);
+  }
+}
