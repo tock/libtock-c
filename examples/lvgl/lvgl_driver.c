@@ -2,7 +2,6 @@
 
 static lv_disp_buf_t disp_buf;
 lv_disp_drv_t disp_drv;
-lv_indev_drv_t indev_drv;
 
 /* screen driver */
 static void screen_lvgl_driver(lv_disp_drv_t * disp, const lv_area_t * area,
