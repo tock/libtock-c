@@ -23,7 +23,51 @@ static void tocuh_event (int status, int x, int y, void *ud __attribute__ ((unus
   printf ("%d x %d y %d\n", status, x, y);
 }
 
+static void multi_tocuh_event (int num_touches, int data2 __attribute__ ((unused)), int data3 __attribute__ ((unused)), void *ud __attribute__ ((unused))) {
+  for (int i = 0; i < num_touches; i++)
+  {
+    printf ("%d: ", i);
+    unsigned char id, status;
+    unsigned short x, y;
+    read_touch (i, &id, &status, &x, &y);
+    switch (status) {
+      case TOUCH_STATUS_PRESSED: {
+        printf ("pressed ");
+        break;
+      }
+      case TOUCH_STATUS_RELEASED: {
+        printf ("released ");
+        break;
+      }
+      case TOUCH_STATUS_MOVED: {
+        printf ("moved ");
+        break;
+      }
+      default:
+        printf ("error ");
+    }
+    printf ("%d x %d y %d, ", status, x, y);
+  }
+  printf ("\n");
+}
+
 int main(void) {
-  single_touch_set_callback (tocuh_event, NULL);
+  int num_touches = get_number_of_touches ();
+  printf ("Number of touches: %d\n", num_touches);
+  if (num_touches == 0)
+  {
+    printf ("No touch found\n");
+  }
+  else
+  if (num_touches == 1)
+  {
+    // single touch
+    single_touch_set_callback (tocuh_event, NULL);
+  }
+  else
+  {
+    // multi touch
+    multi_touch_set_callback (multi_tocuh_event, NULL, num_touches);
+  }
   return 0;
 }
