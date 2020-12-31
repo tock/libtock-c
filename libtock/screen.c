@@ -24,83 +24,116 @@ static uint8_t *buffer   = NULL;
 static size_t buffer_len = 0;
 
 static int screen_subscribe (subscribe_cb cb, void *userdata) {
-  return subscribe(DRIVER_NUM_SCREEN, 0, cb, userdata);
+  subscribe_return_t sv = subscribe2(DRIVER_NUM_SCREEN, 0, cb, userdata);
+  if (sv.success == 0) {
+    return tock_error_to_rcode(sv.error);
+  }
+  return TOCK_SUCCESS;
 }
 
 static int screen_command (int command_num, int data1, int data2) {
-  return command(DRIVER_NUM_SCREEN, command_num, data1, data2);
+  syscall_return_t res = command2(DRIVER_NUM_SCREEN, command_num, data1, data2);
+  if (res.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode (res.data[0]);
+  }
 }
 
 static int screen_allow (void* ptr, size_t size) {
-  return allow(DRIVER_NUM_SCREEN, 0, ptr, size);
+  allow_ro_return_t res = allow_readonly(DRIVER_NUM_SCREEN, 0, ptr, size);
+  if (res.success == 0) {
+    return tock_error_to_rcode(res.error);
+  }
+  return TOCK_SUCCESS;
 }
 
 int screen_get_supported_resolutions (void) {
   ScreenReturn fbr;
   fbr.data1 = 0;
   fbr.done  = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (11, 0, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (11, 0, 0);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  }
   return fbr.data1;
 }
 int screen_get_supported_resolution (size_t index, size_t *width, size_t *height) {
   ScreenReturn fbr;
-  fbr.done = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (12, index, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
-  *width  = fbr.data1;
-  *height = fbr.data2;
+  fbr.done  = false;
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (12, index, 0);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+    *width  = fbr.data1;
+    *height = fbr.data2;
+  }
   return fbr.error;
 }
 int screen_get_supported_pixel_formats (void) {
   ScreenReturn fbr;
   fbr.data1 = 0;
   fbr.done  = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (13, 0, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (13, 0, 0);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  }
   return fbr.data1;
 }
 int screen_get_supported_pixel_format (size_t index) {
   ScreenReturn fbr;
   fbr.data1 = SCREEN_PIXEL_FORMAT_ERROR;
   fbr.done  = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (14, index, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (14, index, 0);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  }
   return fbr.data1;
 }
 
+// TODO
 bool screen_setup_enabled (void) {
-  return screen_command (1, 0, 0) != 0;
+  syscall_return_t res = command2 (DRIVER_NUM_SCREEN, 1, 0, 0);
+  if (res.type == TOCK_SYSCALL_SUCCESS_U32) {
+    return res.data[0] != 0;
+  } else {
+    return tock_error_to_rcode (res.data[0]);
+  }
 }
 
 int screen_set_brightness (size_t brightness) {
   ScreenReturn fbr;
-  fbr.done = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (3, brightness, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  fbr.done  = false;
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (3, brightness, 0);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  }
   return fbr.error;
 }
 
 int screen_invert_on (void) {
   ScreenReturn fbr;
-  fbr.done = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (4, 0, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  fbr.done  = false;
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (4, 0, 0);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  }
   return fbr.error;
 }
 
 int screen_invert_off (void) {
   ScreenReturn fbr;
-  fbr.done = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (5, 0, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  fbr.done  = false;
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (5, 0, 0);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  }
   return fbr.error;
 }
 
@@ -128,21 +161,25 @@ uint8_t * screen_buffer (void)
 
 int screen_get_resolution (size_t *width, size_t *height) {
   ScreenReturn fbr;
-  fbr.done = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (23, 0, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
-  *width  = fbr.data1;
-  *height = fbr.data2;
+  fbr.done  = false;
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (23, 0, 0);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+    *width  = fbr.data1;
+    *height = fbr.data2;
+  }
   return fbr.error;
 }
 
 int screen_set_resolution (size_t width, size_t height) {
   ScreenReturn fbr;
-  fbr.done = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (24, width, height);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  fbr.done  = false;
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (24, width, height);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  }
   return fbr.error;
 }
 
@@ -173,18 +210,22 @@ int screen_get_pixel_format (void) {
   ScreenReturn fbr;
   fbr.data1 = SCREEN_PIXEL_FORMAT_ERROR;
   fbr.done  = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (25, 0, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (25, 0, 0);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  }
   return fbr.data1;
 }
 
 int screen_set_pixel_format (size_t format) {
   ScreenReturn fbr;
-  fbr.done = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (26, format, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  fbr.done  = false;
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (26, format, 0);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  }
   return fbr.error;
 }
 
@@ -192,18 +233,22 @@ int screen_get_rotation (void) {
   ScreenReturn fbr;
   fbr.data1 = SCREEN_ROTATION_NORMAL;
   fbr.done  = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (21, 0, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (21, 0, 0);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  }
   return fbr.data1;
 }
 
 int screen_set_rotation (size_t rotation) {
   ScreenReturn fbr;
-  fbr.done = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (22, rotation, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  fbr.done  = false;
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (22, rotation, 0);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  }
   return fbr.error;
 }
 
@@ -221,11 +266,13 @@ int screen_set_color (size_t position, size_t color) {
 
 int screen_set_frame (uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
   ScreenReturn fbr;
-  fbr.done = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (100, ((x & 0xFFFF) << 16) | ((y & 0xFFFF)),
-                              ((width & 0xFFFF) << 16) | ((height & 0xFFFF)));
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  fbr.done  = false;
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (100, ((x & 0xFFFF) << 16) | ((y & 0xFFFF)),
+                                ((width & 0xFFFF) << 16) | ((height & 0xFFFF)));
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  }
   return fbr.error;
 }
 
@@ -234,18 +281,22 @@ int screen_fill (size_t color) {
   fbr.done  = false;
   fbr.error = screen_set_color (0, color);
   if (fbr.error == TOCK_SUCCESS) {
-    screen_subscribe (screen_callback, &fbr);
-    fbr.error = screen_command (300, 0, 0);
-    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+    fbr.error = screen_subscribe (screen_callback, &fbr);
+    if (fbr.error == TOCK_SUCCESS) {
+      fbr.error = screen_command (300, 0, 0);
+      if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+    }
   }
   return fbr.error;
 }
 
 int screen_write (size_t length) {
   ScreenReturn fbr;
-  fbr.done = false;
-  screen_subscribe (screen_callback, &fbr);
-  fbr.error = screen_command (200, length, 0);
-  if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  fbr.done  = false;
+  fbr.error = screen_subscribe (screen_callback, &fbr);
+  if (fbr.error == TOCK_SUCCESS) {
+    fbr.error = screen_command (200, length, 0);
+    if (fbr.error == TOCK_SUCCESS) yield_for (&fbr.done);
+  }
   return fbr.error;
 }

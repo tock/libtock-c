@@ -22,7 +22,9 @@ int main(void) {
   if (screen_init (BUFFER_SIZE) == TOCK_SUCCESS) {
     printf ("screen init\n");
     screen_set_brightness (100);
-    screen_set_frame (0, 0, 128, 160);
+    size_t width, height;
+    screen_get_resolution (&width, &height);
+    screen_set_frame (0, 0, width, height);
     screen_fill (0);
     bool invert = false;
     for (int i = 0; ; i++) {
@@ -45,8 +47,6 @@ int main(void) {
       screen_set_frame (88, 20, 30, 30);
       screen_fill (0x07F0);
       delay_ms (1000);
-      size_t width, height;
-      screen_get_resolution (&width, &height);
       screen_set_frame (0, 0, width, height);
       screen_fill (0x0000);
     }

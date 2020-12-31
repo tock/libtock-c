@@ -3,19 +3,17 @@
 static lv_disp_buf_t disp_buf;
 lv_disp_drv_t disp_drv;
 
-void screen_lvgl_driver(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p);
-
 /* screen driver */
-void screen_lvgl_driver(lv_disp_drv_t * disp, const lv_area_t * area,
-                        __attribute__ ((unused)) lv_color_t * color_p)
+static void screen_lvgl_driver(lv_disp_drv_t * disp, const lv_area_t * area,
+                               __attribute__ ((unused)) lv_color_t * color_p)
 {
   int32_t x, y;
   x = area->x1;
   y = area->y1;
-  int w = area->x2 - area->x1;
-  int h = area->y2 - area->y1;
+  int w = area->x2 - area->x1 + 1;
+  int h = area->y2 - area->y1 + 1;
   screen_set_frame (x, y, w, h);
-  screen_write ((w + h) * sizeof(lv_color_t));
+  screen_write ((w * h) * sizeof(lv_color_t));
 
   lv_disp_flush_ready(disp);           /* Indicate you are ready with the flushing*/
 }
