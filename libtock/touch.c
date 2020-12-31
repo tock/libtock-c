@@ -1,8 +1,6 @@
 #include "touch.h"
 #include <stdlib.h>
 
-#define MULTI_TOUCH_LENGTH 8
-
 static int touch_subscribe(int subscribe_num, subscribe_cb callback, void* callback_args) {
   subscribe_return_t sv = subscribe2(DRIVER_NUM_TOUCH, subscribe_num, callback, callback_args);
   if (sv.success == 0) {
@@ -23,8 +21,8 @@ static int touch_allow(int allow_num, void* data, int len) {
   return TOCK_SUCCESS;
 }
 
-static unsigned char *multi_touch_buffer = NULL;
-static unsigned char num_touches         = 0;
+static touch_t *multi_touch_buffer = NULL;
+static unsigned char num_touches   = 0;
 
 static touch_callback *single_touch_cb = NULL;
 static gesture_callback *gesture_cb    = NULL;
@@ -56,22 +54,22 @@ int multi_touch_set_callback (touch_callback cb, void* ud, int max_touches) {
   int err = TOCK_SUCCESS;
   if (cb != NULL) {
     if (multi_touch_buffer == NULL) {
-      multi_touch_buffer = (unsigned char*)malloc (max_touches * MULTI_TOUCH_LENGTH);
+      multi_touch_buffer = (touch_t*)malloc (max_touches * sizeof(touch_t));
       if (multi_touch_buffer) {
         num_touches = max_touches;
-        err         = touch_allow (2, multi_touch_buffer, max_touches * MULTI_TOUCH_LENGTH);
+        err         = touch_allow (2, multi_touch_buffer, max_touches * sizeof(touch_t));
         if (err == TOCK_SUCCESS) err = touch_subscribe (2, cb, ud);
         if (err != TOCK_SUCCESS) {
           free (multi_touch_buffer);
           multi_touch_buffer = NULL;
         }
-      }else {
+      } else {
         err = TOCK_ENOMEM;
       }
-    }else {
+    } else {
       err = TOCK_EALREADY;
     }
-  }else {
+  } else {
     if (multi_touch_buffer != NULL) {
       num_touches = 0;
       touch_allow (2, NULL, 0);
@@ -90,32 +88,32 @@ int gesture_set_callback (gesture_callback cb, void* ud) {
 
 // get multi touch
 
-int read_touch (int index, unsigned char *id, unsigned char *type, unsigned short *x, unsigned short *y) {
+int read_touch (int index, unsigned char *id, unsigned char *status, unsigned short *x, unsigned short *y) {
   if (index < num_touches) {
     if (multi_touch_buffer != NULL) {
-      *id   = multi_touch_buffer[index * 8 + 0];
-      *type = multi_touch_buffer[index * 8 + 1];
-      *x    = (multi_touch_buffer[index * 8 + 2] << 8) + multi_touch_buffer[index * 8 + 3];
-      *y    = (multi_touch_buffer[index * 8 + 4] << 8) + multi_touch_buffer[index * 8 + 5];
+      *id     = multi_touch_buffer[index].id;
+      *status = multi_touch_buffer[index].status;
+      *x      = multi_touch_buffer[index].x;
+      *y      = multi_touch_buffer[index].y;
       return TOCK_SUCCESS;
-    }else {
+    } else {
       return TOCK_ENOMEM;
     }
-  }else {
+  } else {
     return TOCK_EINVAL;
   }
 }
 
-int read_touch_full (int index, unsigned char *id, unsigned char *type, unsigned short *x, unsigned short *y,
+int read_touch_full (int index, unsigned char *id, unsigned char *status, unsigned short *x, unsigned short *y,
                      unsigned char *size, unsigned char *pressure) {
   if (multi_touch_buffer != NULL) {
-    int err = read_touch (index, id, type, x, y);
+    int err = read_touch (index, id, status, x, y);
     if (err == TOCK_SUCCESS) {
-      *size     = multi_touch_buffer[index * 8 + 6];
-      *pressure = multi_touch_buffer[index * 8 + 7];
+      *size     = multi_touch_buffer[index].size;
+      *pressure = multi_touch_buffer[index].pressure;
     }
     return err;
-  }else {
+  } else {
     return TOCK_ENOMEM;
   }
 }
