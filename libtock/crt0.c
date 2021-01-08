@@ -226,7 +226,7 @@ void _start(void* app_start __attribute__((unused)),
     // Debug support, tell the kernel the heap location
     //
     // memop(11, app_brk);
-    "li  a4, 4\n"               // a0 = 4   // memop syscall
+    "li  a4, 5\n"               // a4 = 5   // memop syscall
     "li  a0, 11\n"              // a0 = 11
     "mv  a1, t1\n"              // a1 = app_brk
     "ecall\n"                   // memop
