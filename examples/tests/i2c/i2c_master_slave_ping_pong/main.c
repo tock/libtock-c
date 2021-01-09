@@ -99,6 +99,6 @@ int main(void) {
 
   int j;
   for (j = 0; j < nbuttons; j++) {
-    TOCK_EXPECT(TOCK_SUCCESS, button_enable_interrupt(j).type);
+    TOCK_EXPECT(TOCK_SYSCALL_SUCCESS, button_enable_interrupt(j).type);
   }
 }
