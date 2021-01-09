@@ -292,16 +292,16 @@ void yield(void) {
 
 int subscribe(uint32_t driver, uint32_t subscribe,
               subscribe_cb cb, void* userdata) {
-  register uint32_t a1  asm ("a1") = driver;
-  register uint32_t a2  asm ("a2") = subscribe;
-  register void*    a3  asm ("a3") = cb;
-  register void*    a4  asm ("a4") = userdata;
+  register uint32_t a0  asm ("a0") = driver;
+  register uint32_t a1  asm ("a1") = subscribe;
+  register void*    a2  asm ("a2") = cb;
+  register void*    a3  asm ("a3") = userdata;
   register int ret asm ("a0");
   asm volatile (
-    "li    a0, 1\n"
+    "li    a4, 1\n"
     "ecall\n"
     : "=r" (ret)
-    : "r" (a1), "r" (a2), "r" (a3), "r" (a4)
+    : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
     : "memory");
   return ret;
 }
@@ -336,16 +336,16 @@ subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
 
 
 int command(uint32_t driver, uint32_t command, int data, int arg2) {
-  register uint32_t a1  asm ("a1") = driver;
-  register uint32_t a2  asm ("a2") = command;
-  register uint32_t a3  asm ("a3") = data;
-  register uint32_t a4  asm ("a4") = arg2;
+  register uint32_t a0  asm ("a0") = driver;
+  register uint32_t a1  asm ("a1") = command;
+  register uint32_t a2  asm ("a2") = data;
+  register uint32_t a3  asm ("a3") = arg2;
   register int ret asm ("a0");
   asm volatile (
-    "li    a0, 2\n"
+    "li    a4, 2\n"
     "ecall\n"
     : "=r" (ret)
-    : "r" (a1), "r" (a2), "r" (a3), "r" (a4)
+    : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
     : "memory");
   return ret;
 }
@@ -372,16 +372,16 @@ syscall_return_t command2(uint32_t driver, uint32_t command, int data, int arg2)
 
 
 int allow(uint32_t driver, uint32_t allow, void* ptr, size_t size) {
-  register uint32_t a1  asm ("a1") = driver;
-  register uint32_t a2  asm ("a2") = allow;
-  register void*    a3  asm ("a3") = ptr;
-  register size_t a4  asm ("a4")   = size;
-  register int ret asm ("a0");
+  register uint32_t a0  asm ("a0") = driver;
+  register uint32_t a1  asm ("a1") = allow;
+  register void* a2     asm ("a2") = ptr;
+  register size_t a3    asm ("a3") = size;
+  register int ret      asm ("a0");
   asm volatile (
-    "li    a0, 3\n"
+    "li    a4, 3\n"
     "ecall\n"
     : "=r" (ret)
-    : "r" (a1), "r" (a2), "r" (a3), "r" (a4)
+    : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
     : "memory");
   return ret;
 }
