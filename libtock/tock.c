@@ -441,16 +441,22 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* pt
 }
 
 void* memop(uint32_t op_type, int arg1) {
-  register uint32_t a0  asm ("a0") = op_type;
-  register uint32_t a1  asm ("a1") = arg1;
-  register void*    ret asm ("a0");
+  register uint32_t a0    asm ("a0") = op_type;
+  register int a1         asm ("a1") = arg1;
+  register void* val      asm ("a1");
+  register uint32_t code  asm ("a0");
   asm volatile (
     "li    a4, 5\n"
     "ecall\n"
-    : "=r" (ret)
+    : "=r" (code), "=r" (val)
     : "r" (a0), "r" (a1)
-    : "memory");
-  return ret;
+    : "memory"
+    );
+  if (code == TOCK_SYSCALL_SUCCESS_U32) {
+    return val;
+  } else {
+    return 0;
+  }
 }
 
 #endif
