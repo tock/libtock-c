@@ -268,8 +268,8 @@ void* memop(uint32_t op_type, int arg1) {
 // Implementation of the syscalls for generic RISC-V platforms.
 //
 // For RISC-V, the arguments are passed through registers a0-a4. Generally,
-// the syscall number is put in a0, and the required arguments are specified in
-// a1-a4. Nothing specifically syscall related is pushed to the process stack.
+// the syscall number is put in a4, and the required arguments are specified in
+// a0-a3. Nothing specifically syscall related is pushed to the process stack.
 
 void yield(void) {
   if (task_cur != task_last) {
