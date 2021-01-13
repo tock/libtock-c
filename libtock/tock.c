@@ -128,11 +128,11 @@ void yield2(void) {
     // registers r4-r8, r10, r11 and SP (and r9 in PCS variants that designate
     // r9 as v6) As our compilation flags mark r9 as the PIC base register, it
     // does not need to be saved. Thus we must clobber r0-3, r12, and LR
-    register uint32_t wait asm ("r0") = 1; // yield-wait
+    register uint32_t wait asm ("r0")       = 1; // yield-wait
     register uint32_t wait_field asm ("r1") = 0; // yield result ptr
     asm volatile (
       "svc 0       \n"
-      : 
+      :
       : "r" (wait), "r" (wait_field)
       : "memory", "r1", "r2", "r3", "r12", "lr"
       );
@@ -148,7 +148,7 @@ void yield2(void) {
 
 int yield_no_wait() {
   uint8_t result = 0;
-   if (task_cur != task_last) {
+  if (task_cur != task_last) {
     tock_task_t task = task_queue[task_cur];
     task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
     task.cb(task.arg0, task.arg1, task.arg2, task.ud);
@@ -177,11 +177,11 @@ int yield_no_wait() {
     // registers r4-r8, r10, r11 and SP (and r9 in PCS variants that designate
     // r9 as v6) As our compilation flags mark r9 as the PIC base register, it
     // does not need to be saved. Thus we must clobber r0-3, r12, and LR
-    register uint32_t wait asm ("r0") = 0; // yield-no-wait
+    register uint32_t wait asm ("r0")       = 0; // yield-no-wait
     register uint32_t wait_field asm ("r1") = &result; // yield result ptr
     asm volatile (
       "svc 0       \n"
-      : 
+      :
       : "r" (wait), "r" (wait_field)
       : "memory", "r1", "r2", "r3", "r12", "lr"
       );
@@ -194,11 +194,11 @@ void yield_no_return() {
   // about clobbering.
   register uint32_t wait asm ("r0") = 2; // yield-no-wait
   asm volatile (
-      "svc 0       \n"
-      : 
-      : "r" (wait)
-      : "memory"
-  );
+    "svc 0       \n"
+    :
+    : "r" (wait)
+    : "memory"
+    );
 }
 
 int subscribe(uint32_t driver, uint32_t subscribe,
