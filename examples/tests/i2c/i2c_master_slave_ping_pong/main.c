@@ -89,7 +89,7 @@ int main(void) {
   TOCK_EXPECT(TOCK_SUCCESS, i2c_master_slave_listen());
 
   // Set up button peripheral to grab any button press
-  TOCK_EXPECT(TOCK_SUCCESS, button_subscribe(button_cb, NULL));
+  TOCK_EXPECT(true, button_subscribe(button_cb, NULL).success);
 
   int nbuttons = button_count();
   if (nbuttons < 1) {
@@ -99,6 +99,6 @@ int main(void) {
 
   int j;
   for (j = 0; j < nbuttons; j++) {
-    TOCK_EXPECT(TOCK_SUCCESS, button_enable_interrupt(j));
+    TOCK_EXPECT(TOCK_SYSCALL_SUCCESS, button_enable_interrupt(j).type);
   }
 }

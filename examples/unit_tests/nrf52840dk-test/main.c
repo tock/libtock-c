@@ -389,8 +389,8 @@ static bool test_push_button4(void) {
 }
 static bool test_button1_int(void) {
   void *data = (void *) 12345678;
-  CHECK(button_subscribe(test_callback, data) == 0);
-  CHECK(button_enable_interrupt(0) == 0);
+  CHECK(button_subscribe(test_callback, data).success);
+  CHECK(button_enable_interrupt(0).type == TOCK_SYSCALL_SUCCESS);
   CHECK(gpio_clear(BUTTON1_OUT) == 0);
   delay_ms(2);
   CHECK(int_ctr == 1);
@@ -406,9 +406,9 @@ static bool test_button1_int(void) {
 }
 static bool test_two_buttons_int(void) {
   void *data = (void *) 12345678;
-  CHECK(button_subscribe(test_callback, data) == 0);
-  CHECK(button_enable_interrupt(0) == 0);
-  CHECK(button_enable_interrupt(1) == 0);
+  CHECK(button_subscribe(test_callback, data).success);
+  CHECK(button_enable_interrupt(0).type == TOCK_SYSCALL_SUCCESS);
+  CHECK(button_enable_interrupt(1).type == TOCK_SYSCALL_SUCCESS);
   CHECK(gpio_clear(BUTTON1_OUT) == 0);
   delay_ms(2);
   CHECK(int_ctr == 1);
@@ -436,9 +436,9 @@ static bool test_two_buttons_int(void) {
 }
 static bool test_disable_button_int(void) {
   void *data = (void *) 12345678;
-  CHECK(button_subscribe(test_callback, data) == 0);
-  CHECK(button_enable_interrupt(0) == 0);
-  CHECK(button_enable_interrupt(1) == 0);
+  CHECK(button_subscribe(test_callback, data).success);
+  CHECK(button_enable_interrupt(0).type == TOCK_SYSCALL_SUCCESS);
+  CHECK(button_enable_interrupt(1).type == TOCK_SYSCALL_SUCCESS);
   CHECK(gpio_clear(BUTTON1_OUT) == 0);
   delay_ms(2);
   CHECK(int_ctr == 1);
@@ -451,7 +451,7 @@ static bool test_disable_button_int(void) {
   CHECK(int_nr == 1);
   CHECK(int_data == data);
   int_data = NULL;
-  CHECK(button_disable_interrupt(1) == 0);
+  CHECK(button_disable_interrupt(1).type == TOCK_SYSCALL_SUCCESS);
   CHECK(gpio_set(BUTTON2_OUT) == 0);
   delay_ms(2);
   CHECK(int_ctr == 2);
