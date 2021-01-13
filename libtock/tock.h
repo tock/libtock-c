@@ -72,7 +72,10 @@ int tock_enqueue(subscribe_cb cb, int arg0, int arg1, int arg2, void* ud);
 void yield(void);
 void yield_for(bool*);
 
-syscall_return_t yield2(void);
+void yield2(void);
+  
+int yield_no_wait(void);
+void yield_no_return(void);
 
 __attribute__ ((warn_unused_result))
 int command(uint32_t driver, uint32_t command, int data, int arg2);

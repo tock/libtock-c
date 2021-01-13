@@ -103,8 +103,6 @@ void yield2(void) {
     tock_task_t task = task_queue[task_cur];
     task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
     task.cb(task.arg0, task.arg1, task.arg2, task.ud);
-    syscall_return_t rval = {TOCK_SYSCALL_SUCCESS, {0, 0, 0}};
-    return rval;
   } else {
     // Note: A process stops yielding when there is a callback ready to run,
     // which the kernel executes by modifying the stack frame pushed by the
@@ -134,25 +132,16 @@ void yield2(void) {
       "svc 0       \n"
       :
       : "r" (wait), "r" (wait_field)
-      : "memory", "r1", "r2", "r3", "r12", "lr"
+      : "memory", "r2", "r3", "r12", "lr"
       );
-    if (rtype == TOCK_SYSCALL_SUCCESS) {
-      syscall_return_t rval = {rtype, {0, 0, 0}};
-      return rval;
-    } else {
-      syscall_return_t rval = {TOCK_SYSCALL_FAILURE, {TOCK_ERROR_FAIL, 0, 0}};
-      return rval;
-    }
   }
 }
 
-int yield_no_wait() {
-  uint8_t result = 0;
+int yield_no_wait(void) {
   if (task_cur != task_last) {
     tock_task_t task = task_queue[task_cur];
     task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
     task.cb(task.arg0, task.arg1, task.arg2, task.ud);
-    syscall_return_t rval = {TOCK_SYSCALL_SUCCESS, {0, 0, 0}};
     return 1;
   } else {
     // Note: A process stops yielding when there is a callback ready to run,
@@ -177,19 +166,20 @@ int yield_no_wait() {
     // registers r4-r8, r10, r11 and SP (and r9 in PCS variants that designate
     // r9 as v6) As our compilation flags mark r9 as the PIC base register, it
     // does not need to be saved. Thus we must clobber r0-3, r12, and LR
+    uint8_t result = 0;
     register uint32_t wait asm ("r0")       = 0; // yield-no-wait
-    register uint32_t wait_field asm ("r1") = &result; // yield result ptr
+    register uint8_t* wait_field asm ("r1") = &result; // yield result ptr
     asm volatile (
       "svc 0       \n"
       :
       : "r" (wait), "r" (wait_field)
-      : "memory", "r1", "r2", "r3", "r12", "lr"
+      : "memory", "r2", "r3", "r12", "lr"
       );
-    return result;
+    return (int)result;
   }
 }
 
-void yield_no_return() {
+void yield_no_return(void) {
   // Because yield-no-return doesn't return, we don't need to worry
   // about clobbering.
   register uint32_t wait asm ("r0") = 2; // yield-no-wait
