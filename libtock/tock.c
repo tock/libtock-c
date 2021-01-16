@@ -259,7 +259,7 @@ void* memop(uint32_t op_type, int arg1) {
   if (code == TOCK_SYSCALL_SUCCESS_U32) {
     return val;
   } else {
-    return 0;
+    return NULL;
   }
 }
 
@@ -455,7 +455,7 @@ void* memop(uint32_t op_type, int arg1) {
   if (code == TOCK_SYSCALL_SUCCESS_U32) {
     return val;
   } else {
-    return 0;
+    return NULL;
   }
 }
 
