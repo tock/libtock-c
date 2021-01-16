@@ -61,7 +61,8 @@ int rng_sync(uint8_t* buf, uint32_t len, uint32_t num) {
   result.fired = false;
   syscall_return_t res = rng_get_random(num);
   if (res.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
+    yield_for(&result.fired);
+    return result.received;
   } else if (res.type == TOCK_SYSCALL_FAILURE) {
     // We assume that after an error the callback is not called
     return tock_error_to_rcode(res.data[0]);
@@ -69,8 +70,4 @@ int rng_sync(uint8_t* buf, uint32_t len, uint32_t num) {
     // Unexpected return code variant
     exit(-1);
   }
-
-  yield_for(&result.fired);
-
-  return result.received;
 }
