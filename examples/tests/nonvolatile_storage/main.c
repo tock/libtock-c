@@ -57,29 +57,29 @@ static int test(uint8_t *readbuf, uint8_t *writebuf, size_t size, size_t offset,
 
   printf("Test with size %d ...\n", size);
 
-  ret = nonvolatile_storage_internal_read_buffer(readbuf, size);
-  if (ret != 0) {
+  allow_rw_return_t arwret = nonvolatile_storage_internal_read_buffer(readbuf, size);
+  if (!arwret.success) {
     printf("\tERROR setting read buffer\n");
-    return ret;
+    return tock_error_to_rcode(arwret.error);
   }
 
-  ret = nonvolatile_storage_internal_write_buffer(writebuf, size);
-  if (ret != 0) {
+  allow_ro_return_t aroret = nonvolatile_storage_internal_write_buffer(writebuf, size);
+  if (!aroret.success) {
     printf("\tERROR setting write buffer\n");
-    return ret;
+    return tock_error_to_rcode(aroret.error);
   }
 
   // Setup callbacks
-  ret = nonvolatile_storage_internal_read_done_subscribe(read_done, NULL);
-  if (ret != 0) {
+  subscribe_return_t sret = nonvolatile_storage_internal_read_done_subscribe(read_done, NULL);
+  if (!sret.success) {
     printf("\tERROR setting read done callback\n");
-    return ret;
+    return tock_error_to_rcode(sret.error);
   }
 
-  ret = nonvolatile_storage_internal_write_done_subscribe(write_done, NULL);
-  if (ret != 0) {
+  sret = nonvolatile_storage_internal_write_done_subscribe(write_done, NULL);
+  if (!sret.success) {
     printf("\tERROR setting write done callback\n");
-    return ret;
+    return tock_error_to_rcode(sret.error);
   }
 
   for (size_t i = 0; i < len; i++) {
