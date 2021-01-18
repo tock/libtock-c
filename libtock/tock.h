@@ -36,7 +36,7 @@ typedef enum {
   TOCK_ERROR_NOSUPPORT   = 9,
   TOCK_ERROR_NODEVICE    = 10,
   TOCK_ERROR_UNINSTALLED = 11,
-  TOCK_ERROR_NOACK       = 12
+  TOCK_ERROR_NOACK       = 12,
 } tock_error_t;
 
 typedef struct {
@@ -66,7 +66,7 @@ typedef struct {
 } allow_ro_return_t;
 
 int tock_error_to_rcode(tock_error_t);
-    
+
 int tock_enqueue(subscribe_cb cb, int arg0, int arg1, int arg2, void* ud);
 
 void yield(void);
@@ -127,6 +127,7 @@ bool driver_exists(uint32_t driver);
 #define TOCK_ENODEVICE    -11
 #define TOCK_EUNINSTALLED -12
 #define TOCK_ENOACK       -13
+#define TOCK_EBADRVAL     -1024
 
 #define TOCK_SYSCALL_FAILURE                0
 #define TOCK_SYSCALL_FAILURE_U32            1
