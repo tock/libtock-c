@@ -44,45 +44,34 @@ int ninedof_subscribe(subscribe_cb callback, void* userdata) {
   subscribe_return_t sv = subscribe2(DRIVER_NUM_NINEDOF, 0, callback, userdata);
   if (sv.success) {
     return TOCK_SUCCESS;
-  }
-  else
-  {
+  } else {
     return tock_error_to_rcode (sv.error);
   }
 }
 
 int ninedof_start_accel_reading(void) {
   syscall_return_t ret = command2(DRIVER_NUM_NINEDOF, 1, 0, 0);
-  if (ret.type == TOCK_SYSCALL_SUCCESS)
-  {
+  if (ret.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
-  }
-  else
-  {
+  } else {
     return tock_error_to_rcode(ret.data[0]);
   }
 }
 
 int ninedof_start_magnetometer_reading(void) {
   syscall_return_t ret = command2(DRIVER_NUM_NINEDOF, 100, 0, 0);
-  if (ret.type == TOCK_SYSCALL_SUCCESS)
-  {
+  if (ret.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
-  }
-  else
-  {
+  } else {
     return tock_error_to_rcode(ret.data[0]);
   }
 }
 
 int ninedof_start_gyro_reading(void) {
   syscall_return_t ret = command2(DRIVER_NUM_NINEDOF, 200, 0, 0);
-  if (ret.type == TOCK_SYSCALL_SUCCESS)
-  {
+  if (ret.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
-  }
-  else
-  {
+  } else {
     return tock_error_to_rcode(ret.data[0]);
   }
 }
