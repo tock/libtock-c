@@ -322,13 +322,13 @@ void yield(void) {
     task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
     task.cb(task.arg0, task.arg1, task.arg2, task.ud);
   } else {
-    register uint32_t a1  asm ("a1") = 1; // yield-wait
+    register uint32_t a0  asm ("a0") = 1; // yield-wait
     asm volatile (
       "li    a5, 0\n"
       "ecall\n"
       :
-      : "r" (a1)
-      : "memory", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
+      : "r" (a0)
+      : "memory", "a1", "a2", "a3", "a4", "a6", "a7",
       "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
       );
 
@@ -341,16 +341,17 @@ int yield_no_wait(void) {
     tock_task_t task = task_queue[task_cur];
     task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
     task.cb(task.arg0, task.arg1, task.arg2, task.ud);
+    return 1;
   } else {
     uint8_t result = 0;
-    register uint32_t a1  asm ("a1") = 0; // yield-no-wait
-    register uint8_t* a2  asm ("a2") = &result;
+    register uint32_t a0  asm ("a0") = 0; // yield-no-wait
+    register uint8_t* a1  asm ("a1") = &result;
     asm volatile (
       "li    a5, 0\n"
       "ecall\n"
       :
-      : "r" (a1), "r" (a2)
-      : "memory", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
+      : "r" (a0), "r" (a1)
+      : "memory", "a2", "a3", "a4", "a6", "a7",
       "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
       );
     return (int)result;
