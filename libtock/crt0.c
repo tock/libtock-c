@@ -210,25 +210,25 @@ void _start(void* app_start __attribute__((unused)),
     // Call `brk` to set to requested memory
 
     // memop(0, stacktop + appdata_size);
-    "li  a4, 5\n"               // a0 = 4   // memop syscall
-    "li  a0, 0\n"               // a1 = 0
-    "mv  a1, t1\n"              // a2 = app_brk
+    "li  a4, 5\n"               // a4 = 5   // memop syscall
+    "li  a0, 0\n"               // a0 = 0
+    "mv  a1, t1\n"              // a1 = app_brk
     "ecall\n"                   // memop
     //
     // Debug support, tell the kernel the stack location
     //
     // memop(10, stacktop);
-    "li  a4, 5\n"               // a0 = 4   // memop syscall
-    "li  a0, 10\n"              // a1 = 10
-    "mv  a1, s1\n"              // a2 = stacktop
+    "li  a4, 5\n"               // a4 = 5   // memop syscall
+    "li  a0, 10\n"              // a0 = 10
+    "mv  a1, s1\n"              // a1 = stacktop
     "ecall\n"                   // memop
     //
     // Debug support, tell the kernel the heap location
     //
     // memop(11, app_brk);
-    "li  a4, 4\n"               // a0 = 4   // memop syscall
-    "li  a0, 11\n"              // a1 = 11
-    "mv  a1, t1\n"              // a2 = app_brk
+    "li  a4, 5\n"               // a4 = 5   // memop syscall
+    "li  a0, 11\n"              // a0 = 11
+    "mv  a1, t1\n"              // a1 = app_brk
     "ecall\n"                   // memop
     //
     // Setup initial stack pointer for normal execution
