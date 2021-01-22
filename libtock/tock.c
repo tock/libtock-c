@@ -61,6 +61,7 @@ void yield_for(bool *cond) {
 
 #if defined(__thumb__)
 
+
 void yield(void) {
   if (task_cur != task_last) {
     tock_task_t task = task_queue[task_cur];
@@ -140,18 +141,6 @@ int yield_no_wait(void) {
       );
     return (int)result;
   }
-}
-
-void yield_no_return(void) {
-  // Because yield-no-return doesn't return, we don't need to worry
-  // about clobbering.
-  register uint32_t wait asm ("r0") = 2; // yield-no-wait
-  asm volatile (
-    "svc 0       \n"
-    :
-    : "r" (wait)
-    : "memory"
-    );
 }
 
 int subscribe(uint32_t driver, uint32_t subscribe,
@@ -333,15 +322,38 @@ void yield(void) {
     task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
     task.cb(task.arg0, task.arg1, task.arg2, task.ud);
   } else {
+    register uint32_t a1  asm ("a1") = 1; // yield-wait
     asm volatile (
-      "li    a4, 0\n"
+      "li    a5, 0\n"
       "ecall\n"
       :
-      :
+      : "r" (a1)
       : "memory", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
       "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
       );
 
+  }
+}
+
+
+int yield_no_wait(void) {
+  if (task_cur != task_last) {
+    tock_task_t task = task_queue[task_cur];
+    task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
+    task.cb(task.arg0, task.arg1, task.arg2, task.ud);
+  } else {
+    uint8_t result = 0;
+    register uint32_t a1  asm ("a1") = 0; // yield-no-wait
+    register uint8_t* a2  asm ("a2") = &result;
+    asm volatile (
+      "li    a5, 0\n"
+      "ecall\n"
+      :
+      : "r" (a1), "r" (a2)
+      : "memory", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
+      "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
+      );
+    return (int)result;
   }
 }
 
