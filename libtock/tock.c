@@ -98,6 +98,29 @@ void yield(void) {
   }
 }
 
+void tock_exit(uint32_t completion_code) {
+  register uint32_t r0 asm ("r0") = 0; // Terminate
+  register uint32_t r1 asm ("r1") = completion_code;
+    asm volatile (
+    "svc 6"
+    : 
+    : "r" (r0), "r" (r1)
+    : "memory");
+    __builtin_unreachable();
+}
+
+
+void tock_restart(uint32_t completion_code) {
+  register uint32_t r0 asm ("r0") = 1; // Restart
+  register uint32_t r1 asm ("r1") = completion_code;
+    asm volatile (
+    "svc 6"
+    : 
+    : "r" (r0), "r" (r1)
+    : "memory");
+    __builtin_unreachable();
+}
+
 int subscribe(uint32_t driver, uint32_t subscribe,
               subscribe_cb cb, void* userdata) {
   register uint32_t r0 asm ("r0") = driver;

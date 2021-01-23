@@ -72,6 +72,10 @@ int tock_enqueue(subscribe_cb cb, int arg0, int arg1, int arg2, void* ud);
 void yield(void);
 void yield_for(bool*);
 
+void tock_exit(uint32_t completion_code) __attribute__ ((noreturn));
+void tock_restart(uint32_t completion_code) __attribute__ ((noreturn));
+
+
 __attribute__ ((warn_unused_result))
 int command(uint32_t driver, uint32_t command, int data, int arg2);
 
