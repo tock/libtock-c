@@ -146,24 +146,24 @@ int yield_no_wait(void) {
 void tock_exit(uint32_t completion_code) {
   register uint32_t r0 asm ("r0") = 0; // Terminate
   register uint32_t r1 asm ("r1") = completion_code;
-    asm volatile (
+  asm volatile (
     "svc 6"
-    : 
+    :
     : "r" (r0), "r" (r1)
     : "memory");
-    __builtin_unreachable();
+  __builtin_unreachable();
 }
 
 
 void tock_restart(uint32_t completion_code) {
   register uint32_t r0 asm ("r0") = 1; // Restart
   register uint32_t r1 asm ("r1") = completion_code;
-    asm volatile (
+  asm volatile (
     "svc 6"
-    : 
+    :
     : "r" (r0), "r" (r1)
     : "memory");
-    __builtin_unreachable();
+  __builtin_unreachable();
 }
 
 int subscribe(uint32_t driver, uint32_t subscribe,
@@ -388,7 +388,7 @@ void tock_restart(uint32_t completion_code) {
   asm volatile (
     "li    a4, 6\n"
     "ecall\n"
-    : 
+    :
     : "r" (a0), "r" (a1),
     : "memory");
   return ret;
@@ -400,7 +400,7 @@ void tock_exit(uint32_t completion_code) {
   asm volatile (
     "li    a4, 6\n"
     "ecall\n"
-    : 
+    :
     : "r" (a0), "r" (a1),
     : "memory");
   return ret;

@@ -1,5 +1,5 @@
-#include <tock.h>
 #include <timer.h>
+#include <tock.h>
 
 int x = 1;
 int z = 0;

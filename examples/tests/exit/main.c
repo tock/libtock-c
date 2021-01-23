@@ -1,5 +1,5 @@
-#include <tock.h>
 #include <timer.h>
+#include <tock.h>
 
 int main(void) {
   printf("Testing exit.\n");
