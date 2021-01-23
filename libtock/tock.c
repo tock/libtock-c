@@ -391,6 +391,7 @@ void tock_restart(uint32_t completion_code) {
     :
     : "r" (a0), "r" (a1)
     : "memory");
+  __builtin_unreachable();
 }
 
 void tock_exit(uint32_t completion_code) {
@@ -402,6 +403,7 @@ void tock_exit(uint32_t completion_code) {
     :
     : "r" (a0), "r" (a1)
     : "memory");
+  __builtin_unreachable();
 }
 
 int subscribe(uint32_t driver, uint32_t subscribe,
