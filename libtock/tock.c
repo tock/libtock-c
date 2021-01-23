@@ -389,7 +389,7 @@ void tock_restart(uint32_t completion_code) {
     "li    a4, 6\n"
     "ecall\n"
     :
-    : "r" (a0), "r" (a1),
+    : "r" (a0), "r" (a1)
     : "memory");
 }
 
@@ -400,7 +400,7 @@ void tock_exit(uint32_t completion_code) {
     "li    a4, 6\n"
     "ecall\n"
     :
-    : "r" (a0), "r" (a1),
+    : "r" (a0), "r" (a1)
     : "memory");
 }
 
