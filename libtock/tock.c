@@ -59,14 +59,24 @@ void yield_for(bool *cond) {
   }
 }
 
-#if defined(__thumb__)
-
-
-void yield(void) {
+// Returns 1 if a task is processed, 0 otherwise
+static int __yield_check_tasks(void) {
   if (task_cur != task_last) {
     tock_task_t task = task_queue[task_cur];
     task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
     task.cb(task.arg0, task.arg1, task.arg2, task.ud);
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+#if defined(__thumb__)
+
+
+void yield(void) {
+  if (__yield_check_tasks()) {
+    return;
   } else {
     // Note: A process stops yielding when there is a callback ready to run,
     // which the kernel executes by modifying the stack frame pushed by the
@@ -102,10 +112,7 @@ void yield(void) {
 }
 
 int yield_no_wait(void) {
-  if (task_cur != task_last) {
-    tock_task_t task = task_queue[task_cur];
-    task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
-    task.cb(task.arg0, task.arg1, task.arg2, task.ud);
+  if (__yield_check_tasks()) {
     return 1;
   } else {
     // Note: A process stops yielding when there is a callback ready to run,
@@ -317,18 +324,16 @@ void* memop(uint32_t op_type, int arg1) {
 // a1-a4. Nothing specifically syscall related is pushed to the process stack.
 
 void yield(void) {
-  if (task_cur != task_last) {
-    tock_task_t task = task_queue[task_cur];
-    task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
-    task.cb(task.arg0, task.arg1, task.arg2, task.ud);
+  if (__yield_check_tasks()) {
+    return;
   } else {
-    register uint32_t a0  asm ("a0") = 1; // yield-wait
+    register uint32_t a1  asm ("a0") = 1; // yield-wait
     asm volatile (
       "li    a5, 0\n"
       "ecall\n"
       :
       : "r" (a0)
-      : "memory", "a1", "a2", "a3", "a4", "a6", "a7",
+      : "memory", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
       "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
       );
 
@@ -337,10 +342,7 @@ void yield(void) {
 
 
 int yield_no_wait(void) {
-  if (task_cur != task_last) {
-    tock_task_t task = task_queue[task_cur];
-    task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
-    task.cb(task.arg0, task.arg1, task.arg2, task.ud);
+  if (__yield_check_tasks()) {
     return 1;
   } else {
     uint8_t result = 0;
@@ -351,7 +353,7 @@ int yield_no_wait(void) {
       "ecall\n"
       :
       : "r" (a0), "r" (a1)
-      : "memory", "a2", "a3", "a4", "a6", "a7",
+      : "memory", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
       "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
       );
     return (int)result;
