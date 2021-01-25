@@ -334,7 +334,7 @@ void yield(void) {
       "ecall\n"
       :
       : "r" (a0), "r" (wait_field)
-      : "memory", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
+      : "memory", "a2", "a3", "a4", "a5", "a6", "a7",
       "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
       );
 
@@ -354,7 +354,7 @@ int yield_no_wait(void) {
       "ecall\n"
       :
       : "r" (a0), "r" (a1)
-      : "memory", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
+      : "memory", "a2", "a3", "a4", "a5", "a6", "a7",
       "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
       );
     return (int)result;
