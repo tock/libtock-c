@@ -59,13 +59,24 @@ void yield_for(bool *cond) {
   }
 }
 
-#if defined(__thumb__)
-
-void yield(void) {
+// Returns 1 if a task is processed, 0 otherwise
+static int __yield_check_tasks(void) {
   if (task_cur != task_last) {
     tock_task_t task = task_queue[task_cur];
     task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
     task.cb(task.arg0, task.arg1, task.arg2, task.ud);
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+#if defined(__thumb__)
+
+
+void yield(void) {
+  if (__yield_check_tasks()) {
+    return;
   } else {
     // Note: A process stops yielding when there is a callback ready to run,
     // which the kernel executes by modifying the stack frame pushed by the
@@ -89,12 +100,53 @@ void yield(void) {
     // registers r4-r8, r10, r11 and SP (and r9 in PCS variants that designate
     // r9 as v6) As our compilation flags mark r9 as the PIC base register, it
     // does not need to be saved. Thus we must clobber r0-3, r12, and LR
+    register uint32_t wait asm ("r0")       = 1; // yield-wait
+    register uint32_t wait_field asm ("r1") = 0; // yield result ptr
     asm volatile (
       "svc 0       \n"
       :
-      :
-      : "memory", "r0", "r1", "r2", "r3", "r12", "lr"
+      : "r" (wait), "r" (wait_field)
+      : "memory", "r2", "r3", "r12", "lr"
       );
+  }
+}
+
+int yield_no_wait(void) {
+  if (__yield_check_tasks()) {
+    return 1;
+  } else {
+    // Note: A process stops yielding when there is a callback ready to run,
+    // which the kernel executes by modifying the stack frame pushed by the
+    // hardware. The kernel copies the PC value from the stack frame to the LR
+    // field, and sets the PC value to callback to run. When this frame is
+    // unstacked during the interrupt return, the effectively clobbers the LR
+    // register.
+    //
+    // At this point, the callback function is now executing, which may itself
+    // clobber any of the other caller-saved registers. Thus we mark this
+    // inline assembly as conservatively clobbering all caller-saved registers,
+    // forcing yield to save any live registers.
+    //
+    // Upon direct observation of this function, the LR is the only register
+    // that is live across the SVC invocation, however, if the yield call is
+    // inlined, it is possible that the LR won't be live at all (commonly seen
+    // for the `while (1) { yield(); }` idiom) or that other registers are
+    // live, thus it is important to let the compiler do the work here.
+    //
+    // According to the AAPCS: A subroutine must preserve the contents of the
+    // registers r4-r8, r10, r11 and SP (and r9 in PCS variants that designate
+    // r9 as v6) As our compilation flags mark r9 as the PIC base register, it
+    // does not need to be saved. Thus we must clobber r0-3, r12, and LR
+    uint8_t result = 0;
+    register uint32_t wait asm ("r0")       = 0; // yield-no-wait
+    register uint8_t* wait_field asm ("r1") = &result; // yield result ptr
+    asm volatile (
+      "svc 0       \n"
+      :
+      : "r" (wait), "r" (wait_field)
+      : "memory", "r2", "r3", "r12", "lr"
+      );
+    return (int)result;
   }
 }
 
@@ -272,20 +324,40 @@ void* memop(uint32_t op_type, int arg1) {
 // a0-a3. Nothing specifically syscall related is pushed to the process stack.
 
 void yield(void) {
-  if (task_cur != task_last) {
-    tock_task_t task = task_queue[task_cur];
-    task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
-    task.cb(task.arg0, task.arg1, task.arg2, task.ud);
+  if (__yield_check_tasks()) {
+    return;
   } else {
+    register uint32_t a0  asm ("a0")        = 1; // yield-wait
+    register uint32_t wait_field asm ("a1") = 0; // yield result ptr
     asm volatile (
-      "li    a4, 0\n"
+      "li    a5, 0\n"
       "ecall\n"
       :
-      :
-      : "memory", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
+      : "r" (a0), "r" (wait_field)
+      : "memory", "a2", "a3", "a4", "a5", "a6", "a7",
       "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
       );
 
+  }
+}
+
+
+int yield_no_wait(void) {
+  if (__yield_check_tasks()) {
+    return 1;
+  } else {
+    uint8_t result = 0;
+    register uint32_t a0  asm ("a0") = 0; // yield-no-wait
+    register uint8_t* a1  asm ("a1") = &result;
+    asm volatile (
+      "li    a5, 0\n"
+      "ecall\n"
+      :
+      : "r" (a0), "r" (a1)
+      : "memory", "a2", "a3", "a4", "a5", "a6", "a7",
+      "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
+      );
+    return (int)result;
   }
 }
 
