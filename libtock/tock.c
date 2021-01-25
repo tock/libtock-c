@@ -327,12 +327,13 @@ void yield(void) {
   if (__yield_check_tasks()) {
     return;
   } else {
-    register uint32_t a1  asm ("a0") = 1; // yield-wait
+    register uint32_t a0  asm ("a0") = 1; // yield-wait
+    register uint32_t wait_field asm ("a1") = 0; // yield result ptr
     asm volatile (
       "li    a5, 0\n"
       "ecall\n"
       :
-      : "r" (a0)
+      : "r" (a0), "r" (wait_field)
       : "memory", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
       "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
       );
