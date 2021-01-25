@@ -2,7 +2,7 @@
 
 GCC_SRC_DIR=$1
 
-NEWLIB_VERSION=2.5.0.20170421
+NEWLIB_VERSION=4.1.0
 
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 NEWLIB_INCLUDE_PATH=$SCRIPTPATH/../newlib/newlib-$NEWLIB_VERSION/newlib/libc/include
@@ -19,12 +19,12 @@ export CFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -fPIC -msin
 export CXXFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -fPIC -msingle-pic-base -mno-pic-data-is-text-relative -mthumb -mcpu=cortex-m0 -isystem $NEWLIB_INCLUDE_PATH"
 
 if gcc --version | grep -q clang; then
-  echo "$(tput bold)System gcc is clang. Overriding with gcc-6"
-  echo "$(tput sgr0)You may need to brew install gcc@6 if you haven't."
+  echo "$(tput bold)System gcc is clang. Overriding with gcc-10"
+  echo "$(tput sgr0)You may need to brew install gcc@10 if you haven't."
   echo ""
   sleep 2
-  export CC=gcc-6
-  export CXX=g++-6
+  export CC=gcc-10
+  export CXX=g++-10
 
   gmp=$($CC -v 2>&1 | tr " " "\n" | grep gmp)
   mpfr=$($CC -v 2>&1 | tr " " "\n" | grep mpfr)
@@ -35,7 +35,6 @@ else
   extra_with=""
 fi
 
-# 6.2.0:
 $GCC_SRC_DIR/configure \
   --build=x86_64-linux-gnu \
   --host=x86_64-linux-gnu \
@@ -47,4 +46,4 @@ $GCC_SRC_DIR/configure \
   --with-headers=$NEWLIB_INCLUDE_PATH \
   --enable-languages="c c++" \
 
-make -j12
+make -j$(nproc)
