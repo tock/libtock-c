@@ -312,6 +312,8 @@ bool ieee802154_frame_get_dst_pan(const char *frame,
 bool ieee802154_frame_get_src_pan(const char *frame,
                                   unsigned short *pan);
 
+// Unallow any allowed rx buffer by allowing a null pointer.
+bool ieee802154_unallow_rx_buf(void);
 #ifdef __cplusplus
 }
 #endif

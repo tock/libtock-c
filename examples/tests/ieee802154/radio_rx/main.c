@@ -22,6 +22,8 @@ static void callback(__attribute__ ((unused)) int pans,
                      __attribute__ ((unused)) int src_addr,
                      __attribute__ ((unused)) void* ud) {
   led_toggle(0);
+  // Before accessing an "allowed" buffer, we must request it back:
+  ieee802154_unallow_rx_buf();
 
 #define PRINT_PAYLOAD 1
 #define PRINT_STRING 1
