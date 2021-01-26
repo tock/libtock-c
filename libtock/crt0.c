@@ -1,3 +1,4 @@
+#include <string.h>
 #include <tock.h>
 
 #if defined(STACK_SIZE)
