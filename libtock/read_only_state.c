@@ -48,3 +48,18 @@ uint64_t read_only_state_get_ticks(void* base) {
 
   return ((uint64_t)high << 32) | low;
 }
+
+int read_only_state_quick_yield(void* base) {
+  if (yield_check_tasks()) {
+    return 1;
+  } else {
+    uint32_t tasks = read_only_state_get_pending_tasks(base);
+
+    if (tasks > 0) {
+      // Waiting tasks, call yield
+      yield();
+    }
+
+    return tasks;
+  }
+}

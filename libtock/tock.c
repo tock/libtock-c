@@ -103,7 +103,7 @@ void yield_for(bool *cond) {
 }
 
 // Returns 1 if a task is processed, 0 otherwise
-static int __yield_check_tasks(void) {
+int yield_check_tasks(void) {
   if (task_cur != task_last) {
     tock_task_t task = task_queue[task_cur];
     task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
@@ -118,7 +118,7 @@ static int __yield_check_tasks(void) {
 
 
 void yield(void) {
-  if (__yield_check_tasks()) {
+  if (yield_check_tasks()) {
     return;
   } else {
     // Note: A process stops yielding when there is a callback ready to run,
@@ -155,7 +155,7 @@ void yield(void) {
 }
 
 int yield_no_wait(void) {
-  if (__yield_check_tasks()) {
+  if (yield_check_tasks()) {
     return 1;
   } else {
     // Note: A process stops yielding when there is a callback ready to run,
@@ -382,7 +382,7 @@ memop_return_t memop(uint32_t op_type, int arg1) {
 // a0-a3. Nothing specifically syscall related is pushed to the process stack.
 
 void yield(void) {
-  if (__yield_check_tasks()) {
+  if (yield_check_tasks()) {
     return;
   } else {
     register uint32_t a0  __asm__ ("a0")        = 1; // yield-wait
@@ -400,7 +400,7 @@ void yield(void) {
 }
 
 int yield_no_wait(void) {
-  if (__yield_check_tasks()) {
+  if (yield_check_tasks()) {
     return 1;
   } else {
     uint8_t result = 0;
