@@ -22,50 +22,105 @@ static void i2c_master_slave_cb(int callback_type,
 
 
 int i2c_master_slave_set_callback(subscribe_cb callback, void* callback_args) {
-  return subscribe(DRIVER_NUM_I2CMASTERSLAVE, 0, callback, callback_args);
+  subscribe_return_t subval = subscribe2(DRIVER_NUM_I2CMASTERSLAVE, 0, callback, callback_args);
+  if (subval.success == 0) {
+    return tock_error_to_rcode(subval.error);
+  } else {
+    return TOCK_SUCCESS;
+  }
 }
 
 int i2c_master_slave_set_master_write_buffer(uint8_t* buffer, uint32_t len) {
-  return allow(DRIVER_NUM_I2CMASTERSLAVE, 0, (void*) buffer, len);
+  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_I2CMASTERSLAVE, 0, (void*) buffer, len);
+  if (aval.success == 0) {
+    return tock_error_to_rcode(aval.error);
+  } else {
+    return TOCK_SUCCESS;
+  }
 }
 
 int i2c_master_slave_set_master_read_buffer(uint8_t* buffer, uint32_t len) {
-  return allow(DRIVER_NUM_I2CMASTERSLAVE, 1, (void*) buffer, len);
+  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_I2CMASTERSLAVE, 1, (void*) buffer, len);
+  if (aval.success == 0) {
+    return tock_error_to_rcode(aval.error);
+  } else {
+    return TOCK_SUCCESS;
+  }
 }
 
 int i2c_master_slave_set_slave_read_buffer(uint8_t* buffer, uint32_t len) {
-  return allow(DRIVER_NUM_I2CMASTERSLAVE, 2, (void*) buffer, len);
+  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_I2CMASTERSLAVE, 2, (void*) buffer, len);
+  if (aval.success == 0) {
+    return tock_error_to_rcode(aval.error);
+  } else {
+    return TOCK_SUCCESS;
+  }
 }
 
 int i2c_master_slave_set_slave_write_buffer(uint8_t* buffer, uint32_t len) {
-  return allow(DRIVER_NUM_I2CMASTERSLAVE, 3, (void*) buffer, len);
+  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_I2CMASTERSLAVE, 3, (void*) buffer, len);
+  if (aval.success == 0) {
+    return tock_error_to_rcode(aval.error);
+  } else {
+    return TOCK_SUCCESS;
+  }
 }
 
 int i2c_master_slave_write(uint8_t address, uint8_t length) {
   uint32_t a = (((uint32_t) length) << 16) | address;
-  return command(DRIVER_NUM_I2CMASTERSLAVE, 1, a, 0);
+  syscall_return_t comval = command2(DRIVER_NUM_I2CMASTERSLAVE, 1, a, 0);
+  if (comval.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(comval.data[0]);
+  } else {
+    return TOCK_SUCCESS;
+  }
 }
 
 int i2c_master_slave_write_read(uint8_t address, uint8_t write_length, uint8_t read_length) {
   uint32_t a = (((uint32_t) write_length) << 16) | ((uint32_t) read_length << 8) | address;
-  return command(DRIVER_NUM_I2CMASTERSLAVE, 7, a, 0);
+  syscall_return_t comval = command2(DRIVER_NUM_I2CMASTERSLAVE, 7, a, 0);
+  if (comval.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(comval.data[0]);
+  } else {
+    return TOCK_SUCCESS;
+  }
 }
 
 int i2c_master_slave_read(uint16_t address, uint16_t len) {
   uint32_t a = (((uint32_t) len) << 16) | address;
-  return command(DRIVER_NUM_I2CMASTERSLAVE, 2, a, 0);
+  syscall_return_t comval = command2(DRIVER_NUM_I2CMASTERSLAVE, 2, a, 0);
+  if (comval.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(comval.data[0]);
+  } else {
+    return TOCK_SUCCESS;
+  }
 }
 
 int i2c_master_slave_listen(void) {
-  return command(DRIVER_NUM_I2CMASTERSLAVE, 3, 0, 0);
+  syscall_return_t comval = command2(DRIVER_NUM_I2CMASTERSLAVE, 3, 0, 0);
+  if (comval.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(comval.data[0]);
+  } else {
+    return TOCK_SUCCESS;
+  }
 }
 
 int i2c_master_slave_set_slave_address(uint8_t address) {
-  return command(DRIVER_NUM_I2CMASTERSLAVE, 6, address, 0);
+  syscall_return_t comval = command2(DRIVER_NUM_I2CMASTERSLAVE, 6, address, 0);
+  if (comval.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(comval.data[0]);
+  } else {
+    return TOCK_SUCCESS;
+  }
 }
 
 int i2c_master_slave_enable_slave_read(uint32_t len) {
-  return command(DRIVER_NUM_I2CMASTERSLAVE, 4, len, 0);
+  syscall_return_t comval = command2(DRIVER_NUM_I2CMASTERSLAVE, 4, len, 0);
+  if (comval.type < TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(comval.data[0]);
+  } else {
+    return TOCK_SUCCESS;
+  }
 }
 
 int i2c_master_slave_write_sync(uint8_t address, uint8_t len) {
