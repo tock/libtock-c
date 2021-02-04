@@ -1,3 +1,4 @@
+#include <string.h>
 #include <tock.h>
 
 #if defined(STACK_SIZE)
@@ -77,7 +78,7 @@ void _start(void* app_start __attribute__((unused)),
   // 8 byte boundary per section 5.2.1.2 here:
   // http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042f/IHI0042F_aapcs.pdf
 
-  asm volatile (
+  __asm__ volatile (
     // Compute the stack top
     //
     // struct hdr* myhdr = (struct hdr*)app_start;
