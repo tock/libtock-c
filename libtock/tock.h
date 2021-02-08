@@ -23,22 +23,43 @@ typedef enum {
   TOCK_SYSCALL_SUCCESS_U64_U32     = 133
 } syscall_rtype_t;
 
-typedef enum {
-  TOCK_ERROR_FAIL        = 0,
-  TOCK_ERROR_BUSY        = 1,
-  TOCK_ERROR_ALREADY     = 2,
-  TOCK_ERROR_OFF         = 3,
-  TOCK_ERROR_RESERVE     = 4,
-  TOCK_ERROR_INVAL       = 5,
-  TOCK_ERROR_SIZE        = 6,
-  TOCK_ERROR_CANCEL      = 7,
-  TOCK_ERROR_NOMEM       = 8,
-  TOCK_ERROR_NOSUPPORT   = 9,
-  TOCK_ERROR_NODEVICE    = 10,
-  TOCK_ERROR_UNINSTALLED = 11,
-  TOCK_ERROR_NOACK       = 12,
-} tock_error_t;
+// System call return values, used by C userspace: 0 is success and
+// negative values are failures.
+#define TOCK_SUCCESS       0
+#define TOCK_FAIL         -1
+#define TOCK_EBUSY        -2
+#define TOCK_EALREADY     -3
+#define TOCK_EOFF         -4
+#define TOCK_ERESERVE     -5
+#define TOCK_EINVAL       -6
+#define TOCK_ESIZE        -7
+#define TOCK_ECANCEL      -8
+#define TOCK_ENOMEM       -9
+#define TOCK_ENOSUPPORT   -10
+#define TOCK_ENODEVICE    -11
+#define TOCK_EUNINSTALLED -12
+#define TOCK_ENOACK       -13
+#define TOCK_EBADRVAL     -1024
 
+// Error codes from the kernel (kernel::ErrorCode). libtock-c transforms
+// these into system call return values. Userspace C code should not see
+// these values.
+typedef enum {
+  TOCK_ERROR_FAIL        = 1,
+  TOCK_ERROR_BUSY        = 2,
+  TOCK_ERROR_ALREADY     = 3,
+  TOCK_ERROR_OFF         = 4,
+  TOCK_ERROR_RESERVE     = 5,
+  TOCK_ERROR_INVAL       = 6,
+  TOCK_ERROR_SIZE        = 7,
+  TOCK_ERROR_CANCEL      = 8,
+  TOCK_ERROR_NOMEM       = 9,
+  TOCK_ERROR_NOSUPPORT   = 10,
+  TOCK_ERROR_NODEVICE    = 11,
+  TOCK_ERROR_UNINSTALLED = 12,
+  TOCK_ERROR_NOACK       = 13,
+} tock_error_t;
+  
 typedef struct {
   syscall_rtype_t type;
   uint32_t data[3];
@@ -117,33 +138,6 @@ void* tock_app_writeable_flash_region_ends_at(int region_index);
 // Checks to see if the given driver number exists on this platform.
 bool driver_exists(uint32_t driver);
 
-#define TOCK_SUCCESS       0
-#define TOCK_FAIL         -1
-#define TOCK_EBUSY        -2
-#define TOCK_EALREADY     -3
-#define TOCK_EOFF         -4
-#define TOCK_ERESERVE     -5
-#define TOCK_EINVAL       -6
-#define TOCK_ESIZE        -7
-#define TOCK_ECANCEL      -8
-#define TOCK_ENOMEM       -9
-#define TOCK_ENOSUPPORT   -10
-#define TOCK_ENODEVICE    -11
-#define TOCK_EUNINSTALLED -12
-#define TOCK_ENOACK       -13
-#define TOCK_EBADRVAL     -1024
-
-#define TOCK_SYSCALL_FAILURE                0
-#define TOCK_SYSCALL_FAILURE_U32            1
-#define TOCK_SYSCALL_FAILURE_U32_U32        2
-#define TOCK_SYSCALL_FAILURE_U64            3
-#define TOCK_SYSCALL_SUCCESS              128
-#define TOCK_SYSCALL_SUCCESS_U32          129
-#define TOCK_SYSCALL_SUCCESS_U32_U32      130
-#define TOCK_SYSCALL_SUCCESS_U64          131
-#define TOCK_SYSCALL_SUCCESS_U32_U32_U32  132
-#define TOCK_SYSCALL_SUCCESS_U64_U32      133
-  
 // Pass this to the subscribe syscall as a function pointer to deactivate the callback.
 #define TOCK_DEACTIVATE_CALLBACK    0
 
