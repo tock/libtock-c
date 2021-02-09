@@ -102,7 +102,8 @@ int sdcard_is_installed (void) {
     return sval.data[0];
   } else {
     return tock_error_to_rcode(sval.data[0]);
-  }}
+  }
+}
 
 int sdcard_initialize (void) {
   syscall_return_t sval = command2(DRIVER_NUM_SDCARD, 2, 0, 0);
