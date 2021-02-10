@@ -24,8 +24,8 @@ extern "C" {
 
 #define BLE_SCAN_SUB 0
 
-#define BLE_CFG_ADV_BUF_ALLOW 0
-#define BLE_CFG_SCAN_BUF_ALLOW 1
+#define BLE_CFG_ADV_BUF_ALLOWRO 0
+#define BLE_CFG_SCAN_BUF_ALLOWRW 0
 
 #define ADV_IND  0x00
 #define ADV_DIRECT_IND  0x01
