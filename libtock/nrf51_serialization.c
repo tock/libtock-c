@@ -48,10 +48,10 @@ int nrf51_serialization_write (char* tx, int tx_len) {
   }
 
   // Do the write!!!!!
-  syscall_return_t sval = command2(DRIVER_NUM_NRF_SERIALIZATION, 1, 0, 0);
-  if (sval.type == TOCK_SYSCALL_SUCCESS) {
+  syscall_return_t cval = command2(DRIVER_NUM_NRF_SERIALIZATION, 1, 0, 0);
+  if (cval.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
-    return tock_error_to_rcode(sval.data[0]);
+    return tock_error_to_rcode(cval.data[0]);
   }
 }
