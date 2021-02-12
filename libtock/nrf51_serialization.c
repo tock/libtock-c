@@ -13,14 +13,24 @@ int nrf51_serialization_reset (void) {
 int nrf51_serialization_subscribe (subscribe_cb cb) {
   // get some callback love
   subscribe_return_t sval = subscribe2(DRIVER_NUM_NRF_SERIALIZATION, 0, cb, NULL);
-  if (sval.success) {
-    return TOCK_SUCCESS;
-  } else {
+  if (!sval.success) {
     return tock_error_to_rcode(sval.error);
   }
+
+  // Instruct the capsule to start receiving. Doesn't
+  syscall_return_t cval = command2(DRIVER_NUM_NRF_SERIALIZATION, 2, 0, 0);
+  if (cval.type == TOCK_SYSCALL_SUCCESS_U32) {
+    return TOCK_SUCCESS;
+  } else if (cval.type == TOCK_SYSCALL_FAILURE) {
+    // Ok if we get ERESERVE. Just means a buffer hasn't been set.
+    if ((int) cval.data[0] == TOCK_ERESERVE) {
+      return TOCK_SUCCESS;
+    }
+  }
+  return tock_error_to_rcode(cval.data[0]);
 }
 
-int nrf51_serialization_setup_receive_buffer (char* rx, int rx_len) {
+int nrf51_serialization_setup_rx_buffer (char* rx, int rx_len) {
   // Pass the RX buffer for the UART module to use.
   allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_NRF_SERIALIZATION, 0, rx, rx_len);
   if (aval.success) {
@@ -30,9 +40,7 @@ int nrf51_serialization_setup_receive_buffer (char* rx, int rx_len) {
   }
 }
 
-
-
-int nrf51_serialization_write_buffer(char* tx, int tx_len) {
+int nrf51_serialization_write (char* tx, int tx_len) {
   // Pass in the TX buffer.
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_NRF_SERIALIZATION, 0, tx, tx_len);
   if (!aval.success) {
@@ -47,19 +55,3 @@ int nrf51_serialization_write_buffer(char* tx, int tx_len) {
     return tock_error_to_rcode(sval.data[0]);
   }
 }
-
-int nrf51_serialization_receive(char* rx, int rx_len) {
-  int rval = nrf51_serialization_setup_receive_buffer(rx, rx_len);
-  if (rval != TOCK_SUCCESS) {
-    return rval;
-  }
-
-  // Do the write!!!!!
-  syscall_return_t sval = command2(DRIVER_NUM_NRF_SERIALIZATION, 2, 0, 0);
-  if (sval.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(sval.data[0]);
-  }
-}
-
