@@ -27,11 +27,11 @@ int nrf51_serialization_setup_write_buffer (char* rx, int rx_len);
 
 // Write a packet to the BLE Serialization connectivity processor.
 __attribute__ ((warn_unused_result))
-int nrf51_serialization_write_buffer(char* tx, int tx_len);
+int nrf51_serialization_write(char* tx, int tx_len);
 
-// Receive into the passed buffer
+// Receive into the buffer pass in rx_buffer
 __attribute__ ((warn_unused_result))
-int nrf51_serialization_receive(char* rx, int rx_len);
+int nrf51_serialization_read(int rx_len);
 
   
 #ifdef __cplusplus

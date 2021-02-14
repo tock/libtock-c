@@ -1,8 +1,16 @@
 #include "nrf51_serialization.h"
 
+//#define NRF51_SERIALIZATION_COMMAND_CHECK 0
+#define NRF51_SERIALIZATION_COMMAND_WRITE 1
+#define NRF51_SERIALIZATION_COMMAND_READ  2
+#define NRF51_SERIALIZATION_COMMAND_RESET 3
+
+
 int nrf51_serialization_reset (void) {
   // Reset the nRF51 chip
-  syscall_return_t sval = command2(DRIVER_NUM_NRF_SERIALIZATION, 3, 0, 0);
+  syscall_return_t sval = command2(DRIVER_NUM_NRF_SERIALIZATION,
+				   NRF51_SERIALIZATION_COMMAND_RESET,
+				   0, 0);
   if (sval.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -32,15 +40,17 @@ int nrf51_serialization_setup_receive_buffer (char* rx, int rx_len) {
 
 
 
-int nrf51_serialization_write_buffer(char* tx, int tx_len) {
+int nrf51_serialization_write(char* tx, int tx_len) {
   // Pass in the TX buffer.
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_NRF_SERIALIZATION, 0, tx, tx_len);
   if (!aval.success) {
     return tock_error_to_rcode(aval.error);
   }
 
-  // Do the write!!!!!
-  syscall_return_t sval = command2(DRIVER_NUM_NRF_SERIALIZATION, 1, 0, 0);
+  // Write the data.
+  syscall_return_t sval = command2(DRIVER_NUM_NRF_SERIALIZATION,
+				   NRF51_SERIALIZATION_COMMAND_WRITE,
+				   0, 0);
   if (sval.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -48,18 +58,14 @@ int nrf51_serialization_write_buffer(char* tx, int tx_len) {
   }
 }
 
-int nrf51_serialization_receive(char* rx, int rx_len) {
-  int rval = nrf51_serialization_setup_receive_buffer(rx, rx_len);
-  if (rval != TOCK_SUCCESS) {
-    return rval;
-  }
-
-  // Do the write!!!!!
-  syscall_return_t sval = command2(DRIVER_NUM_NRF_SERIALIZATION, 2, 0, 0);
-  if (sval.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
+int nrf51_serialization_read(int rx_len) {
+  syscall_return_t sval = command2(DRIVER_NUM_NRF_SERIALIZATION,
+				   NRF51_SERIALIZATION_COMMAND_READ, rx_len, 0);
+  if (sval.type == TOCK_SYSCALL_SUCCESS_U32) {
+    return sval.data[0]; // Actual read length
+  } else if (sval.type == TOCK_SYSCALL_FAILURE) {
     return tock_error_to_rcode(sval.data[0]);
+  } else {
+    return TOCK_EBADRVAL;
   }
 }
-
