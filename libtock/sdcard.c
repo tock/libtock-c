@@ -70,23 +70,48 @@ static void sdcard_cb (int callback_type, int arg1, int arg2, void* callback_arg
 }
 
 int sdcard_set_callback (subscribe_cb callback, void* callback_args) {
-  return subscribe(DRIVER_NUM_SDCARD, 0, callback, callback_args);
+  subscribe_return_t sval = subscribe2(DRIVER_NUM_SDCARD, 0, callback, callback_args);
+  if (sval.success) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(sval.error);
+  }
 }
 
 int sdcard_set_read_buffer (uint8_t* buffer, uint32_t len) {
-  return allow(DRIVER_NUM_SDCARD, 0, (void*) buffer, len);
+  allow_rw_return_t rval = allow_readwrite(DRIVER_NUM_SDCARD, 0, (void*) buffer, len);
+  if (rval.success) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(rval.error);
+  }
 }
 
 int sdcard_set_write_buffer (uint8_t* buffer, uint32_t len) {
-  return allow(DRIVER_NUM_SDCARD, 1, (void*) buffer, len);
+  allow_ro_return_t rval = allow_readonly(DRIVER_NUM_SDCARD, 1, (void*) buffer, len);
+  if (rval.success) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(rval.error);
+  }
 }
 
 int sdcard_is_installed (void) {
-  return command(DRIVER_NUM_SDCARD, 1, 0, 0);
+  syscall_return_t sval = command2(DRIVER_NUM_SDCARD, 1, 0, 0);
+  if (sval.type == TOCK_SYSCALL_SUCCESS_U32) {
+    return sval.data[0];
+  } else {
+    return tock_error_to_rcode(sval.data[0]);
+  }
 }
 
 int sdcard_initialize (void) {
-  return command(DRIVER_NUM_SDCARD, 2, 0, 0);
+  syscall_return_t sval = command2(DRIVER_NUM_SDCARD, 2, 0, 0);
+  if (sval.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(sval.data[0]);
+  }
 }
 
 int sdcard_initialize_sync (uint32_t* block_size, uint32_t* size_in_kB) {
@@ -116,7 +141,12 @@ int sdcard_initialize_sync (uint32_t* block_size, uint32_t* size_in_kB) {
 }
 
 int sdcard_read_block (uint32_t sector) {
-  return command(DRIVER_NUM_SDCARD, 3, sector, 0);
+  syscall_return_t sval = command2(DRIVER_NUM_SDCARD, 3, sector, 0);
+  if (sval.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(sval.data[0]);
+  }
 }
 
 int sdcard_read_block_sync (uint32_t sector) {
@@ -138,7 +168,12 @@ int sdcard_read_block_sync (uint32_t sector) {
 }
 
 int sdcard_write_block (uint32_t sector) {
-  return command(DRIVER_NUM_SDCARD, 4, sector, 0);
+  syscall_return_t sval = command2(DRIVER_NUM_SDCARD, 4, sector, 0);
+  if (sval.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(sval.data[0]);
+  }
 }
 
 int sdcard_write_block_sync (uint32_t sector) {
