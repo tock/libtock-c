@@ -21,10 +21,6 @@ int nrf51_serialization_subscribe (subscribe_cb cb);
 __attribute__ ((warn_unused_result))
 int nrf51_serialization_setup_receive_buffer (char* rx, int rx_len);
 
-// Pass a buffer for the driver to write received UART bytes to.
-__attribute__ ((warn_unused_result))
-int nrf51_serialization_setup_write_buffer (char* rx, int rx_len);
-
 // Write a packet to the BLE Serialization connectivity processor.
 __attribute__ ((warn_unused_result))
 int nrf51_serialization_write(char* tx, int tx_len);
