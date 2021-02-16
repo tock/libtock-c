@@ -107,7 +107,6 @@ void ble_serialization_callback (int callback_type, int rx_len, int c, void* oth
     UNUSED_PARAMETER(other);
 
     nrf_serialization_done = true;
-    
     if (callback_type == 1) {
         // TX DONE
 
