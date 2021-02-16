@@ -107,7 +107,6 @@ void ble_serialization_callback (int callback_type, int rx_len, int c, void* oth
     UNUSED_PARAMETER(other);
 
     nrf_serialization_done = true;
-
     if (callback_type == 1) {
         // TX DONE
 
@@ -329,9 +328,12 @@ uint32_t ser_phy_open (ser_phy_events_handler_t events_handler) {
     ret = nrf51_serialization_subscribe(ble_serialization_callback);
     if (ret < 0) return NRF_ERROR_INTERNAL;
 
-    ret = nrf51_serialization_setup_rx_buffer((char*) rx, SER_HAL_TRANSPORT_RX_MAX_PKT_SIZE);
+    ret = nrf51_serialization_setup_receive_buffer((char*) rx, SER_HAL_TRANSPORT_RX_MAX_PKT_SIZE);
     if (ret < 0) return NRF_ERROR_INTERNAL;
 
+    ret = nrf51_serialization_read(SER_HAL_TRANSPORT_RX_MAX_PKT_SIZE);
+    if (ret < 0) return NRF_ERROR_INTERNAL;
+    
     // Save the callback handler
     _ser_phy_event_handler = events_handler;
 
