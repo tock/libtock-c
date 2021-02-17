@@ -1,12 +1,16 @@
 #include "ipc.h"
+#include "tock.h"
 
 int ipc_discover(const char* pkg_name) {
   int len = strlen(pkg_name);
-  char* pkg_name_buf = (char*)malloc(len * sizeof(char));
-  memcpy(pkg_name_buf, pkg_name, len);
-  int res = allow(IPC_DRIVER_NUM, 0, pkg_name_buf, len);
-  free(pkg_name_buf);
-  return res;
+  allow_ro_return_t prev = allow_readonly(IPC_DRIVER_NUM, 0, pkg_name, len);
+  syscall_return_t res   = command2(IPC_DRIVER_NUM, 1, 0, 0);
+  prev = allow_readonly(IPC_DRIVER_NUM, 0, prev.ptr, prev.size);
+  if (res.type != TOCK_SYSCALL_SUCCESS_U32) {
+    return tock_error_to_rcode(res.data[0]);
+  } else {
+    return res.data[0];
+  }
 }
 
 int ipc_register_svc(subscribe_cb callback, void *ud) {
@@ -21,17 +25,19 @@ int ipc_register_client_cb(int svc_id, subscribe_cb callback, void *ud) {
 }
 
 int ipc_notify_svc(int pid) {
-  return command(IPC_DRIVER_NUM, pid, 0, 0);
+  syscall_return_t res = command2(IPC_DRIVER_NUM, 2, pid, 0);
+  if (res.type != TOCK_SYSCALL_SUCCESS) {
+    return tock_error_to_rcode(res.data[0]);
+  } else {
+    return TOCK_SUCCESS;
+  }
 }
 
 int ipc_notify_client(int pid) {
-  return command(IPC_DRIVER_NUM, pid, 1, 0);
+  return command(IPC_DRIVER_NUM, 3, pid, 0);
 }
 
-int ipc_share(int pid, void* base, int len) {
-  if (pid <= 0) {
-    return -1;
-  }
-  return allow(IPC_DRIVER_NUM, pid, base, len);
+allow_rw_return_t ipc_share(int pid, void* base, int len) {
+  return allow_readwrite(IPC_DRIVER_NUM, pid, base, len);
 }
 
