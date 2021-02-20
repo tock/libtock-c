@@ -43,7 +43,7 @@ int app_state_load_sync(void) {
   return 0;
 }
 
-int app_state_save(subscribe_cb callback, void* callback_args) {
+int app_state_save(subscribe_upcall callback, void* callback_args) {
   if (!_app_state_inited) {
     int err = app_state_init();
     if (err < 0) return err;

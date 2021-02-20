@@ -6,7 +6,7 @@
 #include "tock.h"
 
 typedef struct {
-  subscribe_cb *cb;
+  subscribe_upcall *cb;
   int arg0;
   int arg1;
   int arg2;
@@ -18,7 +18,7 @@ static tock_task_t task_queue[TASK_QUEUE_SIZE];
 static int task_cur  = 0;
 static int task_last = 0;
 
-int tock_enqueue(subscribe_cb cb, int arg0, int arg1, int arg2, void* ud) {
+int tock_enqueue(subscribe_upcall cb, int arg0, int arg1, int arg2, void* ud) {
   int next_task_last = (task_last + 1) % TASK_QUEUE_SIZE;
   if (next_task_last == task_cur) {
     return -1;
@@ -173,23 +173,8 @@ void tock_restart(uint32_t completion_code) {
   __builtin_unreachable();
 }
 
-int subscribe(uint32_t driver, uint32_t subscribe,
-              subscribe_cb cb, void* userdata) {
-  register uint32_t r0 asm ("r0") = driver;
-  register uint32_t r1 asm ("r1") = subscribe;
-  register void*    r2 asm ("r2") = cb;
-  register void*    r3 asm ("r3") = userdata;
-  register int ret asm ("r0");
-  asm volatile (
-    "svc 1"
-    : "=r" (ret)
-    : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
-    : "memory");
-  return ret;
-}
-
 subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
-                              subscribe_cb cb, void* userdata) {
+                              subscribe_upcall cb, void* userdata) {
   register uint32_t r0 asm ("r0") = driver;
   register uint32_t r1 asm ("r1") = subscribe;
   register void*    r2 asm ("r2") = cb;
@@ -205,37 +190,21 @@ subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
     : "memory");
 
   if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
-    subscribe_return_t rval = {true, (subscribe_cb*)rv1, (void*)rv2, 0};
+    subscribe_return_t rval = {true, (subscribe_upcall*)rv1, (void*)rv2, 0};
     return rval;
   } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
-    subscribe_return_t rval = {false, (subscribe_cb*)rv2, (void*)rv3, (tock_error_t)rv1};
+    subscribe_return_t rval = {false, (subscribe_upcall*)rv2, (void*)rv3, (tock_error_t)rv1};
     return rval;
   } else {
     exit(-1);
   }
 }
 
-
-
-int command(uint32_t driver, uint32_t command, int data, int arg2) {
+syscall_return_t command2(uint32_t driver, uint32_t command,
+			  int arg1, int arg2) {
   register uint32_t r0 asm ("r0") = driver;
   register uint32_t r1 asm ("r1") = command;
-  register uint32_t r2 asm ("r2") = data;
-  register uint32_t r3 asm ("r3") = arg2;
-  register int ret asm ("r0");
-  asm volatile (
-    "svc 2"
-    : "=r" (ret)
-    : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
-    : "memory"
-    );
-  return ret;
-}
-
-syscall_return_t command2(uint32_t driver, uint32_t command, int data, int arg2) {
-  register uint32_t r0 asm ("r0") = driver;
-  register uint32_t r1 asm ("r1") = command;
-  register uint32_t r2 asm ("r2") = data;
+  register uint32_t r2 asm ("r2") = arg1;
   register uint32_t r3 asm ("r3") = arg2;
   register uint32_t rtype asm ("r0");
   register uint32_t rv1 asm ("r1");
@@ -249,22 +218,6 @@ syscall_return_t command2(uint32_t driver, uint32_t command, int data, int arg2)
     );
   syscall_return_t rval = {rtype, {rv1, rv2, rv3}};
   return rval;
-}
-
-
-int allow(uint32_t driver, uint32_t allow, void* ptr, size_t size) {
-  register uint32_t r0 asm ("r0") = driver;
-  register uint32_t r1 asm ("r1") = allow;
-  register void*    r2 asm ("r2") = ptr;
-  register size_t r3 asm ("r3")   = size;
-  register int ret asm ("r0");
-  asm volatile (
-    "svc 3"
-    : "=r" (ret)
-    : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
-    : "memory"
-    );
-  return ret;
 }
 
 allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size) {
@@ -293,6 +246,7 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* pt
     exit(-1);
   }
 }
+
 allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, size_t size) {
   register uint32_t r0 asm ("r0")       = driver;
   register uint32_t r1 asm ("r1")       = allow;
@@ -409,28 +363,11 @@ void tock_exit(uint32_t completion_code) {
   __builtin_unreachable();
 }
 
-int subscribe(uint32_t driver, uint32_t subscribe,
-              subscribe_cb cb, void* userdata) {
-  register uint32_t a0  asm ("a0") = driver;
-  register uint32_t a1  asm ("a1") = subscribe;
-  register void*    a2  asm ("a2") = cb;
-  register void*    a3  asm ("a3") = userdata;
-  register int ret asm ("a0");
-  asm volatile (
-    "li    a4, 1\n"
-    "ecall\n"
-    : "=r" (ret)
-    : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
-    : "memory");
-  return ret;
-}
-
-
 subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
-                              subscribe_cb cb, void* userdata) {
+                              subscribe_upcall uc, void* userdata) {
   register uint32_t a0  asm ("a0") = driver;
   register uint32_t a1  asm ("a1") = subscribe;
-  register void*    a2  asm ("a2") = cb;
+  register void*    a2  asm ("a2") = uc;
   register void*    a3  asm ("a3") = userdata;
   register int rtype asm ("a0");
   register int rv1 asm ("a1");
@@ -443,37 +380,21 @@ subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
     : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
     : "memory");
   if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
-    subscribe_return_t rval = {true, (subscribe_cb*)rv1, (void*)rv2, 0};
+    subscribe_return_t rval = {true, (subscribe_upcall*)rv1, (void*)rv2, 0};
     return rval;
   } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
-    subscribe_return_t rval = {false, (subscribe_cb*)rv2, (void*)rv3, (tock_error_t)rv1};
+    subscribe_return_t rval = {false, (subscribe_upcall*)rv2, (void*)rv3, (tock_error_t)rv1};
     return rval;
   } else {
     exit(-1);
   }
 }
 
-
-int command(uint32_t driver, uint32_t command, int data, int arg2) {
+syscall_return_t command2(uint32_t driver, uint32_t command,
+			  int arg1, int arg2) {
   register uint32_t a0  asm ("a0") = driver;
   register uint32_t a1  asm ("a1") = command;
-  register uint32_t a2  asm ("a2") = data;
-  register uint32_t a3  asm ("a3") = arg2;
-  register int ret asm ("a0");
-  asm volatile (
-    "li    a4, 2\n"
-    "ecall\n"
-    : "=r" (ret)
-    : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
-    : "memory");
-  return ret;
-}
-
-
-syscall_return_t command2(uint32_t driver, uint32_t command, int data, int arg2) {
-  register uint32_t a0  asm ("a0") = driver;
-  register uint32_t a1  asm ("a1") = command;
-  register uint32_t a2  asm ("a2") = data;
+  register uint32_t a2  asm ("a2") = arg1;
   register uint32_t a3  asm ("a3") = arg2;
   register int rtype asm ("a0");
   register int rv1 asm ("a1");
@@ -489,23 +410,8 @@ syscall_return_t command2(uint32_t driver, uint32_t command, int data, int arg2)
   return rval;
 }
 
-
-int allow(uint32_t driver, uint32_t allow, void* ptr, size_t size) {
-  register uint32_t a0  asm ("a0") = driver;
-  register uint32_t a1  asm ("a1") = allow;
-  register void* a2     asm ("a2") = ptr;
-  register size_t a3    asm ("a3") = size;
-  register int ret      asm ("a0");
-  asm volatile (
-    "li    a4, 3\n"
-    "ecall\n"
-    : "=r" (ret)
-    : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
-    : "memory");
-  return ret;
-}
-
-allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, size_t size) {
+allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
+				  void* ptr, size_t size) {
   register uint32_t a0  asm ("a0") = driver;
   register uint32_t a1  asm ("a1") = allow;
   register void*    a2  asm ("a2") = ptr;
@@ -532,7 +438,8 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, si
   }
 }
 
-allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size) {
+allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
+				 const void* ptr, size_t size) {
   register uint32_t a0  asm ("a0")    = driver;
   register uint32_t a1  asm ("a1")    = allow;
   register const void* a2  asm ("a2") = ptr;
@@ -616,8 +523,12 @@ void* tock_app_writeable_flash_region_ends_at(int region_index) {
 }
 
 bool driver_exists(uint32_t driver) {
-  int ret = command(driver, 0, 0, 0);
-  return ret >= 0;
+  syscall_return_t sval = command2(driver, 0, 0, 0);
+  if (sval.type == TOCK_SYSCALL_SUCCESS) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 const char* tock_strerr(tock_error_t err) {

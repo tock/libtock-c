@@ -19,7 +19,7 @@ static void ltc294x_cb(__attribute__ ((unused)) int callback_type,
   data->fired  = true;
 }
 
-int ltc294x_set_callback (subscribe_cb callback, void* callback_args) {
+int ltc294x_set_callback (subscribe_upcall callback, void* callback_args) {
   return subscribe(DRIVER_NUM_LTC294X, 0, callback, callback_args);
 }
 

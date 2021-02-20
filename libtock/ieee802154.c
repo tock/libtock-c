@@ -510,7 +510,7 @@ bool ieee802154_unallow_rx_buf(void) {
   return rw.success;
 }
 
-int ieee802154_receive(subscribe_cb callback,
+int ieee802154_receive(subscribe_upcall callback,
                        const char *frame,
                        unsigned char len) {
   // Provide the buffer to the kernel

@@ -155,7 +155,7 @@ static void adc_routing_cb(int callback_type,
 
 // ***** System Call Interface *****
 
-int adc_set_callback(subscribe_cb callback, void* callback_args) {
+int adc_set_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t subval = subscribe2(DRIVER_NUM_ADC, 0, callback, callback_args);
   if (subval.success == 0) {
     return tock_error_to_rcode(subval.error);

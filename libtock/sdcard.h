@@ -15,7 +15,7 @@ extern "C" {
 // `sdcard_cb` in sdcard.c for callback documentation
 //
 // returns 0 if successful, < 0 if an error occurrs
-int sdcard_set_callback (subscribe_cb callback, void* callback_args);
+int sdcard_set_callback (subscribe_upcall callback, void* callback_args);
 
 // set a buffer that data read from the SD card will be placed into
 // this buffer can be reused across multiple read calls

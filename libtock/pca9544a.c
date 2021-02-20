@@ -19,7 +19,7 @@ static void pca9544a_cb(__attribute__ ((unused)) int value,
 }
 
 
-int pca9544a_set_callback(subscribe_cb callback, void* callback_args) {
+int pca9544a_set_callback(subscribe_upcall callback, void* callback_args) {
   return subscribe(DRIVER_NUM_PCA9544A, 0, callback, callback_args);
 }
 

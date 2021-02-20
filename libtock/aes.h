@@ -19,7 +19,7 @@ extern "C" {
 //
 // callback       - pointer to function to be called
 // callback_args  - pointer to data provided to the callback
-int aes128_set_callback(subscribe_cb callback, void *callback_args);
+int aes128_set_callback(subscribe_upcall callback, void *callback_args);
 
 
 // configures a buffer with data to be used for encryption or decryption
@@ -57,7 +57,7 @@ int aes128_decrypt_start(void);
 // ctr_len  - length of buffer with the initial counter (should be 16 bytes)
 // callback - callback handler to be invoked when the operation is finished
 int aes128_encrypt_ctr(const unsigned char* buf, unsigned char buf_len, 
-    const unsigned char* ctr, unsigned char ctr_len, subscribe_cb callback);
+    const unsigned char* ctr, unsigned char ctr_len, subscribe_upcall callback);
 
 
 // decrypts a payload according to aes-128 counter-mode asynchronously
@@ -68,7 +68,7 @@ int aes128_encrypt_ctr(const unsigned char* buf, unsigned char buf_len,
 // ctr_len  - length of buffer with the initial counter (should be 16 bytes)
 // callback - callback handler to be invoked when the operation is finished
 int aes128_decrypt_ctr(const unsigned char* buf, unsigned char buf_len, 
-    const unsigned char* ctr, unsigned char ctr_len, subscribe_cb callback);
+    const unsigned char* ctr, unsigned char ctr_len, subscribe_upcall callback);
 
 
 

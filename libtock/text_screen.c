@@ -23,7 +23,7 @@ static void text_screen_callback(int error,
 static uint8_t *buffer   = NULL;
 static size_t buffer_len = 0;
 
-static int text_screen_subscribe (subscribe_cb cb, void *userdata) {
+static int text_screen_subscribe (subscribe_upcall cb, void *userdata) {
   subscribe_return_t sv = subscribe2(DRIVER_NUM_TEXT_SCREEN, 0, cb, userdata);
   if (sv.success == 0) {
     return tock_error_to_rcode(sv.error);

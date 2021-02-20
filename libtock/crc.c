@@ -20,7 +20,7 @@ int crc_request(enum crc_alg alg) {
   }
 }
 
-int crc_subscribe(subscribe_cb callback, void *ud) {
+int crc_subscribe(subscribe_upcall callback, void *ud) {
   subscribe_return_t ret = subscribe2(DRIVER_NUM_CRC, 0, callback, ud);
   if (ret.success) {
     return TOCK_SUCCESS;

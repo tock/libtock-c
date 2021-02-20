@@ -14,7 +14,7 @@ extern "C" {
 //
 // callback       - pointer to function to be called
 // callback_args  - pointer to data provided to the callback
-int humidity_set_callback (subscribe_cb callback, void* callback_args);
+int humidity_set_callback (subscribe_upcall callback, void* callback_args);
 
 
 // initiate an humidity measurement used both for syncronous and asyncronous readings

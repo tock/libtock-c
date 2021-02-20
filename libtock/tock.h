@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-typedef void (subscribe_cb)(int, int, int, void*);
+typedef void (subscribe_upcall)(int, int, int, void*);
 
 typedef enum {
   TOCK_SYSCALL_FAILURE             =   0,
@@ -67,7 +67,7 @@ typedef struct {
 
 typedef struct {
   bool success;
-  subscribe_cb* callback;
+  subscribe_upcall* callback;
   void* userdata;
   tock_error_t error;
 } subscribe_return_t;
@@ -88,7 +88,7 @@ typedef struct {
 
 int tock_error_to_rcode(tock_error_t);
 
-int tock_enqueue(subscribe_cb cb, int arg0, int arg1, int arg2, void* ud);
+int tock_enqueue(subscribe_upcall cb, int arg0, int arg1, int arg2, void* ud);
 
 void yield(void);
 void yield_for(bool*);
@@ -98,26 +98,24 @@ void tock_exit(uint32_t completion_code) __attribute__ ((noreturn));
 void tock_restart(uint32_t completion_code) __attribute__ ((noreturn));
 
 __attribute__ ((warn_unused_result))
-int command(uint32_t driver, uint32_t command, int data, int arg2);
-
-__attribute__ ((warn_unused_result))
-syscall_return_t command2(uint32_t driver, uint32_t command, int data, int arg2);
-__attribute__ ((warn_unused_result))
-int subscribe(uint32_t driver, uint32_t subscribe,
-              subscribe_cb cb, void* userdata);
-
+syscall_return_t command2(uint32_t driver, uint32_t command,
+			  int arg1, int arg2);
+  
+// Pass this to the subscribe syscall as a function pointer to
+// be the Null Upcall.
+#define TOCK_NULL_UPCALL 0
+  
 __attribute__ ((warn_unused_result))
 subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
-			      subscribe_cb cb, void* userdata);
+			      subscribe_upcall uc, void* userdata);
 
 __attribute__ ((warn_unused_result))
-int allow(uint32_t driver, uint32_t allow, void* ptr, size_t size);
+allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
+				  void* ptr, size_t size);
 
 __attribute__ ((warn_unused_result))
-allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, size_t size);
-
-__attribute__ ((warn_unused_result))
-allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size);
+allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
+				 const void* ptr, size_t size);
 
 // op_type can be:
 // 0: brk, arg1 is pointer to new memory break
@@ -138,11 +136,6 @@ void* tock_app_writeable_flash_region_ends_at(int region_index);
 // Checks to see if the given driver number exists on this platform.
 bool driver_exists(uint32_t driver);
 
-// Pass this to the subscribe syscall as a function pointer to deactivate the callback.
-#define TOCK_DEACTIVATE_CALLBACK    0
-
-// Pass this to the allow syscall as pointer to revoke the "allow"-syscall.
-#define TOCK_REVOKE_ALLOW           0
 
 const char* tock_strerr(tock_error_t tock_errno);
 const char* tock_strrcode(int tock_rcode);

@@ -36,7 +36,7 @@ int analog_comparator_stop_comparing(uint8_t channel);
 //
 // callback       - pointer to function to be called
 // callback_args  - pointer to data provided to the callback
-int analog_comparator_interrupt_callback(subscribe_cb callback, void* callback_args);
+int analog_comparator_interrupt_callback(subscribe_upcall callback, void* callback_args);
 
 #ifdef __cplusplus
 }

@@ -27,7 +27,7 @@ static void cb(int proximity,
   data->fired     = true;
 }
 
-int proximity_set_callback(subscribe_cb callback, void *callback_args) {
+int proximity_set_callback(subscribe_upcall callback, void *callback_args) {
   return subscribe(DRIVER_NUM_PROXIMITY, 0, callback, callback_args);
 }
 

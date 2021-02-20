@@ -39,7 +39,7 @@ extern "C" {
 typedef struct alarm {
   uint32_t reference;
   uint32_t dt;
-  subscribe_cb *callback;
+  subscribe_upcall *callback;
   void* ud;
   struct alarm* next;
   struct alarm* prev;
@@ -58,7 +58,7 @@ typedef struct alarm {
  * \param a pointer to a new alarm_t to be used by the implementation to keep
  *        track of the alarm.
  */
-void alarm_at(uint32_t reference, uint32_t dt, subscribe_cb, void*, alarm_t *alarm);
+void alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall, void*, alarm_t *alarm);
 
 /** \brief Cancels an existing alarm.
  *

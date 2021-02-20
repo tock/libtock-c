@@ -1,6 +1,6 @@
 #include "button.h"
 
-subscribe_return_t button_subscribe(subscribe_cb callback, void *ud) {
+subscribe_return_t button_subscribe(subscribe_upcall callback, void *ud) {
   return subscribe2(DRIVER_NUM_BUTTON, 0, callback, ud);
 }
 

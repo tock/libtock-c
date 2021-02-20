@@ -23,7 +23,7 @@ static void command_callback_yield (int data1, int data2, int data3, void* ud) {
   }
 }
 
-static int l3gd20_subscribe (subscribe_cb cb, void *userdata) {
+static int l3gd20_subscribe (subscribe_upcall cb, void *userdata) {
   return subscribe(DRIVER_NUM_L3GD20, 0, cb, userdata);
 }
 

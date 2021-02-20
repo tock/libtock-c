@@ -18,7 +18,7 @@ static void cb(int temp,
   data->fired = true;
 }
 
-int sound_pressure_set_callback(subscribe_cb callback, void* callback_args) {
+int sound_pressure_set_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sv = subscribe2(DRIVER_NUM_SOUND_PRESSURE, 0, callback, callback_args);
   if (sv.success == 0) {
     return tock_error_to_rcode(sv.error);

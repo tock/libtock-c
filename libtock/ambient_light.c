@@ -37,7 +37,7 @@ int ambient_light_read_intensity_sync(int* lux_value) {
   return TOCK_SUCCESS;
 }
 
-int ambient_light_subscribe(subscribe_cb callback, void* userdata) {
+int ambient_light_subscribe(subscribe_upcall callback, void* userdata) {
   subscribe_return_t ret = subscribe2(DRIVER_NUM_AMBIENT_LIGHT, 0, callback, userdata);
   if (ret.success) {
     return TOCK_SUCCESS;

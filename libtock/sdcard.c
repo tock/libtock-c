@@ -69,7 +69,7 @@ static void sdcard_cb (int callback_type, int arg1, int arg2, void* callback_arg
   result->fired = true;
 }
 
-int sdcard_set_callback (subscribe_cb callback, void* callback_args) {
+int sdcard_set_callback (subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sval = subscribe2(DRIVER_NUM_SDCARD, 0, callback, callback_args);
   if (sval.success) {
     return TOCK_SUCCESS;

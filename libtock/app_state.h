@@ -75,7 +75,7 @@ int app_state_load_sync(void);
 
 // Save application state to persistent storage
 __attribute__ ((warn_unused_result))
-int app_state_save(subscribe_cb callback, void* callback_args);
+int app_state_save(subscribe_upcall callback, void* callback_args);
 __attribute__ ((warn_unused_result))
 int app_state_save_sync(void);
 

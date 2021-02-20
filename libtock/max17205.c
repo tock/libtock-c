@@ -9,7 +9,7 @@ struct max17205_data {
 };
 
 static struct max17205_data result = { .fired = false, .rc = 0, .value0 = 0, .value1 = 0 };
-static subscribe_cb* user_cb       = NULL;
+static subscribe_upcall* user_cb       = NULL;
 
 // Internal callback for faking synchronous reads
 static void internal_user_cb(int return_code,
@@ -36,7 +36,7 @@ static void max17205_cb(int return_code,
   }
 }
 
-int max17205_set_callback (subscribe_cb callback, void* callback_args) {
+int max17205_set_callback (subscribe_upcall callback, void* callback_args) {
   // Set the user-level calllback to the provided one
   user_cb = callback;
 

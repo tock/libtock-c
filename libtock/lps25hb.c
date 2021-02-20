@@ -18,7 +18,7 @@ static void lps25hb_cb(int value,
   data->fired = true;
 }
 
-int lps25hb_set_callback (subscribe_cb callback, void* callback_args) {
+int lps25hb_set_callback (subscribe_upcall callback, void* callback_args) {
   return subscribe(DRIVER_NUM_LPS25HB, 0, callback, callback_args);
 }
 

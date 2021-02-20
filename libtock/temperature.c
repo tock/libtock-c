@@ -18,7 +18,7 @@ static void cb(int temp,
   data->fired = true;
 }
 
-int temperature_set_callback(subscribe_cb callback, void* callback_args) {
+int temperature_set_callback(subscribe_upcall callback, void* callback_args) {
   return subscribe(DRIVER_NUM_TEMPERATURE, 0, callback, callback_args);
 }
 

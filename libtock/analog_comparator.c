@@ -50,7 +50,7 @@ int analog_comparator_stop_comparing(uint8_t channel) {
   }
 }
 
-int analog_comparator_interrupt_callback(subscribe_cb callback, void* callback_args) {
+int analog_comparator_interrupt_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sub = subscribe2(DRIVER_NUM_ANALOG_COMPARATOR, 0, callback, callback_args);
   if (sub.success) {
     return TOCK_SUCCESS;

@@ -18,7 +18,7 @@ int nrf51_serialization_reset (void) {
   }
 }
 
-int nrf51_serialization_subscribe (subscribe_cb cb) {
+int nrf51_serialization_subscribe (subscribe_upcall cb) {
   subscribe_return_t sval = subscribe2(DRIVER_NUM_NRF_SERIALIZATION, 0, cb, NULL);
   if (sval.success) {
     return TOCK_SUCCESS;

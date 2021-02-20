@@ -83,7 +83,7 @@ static void callback( __attribute__ ((unused)) int unused0,
   }
 }
 
-void alarm_at(uint32_t reference, uint32_t dt, subscribe_cb cb, void* ud, alarm_t* alarm) {
+void alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall cb, void* ud, alarm_t* alarm) {
   alarm->reference = reference;
   alarm->dt        = dt;
   alarm->callback  = cb;
@@ -98,7 +98,7 @@ void alarm_at(uint32_t reference, uint32_t dt, subscribe_cb cb, void* ud, alarm_
   }
 
   if (root_peek() == alarm) {
-    alarm_internal_subscribe((subscribe_cb*)callback, NULL);
+    alarm_internal_subscribe((subscribe_upcall*)callback, NULL);
     alarm_internal_set(alarm->reference, alarm->dt);
   }
 }
@@ -134,7 +134,7 @@ uint32_t alarm_read(void) {
 
 // Timer implementation
 
-void timer_in(uint32_t ms, subscribe_cb cb, void* ud, tock_timer_t *timer) {
+void timer_in(uint32_t ms, subscribe_upcall cb, void* ud, tock_timer_t *timer) {
   uint32_t frequency = alarm_internal_frequency();
   uint32_t interval  = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
   uint32_t now       = alarm_read();
@@ -148,12 +148,12 @@ static void repeating_cb( uint32_t now,
   tock_timer_t* repeating = (tock_timer_t*)ud;
   uint32_t interval       = repeating->interval;
   uint32_t cur_exp        = repeating->alarm.reference + interval;
-  alarm_at(cur_exp, interval, (subscribe_cb*)repeating_cb,
+  alarm_at(cur_exp, interval, (subscribe_upcall*)repeating_cb,
            (void*)repeating, &repeating->alarm);
   repeating->cb(now, cur_exp, 0, repeating->ud);
 }
 
-void timer_every(uint32_t ms, subscribe_cb cb, void* ud, tock_timer_t* repeating) {
+void timer_every(uint32_t ms, subscribe_upcall cb, void* ud, tock_timer_t* repeating) {
   uint32_t frequency = alarm_internal_frequency();
   uint32_t interval  = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
 
@@ -162,7 +162,7 @@ void timer_every(uint32_t ms, subscribe_cb cb, void* ud, tock_timer_t* repeating
   repeating->ud       = ud;
 
   uint32_t now = alarm_read();
-  alarm_at(now, interval, (subscribe_cb*)repeating_cb,
+  alarm_at(now, interval, (subscribe_upcall*)repeating_cb,
            (void*)repeating, &repeating->alarm);
 }
 

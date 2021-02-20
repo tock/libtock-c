@@ -21,7 +21,7 @@ static void i2c_master_slave_cb(int callback_type,
 }
 
 
-int i2c_master_slave_set_callback(subscribe_cb callback, void* callback_args) {
+int i2c_master_slave_set_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t subval = subscribe2(DRIVER_NUM_I2CMASTERSLAVE, 0, callback, callback_args);
   if (subval.success == 0) {
     return tock_error_to_rcode(subval.error);

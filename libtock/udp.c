@@ -142,7 +142,7 @@ ssize_t udp_recv_sync(void *buf, size_t len) {
   return rx_result;
 }
 
-ssize_t udp_recv(subscribe_cb callback, void *buf, size_t len) {
+ssize_t udp_recv(subscribe_upcall callback, void *buf, size_t len) {
 
   // TODO: verify that this functions returns error if this app is not
   // bound to a socket yet. Probably allow should fail..?

@@ -1,7 +1,7 @@
 #include "touch.h"
 #include <stdlib.h>
 
-static int touch_subscribe(int subscribe_num, subscribe_cb callback, void* callback_args) {
+static int touch_subscribe(int subscribe_num, subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sv = subscribe2(DRIVER_NUM_TOUCH, subscribe_num, callback, callback_args);
   if (sv.success == 0) {
     return tock_error_to_rcode (sv.error);

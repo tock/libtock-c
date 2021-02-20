@@ -40,7 +40,7 @@ double ninedof_read_accel_mag(void) {
   return sqrt(result.x * result.x + result.y * result.y + result.z * result.z);
 }
 
-int ninedof_subscribe(subscribe_cb callback, void* userdata) {
+int ninedof_subscribe(subscribe_upcall callback, void* userdata) {
   subscribe_return_t sv = subscribe2(DRIVER_NUM_NINEDOF, 0, callback, userdata);
   if (sv.success) {
     return TOCK_SUCCESS;

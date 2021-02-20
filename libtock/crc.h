@@ -44,7 +44,7 @@ int crc_compute(const void *buf, size_t buflen, enum crc_alg, uint32_t *result);
 // The callback will receive these parameters, in order:
 //    status: SUCCESS if all inputs are valid, else EINVAL
 //    result: When status == SUCCESS, the CRC result
-int crc_subscribe(subscribe_cb, void *);
+int crc_subscribe(subscribe_upcall, void *);
 
 // Provide the buffer over which to compute a CRC
 int crc_set_buffer(const void*, size_t);

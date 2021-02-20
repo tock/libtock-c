@@ -9,7 +9,7 @@ static void st7735_callback(__attribute__ ((unused)) int value,
   *(bool*)ud = true;
 }
 
-static int st7735_subscribe (subscribe_cb cb, void *userdata) {
+static int st7735_subscribe (subscribe_upcall cb, void *userdata) {
   return subscribe(DRIVER_NUM_ST7735, 0, cb, userdata);
 }
 

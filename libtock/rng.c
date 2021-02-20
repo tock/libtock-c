@@ -25,7 +25,7 @@ allow_rw_return_t rng_set_buffer(uint8_t* buf, uint32_t len) {
   return allow_readwrite(DRIVER_NUM_RNG, 0, (void*) buf, len);
 }
 
-subscribe_return_t rng_set_callback(subscribe_cb callback, void* callback_args) {
+subscribe_return_t rng_set_callback(subscribe_upcall callback, void* callback_args) {
   return subscribe2(DRIVER_NUM_RNG, 0, callback, callback_args);
 }
 
@@ -33,7 +33,7 @@ syscall_return_t rng_get_random(int num_bytes) {
   return command2(DRIVER_NUM_RNG, 1, num_bytes, 0);
 }
 
-int rng_async(subscribe_cb callback, uint8_t* buf, uint32_t len, uint32_t num) {
+int rng_async(subscribe_upcall callback, uint8_t* buf, uint32_t len, uint32_t num) {
   subscribe_return_t sres = rng_set_callback(callback, NULL);
   if (!sres.success) return tock_error_to_rcode(sres.error);
 

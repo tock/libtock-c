@@ -102,7 +102,7 @@ static void spi_cb(__attribute__ ((unused)) int unused0,
 
 int spi_write(const char* buf,
               size_t len,
-              subscribe_cb cb, bool* cond) {
+              subscribe_upcall cb, bool* cond) {
   allow_ro_return_t allowval = allow_readonly(DRIVER_NUM_SPI, 0, buf, len);
   if (allowval.success == 0 ) {
     return tock_error_to_rcode(allowval.error);
@@ -122,7 +122,7 @@ int spi_write(const char* buf,
 int spi_read_write(const char* write,
                    char* read,
                    size_t len,
-                   subscribe_cb cb, bool* cond) {
+                   subscribe_upcall cb, bool* cond) {
 
   allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_SPI, 0, (void*)read, len);
   if (aval.success == 0) {

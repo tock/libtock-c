@@ -30,7 +30,7 @@ static void aes_cb(int callback_type,
 // ***** System Call Interface *****
 
 // Internal callback for encryption and decryption
-int aes128_set_callback(subscribe_cb callback, void *ud) {
+int aes128_set_callback(subscribe_upcall callback, void *ud) {
   return subscribe(AES_DRIVER, 0, callback, ud);
 }
 
@@ -59,7 +59,7 @@ int aes128_decrypt_start(void) {
 // Function to encrypt by aes128 counter-mode with a given payload and
 // initial counter asynchronously
 int aes128_encrypt_ctr(unsigned const char* buf, unsigned char buf_len,
-                       unsigned const char* ctr, unsigned char ctr_len, subscribe_cb callback) {
+                       unsigned const char* ctr, unsigned char ctr_len, subscribe_upcall callback) {
 
   int err;
 
@@ -78,7 +78,7 @@ int aes128_encrypt_ctr(unsigned const char* buf, unsigned char buf_len,
 // Function to decrypt by aes128 counter-mode with a given payload and
 // initial counter asynchronously
 int aes128_decrypt_ctr(const unsigned char* buf, unsigned char buf_len,
-                       const unsigned char* ctr, unsigned char ctr_len, subscribe_cb callback) {
+                       const unsigned char* ctr, unsigned char ctr_len, subscribe_upcall callback) {
 
   int err;
 

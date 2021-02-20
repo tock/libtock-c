@@ -24,7 +24,7 @@ static void gpio_async_cb(__attribute__ ((unused)) int callback_type,
 }
 
 
-int gpio_async_set_callback (subscribe_cb callback, void* callback_args) {
+int gpio_async_set_callback (subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sub = subscribe2(DRIVER_NUM_GPIO_ASYNC, 0, callback, callback_args);
   if (sub.success == 0) {
     return tock_error_to_rcode(sub.error);
@@ -142,7 +142,7 @@ int gpio_async_disable(uint32_t port, uint8_t pin) {
   }
 }
 
-int gpio_async_interrupt_callback(subscribe_cb callback, void* callback_args) {
+int gpio_async_interrupt_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sub = subscribe2(DRIVER_NUM_GPIO_ASYNC, 1, callback, callback_args);
   if (sub.success) {
     return TOCK_SUCCESS;
