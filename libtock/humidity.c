@@ -10,9 +10,9 @@ static struct data result = { .fired = false };
 
 // Internal callback for faking synchronous reads
 static void upcall(int humidity,
-               __attribute__ ((unused)) int unused,
-               __attribute__ ((unused)) int unused1,
-               void* ud) {
+                   __attribute__ ((unused)) int unused,
+                   __attribute__ ((unused)) int unused1,
+                   void* ud) {
   struct data* data = (struct data*) ud;
   data->humidity = humidity;
   data->fired    = true;
