@@ -8,8 +8,8 @@ struct data {
 
 static struct data result = { .fired = false };
 
-// Internal callback for faking synchronous reads
-static void cb(int temp,
+// Internal upcall  for faking synchronous reads
+static void upcall(int temp,
                __attribute__ ((unused)) int unused,
                __attribute__ ((unused)) int unused1,
                void* ud) {
@@ -18,19 +18,32 @@ static void cb(int temp,
   data->fired = true;
 }
 
-int temperature_set_callback(subscribe_cb callback, void* callback_args) {
-  return subscribe(DRIVER_NUM_TEMPERATURE, 0, callback, callback_args);
+int temperature_set_upcall(subscribe_cb callback, void* callback_args) {
+  
+  subscribe_return_t sval = subscribe2(DRIVER_NUM_TEMPERATURE, 0, callback, callback_args);
+  if (sval.success) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(sval.error);
+  }
 }
 
 int temperature_read(void) {
-  return command(DRIVER_NUM_TEMPERATURE, 1, 0, 0);
+  syscall_return_t sval = command2(DRIVER_NUM_TEMPERATURE, 1, 0, 0);
+  if (sval.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (sval.type == TOCK_SYSCALL_FAILURE) {
+    return tock_error_to_rcode(sval.data[0]);
+  } else {
+    return TOCK_EBADRVAL;
+  }
 }
 
 int temperature_read_sync(int* temperature) {
   int err;
   result.fired = false;
 
-  err = temperature_set_callback(cb, (void*) &result);
+  err = temperature_set_upcall(upcall, (void*) &result);
   if (err < 0) return err;
 
   err = temperature_read();
