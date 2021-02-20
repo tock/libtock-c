@@ -163,5 +163,10 @@ int getch(void) {
 }
 
 int getnstr_abort(void) {
-  return command(DRIVER_NUM_CONSOLE, 3, 0, 0);
+  syscall_return_t sval = command2(DRIVER_NUM_CONSOLE, 3, 0, 0);
+  if (sval.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else {
+    return TOCK_FAILURE;
+  }
 }
