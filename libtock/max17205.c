@@ -41,8 +41,13 @@ int max17205_set_callback (subscribe_cb callback, void* callback_args) {
   user_cb = callback;
 
   // Subscribe to the callback with our lower-layer callback, but pass
-  // callback arugments.
-  return subscribe(DRIVER_NUM_MAX17205, 0, max17205_cb, callback_args);
+  // callback arguments.
+  subscribe_return_t sval = subscribe2(DRIVER_NUM_MAX17205, 0, max17205_cb, callback_args);
+  if (sval.success) {
+    return 0;
+  } else {
+    return tock_error_to_rcode(sval.error);
+  }
 }
 
 int max17205_read_status(void) {
@@ -50,12 +55,17 @@ int max17205_read_status(void) {
     return TOCK_EBUSY;
   } else {
     is_busy = true;
-    int rc = command(DRIVER_NUM_MAX17205, 1, 0, 0);
-    if (rc != TOCK_SUCCESS) {
+    syscall_return_t com = command2(DRIVER_NUM_MAX17205, 1, 0, 0);
+    if (com.type == TOCK_SYSCALL_SUCCESS) {
+      return TOCK_SUCCESS;
+    } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+      // Returned an incorrect success code
       is_busy = false;
+      return TOCK_FAIL;
+    } else {
+      is_busy = false;
+      return tock_error_to_rcode(com.data[0]);
     }
-
-    return rc;
   }
 }
 
@@ -64,12 +74,17 @@ int max17205_read_soc(void) {
     return TOCK_EBUSY;
   } else {
     is_busy = true;
-    int rc = command(DRIVER_NUM_MAX17205, 2, 0, 0);
-    if (rc != TOCK_SUCCESS) {
+    syscall_return_t com = command2(DRIVER_NUM_MAX17205, 2, 0, 0);
+    if (com.type == TOCK_SYSCALL_SUCCESS) {
+      return TOCK_SUCCESS;
+    } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+      // Returned an incorrect success code
       is_busy = false;
+      return TOCK_FAIL;
+    } else {
+      is_busy = false;
+      return tock_error_to_rcode(com.data[0]);
     }
-
-    return rc;
   }
 }
 
@@ -78,12 +93,17 @@ int max17205_read_voltage_current(void) {
     return TOCK_EBUSY;
   } else {
     is_busy = true;
-    int rc = command(DRIVER_NUM_MAX17205, 3, 0, 0);
-    if (rc != TOCK_SUCCESS) {
+    syscall_return_t com = command2(DRIVER_NUM_MAX17205, 3, 0, 0);
+    if (com.type == TOCK_SYSCALL_SUCCESS) {
+      return TOCK_SUCCESS;
+    } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+      // Returned an incorrect success code
       is_busy = false;
+      return TOCK_FAIL;
+    } else {
+      is_busy = false;
+      return tock_error_to_rcode(com.data[0]);
     }
-
-    return rc;
   }
 }
 
@@ -92,12 +112,17 @@ int max17205_read_coulomb(void) {
     return TOCK_EBUSY;
   } else {
     is_busy = true;
-    int rc = command(DRIVER_NUM_MAX17205, 4, 0, 0);
-    if (rc != TOCK_SUCCESS) {
+    syscall_return_t com = command2(DRIVER_NUM_MAX17205, 4, 0, 0);
+    if (com.type == TOCK_SYSCALL_SUCCESS) {
+      return TOCK_SUCCESS;
+    } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+      // Returned an incorrect success code
       is_busy = false;
+      return TOCK_FAIL;
+    } else {
+      is_busy = false;
+      return tock_error_to_rcode(com.data[0]);
     }
-
-    return rc;
   }
 }
 
@@ -106,12 +131,17 @@ int max17205_read_rom_id(void) {
     return TOCK_EBUSY;
   } else {
     is_busy = true;
-    int rc = command(DRIVER_NUM_MAX17205, 5, 0, 0);
-    if (rc != TOCK_SUCCESS) {
+    syscall_return_t com = command2(DRIVER_NUM_MAX17205, 5, 0, 0);
+    if (com.type == TOCK_SYSCALL_SUCCESS) {
+      return TOCK_SUCCESS;
+    } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+      // Returned an incorrect success code
       is_busy = false;
+      return TOCK_FAIL;
+    } else {
+      is_busy = false;
+      return tock_error_to_rcode(com.data[0]);
     }
-
-    return rc;
   }
 }
 
