@@ -19,11 +19,24 @@ static void lps25hb_cb(int value,
 }
 
 int lps25hb_set_callback (subscribe_cb callback, void* callback_args) {
-  return subscribe(DRIVER_NUM_LPS25HB, 0, callback, callback_args);
+  subscribe_return_t sval = subscribe2(DRIVER_NUM_LPS25HB, 0, callback, callback_args);
+  if (sval.success) {
+    return 0;
+  } else {
+    return tock_error_to_rcode(sval.error);
+  }
 }
 
 int lps25hb_get_pressure (void) {
-  return command(DRIVER_NUM_LPS25HB, 1, 0, 0);
+  syscall_return_t com = command2(DRIVER_NUM_LPS25HB, 1, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    // Returned an incorrect success code
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 int lps25hb_get_pressure_sync (void) {
