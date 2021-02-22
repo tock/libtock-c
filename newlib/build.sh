@@ -15,4 +15,4 @@ $NEWLIB_SRC_DIR/configure --target=arm-none-eabi \
   --enable-newlib-global-atexit \
   --enable-newlib-nano-formatted-io
 
-make CFLAGS_FOR_TARGET='-g -Os -ffunction-sections -fdata-sections -fPIC -msingle-pic-base -mno-pic-data-is-text-relative'
+make -j$(nproc) CFLAGS_FOR_TARGET='-g -Os -ffunction-sections -fdata-sections -fPIC -msingle-pic-base -mno-pic-data-is-text-relative'

@@ -1,12 +1,12 @@
-GCC_VERSION ?= 6.2.0
+GCC_VERSION ?= 10.2.0
 
 all: rebuild-gcc
 
-gcc-$(GCC_VERSION).tar.bz2:
+gcc-$(GCC_VERSION).tar.xz:
 	@echo "Downloading gcc source $(@F)"
-	@wget -q -O $@ 'http://www.netgull.com/gcc/releases/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2'
+	@wget -q -O $@ 'https://bigsearcher.com/mirrors/gcc/releases/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.xz'
 
-gcc-$(GCC_VERSION): gcc-$(GCC_VERSION).tar.bz2
+gcc-$(GCC_VERSION): gcc-$(GCC_VERSION).tar.xz
 	@echo "Extracting $(<F)"
 	@tar -xf $<
 	@touch $@ # Touch so directory appears newer than tarball
@@ -21,7 +21,7 @@ rebuild-gcc: gcc-$(GCC_VERSION)
 	cp gcc-$(GCC_VERSION)-out/arm-none-eabi/libstdc++-v3/libsupc++/.libs/libsupc++.a .
 
 clean:
-	rm -f gcc-$(GCC_VERSION).tar.bz2
+	rm -f gcc-$(GCC_VERSION).tar.xz
 	rm -rf gcc-$(GCC_VERSION)
 	rm -rf gcc-$(GCC_VERSION)-out
 
