@@ -20,23 +20,60 @@ static void pca9544a_cb(__attribute__ ((unused)) int value,
 
 
 int pca9544a_set_callback(subscribe_cb callback, void* callback_args) {
-  return subscribe(DRIVER_NUM_PCA9544A, 0, callback, callback_args);
+  subscribe_return_t sval = subscribe2(DRIVER_NUM_PCA9544A, 0, callback, callback_args);
+  if (sval.success) {
+    return 0;
+  } else {
+    return tock_error_to_rcode(sval.error);
+  }
 }
 
 int pca9544a_select_channels(uint32_t channels) {
-  return command(DRIVER_NUM_PCA9544A, 1, channels, 0);
+  syscall_return_t com = command2(DRIVER_NUM_PCA9544A, 1, channels, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    // Returned an incorrect success code
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 int pca9544a_disable_all_channels(void) {
-  return command(DRIVER_NUM_PCA9544A, 2, 0, 0);
+  syscall_return_t com = command2(DRIVER_NUM_PCA9544A, 2, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    // Returned an incorrect success code
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 int pca9544a_read_interrupts(void) {
-  return command(DRIVER_NUM_PCA9544A, 3, 0, 0);
+  syscall_return_t com = command2(DRIVER_NUM_PCA9544A, 3, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    // Returned an incorrect success code
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 int pca9544a_read_selected(void) {
-  return command(DRIVER_NUM_PCA9544A, 4, 0, 0);
+  syscall_return_t com = command2(DRIVER_NUM_PCA9544A, 4, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    // Returned an incorrect success code
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 
