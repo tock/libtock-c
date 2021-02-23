@@ -22,7 +22,7 @@ static void pca9544a_cb(__attribute__ ((unused)) int value,
 int pca9544a_set_callback(subscribe_cb callback, void* callback_args) {
   subscribe_return_t sval = subscribe2(DRIVER_NUM_PCA9544A, 0, callback, callback_args);
   if (sval.success) {
-    return 0;
+    return TOCK_SUCCESS;
   } else {
     return tock_error_to_rcode(sval.error);
   }
