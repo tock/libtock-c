@@ -1,15 +1,7 @@
 #include "usb.h"
 
 int usb_exists(void) {
-  syscall_return_t com = command2(DRIVER_NUM_USB, 0, 0, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return driver_exists(DRIVER_NUM_USB);
 }
 
 int usb_subscribe(subscribe_cb callback, void *ud) {
