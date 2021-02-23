@@ -30,7 +30,7 @@ static void cb(int proximity,
 int proximity_set_callback(subscribe_cb callback, void *callback_args) {
   subscribe_return_t sub = subscribe2(DRIVER_NUM_PROXIMITY, 0, callback, callback_args);
   if (sub.success) {
-    return 0;
+    return TOCK_SUCCESS;
   } else {
     return tock_error_to_rcode(sub.error);
   }
