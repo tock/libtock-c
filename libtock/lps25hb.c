@@ -21,7 +21,7 @@ static void lps25hb_cb(int value,
 int lps25hb_set_callback (subscribe_cb callback, void* callback_args) {
   subscribe_return_t sval = subscribe2(DRIVER_NUM_LPS25HB, 0, callback, callback_args);
   if (sval.success) {
-    return 0;
+    return TOCK_SUCCESS;
   } else {
     return tock_error_to_rcode(sval.error);
   }
