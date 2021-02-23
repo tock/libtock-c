@@ -8,14 +8,10 @@
 #include <proximity.h>
 #include <temperature.h>
 #include <timer.h>
-#include <tmp006.h>
 #include <tock.h>
 #include <tsl2561.h>
 
-static bool isl29035 = false;
-// TODO: modify tmp006 to comply with the generic temperature interface
-// and then remove tmp006!!!
-static bool tmp006        = false;
+static bool isl29035      = false;
 static bool tsl2561       = false;
 static bool lps25hb       = false;
 static bool temperature   = false;
@@ -31,7 +27,6 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
                         __attribute__ ((unused)) int arg2,
                         __attribute__ ((unused)) void* ud) {
   int light = 0;
-  int16_t tmp006_temp  = 0;
   int tsl2561_lux      = 0;
   int lps25hb_pressure = 0;
   int temp = 0;
@@ -43,7 +38,6 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
 
   /* *INDENT-OFF* */
   if (isl29035)      ambient_light_read_intensity_sync(&light);
-  if (tmp006)        tmp006_read_sync(&tmp006_temp);
   if (tsl2561)       tsl2561_lux = tsl2561_get_lux_sync();
   if (lps25hb)       lps25hb_pressure = lps25hb_get_pressure_sync();
   if (temperature)   temperature_read_sync(&temp);
@@ -54,7 +48,6 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
   if (proximity)     proximity_read_sync(&prox_reading);
 
   if (isl29035)       printf("ISL29035:   Light Intensity: %d\n", light);
-  if (tmp006)         printf("TMP006:     Temperature:     %d\n", tmp006_temp);
   if (tsl2561)        printf("TSL2561:    Light:           %d lux\n", tsl2561_lux);
   if (lps25hb)        printf("LPS25HB:    Pressure:        %d\n", lps25hb_pressure);
   if (temp)           printf("Temperature:                 %d deg C\n", temp/100);
@@ -74,7 +67,6 @@ int main(void) {
   printf("[Sensors] All available sensors on the platform will be sampled.\n");
 
   isl29035    = driver_exists(DRIVER_NUM_AMBIENT_LIGHT);
-  tmp006      = driver_exists(DRIVER_NUM_TMP006);
   tsl2561     = driver_exists(DRIVER_NUM_TSL2561);
   lps25hb     = driver_exists(DRIVER_NUM_LPS25HB);
   temperature = driver_exists(DRIVER_NUM_TEMPERATURE);
