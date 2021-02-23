@@ -22,7 +22,7 @@ static void ltc294x_cb(__attribute__ ((unused)) int callback_type,
 int ltc294x_set_callback (subscribe_cb callback, void* callback_args) {
   subscribe_return_t sval = subscribe2(DRIVER_NUM_LTC294X, 0, callback, callback_args);
   if (sval.success) {
-    return 0;
+    return TOCK_SUCCESS;
   } else {
     return tock_error_to_rcode(sval.error);
   }
