@@ -1,3 +1,4 @@
+#include "math.h"
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -13,12 +14,12 @@
 #include <button.h>
 #include <gpio.h>
 #include <humidity.h>
-#include <ieee802154.h>
 #include <led.h>
 #include <ninedof.h>
 #include <nrf51_serialization.h>
 #include <temperature.h>
 #include <timer.h>
+#include <udp.h>
 
 // Intervals for BLE advertising and connections
 simple_ble_config_t ble_config = {
@@ -35,6 +36,9 @@ void ble_address_set (void) {
   // nop
 }
 
+// Buffer for UDP Bindings
+static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
+
 // Callback for button presses.
 //   btn_num: The index of the button associated with the callback
 //   val: 1 if pressed, 0 if depressed
@@ -49,6 +53,22 @@ static void button_callback(__attribute__ ((unused)) int btn_num,
   }
 }
 
+// struct for ninedof results
+struct ninedof_data {
+  int x;
+  int y;
+  int z;
+  bool fired;
+};
+// callback for ninedof
+static void ninedof_cb(int x, int y, int z, void* ud) {
+  struct ninedof_data* result = (struct ninedof_data*) ud;
+  result->x     = x;
+  result->y     = y;
+  result->z     = z;
+  result->fired = true;
+}
+
 static void sample_sensors (void) {
 
   // Sensors: temperature/humidity, acceleration, light
@@ -56,7 +76,21 @@ static void sample_sensors (void) {
   temperature_read_sync(&temp);
   unsigned humi;
   humidity_read_sync(&humi);
-  uint32_t accel_mag = ninedof_read_accel_mag();
+
+  /* some Imix boards do not actually have accelerometer, so use async in such
+   * a way that its absence does not hang the app */
+  uint32_t accel_mag = 0;
+
+  struct ninedof_data result = { .fired = false };
+
+  ninedof_subscribe(ninedof_cb, (void*)(&result));
+  ninedof_start_accel_reading();
+  delay_ms(5); // let ninedof cb execute if accelerometer is on board
+
+  if (&result.fired) {
+    accel_mag = sqrt(result.x * result.x + result.y * result.y + result.z * result.z);
+  }
+
   int light;
   ambient_light_read_intensity_sync(&light);
 
@@ -103,19 +137,23 @@ static void sample_sensors (void) {
   led_toggle(1);
 }
 
-static void send_ieee802154_packet(void) {
+static void send_udp_packet(void) {
   char packet[64];
+  ipv6_addr_t dest_addr = {
+    {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
+     0x1c, 0x1d, 0x1e, 0x1f}
+  };
+  sock_addr_t destination = {
+    dest_addr,
+    16123
+  };
 
-  int len = snprintf(packet, sizeof(packet), "Tock running on imix\n");
-
-  int err = ieee802154_send(0x0802,   // destination address (short MAC address)
-                            SEC_LEVEL_NONE,   // No encryption
-                            0,   // unused since SEC_LEVEL_NONE
-                            NULL,   // unused since SEC_LEVEL_NONE
-                            packet,
-                            len);
-  if (err != TOCK_SUCCESS && err != TOCK_ENOACK) {
-    printf("Error sending packet %d\n", err);
+  int len        = snprintf(packet, sizeof(packet), "Tock Running on Imix!\n");
+  ssize_t result = udp_send_to(packet, len, &destination);
+  if (result != TOCK_SUCCESS) {
+    printf("Error sending packet %d\n\n", result);
+  } else {
+    printf("UDP Packet sent successfully\n");
   }
 }
 
@@ -139,17 +177,25 @@ int main(void) {
   gpio_enable_input(2, PullDown); // D6
   gpio_enable_input(3, PullDown); // D7
 
-  /* { IEEE802.15.4 configuration... temporary until we have full IP */
-  ieee802154_set_address(0x1540);
-  ieee802154_set_pan(0xABCD);
-  ieee802154_config_commit();
-  ieee802154_up();
-  /* } IEEE802.15.4 configuration */
+  // setup UDP/IP
+  ipv6_addr_t ifaces[10];
+  udp_list_ifaces(ifaces, 10);
+
+  sock_handle_t handle;
+  sock_addr_t addr = {
+    ifaces[0],
+    11111
+  };
+
+  int bind_return = udp_bind(&handle, &addr, BUF_BIND_CFG);
+  if (bind_return < 0) {
+    printf("Bind failed. Error code: %d\n", bind_return);
+  }
 
   // sample sensors every second
   while (1) {
     sample_sensors();
-    send_ieee802154_packet();
+    send_udp_packet();
     delay_ms(1000);
   }
 }
