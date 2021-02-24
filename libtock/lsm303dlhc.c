@@ -20,11 +20,22 @@ static void command_callback_yield (int data1, int data2, int data3, void* ud) {
 
 
 static int lsm303dlhc_subscribe (subscribe_cb cb, void *userdata) {
-  return subscribe(DRIVER_NUM_LSM303DLHC, 0, cb, userdata);
+  subscribe_return_t subval = subscribe2(DRIVER_NUM_LSM303DLHC, 0, cb, userdata);
+  if (subval.success == 0) {
+    return tock_error_to_rcode(subval.error);
+  }
+  return TOCK_SUCCESS;
 }
 
-static int lsm303dlhc_command (uint32_t command_num, uint32_t data1, uint32_t data2) {
-  return command(DRIVER_NUM_LSM303DLHC, command_num, data1, data2);
+static int lsm303dlhc_command_noval (uint32_t command_num, uint32_t data1, uint32_t data2) {
+  syscall_return_t com = command2(DRIVER_NUM_LSM303DLHC, command_num, data1, data2);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type == TOCK_SYSCALL_FAILURE) {
+    return tock_error_to_rcode(com.data[0]);
+  } else {
+    return TOCK_EBADRVAL;
+  }
 }
 
 // Accelerometer Scale Factor
@@ -72,7 +83,7 @@ bool lsm303dlhc_is_present (void) {
   response.done  = false;
   // subscribe
   lsm303dlhc_subscribe (command_callback_yield, &response);
-  if (lsm303dlhc_command (1, 0, 0) == TOCK_SUCCESS) {
+  if (lsm303dlhc_command_noval (1, 0, 0) == TOCK_SUCCESS) {
     yield_for (&(response.done));
   }
   return response.data1 ? true : false;
@@ -85,7 +96,7 @@ bool lsm303dlhc_set_power_mode (unsigned char power_mode, bool low_power) {
   response.done  = false;
   // subscribe
   lsm303dlhc_subscribe (command_callback_yield, &response);
-  evalue = lsm303dlhc_command (2, power_mode, low_power ? 1 : 0);
+  evalue = lsm303dlhc_command_noval (2, power_mode, low_power ? 1 : 0);
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
   }
@@ -100,7 +111,7 @@ bool lsm303dlhc_set_accelerometer_scale_and_resolution (unsigned char scale, boo
   response.done  = false;
   // subscribe
   lsm303dlhc_subscribe (command_callback_yield, &response);
-  evalue = lsm303dlhc_command (3, scale, high_resolution ? 1 : 0);
+  evalue = lsm303dlhc_command_noval (3, scale, high_resolution ? 1 : 0);
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
     if (response.data1 == 1) {
@@ -117,7 +128,7 @@ bool lsm303dlhc_set_temperature_and_magnetometer_rate (bool temperature, unsigne
   response.done  = false;
   // subscribe
   lsm303dlhc_subscribe (command_callback_yield, &response);
-  evalue = lsm303dlhc_command (4, rate, temperature ? 1 : 0);
+  evalue = lsm303dlhc_command_noval (4, rate, temperature ? 1 : 0);
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
   }
@@ -131,7 +142,7 @@ bool lsm303dlhc_set_magnetometer_range (unsigned char range) {
   response.done  = false;
   // subscribe
   lsm303dlhc_subscribe (command_callback_yield, &response);
-  evalue = lsm303dlhc_command (5, range, 0);
+  evalue = lsm303dlhc_command_noval (5, range, 0);
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
     if (response.data1 == 1) {
@@ -147,7 +158,7 @@ int lsm303dlhc_read_acceleration_xyz (LSM303DLHCXYZ *xyz) {
   response.done = false;
   // subscribe
   lsm303dlhc_subscribe (command_callback_yield, &response);
-  evalue = lsm303dlhc_command (6, 0, 0);
+  evalue = lsm303dlhc_command_noval (6, 0, 0);
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
     if (xyz != NULL) {
@@ -165,7 +176,7 @@ int lsm303dlhc_read_temperature (float *temperature) {
   response.done = false;
   // subscribe
   lsm303dlhc_subscribe (command_callback_yield, &response);
-  evalue = lsm303dlhc_command (7, 0, 0);
+  evalue = lsm303dlhc_command_noval (7, 0, 0);
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
     if (temperature != NULL) {
@@ -180,7 +191,7 @@ int lsm303dlhc_read_magnetometer_xyz (LSM303DLHCXYZ *xyz) {
   response.done = false;
   // subscribe
   lsm303dlhc_subscribe (command_callback_yield, &response);
-  evalue = lsm303dlhc_command (8, 0, 0);
+  evalue = lsm303dlhc_command_noval (8, 0, 0);
   if (evalue == TOCK_SUCCESS) {
     yield_for (&(response.done));
     if (xyz != NULL) {
