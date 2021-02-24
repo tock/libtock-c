@@ -1,15 +1,28 @@
 #include "usb.h"
 
 int usb_exists(void) {
-  return command(DRIVER_NUM_USB, 0, 0, 0) >= 0;
+  return driver_exists(DRIVER_NUM_USB);
 }
 
-int usb_subscribe(subscribe_upcall callback, void *ud) {
-  return subscribe(DRIVER_NUM_USB, 0, callback, ud);
+int usb_subscribe(subscribe_upcall upcall, void *ud) {
+  subscribe_return_t sval = subscribe2(DRIVER_NUM_USB, 0, upcall, ud);
+  if (sval.success) {
+    return 0;
+  } else {
+    return tock_error_to_rcode(sval.error);
+  }
 }
 
 int usb_enable_and_attach_async(void) {
-  return command(DRIVER_NUM_USB, 1, 0, 0);
+  syscall_return_t com = command2(DRIVER_NUM_USB, 1, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    // Returned an incorrect success code
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 struct data {

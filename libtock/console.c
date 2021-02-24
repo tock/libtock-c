@@ -166,7 +166,9 @@ int getnstr_abort(void) {
   syscall_return_t sval = command2(DRIVER_NUM_CONSOLE, 3, 0, 0);
   if (sval.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
+  } else if (sval.type == TOCK_SYSCALL_FAILURE) {
+    return TOCK_FAIL;
   } else {
-    return TOCK_FAILURE;
+    return TOCK_EBADRVAL;
   }
 }
