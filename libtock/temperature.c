@@ -9,10 +9,10 @@ struct data {
 static struct data result = { .fired = false };
 
 // Internal upcall  for faking synchronous reads
-static void temp_callback(int temp,
-                          __attribute__ ((unused)) int unused,
-                          __attribute__ ((unused)) int unused1,
-                          void* ud) {
+static void temp_upcall(int temp,
+                        __attribute__ ((unused)) int unused,
+                        __attribute__ ((unused)) int unused1,
+                        void* ud) {
   struct data* data = (struct data*) ud;
   data->temp  = temp;
   data->fired = true;
@@ -43,7 +43,7 @@ int temperature_read_sync(int* temperature) {
   int err;
   result.fired = false;
 
-  err = temperature_set_callback(temp_callback, (void*) &result);
+  err = temperature_set_callback(temp_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = temperature_read();
