@@ -8,29 +8,41 @@ struct data {
 
 static struct data result = { .fired = false };
 
-// Internal callback for faking synchronous reads
-static void cb(int humidity,
-               __attribute__ ((unused)) int unused,
-               __attribute__ ((unused)) int unused1,
-               void* ud) {
+// Internal upcall for faking synchronous reads
+static void humidity_upcall(int humidity,
+                            __attribute__ ((unused)) int unused,
+                            __attribute__ ((unused)) int unused1,
+                            void* ud) {
   struct data* data = (struct data*) ud;
   data->humidity = humidity;
   data->fired    = true;
 }
 
 int humidity_set_callback(subscribe_cb callback, void* callback_args) {
-  return subscribe(DRIVER_NUM_HUMIDITY, 0, callback, callback_args);
+  subscribe_return_t sval = subscribe2(DRIVER_NUM_HUMIDITY, 0, callback, callback_args);
+  if (sval.success) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(sval.error);
+  }
 }
 
 int humidity_read(void) {
-  return command(DRIVER_NUM_HUMIDITY, 1, 0, 0);
+  syscall_return_t sval = command2(DRIVER_NUM_HUMIDITY, 1, 0, 0);
+  if (sval.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (sval.type == TOCK_SYSCALL_FAILURE) {
+    return tock_error_to_rcode(sval.data[0]);
+  } else {
+    return TOCK_EBADRVAL;
+  }
 }
 
 int humidity_read_sync(unsigned* humidity) {
   int err;
   result.fired = false;
 
-  err = humidity_set_callback(cb, (void*) &result);
+  err = humidity_set_callback(humidity_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = humidity_read();
