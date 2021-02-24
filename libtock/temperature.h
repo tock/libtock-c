@@ -14,7 +14,7 @@ extern "C" {
 //
 // callback       - pointer to function to be called
 // callback_args  - pointer to data provided to the callback
-int temperature_set_upcall (subscribe_cb callback, void* callback_args);
+int temperature_set_callback(subscribe_cb callback, void* callback_args);
 
 
 // initiate an ambient temperature measurement used both for syncronous and asyncronous readings
