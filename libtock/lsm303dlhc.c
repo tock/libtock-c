@@ -27,6 +27,10 @@ static int lsm303dlhc_subscribe (subscribe_cb cb, void *userdata) {
   return TOCK_SUCCESS;
 }
 
+// Helper function for command system calls that do not return an extra value
+// in the case of success. If a command is added to the driver that returns
+// success_u32, for example, this function can not be used for that system
+// call.
 static int lsm303dlhc_command_noval (uint32_t command_num, uint32_t data1, uint32_t data2) {
   syscall_return_t com = command2(DRIVER_NUM_LSM303DLHC, command_num, data1, data2);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
