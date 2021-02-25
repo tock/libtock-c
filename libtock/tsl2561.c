@@ -9,7 +9,7 @@ struct tsl2561_data {
 static struct tsl2561_data result = { .fired = false };
 
 // Internal callback for faking synchronous reads
-static void tsl2561_cb(__attribute__ ((unused)) int callback_type,
+static void tsl2561_upcall(__attribute__ ((unused)) int callback_type,
                        int value,
                        __attribute__ ((unused)) int unused2,
                        void* ud) {
@@ -43,7 +43,7 @@ int tsl2561_get_lux_sync (void) {
   int err;
   result.fired = false;
 
-  err = tsl2561_set_callback(tsl2561_cb, (void*) &result);
+  err = tsl2561_set_callback(tsl2561_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = tsl2561_get_lux();

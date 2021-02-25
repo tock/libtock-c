@@ -13,7 +13,7 @@ struct ninedof_data {
 static struct ninedof_data res = { .fired = false };
 
 // internal callback for faking synchronous reads
-static void ninedof_cb(int x, int y, int z, void* ud) {
+static void ninedof_upcall(int x, int y, int z, void* ud) {
   struct ninedof_data* result = (struct ninedof_data*) ud;
   result->x     = x;
   result->y     = y;
@@ -25,7 +25,7 @@ double ninedof_read_accel_mag(void) {
   struct ninedof_data result = { .fired = false };
   int err;
 
-  err = ninedof_subscribe(ninedof_cb, (void*)(&result));
+  err = ninedof_subscribe(ninedof_upcall, (void*)(&result));
   if (err < 0) {
     return err;
   }
@@ -80,7 +80,7 @@ int ninedof_read_acceleration_sync(int* x, int* y, int* z) {
   int err;
   res.fired = false;
 
-  err = ninedof_subscribe(ninedof_cb, (void*) &res);
+  err = ninedof_subscribe(ninedof_upcall, (void*) &res);
   if (err < 0) return err;
 
   err = ninedof_start_accel_reading();
@@ -100,7 +100,7 @@ int ninedof_read_magnetometer_sync(int* x, int* y, int* z) {
   int err;
   res.fired = false;
 
-  err = ninedof_subscribe(ninedof_cb, (void*) &res);
+  err = ninedof_subscribe(ninedof_upcall, (void*) &res);
   if (err < 0) return err;
 
   err = ninedof_start_magnetometer_reading();
@@ -120,7 +120,7 @@ int ninedof_read_gyroscope_sync(int* x, int* y, int* z) {
   int err;
   res.fired = false;
 
-  err = ninedof_subscribe(ninedof_cb, (void*) &res);
+  err = ninedof_subscribe(ninedof_upcall, (void*) &res);
   if (err < 0) return err;
 
   err = ninedof_start_gyro_reading();

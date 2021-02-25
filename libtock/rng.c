@@ -12,7 +12,7 @@ struct rng_data {
 static struct rng_data result = { .fired = false, .received = 0 };
 
 // Internal callback for faking synchronous reads
-static void rng_cb(__attribute__ ((unused)) int callback_type,
+static void rng_upcall(__attribute__ ((unused)) int callback_type,
                    int received,
                    __attribute__ ((unused)) int val2,
                    void* ud) {
@@ -55,7 +55,7 @@ int rng_sync(uint8_t* buf, uint32_t len, uint32_t num) {
   allow_rw_return_t ares = rng_set_buffer(buf, len);
   if (!ares.success) return tock_error_to_rcode(ares.error);
 
-  subscribe_return_t sres = rng_set_callback(rng_cb, (void*) &result);
+  subscribe_return_t sres = rng_set_callback(rng_upcall, (void*) &result);
   if (!sres.success) return tock_error_to_rcode(sres.error);
 
   result.fired = false;

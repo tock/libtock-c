@@ -9,7 +9,7 @@ struct lps25hb_data {
 static struct lps25hb_data result = { .fired = false };
 
 // Internal callback for faking synchronous reads
-static void lps25hb_cb(int value,
+static void lps25hb_upcall(int value,
                        __attribute__ ((unused)) int unused1,
                        __attribute__ ((unused)) int unused2,
                        void* ud) {
@@ -43,7 +43,7 @@ int lps25hb_get_pressure_sync (void) {
   int err;
   result.fired = false;
 
-  err = lps25hb_set_callback(lps25hb_cb, (void*) &result);
+  err = lps25hb_set_callback(lps25hb_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = lps25hb_get_pressure();

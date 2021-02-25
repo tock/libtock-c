@@ -93,7 +93,7 @@ int spi_write_byte(unsigned char byte) {
   }
 }
 
-static void spi_cb(__attribute__ ((unused)) int unused0,
+static void spi_upcall(__attribute__ ((unused)) int unused0,
                    __attribute__ ((unused)) int unused1,
                    __attribute__ ((unused)) int unused2,
                    __attribute__ ((unused)) void* ud) {
@@ -134,7 +134,7 @@ int spi_read_write(const char* write,
 int spi_write_sync(const char* write,
                    size_t len) {
   bool cond = false;
-  spi_write(write, len, spi_cb, &cond);
+  spi_write(write, len, spi_upcall, &cond);
   yield_for(&cond);
   return 0;
 }
@@ -143,7 +143,7 @@ int spi_read_write_sync(const char* write,
                         char* read,
                         size_t len) {
   bool cond = false;
-  int err   = spi_read_write(write, read, len, spi_cb, &cond);
+  int err   = spi_read_write(write, read, len, spi_upcall, &cond);
   if (err < 0) {
     return err;
   }

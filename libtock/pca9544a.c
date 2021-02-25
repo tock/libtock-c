@@ -9,7 +9,7 @@ struct pca9544a_data {
 static struct pca9544a_data result = { .fired = false };
 
 // Internal callback for faking synchronous reads
-static void pca9544a_cb(__attribute__ ((unused)) int value,
+static void pca9544a_upcall(__attribute__ ((unused)) int value,
                         __attribute__ ((unused)) int unused1,
                         __attribute__ ((unused)) int unused2,
                         void* ud) {
@@ -82,7 +82,7 @@ int pca9544a_select_channels_sync(uint32_t channels) {
   int err;
   result.fired = false;
 
-  err = pca9544a_set_callback(pca9544a_cb, (void*) &result);
+  err = pca9544a_set_callback(pca9544a_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = pca9544a_select_channels(channels);
@@ -98,7 +98,7 @@ int pca9544a_disable_all_channels_sync(void) {
   int err;
   result.fired = false;
 
-  err = pca9544a_set_callback(pca9544a_cb, (void*) &result);
+  err = pca9544a_set_callback(pca9544a_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = pca9544a_disable_all_channels();
@@ -114,7 +114,7 @@ int pca9544a_read_interrupts_sync(void) {
   int err;
   result.fired = false;
 
-  err = pca9544a_set_callback(pca9544a_cb, (void*) &result);
+  err = pca9544a_set_callback(pca9544a_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = pca9544a_read_interrupts();
@@ -130,7 +130,7 @@ int pca9544a_read_selected_sync(void) {
   int err;
   result.fired = false;
 
-  err = pca9544a_set_callback(pca9544a_cb, (void*) &result);
+  err = pca9544a_set_callback(pca9544a_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = pca9544a_read_selected();

@@ -13,7 +13,7 @@ struct gpio_async_data {
 static struct gpio_async_data result = { .fired = false };
 
 // Internal callback for faking synchronous reads
-static void gpio_async_cb(__attribute__ ((unused)) int callback_type,
+static void gpio_async_upcall(__attribute__ ((unused)) int callback_type,
                           __attribute__ ((unused)) int value,
                           __attribute__ ((unused)) int unused,
                           void* ud) {
@@ -157,7 +157,7 @@ int gpio_async_make_output_sync(uint32_t port, uint8_t pin) {
   int err;
   result.fired = false;
 
-  err = gpio_async_set_callback(gpio_async_cb, (void*) &result);
+  err = gpio_async_set_callback(gpio_async_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = gpio_async_make_output(port, pin);
@@ -173,7 +173,7 @@ int gpio_async_set_sync(uint32_t port, uint8_t pin) {
   int err;
   result.fired = false;
 
-  err = gpio_async_set_callback(gpio_async_cb, (void*) &result);
+  err = gpio_async_set_callback(gpio_async_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = gpio_async_set(port, pin);
@@ -189,7 +189,7 @@ int gpio_async_clear_sync(uint32_t port, uint8_t pin) {
   int err;
   result.fired = false;
 
-  err = gpio_async_set_callback(gpio_async_cb, (void*) &result);
+  err = gpio_async_set_callback(gpio_async_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = gpio_async_clear(port, pin);
@@ -205,7 +205,7 @@ int gpio_async_toggle_sync(uint32_t port, uint8_t pin) {
   int err;
   result.fired = false;
 
-  err = gpio_async_set_callback(gpio_async_cb, (void*) &result);
+  err = gpio_async_set_callback(gpio_async_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = gpio_async_toggle(port, pin);
@@ -221,7 +221,7 @@ int gpio_async_make_input_sync(uint32_t port, uint8_t pin, GPIO_InputMode_t pin_
   int err;
   result.fired = false;
 
-  err = gpio_async_set_callback(gpio_async_cb, (void*) &result);
+  err = gpio_async_set_callback(gpio_async_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = gpio_async_make_input(port, pin, pin_config);
@@ -237,7 +237,7 @@ int gpio_async_read_sync(uint32_t port, uint8_t pin) {
   int err;
   result.fired = false;
 
-  err = gpio_async_set_callback(gpio_async_cb, (void*) &result);
+  err = gpio_async_set_callback(gpio_async_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = gpio_async_read(port, pin);
@@ -253,7 +253,7 @@ int gpio_async_enable_interrupt_sync(uint32_t port, uint8_t pin, GPIO_InterruptM
   int err;
   result.fired = false;
 
-  err = gpio_async_set_callback(gpio_async_cb, (void*) &result);
+  err = gpio_async_set_callback(gpio_async_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = gpio_async_enable_interrupt(port, pin, irq_config);
@@ -269,7 +269,7 @@ int gpio_async_disable_interrupt_sync(uint32_t port, uint8_t pin) {
   int err;
   result.fired = false;
 
-  err = gpio_async_set_callback(gpio_async_cb, (void*) &result);
+  err = gpio_async_set_callback(gpio_async_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = gpio_async_disable_interrupt(port, pin);
@@ -285,7 +285,7 @@ int gpio_async_disable_sync(uint32_t port, uint8_t pin) {
   int err;
   result.fired = false;
 
-  err = gpio_async_set_callback(gpio_async_cb, (void*) &result);
+  err = gpio_async_set_callback(gpio_async_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = gpio_async_disable(port, pin);

@@ -14,7 +14,7 @@ typedef struct putstr_data {
 static putstr_data_t *putstr_head = NULL;
 static putstr_data_t *putstr_tail = NULL;
 
-static void putstr_cb(int _x __attribute__ ((unused)),
+static void putstr_upcall(int _x __attribute__ ((unused)),
                       int _y __attribute__ ((unused)),
                       int _z __attribute__ ((unused)),
                       void* ud __attribute__ ((unused))) {
@@ -26,10 +26,10 @@ static void putstr_cb(int _x __attribute__ ((unused)),
     putstr_tail = NULL;
   } else {
     int ret;
-    ret = putnstr_async(putstr_head->buf, putstr_head->len, putstr_cb, NULL);
+    ret = putnstr_async(putstr_head->buf, putstr_head->len, putstr_upcall, NULL);
     if (ret < 0) {
       // XXX There's no path to report errors currently, so just drop it
-      putstr_cb(0, 0, 0, NULL);
+      putstr_upcall(0, 0, 0, NULL);
     }
   }
 }
@@ -52,7 +52,7 @@ int putnstr(const char *str, size_t len) {
 
   if (putstr_tail == NULL) {
     // Invariant, if tail is NULL, head is also NULL
-    ret = putnstr_async(data->buf, data->len, putstr_cb, NULL);
+    ret = putnstr_async(data->buf, data->len, putstr_upcall, NULL);
     if (ret < 0) goto putnstr_fail_async;
     putstr_head = data;
     putstr_tail = data;
@@ -127,7 +127,7 @@ typedef struct getnstr_data {
 
 static getnstr_data_t getnstr_data = { true, 0 };
 
-static void getnstr_cb(int result,
+static void getnstr_upcall(int result,
                        int _y __attribute__ ((unused)),
                        int _z __attribute__ ((unused)),
                        void* ud __attribute__ ((unused))) {
@@ -144,7 +144,7 @@ int getnstr(char *str, size_t len) {
   }
   getnstr_data.called = false;
 
-  ret = getnstr_async(str, len, getnstr_cb, NULL);
+  ret = getnstr_async(str, len, getnstr_upcall, NULL);
   if (ret < 0) {
     return ret;
   }

@@ -34,7 +34,7 @@ typedef struct {
 //    arg1 - len, number of bytes written
 // 4: error, an error occurred
 //    arg1 - error, number representing the error that occurred
-static void sdcard_cb (int callback_type, int arg1, int arg2, void* callback_args) {
+static void sdcard_upcall (int callback_type, int arg1, int arg2, void* callback_args) {
 
   sdcard_data_t* result = (sdcard_data_t*) callback_args;
   switch (callback_type) {
@@ -120,7 +120,7 @@ int sdcard_initialize_sync (uint32_t* block_size, uint32_t* size_in_kB) {
   result.fired = false;
   result.error = TOCK_SUCCESS;
 
-  err = sdcard_set_callback(sdcard_cb, (void*) &result);
+  err = sdcard_set_callback(sdcard_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = sdcard_initialize();
@@ -155,7 +155,7 @@ int sdcard_read_block_sync (uint32_t sector) {
   result.fired = false;
   result.error = TOCK_SUCCESS;
 
-  err = sdcard_set_callback(sdcard_cb, (void*) &result);
+  err = sdcard_set_callback(sdcard_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = sdcard_read_block(sector);
@@ -182,7 +182,7 @@ int sdcard_write_block_sync (uint32_t sector) {
   result.fired = false;
   result.error = TOCK_SUCCESS;
 
-  err = sdcard_set_callback(sdcard_cb, (void*) &result);
+  err = sdcard_set_callback(sdcard_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = sdcard_write_block(sector);

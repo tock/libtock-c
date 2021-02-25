@@ -7,7 +7,7 @@ typedef struct {
 } ambient_light_data_t;
 
 // callback for synchronous reads
-static void ambient_light_cb(int intensity,
+static void ambient_light_upcall(int intensity,
                              __attribute__ ((unused)) int unused1,
                              __attribute__ ((unused)) int unused2, void* ud) {
   ambient_light_data_t* result = (ambient_light_data_t*)ud;
@@ -20,7 +20,7 @@ int ambient_light_read_intensity_sync(int* lux_value) {
   ambient_light_data_t result = {0};
   result.fired = false;
 
-  err = ambient_light_subscribe(ambient_light_cb, (void*)(&result));
+  err = ambient_light_subscribe(ambient_light_upcall, (void*)(&result));
   if (err < TOCK_SUCCESS) {
     return err;
   }

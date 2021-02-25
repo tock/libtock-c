@@ -10,7 +10,7 @@ struct ltc294x_data {
 static struct ltc294x_data result = { .fired = false, .charge = 0 };
 
 // Internal callback for faking synchronous reads
-static void ltc294x_cb(__attribute__ ((unused)) int callback_type,
+static void ltc294x_upcall(__attribute__ ((unused)) int callback_type,
                        __attribute__ ((unused)) int value,
                        __attribute__ ((unused)) int chip,
                        void* ud) {
@@ -190,7 +190,7 @@ int ltc294x_read_status_sync(void) {
   int err;
   result.fired = false;
 
-  err = ltc294x_set_callback(ltc294x_cb, (void*) &result);
+  err = ltc294x_set_callback(ltc294x_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = ltc294x_read_status();
@@ -209,7 +209,7 @@ int ltc294x_configure_sync(ltc294x_model_e model,
   int err;
   result.fired = false;
 
-  err = ltc294x_set_callback(ltc294x_cb, (void*) &result);
+  err = ltc294x_set_callback(ltc294x_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = ltc294x_configure(model, int_pin, prescaler, vbat);
@@ -225,7 +225,7 @@ int ltc294x_reset_charge_sync(void) {
   int err;
   result.fired = false;
 
-  err = ltc294x_set_callback(ltc294x_cb, (void*) &result);
+  err = ltc294x_set_callback(ltc294x_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = ltc294x_reset_charge();
@@ -241,7 +241,7 @@ int ltc294x_set_high_threshold_sync(uint16_t threshold) {
   int err;
   result.fired = false;
 
-  err = ltc294x_set_callback(ltc294x_cb, (void*) &result);
+  err = ltc294x_set_callback(ltc294x_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = ltc294x_set_high_threshold(threshold);
@@ -257,7 +257,7 @@ int ltc294x_set_low_threshold_sync(uint16_t threshold) {
   int err;
   result.fired = false;
 
-  err = ltc294x_set_callback(ltc294x_cb, (void*) &result);
+  err = ltc294x_set_callback(ltc294x_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = ltc294x_set_low_threshold(threshold);
@@ -273,7 +273,7 @@ int ltc294x_get_charge_sync(void) {
   int err;
   result.fired = false;
 
-  err = ltc294x_set_callback(ltc294x_cb, (void*) &result);
+  err = ltc294x_set_callback(ltc294x_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = ltc294x_get_charge();
@@ -289,7 +289,7 @@ int ltc294x_get_voltage_sync(void) {
   int err;
   result.fired = false;
 
-  err = ltc294x_set_callback(ltc294x_cb, (void*) &result);
+  err = ltc294x_set_callback(ltc294x_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = ltc294x_get_voltage();
@@ -305,7 +305,7 @@ int ltc294x_get_current_sync(void) {
   int err;
   result.fired = false;
 
-  err = ltc294x_set_callback(ltc294x_cb, (void*) &result);
+  err = ltc294x_set_callback(ltc294x_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = ltc294x_get_current();
@@ -321,7 +321,7 @@ int ltc294x_shutdown_sync(void) {
   int err;
   result.fired = false;
 
-  err = ltc294x_set_callback(ltc294x_cb, (void*) &result);
+  err = ltc294x_set_callback(ltc294x_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = ltc294x_shutdown();

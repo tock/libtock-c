@@ -65,7 +65,7 @@ int spi_peripheral_read_buf(char* str, size_t len) {
   }
 }
 
-static void spi_peripheral_cb(__attribute__ ((unused)) int unused0,
+static void spi_peripheral_upcall(__attribute__ ((unused)) int unused0,
                               __attribute__ ((unused)) int unused1,
                               __attribute__ ((unused)) int unused2,
                               __attribute__ ((unused)) void* ud) {
@@ -107,7 +107,7 @@ int spi_peripheral_read_write(const char* write,
 int spi_peripheral_write_sync(const char* write,
                               size_t len) {
   bool cond = false;
-  spi_peripheral_write(write, len, spi_peripheral_cb, &cond);
+  spi_peripheral_write(write, len, spi_peripheral_upcall, &cond);
   yield_for(&cond);
   return 0;
 }
@@ -116,7 +116,7 @@ int spi_peripheral_read_write_sync(const char* write,
                                    char* read,
                                    size_t len) {
   bool cond = false;
-  int err   = spi_peripheral_read_write(write, read, len, spi_peripheral_cb, &cond);
+  int err   = spi_peripheral_read_write(write, read, len, spi_peripheral_upcall, &cond);
   if (err < 0) {
     return err;
   }

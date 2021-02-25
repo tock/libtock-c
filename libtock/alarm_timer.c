@@ -141,14 +141,14 @@ void timer_in(uint32_t ms, subscribe_upcall cb, void* ud, tock_timer_t *timer) {
   alarm_at(now, interval, cb, ud, &timer->alarm);
 }
 
-static void repeating_cb( uint32_t now,
+static void repeating_upcall( uint32_t now,
                           __attribute__ ((unused)) int unused1,
                           __attribute__ ((unused)) int unused2,
                           void* ud) {
   tock_timer_t* repeating = (tock_timer_t*)ud;
   uint32_t interval       = repeating->interval;
   uint32_t cur_exp        = repeating->alarm.reference + interval;
-  alarm_at(cur_exp, interval, (subscribe_upcall*)repeating_cb,
+  alarm_at(cur_exp, interval, (subscribe_upcall*)repeating_upcall,
            (void*)repeating, &repeating->alarm);
   repeating->cb(now, cur_exp, 0, repeating->ud);
 }
@@ -162,7 +162,7 @@ void timer_every(uint32_t ms, subscribe_upcall cb, void* ud, tock_timer_t* repea
   repeating->ud       = ud;
 
   uint32_t now = alarm_read();
-  alarm_at(now, interval, (subscribe_upcall*)repeating_cb,
+  alarm_at(now, interval, (subscribe_upcall*)repeating_upcall,
            (void*)repeating, &repeating->alarm);
 }
 
@@ -171,7 +171,7 @@ void timer_cancel(tock_timer_t* timer) {
 }
 
 void delay_ms(uint32_t ms) {
-  void delay_cb(__attribute__ ((unused)) int unused0,
+  void delay_upcall(__attribute__ ((unused)) int unused0,
                 __attribute__ ((unused)) int unused1,
                 __attribute__ ((unused)) int unused2,
                 void* ud) {
@@ -180,12 +180,12 @@ void delay_ms(uint32_t ms) {
 
   bool cond = false;
   tock_timer_t timer;
-  timer_in(ms, delay_cb, &cond, &timer);
+  timer_in(ms, delay_upcall, &cond, &timer);
   yield_for(&cond);
 }
 
 int yield_for_with_timeout(bool* cond, uint32_t ms) {
-  void yield_for_timeout_cb(__attribute__ ((unused)) int unused0,
+  void yield_for_timeout_upcall(__attribute__ ((unused)) int unused0,
                             __attribute__ ((unused)) int unused1,
                             __attribute__ ((unused)) int unused2,
                             void* ud) {
@@ -194,7 +194,7 @@ int yield_for_with_timeout(bool* cond, uint32_t ms) {
 
   bool timeout = false;
   tock_timer_t timer;
-  timer_in(ms, yield_for_timeout_cb, &timeout, &timer);
+  timer_in(ms, yield_for_timeout_upcall, &timeout, &timer);
 
   while (!*cond) {
     if (timeout) {

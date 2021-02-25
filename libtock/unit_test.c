@@ -184,10 +184,10 @@ void test_teardown(void) {}
  * IPC callback which sets the `done` condition variable, allowing the test
  * runner to pause execution and await supervisor approval to continue running.
  */
-static void continue_cb(__attribute__ ((unused)) int pid,
-                        __attribute__ ((unused)) int arg2,
-                        __attribute__ ((unused)) int arg3,
-                        __attribute__ ((unused)) void *ud) {
+static void continue_callback(__attribute__ ((unused)) int pid,
+			      __attribute__ ((unused)) int arg2,
+			      __attribute__ ((unused)) int arg3,
+			      __attribute__ ((unused)) void *ud) {
   done = true;
 }
 
@@ -195,7 +195,7 @@ static void continue_cb(__attribute__ ((unused)) int pid,
  */
 static void sync_with_supervisor(int svc) {
   done = false;
-  ipc_notify_svc(svc);
+  ipc_notify_service(svc);
   yield_for(&done);
 }
 
@@ -232,7 +232,7 @@ void unit_test_runner(unit_test_fun *tests, uint32_t test_count,
   if (test_svc < 0) return;
 
   // Register the callback for cooperative scheduling.
-  ipc_register_client_cb(test_svc, continue_cb, NULL);
+  ipc_register_client_callback(test_svc, continue_callback, NULL);
 
   // Share the test state with the supervisor.
   ipc_share(test_svc, &test_buf[0], TEST_BUF_SZ);
@@ -321,7 +321,7 @@ static void print_test_summary(unit_test_t *test) {
  * When a test times out, there's no guarantee about the test runner's state, so
  * we just stop the tests here and print the results.
  */
-static void timeout_cb(__attribute__ ((unused)) int now,
+static void timeout_callback(__attribute__ ((unused)) int now,
                        __attribute__ ((unused)) int expiration,
                        __attribute__ ((unused)) int unused, void* ud) {
 
@@ -340,7 +340,7 @@ static void timeout_cb(__attribute__ ((unused)) int now,
  * supervisor (service) side. See unit_test_runner for details about the test runner
  * (client) side.
  */
-static void unit_test_service_cb(int pid,
+static void unit_test_service_callback(int pid,
                                  __attribute__ ((unused)) int len,
                                  int buf,
                                  __attribute__ ((unused)) void *ud) {
@@ -369,7 +369,7 @@ static void unit_test_service_cb(int pid,
 
     case TestStart:
       // Start the timer and start the test.
-      timer_in(test->timeout_ms, timeout_cb, test, &test->timer);
+      timer_in(test->timeout_ms, timeout_callback, test, &test->timer);
       ipc_notify_client(test->pid);
       break;
 
@@ -420,5 +420,5 @@ static void unit_test_service_cb(int pid,
 void unit_test_service(void) {
   pending_pids.head = NULL;
   pending_pids.tail = NULL;
-  ipc_register_svc(unit_test_service_cb, &pending_pids);
+  ipc_register_service_callback(unit_test_service_callback, &pending_pids);
 }

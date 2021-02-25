@@ -43,7 +43,7 @@ typedef struct {
 //      arg1 - channel in lower 8 bits,
 //             number of samples collected in upper 24 bits
 //      arg2 - pointer to buffer filled with samples
-static void adc_cb(int callback_type,
+static void adc_upcall(int callback_type,
                    int arg1,
                    int arg2,
                    void* callback_args) {
@@ -85,7 +85,7 @@ static void adc_cb(int callback_type,
   result->fired = true;
 }
 
-// function pointers used for wrapping adc callbacks with the `adc_routing_cb`
+// function pointers used for wrapping adc callbacks with the `adc_routing_upcall`
 // below
 static void (*single_sample_callback)(uint8_t, uint16_t, void*) = NULL;
 static void (*continuous_sample_callback)(uint8_t, uint16_t, void*) = NULL;
@@ -110,7 +110,7 @@ static void (*continuous_buffered_sample_callback)(uint8_t, uint32_t, uint16_t*,
 //      arg1 - channel in lower 8 bits,
 //             number of samples collected in upper 24 bits
 //      arg2 - pointer to buffer filled with samples
-static void adc_routing_cb(int callback_type,
+static void adc_routing_upcall(int callback_type,
                            int arg1,
                            int arg2,
                            void* callback_args) {
@@ -245,25 +245,25 @@ int adc_stop_sampling(void) {
 int adc_set_single_sample_callback(void (*callback)(uint8_t, uint16_t, void*),
                                    void* callback_args) {
   single_sample_callback = callback;
-  return adc_set_callback(adc_routing_cb, callback_args);
+  return adc_set_callback(adc_routing_upcall, callback_args);
 }
 
 int adc_set_continuous_sample_callback(void (*callback)(uint8_t, uint16_t, void*),
                                        void* callback_args) {
   continuous_sample_callback = callback;
-  return adc_set_callback(adc_routing_cb, callback_args);
+  return adc_set_callback(adc_routing_upcall, callback_args);
 }
 
 int adc_set_buffered_sample_callback(void (*callback)(uint8_t, uint32_t, uint16_t*, void*),
                                      void* callback_args) {
   buffered_sample_callback = callback;
-  return adc_set_callback(adc_routing_cb, callback_args);
+  return adc_set_callback(adc_routing_upcall, callback_args);
 }
 
 int adc_set_continuous_buffered_sample_callback(void (*callback)(uint8_t, uint32_t, uint16_t*, void*),
                                                 void* callback_args){
   continuous_buffered_sample_callback = callback;
-  return adc_set_callback(adc_routing_cb, callback_args);
+  return adc_set_callback(adc_routing_upcall, callback_args);
 }
 
 
@@ -275,7 +275,7 @@ int adc_sample_sync(uint8_t channel, uint16_t* sample) {
   result.fired = false;
   result.error = TOCK_SUCCESS;
 
-  err = adc_set_callback(adc_cb, (void*) &result);
+  err = adc_set_callback(adc_upcall, (void*) &result);
   if (err < TOCK_SUCCESS) return err;
 
   err = adc_single_sample(channel);
@@ -296,7 +296,7 @@ int adc_sample_buffer_sync(uint8_t channel, uint32_t frequency, uint16_t* buffer
   result.fired = false;
   result.error = TOCK_SUCCESS;
 
-  err = adc_set_callback(adc_cb, (void*) &result);
+  err = adc_set_callback(adc_upcall, (void*) &result);
   if (err < TOCK_SUCCESS) return err;
 
   err = adc_set_buffer(buffer, length);
