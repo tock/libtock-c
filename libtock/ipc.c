@@ -14,14 +14,24 @@ int ipc_discover(const char* pkg_name) {
 }
 
 int ipc_register_svc(subscribe_upcall callback, void *ud) {
-  return subscribe2(IPC_DRIVER_NUM, 0, callback, ud);
+  subscribe_return_t sval = subscribe2(IPC_DRIVER_NUM, 0, callback, ud);
+  if (sval.success) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(sval.error);
+  }
 }
 
 int ipc_register_client_cb(int svc_id, subscribe_upcall callback, void *ud) {
   if (svc_id <= 0) {
-    return -1;
+    return TOCK_FAIL;
   }
-  return subscribe(IPC_DRIVER_NUM, svc_id, callback, ud);
+  subscribe_return_t sval = subscribe2(IPC_DRIVER_NUM, svc_id, callback, ud);
+  if (sval.success) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(sval.error);
+  }
 }
 
 int ipc_notify_svc(int pid) {
@@ -34,7 +44,14 @@ int ipc_notify_svc(int pid) {
 }
 
 int ipc_notify_client(int pid) {
-  return command2(IPC_DRIVER_NUM, 3, pid, 0);
+  syscall_return_t res = command2(IPC_DRIVER_NUM, 3, pid, 0);
+  if (res.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (res.type == TOCK_SYSCALL_FAILURE) {
+    return tock_error_to_rcode(res.data[0]);
+  } else {
+    return TOCK_EBADRVAL;
+  }
 }
 
 allow_rw_return_t ipc_share(int pid, void* base, int len) {
