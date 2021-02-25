@@ -12,7 +12,7 @@
 #include <tock.h>
 #include <tsl2561.h>
 
-static bool isl29035 = false;
+static bool isl29035       = false;
 static bool tsl2561        = false;
 static bool lps25hb        = false;
 static bool temperature    = false;
