@@ -56,6 +56,6 @@ int main(void) {
   // First get the number of LEDs setup on this board.
   _number_of_leds = led_count();
 
-  ipc_register_svc(ipc_callback, NULL);
+  ipc_register_service_callback(ipc_callback, NULL);
   return 0;
 }

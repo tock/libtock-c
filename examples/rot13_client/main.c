@@ -19,7 +19,7 @@ static void rot13_callback(__attribute__ ((unused)) int pid,
   struct rot13_buf *rb = (struct rot13_buf*)ud;
   printf("%d: %.*s\n", rb->length, rb->length, rb->buf);
   delay_ms(500);
-  ipc_notify_svc(rot13_svc_num);
+  ipc_notify_service(rot13_svc_num);
 }
 
 int main(void) {
@@ -30,12 +30,12 @@ int main(void) {
   }
 
   struct rot13_buf *rb = (struct rot13_buf*)buf;
-  ipc_register_client_cb(rot13_svc_num, rot13_callback, rb);
+  ipc_register_client_callback(rot13_svc_num, rot13_callback, rb);
 
   rb->length = snprintf(rb->buf, sizeof(rb->buf), "Hello World!");
   ipc_share(rot13_svc_num, rb, 64);
 
-  ipc_notify_svc(rot13_svc_num);
+  ipc_notify_service(rot13_svc_num);
   return 0;
 }
 

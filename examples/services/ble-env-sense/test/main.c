@@ -38,12 +38,12 @@ int main(void) {
   delay_ms(1500);
 
   sensor_update_t *update = (sensor_update_t*) buf;
-  ipc_register_client_cb(_svc_num, ipc_callback, update);
+  ipc_register_client_callback(_svc_num, ipc_callback, update);
 
   update->type  = SENSOR_HUMIDITY;
   update->value = 185;
   ipc_share(_svc_num, buf, 64);
 
-  ipc_notify_svc(_svc_num);
+  ipc_notify_service(_svc_num);
   return 0;
 }
