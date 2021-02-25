@@ -11,9 +11,9 @@ static struct ltc294x_data result = { .fired = false, .charge = 0 };
 
 // Internal callback for faking synchronous reads
 static void ltc294x_upcall(__attribute__ ((unused)) int callback_type,
-                       __attribute__ ((unused)) int value,
-                       __attribute__ ((unused)) int chip,
-                       void* ud) {
+                           __attribute__ ((unused)) int value,
+                           __attribute__ ((unused)) int chip,
+                           void* ud) {
   struct ltc294x_data* data = (struct ltc294x_data*) ud;
   data->charge = value;
   data->fired  = true;

@@ -10,9 +10,9 @@ static struct pca9544a_data result = { .fired = false };
 
 // Internal callback for faking synchronous reads
 static void pca9544a_upcall(__attribute__ ((unused)) int value,
-                        __attribute__ ((unused)) int unused1,
-                        __attribute__ ((unused)) int unused2,
-                        void* ud) {
+                            __attribute__ ((unused)) int unused1,
+                            __attribute__ ((unused)) int unused2,
+                            void* ud) {
   struct pca9544a_data* data = (struct pca9544a_data*) ud;
   data->value = value;
   data->fired = true;

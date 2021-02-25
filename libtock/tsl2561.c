@@ -10,9 +10,9 @@ static struct tsl2561_data result = { .fired = false };
 
 // Internal callback for faking synchronous reads
 static void tsl2561_upcall(__attribute__ ((unused)) int callback_type,
-                       int value,
-                       __attribute__ ((unused)) int unused2,
-                       void* ud) {
+                           int value,
+                           __attribute__ ((unused)) int unused2,
+                           void* ud) {
   struct tsl2561_data* data = (struct tsl2561_data*) ud;
   data->value = value;
   data->fired = true;

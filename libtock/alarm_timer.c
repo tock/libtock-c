@@ -142,9 +142,9 @@ void timer_in(uint32_t ms, subscribe_upcall cb, void* ud, tock_timer_t *timer) {
 }
 
 static void repeating_upcall( uint32_t now,
-                          __attribute__ ((unused)) int unused1,
-                          __attribute__ ((unused)) int unused2,
-                          void* ud) {
+                              __attribute__ ((unused)) int unused1,
+                              __attribute__ ((unused)) int unused2,
+                              void* ud) {
   tock_timer_t* repeating = (tock_timer_t*)ud;
   uint32_t interval       = repeating->interval;
   uint32_t cur_exp        = repeating->alarm.reference + interval;
@@ -172,9 +172,9 @@ void timer_cancel(tock_timer_t* timer) {
 
 void delay_ms(uint32_t ms) {
   void delay_upcall(__attribute__ ((unused)) int unused0,
-                __attribute__ ((unused)) int unused1,
-                __attribute__ ((unused)) int unused2,
-                void* ud) {
+                    __attribute__ ((unused)) int unused1,
+                    __attribute__ ((unused)) int unused2,
+                    void* ud) {
     *((bool*)ud) = true;
   }
 
@@ -186,9 +186,9 @@ void delay_ms(uint32_t ms) {
 
 int yield_for_with_timeout(bool* cond, uint32_t ms) {
   void yield_for_timeout_upcall(__attribute__ ((unused)) int unused0,
-                            __attribute__ ((unused)) int unused1,
-                            __attribute__ ((unused)) int unused2,
-                            void* ud) {
+                                __attribute__ ((unused)) int unused1,
+                                __attribute__ ((unused)) int unused2,
+                                void* ud) {
     *((bool*)ud) = true;
   }
 

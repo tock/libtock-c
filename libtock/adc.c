@@ -44,9 +44,9 @@ typedef struct {
 //             number of samples collected in upper 24 bits
 //      arg2 - pointer to buffer filled with samples
 static void adc_upcall(int callback_type,
-                   int arg1,
-                   int arg2,
-                   void* callback_args) {
+                       int arg1,
+                       int arg2,
+                       void* callback_args) {
 
   adc_data_t* result = (adc_data_t*)callback_args;
 
@@ -111,9 +111,9 @@ static void (*continuous_buffered_sample_callback)(uint8_t, uint32_t, uint16_t*,
 //             number of samples collected in upper 24 bits
 //      arg2 - pointer to buffer filled with samples
 static void adc_routing_upcall(int callback_type,
-                           int arg1,
-                           int arg2,
-                           void* callback_args) {
+                               int arg1,
+                               int arg2,
+                               void* callback_args) {
 
   switch (callback_type) {
     case SingleSample:

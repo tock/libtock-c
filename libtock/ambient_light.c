@@ -8,8 +8,8 @@ typedef struct {
 
 // callback for synchronous reads
 static void ambient_light_upcall(int intensity,
-                             __attribute__ ((unused)) int unused1,
-                             __attribute__ ((unused)) int unused2, void* ud) {
+                                 __attribute__ ((unused)) int unused1,
+                                 __attribute__ ((unused)) int unused2, void* ud) {
   ambient_light_data_t* result = (ambient_light_data_t*)ud;
   result->intensity = intensity;
   result->fired     = true;

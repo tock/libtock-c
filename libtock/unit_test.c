@@ -185,9 +185,9 @@ void test_teardown(void) {}
  * runner to pause execution and await supervisor approval to continue running.
  */
 static void continue_callback(__attribute__ ((unused)) int pid,
-			      __attribute__ ((unused)) int arg2,
-			      __attribute__ ((unused)) int arg3,
-			      __attribute__ ((unused)) void *ud) {
+                              __attribute__ ((unused)) int arg2,
+                              __attribute__ ((unused)) int arg3,
+                              __attribute__ ((unused)) void *ud) {
   done = true;
 }
 
@@ -322,8 +322,8 @@ static void print_test_summary(unit_test_t *test) {
  * we just stop the tests here and print the results.
  */
 static void timeout_callback(__attribute__ ((unused)) int now,
-                       __attribute__ ((unused)) int expiration,
-                       __attribute__ ((unused)) int unused, void* ud) {
+                             __attribute__ ((unused)) int expiration,
+                             __attribute__ ((unused)) int unused, void* ud) {
 
   unit_test_t *test = (unit_test_t *)ud;
   test->result = Timeout;
@@ -341,9 +341,9 @@ static void timeout_callback(__attribute__ ((unused)) int now,
  * (client) side.
  */
 static void unit_test_service_callback(int pid,
-                                 __attribute__ ((unused)) int len,
-                                 int buf,
-                                 __attribute__ ((unused)) void *ud) {
+                                       __attribute__ ((unused)) int len,
+                                       int buf,
+                                       __attribute__ ((unused)) void *ud) {
   if (buf == 0) {
     return;
   }

@@ -94,9 +94,9 @@ int spi_write_byte(unsigned char byte) {
 }
 
 static void spi_upcall(__attribute__ ((unused)) int unused0,
-                   __attribute__ ((unused)) int unused1,
-                   __attribute__ ((unused)) int unused2,
-                   __attribute__ ((unused)) void* ud) {
+                       __attribute__ ((unused)) int unused1,
+                       __attribute__ ((unused)) int unused2,
+                       __attribute__ ((unused)) void* ud) {
   *((bool*)ud) = true;
 }
 

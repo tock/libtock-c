@@ -14,9 +14,9 @@ static struct gpio_async_data result = { .fired = false };
 
 // Internal callback for faking synchronous reads
 static void gpio_async_upcall(__attribute__ ((unused)) int callback_type,
-                          __attribute__ ((unused)) int value,
-                          __attribute__ ((unused)) int unused,
-                          void* ud) {
+                              __attribute__ ((unused)) int value,
+                              __attribute__ ((unused)) int unused,
+                              void* ud) {
   struct gpio_async_data* myresult = (struct gpio_async_data*) ud;
   myresult->callback_type = callback_type;
   myresult->value         = value;

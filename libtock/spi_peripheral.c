@@ -66,9 +66,9 @@ int spi_peripheral_read_buf(char* str, size_t len) {
 }
 
 static void spi_peripheral_upcall(__attribute__ ((unused)) int unused0,
-                              __attribute__ ((unused)) int unused1,
-                              __attribute__ ((unused)) int unused2,
-                              __attribute__ ((unused)) void* ud) {
+                                  __attribute__ ((unused)) int unused1,
+                                  __attribute__ ((unused)) int unused2,
+                                  __attribute__ ((unused)) void* ud) {
   *((bool*)ud) = true;
 }
 

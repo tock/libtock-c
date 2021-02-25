@@ -10,9 +10,9 @@ static struct lps25hb_data result = { .fired = false };
 
 // Internal callback for faking synchronous reads
 static void lps25hb_upcall(int value,
-                       __attribute__ ((unused)) int unused1,
-                       __attribute__ ((unused)) int unused2,
-                       void* ud) {
+                           __attribute__ ((unused)) int unused1,
+                           __attribute__ ((unused)) int unused2,
+                           void* ud) {
   struct lps25hb_data* data = (struct lps25hb_data*) ud;
   data->value = value;
   data->fired = true;

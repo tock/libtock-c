@@ -5,9 +5,9 @@
 
 // Internal callback for synchronous interfaces
 static void app_state_sync_upcall(__attribute__ ((unused)) int callback_type,
-                              __attribute__ ((unused)) int value,
-                              __attribute__ ((unused)) int unused,
-                              void* ud) {
+                                  __attribute__ ((unused)) int value,
+                                  __attribute__ ((unused)) int unused,
+                                  void* ud) {
   *((bool*) ud) = true;
 }
 

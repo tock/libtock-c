@@ -11,9 +11,9 @@ static struct i2c_master_slave_data result = { .fired = false };
 
 // Internal callback for faking synchronous reads
 static void i2c_master_slave_upcall(int callback_type,
-                                int length,
-                                __attribute__ ((unused)) int unused,
-                                void* ud) {
+                                    int length,
+                                    __attribute__ ((unused)) int unused,
+                                    void* ud) {
   struct i2c_master_slave_data* data = (struct i2c_master_slave_data*) ud;
   data->callback_type = callback_type;
   data->length        = length;
