@@ -34,7 +34,7 @@ int ipc_notify_svc(int pid) {
 }
 
 int ipc_notify_client(int pid) {
-  return command(IPC_DRIVER_NUM, 3, pid, 0);
+  return command2(IPC_DRIVER_NUM, 3, pid, 0);
 }
 
 allow_rw_return_t ipc_share(int pid, void* base, int len) {
