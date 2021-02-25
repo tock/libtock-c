@@ -14,7 +14,7 @@ int ipc_discover(const char* pkg_name) {
 }
 
 int ipc_register_svc(subscribe_upcall callback, void *ud) {
-  return subscribe(IPC_DRIVER_NUM, 0, callback, ud);
+  return subscribe2(IPC_DRIVER_NUM, 0, callback, ud);
 }
 
 int ipc_register_client_cb(int svc_id, subscribe_upcall callback, void *ud) {
