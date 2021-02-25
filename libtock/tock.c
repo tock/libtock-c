@@ -201,7 +201,7 @@ subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
 }
 
 syscall_return_t command2(uint32_t driver, uint32_t command,
-			  int arg1, int arg2) {
+                          int arg1, int arg2) {
   register uint32_t r0 asm ("r0") = driver;
   register uint32_t r1 asm ("r1") = command;
   register uint32_t r2 asm ("r2") = arg1;
@@ -391,7 +391,7 @@ subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
 }
 
 syscall_return_t command2(uint32_t driver, uint32_t command,
-			  int arg1, int arg2) {
+                          int arg1, int arg2) {
   register uint32_t a0  asm ("a0") = driver;
   register uint32_t a1  asm ("a1") = command;
   register uint32_t a2  asm ("a2") = arg1;
@@ -411,7 +411,7 @@ syscall_return_t command2(uint32_t driver, uint32_t command,
 }
 
 allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
-				  void* ptr, size_t size) {
+                                  void* ptr, size_t size) {
   register uint32_t a0  asm ("a0") = driver;
   register uint32_t a1  asm ("a1") = allow;
   register void*    a2  asm ("a2") = ptr;
@@ -439,7 +439,7 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
 }
 
 allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
-				 const void* ptr, size_t size) {
+                                 const void* ptr, size_t size) {
   register uint32_t a0  asm ("a0")    = driver;
   register uint32_t a1  asm ("a1")    = allow;
   register const void* a2  asm ("a2") = ptr;
