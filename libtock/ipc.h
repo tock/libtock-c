@@ -28,7 +28,7 @@ int ipc_discover(const char* pkg_name);
 //   char* buf - the base address of the shared buffer, or NULL if no buffer is
 //               shared from the client.
 //   void* ud  - `userdata`. same as the argument to this function.
-int ipc_register_svc(subscribe_upcall callback, void *ud);
+int ipc_register_service_callback(subscribe_upcall callback, void *ud);
 
 // Registers a client callback for a particular service.
 //
@@ -43,13 +43,13 @@ int ipc_register_svc(subscribe_upcall callback, void *ud);
 //   char* buf - the base address of the shared buffer, or NULL if no buffer is
 //               shared from the service.
 //   void* ud  - `userdata`. same as the argument to this function.
-int ipc_register_client_cb(int svc_id, subscribe_upcall callback, void *ud);
+int ipc_register_client_callback(int svc_id, subscribe_upcall callback, void *ud);
 
 // Send a notify to the client at the given process id
 int ipc_notify_client(int pid);
 
 // Send a notify to the service at the given process id
-int ipc_notify_svc(int pid);
+int ipc_notify_service(int pid);
 
 // Share a buffer with the given process (either service or client)
 //
