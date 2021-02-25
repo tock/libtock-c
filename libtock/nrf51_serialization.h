@@ -15,7 +15,7 @@ int nrf51_serialization_reset (void);
 // Give the BLE Serialization / UART layer a callback to call when
 // a packet is received and when a TX is finished.
 __attribute__ ((warn_unused_result))
-int nrf51_serialization_subscribe (subscribe_cb cb);
+int nrf51_serialization_subscribe (subscribe_upcall cb);
 
 // Pass a buffer for the driver to write received UART bytes to.
 __attribute__ ((warn_unused_result))

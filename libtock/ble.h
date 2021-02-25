@@ -98,7 +98,7 @@ int ble_stop_advertising(void);
 //                        or not
 // len                  - the number of bytes received via the radio
 //
-int ble_start_passive_scan(uint8_t *data, uint8_t len, subscribe_cb callback);
+int ble_start_passive_scan(uint8_t *data, uint8_t len, subscribe_upcall callback);
 
 // stop passive scanning
 int ble_stop_passive_scan(void);

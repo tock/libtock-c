@@ -32,7 +32,7 @@ extern "C" {
 // The callback will be associated the most recent successful
 // call to the driver. If a command is called during an outstanding
 // command, EBUSY will be returned.
-int max17205_set_callback (subscribe_cb callback, void* callback_args);
+int max17205_set_callback (subscribe_upcall callback, void* callback_args);
 
 // Get the current status of the battery
 // Result is returned in callback.

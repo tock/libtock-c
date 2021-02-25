@@ -32,7 +32,7 @@ int ble_stop_advertising(void) {
 }
 
 int ble_start_passive_scan(uint8_t *data, uint8_t max_len,
-                           subscribe_cb callback) {
+                           subscribe_upcall callback) {
   if (data == NULL || callback == NULL) {
     return TOCK_FAIL;
   } else {

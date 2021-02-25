@@ -19,7 +19,7 @@ static void command_callback_yield (int data1, int data2, int data3, void* ud) {
 }
 
 
-static int lsm303dlhc_subscribe (subscribe_cb cb, void *userdata) {
+static int lsm303dlhc_subscribe(subscribe_upcall cb, void *userdata) {
   subscribe_return_t subval = subscribe2(DRIVER_NUM_LSM303DLHC, 0, cb, userdata);
   if (subval.success == 0) {
     return tock_error_to_rcode(subval.error);

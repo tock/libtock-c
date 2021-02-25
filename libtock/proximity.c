@@ -27,8 +27,8 @@ static void cb(int proximity,
   data->fired     = true;
 }
 
-int proximity_set_callback(subscribe_cb callback, void *callback_args) {
-  subscribe_return_t sub = subscribe2(DRIVER_NUM_PROXIMITY, 0, callback, callback_args);
+int proximity_set_callback(subscribe_upcall upcall, void *callback_args) {
+  subscribe_return_t sub = subscribe2(DRIVER_NUM_PROXIMITY, 0, upcall, callback_args);
   if (sub.success) {
     return TOCK_SUCCESS;
   } else {

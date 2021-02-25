@@ -10,10 +10,10 @@ struct i2c_master_slave_data {
 static struct i2c_master_slave_data result = { .fired = false };
 
 // Internal callback for faking synchronous reads
-static void i2c_master_slave_cb(int callback_type,
-                                int length,
-                                __attribute__ ((unused)) int unused,
-                                void* ud) {
+static void i2c_master_slave_upcall(int callback_type,
+                                    int length,
+                                    __attribute__ ((unused)) int unused,
+                                    void* ud) {
   struct i2c_master_slave_data* data = (struct i2c_master_slave_data*) ud;
   data->callback_type = callback_type;
   data->length        = length;
@@ -21,7 +21,7 @@ static void i2c_master_slave_cb(int callback_type,
 }
 
 
-int i2c_master_slave_set_callback(subscribe_cb callback, void* callback_args) {
+int i2c_master_slave_set_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t subval = subscribe2(DRIVER_NUM_I2CMASTERSLAVE, 0, callback, callback_args);
   if (subval.success == 0) {
     return tock_error_to_rcode(subval.error);
@@ -127,7 +127,7 @@ int i2c_master_slave_write_sync(uint8_t address, uint8_t len) {
   int err;
   result.fired = false;
 
-  err = i2c_master_slave_set_callback(i2c_master_slave_cb, (void*) &result);
+  err = i2c_master_slave_set_callback(i2c_master_slave_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = i2c_master_slave_write(address, len);
@@ -143,7 +143,7 @@ int i2c_master_slave_write_read_sync(uint8_t address, uint8_t wlen, uint8_t rlen
   int err;
   result.fired = false;
 
-  err = i2c_master_slave_set_callback(i2c_master_slave_cb, (void*) &result);
+  err = i2c_master_slave_set_callback(i2c_master_slave_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = i2c_master_slave_write_read(address, wlen, rlen);
@@ -159,7 +159,7 @@ int i2c_master_slave_read_sync(uint16_t address, uint16_t len) {
   int err;
   result.fired = false;
 
-  err = i2c_master_slave_set_callback(i2c_master_slave_cb, (void*) &result);
+  err = i2c_master_slave_set_callback(i2c_master_slave_upcall, (void*) &result);
   if (err < 0) return err;
 
   err = i2c_master_slave_read(address, len);

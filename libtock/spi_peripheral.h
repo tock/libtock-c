@@ -23,11 +23,11 @@ int spi_peripheral_set_polarity(bool pol);
 int spi_peripheral_get_polarity(void);
 
 /* This registers a callback for when the peripheral is selected. */
-int spi_peripheral_chip_selected(subscribe_cb cb, bool* cond);
+int spi_peripheral_chip_selected(subscribe_upcall cb, bool* cond);
 
 int spi_peripheral_read_buf(char* str, size_t len);
-int spi_peripheral_write(const char* str, size_t len, subscribe_cb cb, bool* cond);
-int spi_peripheral_read_write(const char* write, char* read, size_t len, subscribe_cb cb, bool* cond);
+int spi_peripheral_write(const char* str, size_t len, subscribe_upcall cb, bool* cond);
+int spi_peripheral_read_write(const char* write, char* read, size_t len, subscribe_upcall cb, bool* cond);
 
 int spi_peripheral_write_sync(const char* write, size_t len);
 int spi_peripheral_read_write_sync(const char* write, char* read, size_t len);

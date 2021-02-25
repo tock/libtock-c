@@ -1,10 +1,10 @@
 #include "internal/nonvolatile_storage.h"
 
-subscribe_return_t nonvolatile_storage_internal_read_done_subscribe(subscribe_cb cb, void *userdata) {
+subscribe_return_t nonvolatile_storage_internal_read_done_subscribe(subscribe_upcall cb, void *userdata) {
   return subscribe2(DRIVER_NUM_NONVOLATILE_STORAGE, 0, cb, userdata);
 }
 
-subscribe_return_t nonvolatile_storage_internal_write_done_subscribe(subscribe_cb cb, void *userdata) {
+subscribe_return_t nonvolatile_storage_internal_write_done_subscribe(subscribe_upcall cb, void *userdata) {
   return subscribe2(DRIVER_NUM_NONVOLATILE_STORAGE, 1, cb, userdata);
 }
 

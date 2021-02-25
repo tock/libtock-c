@@ -51,6 +51,6 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
 int main(void) {
   // Register the IPC service for this app. It is identified by the PACKAGE_NAME
   // of this app.
-  ipc_register_svc(ipc_callback, NULL);
+  ipc_register_service_callback(ipc_callback, NULL);
   return 0;
 }

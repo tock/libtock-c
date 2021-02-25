@@ -7,9 +7,9 @@ typedef struct {
 } ambient_light_data_t;
 
 // callback for synchronous reads
-static void ambient_light_cb(int intensity,
-                             __attribute__ ((unused)) int unused1,
-                             __attribute__ ((unused)) int unused2, void* ud) {
+static void ambient_light_upcall(int intensity,
+                                 __attribute__ ((unused)) int unused1,
+                                 __attribute__ ((unused)) int unused2, void* ud) {
   ambient_light_data_t* result = (ambient_light_data_t*)ud;
   result->intensity = intensity;
   result->fired     = true;
@@ -20,7 +20,7 @@ int ambient_light_read_intensity_sync(int* lux_value) {
   ambient_light_data_t result = {0};
   result.fired = false;
 
-  err = ambient_light_subscribe(ambient_light_cb, (void*)(&result));
+  err = ambient_light_subscribe(ambient_light_upcall, (void*)(&result));
   if (err < TOCK_SUCCESS) {
     return err;
   }
@@ -37,7 +37,7 @@ int ambient_light_read_intensity_sync(int* lux_value) {
   return TOCK_SUCCESS;
 }
 
-int ambient_light_subscribe(subscribe_cb callback, void* userdata) {
+int ambient_light_subscribe(subscribe_upcall callback, void* userdata) {
   subscribe_return_t ret = subscribe2(DRIVER_NUM_AMBIENT_LIGHT, 0, callback, userdata);
   if (ret.success) {
     return TOCK_SUCCESS;

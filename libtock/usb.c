@@ -4,8 +4,8 @@ int usb_exists(void) {
   return driver_exists(DRIVER_NUM_USB);
 }
 
-int usb_subscribe(subscribe_cb callback, void *ud) {
-  subscribe_return_t sval = subscribe2(DRIVER_NUM_USB, 0, callback, ud);
+int usb_subscribe(subscribe_upcall upcall, void *ud) {
+  subscribe_return_t sval = subscribe2(DRIVER_NUM_USB, 0, upcall, ud);
   if (sval.success) {
     return 0;
   } else {

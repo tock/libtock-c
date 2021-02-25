@@ -93,16 +93,16 @@ int spi_write_byte(unsigned char byte) {
   }
 }
 
-static void spi_cb(__attribute__ ((unused)) int unused0,
-                   __attribute__ ((unused)) int unused1,
-                   __attribute__ ((unused)) int unused2,
-                   __attribute__ ((unused)) void* ud) {
+static void spi_upcall(__attribute__ ((unused)) int unused0,
+                       __attribute__ ((unused)) int unused1,
+                       __attribute__ ((unused)) int unused2,
+                       __attribute__ ((unused)) void* ud) {
   *((bool*)ud) = true;
 }
 
 int spi_write(const char* buf,
               size_t len,
-              subscribe_cb cb, bool* cond) {
+              subscribe_upcall cb, bool* cond) {
   allow_ro_return_t allowval = allow_readonly(DRIVER_NUM_SPI, 0, buf, len);
   if (allowval.success == 0 ) {
     return tock_error_to_rcode(allowval.error);
@@ -122,7 +122,7 @@ int spi_write(const char* buf,
 int spi_read_write(const char* write,
                    char* read,
                    size_t len,
-                   subscribe_cb cb, bool* cond) {
+                   subscribe_upcall cb, bool* cond) {
 
   allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_SPI, 0, (void*)read, len);
   if (aval.success == 0) {
@@ -134,7 +134,7 @@ int spi_read_write(const char* write,
 int spi_write_sync(const char* write,
                    size_t len) {
   bool cond = false;
-  spi_write(write, len, spi_cb, &cond);
+  spi_write(write, len, spi_upcall, &cond);
   yield_for(&cond);
   return 0;
 }
@@ -143,7 +143,7 @@ int spi_read_write_sync(const char* write,
                         char* read,
                         size_t len) {
   bool cond = false;
-  int err   = spi_read_write(write, read, len, spi_cb, &cond);
+  int err   = spi_read_write(write, read, len, spi_upcall, &cond);
   if (err < 0) {
     return err;
   }

@@ -1,7 +1,7 @@
 #include "touch.h"
 #include <stdlib.h>
 
-static int touch_subscribe(int subscribe_num, subscribe_cb callback, void* callback_args) {
+static int touch_subscribe(int subscribe_num, subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sv = subscribe2(DRIVER_NUM_TOUCH, subscribe_num, callback, callback_args);
   if (sv.success == 0) {
     return tock_error_to_rcode (sv.error);
@@ -24,16 +24,16 @@ static int touch_allow(int allow_num, void* data, int len) {
 static touch_t *multi_touch_buffer = NULL;
 static unsigned char num_touches   = 0;
 
-static touch_callback *single_touch_cb = NULL;
-static gesture_callback *gesture_cb    = NULL;
+static touch_callback *single_touch_upcall = NULL;
+static gesture_callback *gesture_upcall    = NULL;
 
 static void touch_single_touch_callback (int status, int xy, int data2 __attribute__((unused)), void *ud) {
-  if (single_touch_cb) single_touch_cb (status, ((unsigned int)xy >> 16), (unsigned int)xy & 0xFFFF, ud);
+  if (single_touch_upcall) single_touch_upcall (status, ((unsigned int)xy >> 16), (unsigned int)xy & 0xFFFF, ud);
 }
 
 static void touch_gesture_callback (int gesture, int data1 __attribute__((unused)), int data2 __attribute__(
                                       (unused)), void *ud) {
-  if (gesture_cb) gesture_cb (gesture, ud);
+  if (gesture_upcall) gesture_upcall (gesture, ud);
 }
 
 int get_number_of_touches (void) {
@@ -46,7 +46,7 @@ int get_number_of_touches (void) {
 }
 
 int single_touch_set_callback (touch_callback cb, void* ud) {
-  single_touch_cb = cb;
+  single_touch_upcall = cb;
   return touch_subscribe (0, cb != NULL ? touch_single_touch_callback : NULL, ud);
 }
 
@@ -82,7 +82,7 @@ int multi_touch_set_callback (touch_callback cb, void* ud, int max_touches) {
 }
 
 int gesture_set_callback (gesture_callback cb, void* ud) {
-  gesture_cb = cb;
+  gesture_upcall = cb;
   return touch_subscribe (1, cb != NULL ? touch_gesture_callback : NULL, ud);
 }
 

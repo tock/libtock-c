@@ -18,8 +18,7 @@ static void temp_upcall(int temp,
   data->fired = true;
 }
 
-int temperature_set_callback(subscribe_cb callback, void* callback_args) {
-
+int temperature_set_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sval = subscribe2(DRIVER_NUM_TEMPERATURE, 0, callback, callback_args);
   if (sval.success) {
     return TOCK_SUCCESS;

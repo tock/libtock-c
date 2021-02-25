@@ -4,10 +4,10 @@
 #include "tock.h"
 
 // Internal callback for synchronous interfaces
-static void app_state_sync_cb(__attribute__ ((unused)) int callback_type,
-                              __attribute__ ((unused)) int value,
-                              __attribute__ ((unused)) int unused,
-                              void* ud) {
+static void app_state_sync_upcall(__attribute__ ((unused)) int callback_type,
+                                  __attribute__ ((unused)) int value,
+                                  __attribute__ ((unused)) int unused,
+                                  void* ud) {
   *((bool*) ud) = true;
 }
 
@@ -43,7 +43,7 @@ int app_state_load_sync(void) {
   return 0;
 }
 
-int app_state_save(subscribe_cb callback, void* callback_args) {
+int app_state_save(subscribe_upcall callback, void* callback_args) {
   if (!_app_state_inited) {
     int err = app_state_init();
     if (err < 0) return err;
@@ -72,7 +72,7 @@ int app_state_save_sync(void) {
   int err;
   save_sync_flag = false;
 
-  err = app_state_save(app_state_sync_cb, (void*) &save_sync_flag);
+  err = app_state_save(app_state_sync_upcall, (void*) &save_sync_flag);
   if (err < 0) return err;
 
   // Wait for the callback.

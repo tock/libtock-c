@@ -42,8 +42,8 @@ int spi_release_low(void);
 
 int spi_write_byte(unsigned char byte);
 int spi_read_buf(const char* str, size_t len);
-int spi_write(const char* str, size_t len, subscribe_cb cb, bool* cond);
-int spi_read_write(const char* write, char* read, size_t len, subscribe_cb cb, bool* cond);
+int spi_write(const char* str, size_t len, subscribe_upcall cb, bool* cond);
+int spi_read_write(const char* write, char* read, size_t len, subscribe_upcall cb, bool* cond);
 
 int spi_write_sync(const char* write, size_t len);
 int spi_read_write_sync(const char* write, char* read, size_t len);

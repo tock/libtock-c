@@ -18,7 +18,7 @@ static void humidity_upcall(int humidity,
   data->fired    = true;
 }
 
-int humidity_set_callback(subscribe_cb callback, void* callback_args) {
+int humidity_set_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sval = subscribe2(DRIVER_NUM_HUMIDITY, 0, callback, callback_args);
   if (sval.success) {
     return TOCK_SUCCESS;
