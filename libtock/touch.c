@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 static int touch_subscribe(int subscribe_num, subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t sv = subscribe2(DRIVER_NUM_TOUCH, subscribe_num, callback, callback_args);
+  subscribe_return_t sv = subscribe(DRIVER_NUM_TOUCH, subscribe_num, callback, callback_args);
   if (sv.success == 0) {
     return tock_error_to_rcode (sv.error);
   }
@@ -10,7 +10,7 @@ static int touch_subscribe(int subscribe_num, subscribe_upcall callback, void* c
 }
 
 static syscall_return_t touch_command(int command_num, int arg1, int arg2) {
-  return command2(DRIVER_NUM_TOUCH, command_num, arg1, arg2);
+  return command(DRIVER_NUM_TOUCH, command_num, arg1, arg2);
 }
 
 static int touch_allow(int allow_num, void* data, int len) {

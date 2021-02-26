@@ -20,7 +20,7 @@ static void ltc294x_upcall(__attribute__ ((unused)) int callback_type,
 }
 
 int ltc294x_set_callback (subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t sval = subscribe2(DRIVER_NUM_LTC294X, 0, callback, callback_args);
+  subscribe_return_t sval = subscribe(DRIVER_NUM_LTC294X, 0, callback, callback_args);
   if (sval.success) {
     return TOCK_SUCCESS;
   } else {
@@ -29,7 +29,7 @@ int ltc294x_set_callback (subscribe_upcall callback, void* callback_args) {
 }
 
 int ltc294x_read_status(void) {
-  syscall_return_t com = command2(DRIVER_NUM_LTC294X, 1, 0, 0);
+  syscall_return_t com = command(DRIVER_NUM_LTC294X, 1, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -66,7 +66,7 @@ int ltc294x_configure(ltc294x_model_e model,
     }
   }
 
-  syscall_return_t com = command2(DRIVER_NUM_LTC294X, 10, model, 0);
+  syscall_return_t com = command(DRIVER_NUM_LTC294X, 10, model, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     // great
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -77,7 +77,7 @@ int ltc294x_configure(ltc294x_model_e model,
   }
 
   uint8_t cmd = (int_pin & 0x03) | ((M & 0x07) << 2) | ((vbat & 0x03) << 5);
-  com = command2(DRIVER_NUM_LTC294X, 2, cmd, 0);
+  com = command(DRIVER_NUM_LTC294X, 2, cmd, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -89,7 +89,7 @@ int ltc294x_configure(ltc294x_model_e model,
 }
 
 int ltc294x_reset_charge(void) {
-  syscall_return_t com = command2(DRIVER_NUM_LTC294X, 3, 0, 0);
+  syscall_return_t com = command(DRIVER_NUM_LTC294X, 3, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -101,7 +101,7 @@ int ltc294x_reset_charge(void) {
 }
 
 int ltc294x_set_high_threshold(uint16_t threshold) {
-  syscall_return_t com = command2(DRIVER_NUM_LTC294X, 4, threshold, 0);
+  syscall_return_t com = command(DRIVER_NUM_LTC294X, 4, threshold, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -113,7 +113,7 @@ int ltc294x_set_high_threshold(uint16_t threshold) {
 }
 
 int ltc294x_set_low_threshold(uint16_t threshold) {
-  syscall_return_t com = command2(DRIVER_NUM_LTC294X, 5, threshold, 0);
+  syscall_return_t com = command(DRIVER_NUM_LTC294X, 5, threshold, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -125,7 +125,7 @@ int ltc294x_set_low_threshold(uint16_t threshold) {
 }
 
 int ltc294x_get_charge(void) {
-  syscall_return_t com = command2(DRIVER_NUM_LTC294X, 6, 0, 0);
+  syscall_return_t com = command(DRIVER_NUM_LTC294X, 6, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -137,7 +137,7 @@ int ltc294x_get_charge(void) {
 }
 
 int ltc294x_get_voltage(void) {
-  syscall_return_t com = command2(DRIVER_NUM_LTC294X, 8, 0, 0);
+  syscall_return_t com = command(DRIVER_NUM_LTC294X, 8, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -149,7 +149,7 @@ int ltc294x_get_voltage(void) {
 }
 
 int ltc294x_get_current(void) {
-  syscall_return_t com = command2(DRIVER_NUM_LTC294X, 9, 0, 0);
+  syscall_return_t com = command(DRIVER_NUM_LTC294X, 9, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -161,7 +161,7 @@ int ltc294x_get_current(void) {
 }
 
 int ltc294x_shutdown(void) {
-  syscall_return_t com = command2(DRIVER_NUM_LTC294X, 7, 0, 0);
+  syscall_return_t com = command(DRIVER_NUM_LTC294X, 7, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -173,7 +173,7 @@ int ltc294x_shutdown(void) {
 }
 
 int ltc294x_set_model(ltc294x_model_e model) {
-  syscall_return_t com = command2(DRIVER_NUM_LTC294X, 10, model, 0);
+  syscall_return_t com = command(DRIVER_NUM_LTC294X, 10, model, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {

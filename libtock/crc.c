@@ -2,7 +2,7 @@
 #include "tock.h"
 
 int crc_exists(void) {
-  syscall_return_t ret = command2(DRIVER_NUM_CRC, 0, 0, 0);
+  syscall_return_t ret = command(DRIVER_NUM_CRC, 0, 0, 0);
   if (ret.type == TOCK_SYSCALL_SUCCESS) {
     return 1;
   } else {
@@ -11,7 +11,7 @@ int crc_exists(void) {
 }
 
 int crc_request(enum crc_alg alg) {
-  syscall_return_t ret = command2(DRIVER_NUM_CRC, 2, alg, 0);
+  syscall_return_t ret = command(DRIVER_NUM_CRC, 2, alg, 0);
   if (ret.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -21,7 +21,7 @@ int crc_request(enum crc_alg alg) {
 }
 
 int crc_subscribe(subscribe_upcall callback, void *ud) {
-  subscribe_return_t ret = subscribe2(DRIVER_NUM_CRC, 0, callback, ud);
+  subscribe_return_t ret = subscribe(DRIVER_NUM_CRC, 0, callback, ud);
   if (ret.success) {
     return TOCK_SUCCESS;
   } else {

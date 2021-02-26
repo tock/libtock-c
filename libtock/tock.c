@@ -173,7 +173,7 @@ void tock_restart(uint32_t completion_code) {
   __builtin_unreachable();
 }
 
-subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
+subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
                               subscribe_upcall cb, void* userdata) {
   register uint32_t r0 asm ("r0") = driver;
   register uint32_t r1 asm ("r1") = subscribe;
@@ -200,7 +200,7 @@ subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
   }
 }
 
-syscall_return_t command2(uint32_t driver, uint32_t command,
+syscall_return_t command(uint32_t driver, uint32_t command,
                           int arg1, int arg2) {
   register uint32_t r0 asm ("r0") = driver;
   register uint32_t r1 asm ("r1") = command;
@@ -363,7 +363,7 @@ void tock_exit(uint32_t completion_code) {
   __builtin_unreachable();
 }
 
-subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
+subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
                               subscribe_upcall uc, void* userdata) {
   register uint32_t a0  asm ("a0") = driver;
   register uint32_t a1  asm ("a1") = subscribe;
@@ -390,7 +390,7 @@ subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
   }
 }
 
-syscall_return_t command2(uint32_t driver, uint32_t command,
+syscall_return_t command(uint32_t driver, uint32_t command,
                           int arg1, int arg2) {
   register uint32_t a0  asm ("a0") = driver;
   register uint32_t a1  asm ("a1") = command;
@@ -523,7 +523,7 @@ void* tock_app_writeable_flash_region_ends_at(int region_index) {
 }
 
 bool driver_exists(uint32_t driver) {
-  syscall_return_t sval = command2(driver, 0, 0, 0);
+  syscall_return_t sval = command(driver, 0, 0, 0);
   if (sval.type == TOCK_SYSCALL_SUCCESS) {
     return 1;
   } else {

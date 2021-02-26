@@ -156,7 +156,7 @@ static void adc_routing_upcall(int callback_type,
 // ***** System Call Interface *****
 
 int adc_set_callback(subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t subval = subscribe2(DRIVER_NUM_ADC, 0, callback, callback_args);
+  subscribe_return_t subval = subscribe(DRIVER_NUM_ADC, 0, callback, callback_args);
   if (subval.success == 0) {
     return tock_error_to_rcode(subval.error);
   }
@@ -182,11 +182,11 @@ int adc_set_double_buffer(uint16_t* buffer, uint32_t len) {
 }
 
 bool adc_is_present(void) {
-  return command2(DRIVER_NUM_ADC, 0, 0, 0).type == TOCK_SYSCALL_SUCCESS_U32;
+  return command(DRIVER_NUM_ADC, 0, 0, 0).type == TOCK_SYSCALL_SUCCESS_U32;
 }
 
 int adc_channel_count(void) {
-  syscall_return_t res = command2(DRIVER_NUM_ADC, 0, 0, 0);
+  syscall_return_t res = command(DRIVER_NUM_ADC, 0, 0, 0);
   if (res.type == TOCK_SYSCALL_SUCCESS_U32) {
     return res.data[0];
   } else {
@@ -195,7 +195,7 @@ int adc_channel_count(void) {
 }
 
 int adc_single_sample(uint8_t channel) {
-  syscall_return_t res = command2(DRIVER_NUM_ADC, 1, channel, 0);
+  syscall_return_t res = command(DRIVER_NUM_ADC, 1, channel, 0);
   if (res.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -204,7 +204,7 @@ int adc_single_sample(uint8_t channel) {
 }
 
 int adc_continuous_sample(uint8_t channel, uint32_t frequency) {
-  syscall_return_t res = command2(DRIVER_NUM_ADC, 2, channel, frequency);
+  syscall_return_t res = command(DRIVER_NUM_ADC, 2, channel, frequency);
   if (res.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -213,7 +213,7 @@ int adc_continuous_sample(uint8_t channel, uint32_t frequency) {
 }
 
 int adc_buffered_sample(uint8_t channel, uint32_t frequency) {
-  syscall_return_t res = command2(DRIVER_NUM_ADC, 3, channel, frequency);
+  syscall_return_t res = command(DRIVER_NUM_ADC, 3, channel, frequency);
   if (res.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -222,7 +222,7 @@ int adc_buffered_sample(uint8_t channel, uint32_t frequency) {
 }
 
 int adc_continuous_buffered_sample(uint8_t channel, uint32_t frequency) {
-  syscall_return_t res = command2(DRIVER_NUM_ADC, 4, channel, frequency);
+  syscall_return_t res = command(DRIVER_NUM_ADC, 4, channel, frequency);
   if (res.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -231,7 +231,7 @@ int adc_continuous_buffered_sample(uint8_t channel, uint32_t frequency) {
 }
 
 int adc_stop_sampling(void) {
-  syscall_return_t res = command2(DRIVER_NUM_ADC, 5, 0, 0);
+  syscall_return_t res = command(DRIVER_NUM_ADC, 5, 0, 0);
   if (res.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {

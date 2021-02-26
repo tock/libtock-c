@@ -14,7 +14,7 @@ int ble_start_advertising(int pdu_type, uint8_t* advd, int len, uint16_t interva
   if (!err.success)
     return tock_error_to_rcode(err.error);
 
-  syscall_return_t res = command2(BLE_DRIVER_NUMBER, BLE_ADV_START_CMD, pdu_type, interval);
+  syscall_return_t res = command(BLE_DRIVER_NUMBER, BLE_ADV_START_CMD, pdu_type, interval);
   if (res.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -23,7 +23,7 @@ int ble_start_advertising(int pdu_type, uint8_t* advd, int len, uint16_t interva
 }
 
 int ble_stop_advertising(void) {
-  syscall_return_t res = command2(BLE_DRIVER_NUMBER, BLE_ADV_STOP_CMD, 1, 0);
+  syscall_return_t res = command(BLE_DRIVER_NUMBER, BLE_ADV_STOP_CMD, 1, 0);
   if (res.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -37,7 +37,7 @@ int ble_start_passive_scan(uint8_t *data, uint8_t max_len,
     return TOCK_FAIL;
   } else {
 
-    subscribe_return_t sub_err = subscribe2(BLE_DRIVER_NUMBER, BLE_SCAN_SUB, callback, NULL);
+    subscribe_return_t sub_err = subscribe(BLE_DRIVER_NUMBER, BLE_SCAN_SUB, callback, NULL);
     if (!sub_err.success)
       return tock_error_to_rcode(sub_err.error);
 
@@ -46,7 +46,7 @@ int ble_start_passive_scan(uint8_t *data, uint8_t max_len,
     if (!allow_err.success)
       return tock_error_to_rcode(allow_err.error);
 
-    syscall_return_t res = command2(BLE_DRIVER_NUMBER, BLE_SCAN_CMD, 1, 0);
+    syscall_return_t res = command(BLE_DRIVER_NUMBER, BLE_SCAN_CMD, 1, 0);
     if (res.type == TOCK_SYSCALL_SUCCESS) {
       return TOCK_SUCCESS;
     } else {
@@ -56,7 +56,7 @@ int ble_start_passive_scan(uint8_t *data, uint8_t max_len,
 }
 
 int ble_stop_passive_scan(void) {
-  syscall_return_t res = command2(BLE_DRIVER_NUMBER, BLE_ADV_STOP_CMD, 1, 0);
+  syscall_return_t res = command(BLE_DRIVER_NUMBER, BLE_ADV_STOP_CMD, 1, 0);
   if (res.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -65,7 +65,7 @@ int ble_stop_passive_scan(void) {
 }
 
 int ble_set_tx_power(TxPower_t power_level) {
-  syscall_return_t res = command2(BLE_DRIVER_NUMBER, BLE_CFG_TX_POWER_CMD, power_level, 0);
+  syscall_return_t res = command(BLE_DRIVER_NUMBER, BLE_CFG_TX_POWER_CMD, power_level, 0);
   if (res.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {

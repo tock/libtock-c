@@ -124,7 +124,7 @@ void alarm_cancel(alarm_t* alarm) {
 }
 
 uint32_t alarm_read(void) {
-  syscall_return_t rval = command2(DRIVER_NUM_ALARM, 2, 0, 0);
+  syscall_return_t rval = command(DRIVER_NUM_ALARM, 2, 0, 0);
   if (rval.type == TOCK_SYSCALL_SUCCESS_U32) {
     return rval.data[0];
   } else {

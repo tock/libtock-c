@@ -85,12 +85,12 @@ int putnstr_async(const char *str, size_t len, subscribe_upcall cb, void* userda
     return tock_error_to_rcode(ro.error);
   }
 
-  subscribe_return_t sub = subscribe2(DRIVER_NUM_CONSOLE, 1, cb, userdata);
+  subscribe_return_t sub = subscribe(DRIVER_NUM_CONSOLE, 1, cb, userdata);
   if (sub.success == 0) {
     return tock_error_to_rcode(sub.error);
   }
 
-  syscall_return_t com = command2(DRIVER_NUM_CONSOLE, 1, len, 0);
+  syscall_return_t com = command(DRIVER_NUM_CONSOLE, 1, len, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -107,12 +107,12 @@ int getnstr_async(char *buf, size_t len, subscribe_upcall cb, void* userdata) {
     return tock_error_to_rcode(rw.error);
   }
 
-  subscribe_return_t sub = subscribe2(DRIVER_NUM_CONSOLE, 2, cb, userdata);
+  subscribe_return_t sub = subscribe(DRIVER_NUM_CONSOLE, 2, cb, userdata);
   if (sub.success == 0) {
     return tock_error_to_rcode(sub.error);
   }
 
-  syscall_return_t com = command2(DRIVER_NUM_CONSOLE, 2, len, 0);
+  syscall_return_t com = command(DRIVER_NUM_CONSOLE, 2, len, 0);
   if (com.type >= TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -163,7 +163,7 @@ int getch(void) {
 }
 
 int getnstr_abort(void) {
-  syscall_return_t sval = command2(DRIVER_NUM_CONSOLE, 3, 0, 0);
+  syscall_return_t sval = command(DRIVER_NUM_CONSOLE, 3, 0, 0);
   if (sval.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (sval.type == TOCK_SYSCALL_FAILURE) {
