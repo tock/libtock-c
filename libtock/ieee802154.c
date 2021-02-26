@@ -459,7 +459,7 @@ int ieee802154_send(unsigned short addr,
   // Subscribe to the transmit callback
   bool tx_done = false;
   subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_TX,
-                                      tx_done_callback, (void *) &tx_done);
+                                     tx_done_callback, (void *) &tx_done);
   if (!sub.success) return tock_error_to_rcode(sub.error);
 
   // Issue the send command and wait for the transmission to be done.

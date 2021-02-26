@@ -9,8 +9,8 @@
 int nrf51_serialization_reset (void) {
   // Reset the nRF51 chip
   syscall_return_t sval = command(DRIVER_NUM_NRF_SERIALIZATION,
-                                   NRF51_SERIALIZATION_COMMAND_RESET,
-                                   0, 0);
+                                  NRF51_SERIALIZATION_COMMAND_RESET,
+                                  0, 0);
   if (sval.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -48,8 +48,8 @@ int nrf51_serialization_write(char* tx, int tx_len) {
 
   // Write the data.
   syscall_return_t sval = command(DRIVER_NUM_NRF_SERIALIZATION,
-                                   NRF51_SERIALIZATION_COMMAND_WRITE,
-                                   0, 0);
+                                  NRF51_SERIALIZATION_COMMAND_WRITE,
+                                  0, 0);
   if (sval.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -59,7 +59,7 @@ int nrf51_serialization_write(char* tx, int tx_len) {
 
 int nrf51_serialization_read(int rx_len) {
   syscall_return_t sval = command(DRIVER_NUM_NRF_SERIALIZATION,
-                                   NRF51_SERIALIZATION_COMMAND_READ, rx_len, 0);
+                                  NRF51_SERIALIZATION_COMMAND_READ, rx_len, 0);
   if (sval.type == TOCK_SYSCALL_SUCCESS_U32) {
     return sval.data[0]; // Actual read length
   } else if (sval.type == TOCK_SYSCALL_FAILURE) {

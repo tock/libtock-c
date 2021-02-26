@@ -174,7 +174,7 @@ void tock_restart(uint32_t completion_code) {
 }
 
 subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
-                              subscribe_upcall cb, void* userdata) {
+                             subscribe_upcall cb, void* userdata) {
   register uint32_t r0 asm ("r0") = driver;
   register uint32_t r1 asm ("r1") = subscribe;
   register void*    r2 asm ("r2") = cb;
@@ -201,7 +201,7 @@ subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
 }
 
 syscall_return_t command(uint32_t driver, uint32_t command,
-                          int arg1, int arg2) {
+                         int arg1, int arg2) {
   register uint32_t r0 asm ("r0") = driver;
   register uint32_t r1 asm ("r1") = command;
   register uint32_t r2 asm ("r2") = arg1;
@@ -364,7 +364,7 @@ void tock_exit(uint32_t completion_code) {
 }
 
 subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
-                              subscribe_upcall uc, void* userdata) {
+                             subscribe_upcall uc, void* userdata) {
   register uint32_t a0  asm ("a0") = driver;
   register uint32_t a1  asm ("a1") = subscribe;
   register void*    a2  asm ("a2") = uc;
@@ -391,7 +391,7 @@ subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
 }
 
 syscall_return_t command(uint32_t driver, uint32_t command,
-                          int arg1, int arg2) {
+                         int arg1, int arg2) {
   register uint32_t a0  asm ("a0") = driver;
   register uint32_t a1  asm ("a1") = command;
   register uint32_t a2  asm ("a2") = arg1;
