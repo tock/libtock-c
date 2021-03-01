@@ -79,6 +79,9 @@ ifndef ELF2TAB_EXISTS
 endif
 ELF2TAB_ARGS += -n $(PACKAGE_NAME)
 ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE)
+ifdef SUPPORTED_BOARDS
+  ELF2TAB_ARGS += --supported-boards "$(SUPPORTED_BOARDS)"
+endif
 
 # Setup the correct toolchain for each architecture.
 TOOLCHAIN_cortex-m0 := arm-none-eabi

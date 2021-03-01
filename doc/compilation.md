@@ -50,6 +50,14 @@ Several Tock-specific variables are also useful:
   - `KERNEL_HEAP_SIZE`: The minimum grant size for your application.
   - `PACKAGE_NAME`: The name for your application. Defaults to current folder.
 
+### Additional Metadata
+
+The build system supports additional flags to append metadata to applications
+and help catch any errors from improperly used apps.
+
+  - `SUPPORTED_BOARDS`: A comma-separated list of boards the app is intended
+    for. If there is no specific list then do not set this variable.
+
 ### Advanced
 
 If you want to see a verbose build that prints all the commands as run, simply
