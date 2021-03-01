@@ -5,7 +5,7 @@ int spi_init(void) {
   return 0;
 }
 int spi_set_chip_select(unsigned char cs) {
-  syscall_return_t comval = command2(DRIVER_NUM_SPI, 3, cs, 0);
+  syscall_return_t comval = command(DRIVER_NUM_SPI, 3, cs, 0);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {
@@ -13,7 +13,7 @@ int spi_set_chip_select(unsigned char cs) {
   }
 }
 int spi_get_chip_select(void) {
-  syscall_return_t comval = command2(DRIVER_NUM_SPI, 4, 0, 0);
+  syscall_return_t comval = command(DRIVER_NUM_SPI, 4, 0, 0);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {
@@ -21,7 +21,7 @@ int spi_get_chip_select(void) {
   }
 }
 int spi_set_rate(int rate) {
-  syscall_return_t comval = command2(DRIVER_NUM_SPI, 5, rate, 0);
+  syscall_return_t comval = command(DRIVER_NUM_SPI, 5, rate, 0);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {
@@ -29,7 +29,7 @@ int spi_set_rate(int rate) {
   }
 }
 int spi_get_rate(void) {
-  syscall_return_t comval = command2(DRIVER_NUM_SPI, 6, 0, 0);
+  syscall_return_t comval = command(DRIVER_NUM_SPI, 6, 0, 0);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {
@@ -37,7 +37,7 @@ int spi_get_rate(void) {
   }
 }
 int spi_set_phase(bool phase) {
-  syscall_return_t comval = command2(DRIVER_NUM_SPI, 7, (unsigned char)phase, 0);
+  syscall_return_t comval = command(DRIVER_NUM_SPI, 7, (unsigned char)phase, 0);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {
@@ -45,7 +45,7 @@ int spi_set_phase(bool phase) {
   }
 }
 int spi_get_phase(void) {
-  syscall_return_t comval = command2(DRIVER_NUM_SPI, 8, 0, 0);
+  syscall_return_t comval = command(DRIVER_NUM_SPI, 8, 0, 0);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {
@@ -53,7 +53,7 @@ int spi_get_phase(void) {
   }
 }
 int spi_set_polarity(bool pol) {
-  syscall_return_t comval = command2(DRIVER_NUM_SPI, 9, (unsigned char)pol, 0);
+  syscall_return_t comval = command(DRIVER_NUM_SPI, 9, (unsigned char)pol, 0);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {
@@ -61,7 +61,7 @@ int spi_set_polarity(bool pol) {
   }
 }
 int spi_get_polarity(void) {
-  syscall_return_t comval = command2(DRIVER_NUM_SPI, 10, 0, 0);
+  syscall_return_t comval = command(DRIVER_NUM_SPI, 10, 0, 0);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {
@@ -69,7 +69,7 @@ int spi_get_polarity(void) {
   }
 }
 int spi_hold_low(void) {
-  syscall_return_t comval = command2(DRIVER_NUM_SPI, 11, 0, 0);
+  syscall_return_t comval = command(DRIVER_NUM_SPI, 11, 0, 0);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {
@@ -77,7 +77,7 @@ int spi_hold_low(void) {
   }
 }
 int spi_release_low(void) {
-  syscall_return_t comval = command2(DRIVER_NUM_SPI, 12, 0, 0);
+  syscall_return_t comval = command(DRIVER_NUM_SPI, 12, 0, 0);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {
@@ -85,7 +85,7 @@ int spi_release_low(void) {
   }
 }
 int spi_write_byte(unsigned char byte) {
-  syscall_return_t comval = command2(DRIVER_NUM_SPI, 1, byte, 0);
+  syscall_return_t comval = command(DRIVER_NUM_SPI, 1, byte, 0);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {
@@ -107,11 +107,11 @@ int spi_write(const char* buf,
   if (allowval.success == 0 ) {
     return tock_error_to_rcode(allowval.error);
   }
-  subscribe_return_t subval = subscribe2(DRIVER_NUM_SPI, 0, cb, cond);
+  subscribe_return_t subval = subscribe(DRIVER_NUM_SPI, 0, cb, cond);
   if (subval.success == 0) {
     return tock_error_to_rcode(subval.error);
   }
-  syscall_return_t comval = command2(DRIVER_NUM_SPI, 2, len, 0);
+  syscall_return_t comval = command(DRIVER_NUM_SPI, 2, len, 0);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {

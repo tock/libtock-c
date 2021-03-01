@@ -28,7 +28,7 @@ static void cb(int proximity,
 }
 
 int proximity_set_callback(subscribe_upcall upcall, void *callback_args) {
-  subscribe_return_t sub = subscribe2(DRIVER_NUM_PROXIMITY, 0, upcall, callback_args);
+  subscribe_return_t sub = subscribe(DRIVER_NUM_PROXIMITY, 0, upcall, callback_args);
   if (sub.success) {
     return TOCK_SUCCESS;
   } else {
@@ -37,7 +37,7 @@ int proximity_set_callback(subscribe_upcall upcall, void *callback_args) {
 }
 
 int proximity_read(void) {
-  syscall_return_t com = command2(DRIVER_NUM_PROXIMITY, 1, 0, 0);
+  syscall_return_t com = command(DRIVER_NUM_PROXIMITY, 1, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -49,7 +49,7 @@ int proximity_read(void) {
 }
 
 int proximity_read_on_interrupt(void) {
-  syscall_return_t com = command2(DRIVER_NUM_PROXIMITY, 2, threshes.lower_threshold, threshes.higher_threshold);
+  syscall_return_t com = command(DRIVER_NUM_PROXIMITY, 2, threshes.lower_threshold, threshes.higher_threshold);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {

@@ -19,7 +19,7 @@ static void lps25hb_upcall(int value,
 }
 
 int lps25hb_set_callback (subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t sval = subscribe2(DRIVER_NUM_LPS25HB, 0, callback, callback_args);
+  subscribe_return_t sval = subscribe(DRIVER_NUM_LPS25HB, 0, callback, callback_args);
   if (sval.success) {
     return TOCK_SUCCESS;
   } else {
@@ -28,7 +28,7 @@ int lps25hb_set_callback (subscribe_upcall callback, void* callback_args) {
 }
 
 int lps25hb_get_pressure (void) {
-  syscall_return_t com = command2(DRIVER_NUM_LPS25HB, 1, 0, 0);
+  syscall_return_t com = command(DRIVER_NUM_LPS25HB, 1, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
