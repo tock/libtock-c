@@ -77,7 +77,7 @@ ELF2TAB_EXISTS := $(shell $(SHELL) -c "command -v $(ELF2TAB)")
 ifndef ELF2TAB_EXISTS
   $(shell cargo install elf2tab)
 endif
-ELF2TAB_ARGS += -n $(PACKAGE_NAME)
+ELF2TAB_ARGS += -n $(PACKAGE_NAME) --tock-kernel-version "2"
 ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE)
 ifdef SUPPORTED_BOARDS
   ELF2TAB_ARGS += --supported-boards "$(SUPPORTED_BOARDS)"
