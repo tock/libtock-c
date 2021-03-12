@@ -164,7 +164,7 @@ void _start(void* app_start __attribute__((unused)),
 
 #elif defined(__riscv)
 
-  asm volatile (
+  __asm__ volatile (
     // Compute the stack top.
     //
     // struct hdr* myhdr = (struct hdr*) app_start;
