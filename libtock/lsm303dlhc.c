@@ -20,7 +20,7 @@ static void command_callback_yield (int data1, int data2, int data3, void* ud) {
 
 
 static int lsm303dlhc_subscribe(subscribe_upcall cb, void *userdata) {
-  subscribe_return_t subval = subscribe2(DRIVER_NUM_LSM303DLHC, 0, cb, userdata);
+  subscribe_return_t subval = subscribe(DRIVER_NUM_LSM303DLHC, 0, cb, userdata);
   if (subval.success == 0) {
     return tock_error_to_rcode(subval.error);
   }
@@ -32,7 +32,7 @@ static int lsm303dlhc_subscribe(subscribe_upcall cb, void *userdata) {
 // success_u32, for example, this function can not be used for that system
 // call.
 static int lsm303dlhc_command_noval (uint32_t command_num, uint32_t data1, uint32_t data2) {
-  syscall_return_t com = command2(DRIVER_NUM_LSM303DLHC, command_num, data1, data2);
+  syscall_return_t com = command(DRIVER_NUM_LSM303DLHC, command_num, data1, data2);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type == TOCK_SYSCALL_FAILURE) {

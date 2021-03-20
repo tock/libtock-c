@@ -24,7 +24,7 @@ static void command_callback_yield (int data1, int data2, int data3, void* ud) {
 }
 
 static int l3gd20_subscribe (subscribe_upcall cb, void *userdata) {
-  subscribe_return_t subval = subscribe2(DRIVER_NUM_L3GD20, 0, cb, userdata);
+  subscribe_return_t subval = subscribe(DRIVER_NUM_L3GD20, 0, cb, userdata);
   if (subval.success == 0) {
     return tock_error_to_rcode(subval.error);
   }
@@ -37,7 +37,7 @@ bool l3gd20_is_present (void) {
   response.done  = false;
   // subscribe
   l3gd20_subscribe (command_callback_yield, &response);
-  if (command2 (DRIVER_NUM_L3GD20, 1, 0, 0).type == TOCK_SYSCALL_SUCCESS) {
+  if (command (DRIVER_NUM_L3GD20, 1, 0, 0).type == TOCK_SYSCALL_SUCCESS) {
     yield_for (&(response.done));
   }
   return response.data1 ? true : false;
@@ -48,7 +48,7 @@ int l3gd20_power_on (void) {
   response.done = false;
   // subscribe
   l3gd20_subscribe (command_callback_yield, &response);
-  syscall_return_t com = command2 (DRIVER_NUM_L3GD20, 2, 0, 0);
+  syscall_return_t com = command (DRIVER_NUM_L3GD20, 2, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     yield_for (&(response.done));
     return TOCK_SUCCESS;
@@ -65,7 +65,7 @@ int l3gd20_set_scale (unsigned char scale) {
   response.done = false;
   // subscribe
   l3gd20_subscribe (command_callback_yield, &response);
-  syscall_return_t com = command2 (DRIVER_NUM_L3GD20, 3, scale, 0);
+  syscall_return_t com = command (DRIVER_NUM_L3GD20, 3, scale, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     scale_factor = scale;
     yield_for (&(response.done));
@@ -82,7 +82,7 @@ int l3gd20_enable_hpf (bool enabled) {
   response.done = false;
   // subscribe
   l3gd20_subscribe (command_callback_yield, &response);
-  syscall_return_t com = command2 (DRIVER_NUM_L3GD20, 4, enabled ? 1 : 0, 0);
+  syscall_return_t com = command (DRIVER_NUM_L3GD20, 4, enabled ? 1 : 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     yield_for (&(response.done));
     return TOCK_SUCCESS;
@@ -98,7 +98,7 @@ int l3gd20_set_hpf_parameters (unsigned char mode, unsigned char divider) {
   response.done = false;
   // subscribe
   l3gd20_subscribe (command_callback_yield, &response);
-  syscall_return_t com = command2 (DRIVER_NUM_L3GD20, 5, mode, divider);
+  syscall_return_t com = command (DRIVER_NUM_L3GD20, 5, mode, divider);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     yield_for (&(response.done));
     return TOCK_SUCCESS;
@@ -114,7 +114,7 @@ int l3gd20_read_xyz (L3GD20XYZ *xyz) {
   response.done = false;
   // subscribe
   l3gd20_subscribe (command_callback_yield, &response);
-  syscall_return_t com = command2 (DRIVER_NUM_L3GD20, 6, 0, 0);
+  syscall_return_t com = command (DRIVER_NUM_L3GD20, 6, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     yield_for (&(response.done));
     if (xyz != NULL) {
@@ -135,7 +135,7 @@ int l3gd20_read_temperature (int *temperature) {
   response.done = false;
   // subscribe
   l3gd20_subscribe (command_callback_yield, &response);
-  syscall_return_t com = command2 (DRIVER_NUM_L3GD20, 7, 0, 0);
+  syscall_return_t com = command (DRIVER_NUM_L3GD20, 7, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     yield_for (&(response.done));
     if (temperature != NULL) {

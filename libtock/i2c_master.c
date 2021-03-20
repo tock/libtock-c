@@ -7,7 +7,7 @@
 
 
 int i2c_master_set_callback (subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t subval = subscribe2(DRIVER_NUM_I2CMASTER, TOCK_I2C_MASTER_CB, callback, callback_args);
+  subscribe_return_t subval = subscribe(DRIVER_NUM_I2CMASTER, TOCK_I2C_MASTER_CB, callback, callback_args);
   if (subval.success == 0) {
     return tock_error_to_rcode(subval.error);
   } else {
@@ -26,7 +26,7 @@ int i2c_master_set_buffer(uint8_t* buffer, uint32_t len) {
 
 int i2c_master_write(uint8_t address, uint8_t len) {
   uint32_t a = (((uint32_t) len) << 16) | address;
-  syscall_return_t comval = command2(DRIVER_NUM_I2CMASTER, 1, a, len);
+  syscall_return_t comval = command(DRIVER_NUM_I2CMASTER, 1, a, len);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {
@@ -36,7 +36,7 @@ int i2c_master_write(uint8_t address, uint8_t len) {
 
 int i2c_master_read(uint8_t address, uint8_t len) {
   uint32_t a = (((uint32_t) len) << 16) | address;
-  syscall_return_t comval = command2(DRIVER_NUM_I2CMASTER, 2, a, len);
+  syscall_return_t comval = command(DRIVER_NUM_I2CMASTER, 2, a, len);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {
@@ -45,7 +45,7 @@ int i2c_master_read(uint8_t address, uint8_t len) {
 }
 int i2c_master_write_read(uint8_t address, uint8_t len) {
   uint32_t a = (((uint32_t) len) << 16) | address;
-  syscall_return_t comval = command2(DRIVER_NUM_I2CMASTER, 3, a, len);
+  syscall_return_t comval = command(DRIVER_NUM_I2CMASTER, 3, a, len);
   if (comval.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(comval.data[0]);
   } else {

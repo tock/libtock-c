@@ -42,7 +42,7 @@ int max17205_set_callback (subscribe_upcall callback, void* callback_args) {
 
   // Subscribe to the callback with our lower-layer callback, but pass
   // callback arguments.
-  subscribe_return_t sval = subscribe2(DRIVER_NUM_MAX17205, 0, max17205_upcall, callback_args);
+  subscribe_return_t sval = subscribe(DRIVER_NUM_MAX17205, 0, max17205_upcall, callback_args);
   if (sval.success) {
     return 0;
   } else {
@@ -55,7 +55,7 @@ int max17205_read_status(void) {
     return TOCK_EBUSY;
   } else {
     is_busy = true;
-    syscall_return_t com = command2(DRIVER_NUM_MAX17205, 1, 0, 0);
+    syscall_return_t com = command(DRIVER_NUM_MAX17205, 1, 0, 0);
     if (com.type == TOCK_SYSCALL_SUCCESS) {
       return TOCK_SUCCESS;
     } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -74,7 +74,7 @@ int max17205_read_soc(void) {
     return TOCK_EBUSY;
   } else {
     is_busy = true;
-    syscall_return_t com = command2(DRIVER_NUM_MAX17205, 2, 0, 0);
+    syscall_return_t com = command(DRIVER_NUM_MAX17205, 2, 0, 0);
     if (com.type == TOCK_SYSCALL_SUCCESS) {
       return TOCK_SUCCESS;
     } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -93,7 +93,7 @@ int max17205_read_voltage_current(void) {
     return TOCK_EBUSY;
   } else {
     is_busy = true;
-    syscall_return_t com = command2(DRIVER_NUM_MAX17205, 3, 0, 0);
+    syscall_return_t com = command(DRIVER_NUM_MAX17205, 3, 0, 0);
     if (com.type == TOCK_SYSCALL_SUCCESS) {
       return TOCK_SUCCESS;
     } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -112,7 +112,7 @@ int max17205_read_coulomb(void) {
     return TOCK_EBUSY;
   } else {
     is_busy = true;
-    syscall_return_t com = command2(DRIVER_NUM_MAX17205, 4, 0, 0);
+    syscall_return_t com = command(DRIVER_NUM_MAX17205, 4, 0, 0);
     if (com.type == TOCK_SYSCALL_SUCCESS) {
       return TOCK_SUCCESS;
     } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -131,7 +131,7 @@ int max17205_read_rom_id(void) {
     return TOCK_EBUSY;
   } else {
     is_busy = true;
-    syscall_return_t com = command2(DRIVER_NUM_MAX17205, 5, 0, 0);
+    syscall_return_t com = command(DRIVER_NUM_MAX17205, 5, 0, 0);
     if (com.type == TOCK_SYSCALL_SUCCESS) {
       return TOCK_SUCCESS;
     } else if (com.type > TOCK_SYSCALL_SUCCESS) {

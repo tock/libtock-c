@@ -62,11 +62,11 @@ int ieee802154_down(void) {
 }
 
 bool ieee802154_is_up(void) {
-  return command2(RADIO_DRIVER, COMMAND_STATUS, 0, 0).type == TOCK_SYSCALL_SUCCESS;
+  return command(RADIO_DRIVER, COMMAND_STATUS, 0, 0).type == TOCK_SYSCALL_SUCCESS;
 }
 
 int ieee802154_set_address(unsigned short addr) {
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_SET_ADDR, (unsigned int) addr, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SET_ADDR, (unsigned int) addr, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -83,7 +83,7 @@ int ieee802154_set_address_long(unsigned char *addr_long) {
   if (!rw.success) {
     return tock_error_to_rcode(rw.error);
   }
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_SET_ADDR_LONG, 0, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SET_ADDR_LONG, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -94,7 +94,7 @@ int ieee802154_set_address_long(unsigned char *addr_long) {
 }
 
 int ieee802154_set_pan(unsigned short pan) {
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_SET_PAN, (unsigned int) pan, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SET_PAN, (unsigned int) pan, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -105,7 +105,7 @@ int ieee802154_set_pan(unsigned short pan) {
 }
 
 int ieee802154_set_channel(unsigned char channel) {
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_SET_CHANNEL, (unsigned int) channel, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SET_CHANNEL, (unsigned int) channel, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -117,7 +117,7 @@ int ieee802154_set_channel(unsigned char channel) {
 
 int ieee802154_set_power(char power) {
   // Cast the signed char to an unsigned char before zero-padding it.
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_SET_POWER, (unsigned int) (unsigned char) power, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SET_POWER, (unsigned int) (unsigned char) power, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -128,7 +128,7 @@ int ieee802154_set_power(char power) {
 }
 
 int ieee802154_config_commit(void) {
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_CONFIG_COMMIT, 0, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_CONFIG_COMMIT, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -140,7 +140,7 @@ int ieee802154_config_commit(void) {
 
 int ieee802154_get_address(unsigned short *addr) {
   if (!addr) return TOCK_EINVAL;
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_ADDR, 0, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_ADDR, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to make the value positive.
     *addr = (unsigned short) (com.data[0] - 1);
@@ -157,7 +157,7 @@ int ieee802154_get_address_long(unsigned char *addr_long) {
   if (!addr_long) return TOCK_EINVAL;
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
   if (!rw.success) return tock_error_to_rcode(rw.error);
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_ADDR_LONG, 0, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_ADDR_LONG, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -169,7 +169,7 @@ int ieee802154_get_address_long(unsigned char *addr_long) {
 
 int ieee802154_get_pan(unsigned short *pan) {
   if (!pan) return TOCK_EINVAL;
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_PAN, 0, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_PAN, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to make the value positive.
     *pan = (unsigned short) (com.data[0] - 1);
@@ -183,7 +183,7 @@ int ieee802154_get_pan(unsigned short *pan) {
 
 int ieee802154_get_channel(unsigned char *channel) {
   if (!channel) return TOCK_EINVAL;
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_PAN, 0, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_PAN, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to make the value positive.
     *channel = (unsigned char) (com.data[0] - 1);
@@ -197,7 +197,7 @@ int ieee802154_get_channel(unsigned char *channel) {
 
 int ieee802154_get_power(char *power) {
   if (!power) return TOCK_EINVAL;
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_POWER, 0, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_POWER, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to the power after casting it to unsigned, so this works
     *power = (char) (com.data[0] - 1);
@@ -210,7 +210,7 @@ int ieee802154_get_power(char *power) {
 }
 
 int ieee802154_max_neighbors(void) {
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_MAX_NEIGHBORS, 0, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_MAX_NEIGHBORS, 0, 0);
   // Driver adds 1 to ensure it is positive, but on error we want to return 0
   if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to the power after casting it to unsigned, so this works
@@ -221,7 +221,7 @@ int ieee802154_max_neighbors(void) {
 }
 
 int ieee802154_num_neighbors(void) {
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_NUM_NEIGHBORS, 0, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_NUM_NEIGHBORS, 0, 0);
   // Driver adds 1 to ensure it is positive, but on error we want to return 0
   if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to the power after casting it to unsigned, so this works
@@ -233,7 +233,7 @@ int ieee802154_num_neighbors(void) {
 
 int ieee802154_get_neighbor_address(unsigned index, unsigned short *addr) {
   if (!addr) return TOCK_EINVAL;
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_NEIGHBOR_ADDR, (unsigned int) index, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_NEIGHBOR_ADDR, (unsigned int) index, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to ensure it is positive.
     *addr = (unsigned short) (com.data[0] - 1);
@@ -249,7 +249,7 @@ int ieee802154_get_neighbor_address_long(unsigned index, unsigned char *addr_lon
   if (!addr_long) return TOCK_EINVAL;
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
   if (!rw.success) return tock_error_to_rcode(rw.error);
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_NEIGHBOR_ADDR_LONG, (unsigned int) index, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_NEIGHBOR_ADDR_LONG, (unsigned int) index, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -271,7 +271,7 @@ int ieee802154_add_neighbor(unsigned short addr, unsigned char *addr_long, unsig
   if (!addr_long) return TOCK_EINVAL;
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
   if (!rw.success) return tock_error_to_rcode(rw.error);
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_ADD_NEIGHBOR, (unsigned int) addr, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_ADD_NEIGHBOR, (unsigned int) addr, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS_U32 && index) {
     // Driver adds 1 to ensure it is positive.
     *index = (unsigned) (com.data[0] - 1);
@@ -284,7 +284,7 @@ int ieee802154_add_neighbor(unsigned short addr, unsigned char *addr_long, unsig
 }
 
 int ieee802154_remove_neighbor(unsigned index) {
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_REMOVE_NEIGHBOR, (unsigned int) index, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_REMOVE_NEIGHBOR, (unsigned int) index, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -295,7 +295,7 @@ int ieee802154_remove_neighbor(unsigned index) {
 }
 
 int ieee802154_max_keys(void) {
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_MAX_KEYS, 0, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_MAX_KEYS, 0, 0);
   // Driver adds 1 to ensure it is positive, but on error we want to return 0
   if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to the power after casting it to unsigned, so this works
@@ -306,7 +306,7 @@ int ieee802154_max_keys(void) {
 }
 
 int ieee802154_num_keys(void) {
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_NUM_KEYS, 0, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_NUM_KEYS, 0, 0);
   // Driver adds 1 to ensure it is positive, but on error we want to return 0
   if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to the power after casting it to unsigned, so this works
@@ -318,7 +318,7 @@ int ieee802154_num_keys(void) {
 
 int ieee802154_get_key_security_level(unsigned index, security_level_t *level) {
   if (!level) return TOCK_EINVAL;
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_KEY_LEVEL, (unsigned int) index, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_KEY_LEVEL, (unsigned int) index, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     // Driver adds 1 to ensure it is positive.
     *level = (security_level_t) (com.data[0] - 1);
@@ -350,7 +350,7 @@ int ieee802154_get_key_id(unsigned index,
   if (!key_id_mode || !key_id) return TOCK_EINVAL;
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) BUF_CFG, 10);
   if (!rw.success) return tock_error_to_rcode(rw.error);
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_KEY_ID, (unsigned int) index, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_KEY_ID, (unsigned int) index, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     *key_id_mode = (key_id_mode_t) (BUF_CFG[0]);
     memcpy(key_id, BUF_CFG + 1, ieee802154_key_id_bytes(*key_id_mode));
@@ -366,7 +366,7 @@ int ieee802154_get_key(unsigned index, unsigned char *key) {
   if (!key) return TOCK_EINVAL;
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) key, 16);
   if (!rw.success) return tock_error_to_rcode(rw.error);
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_GET_KEY, (unsigned int) index, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_KEY, (unsigned int) index, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -403,7 +403,7 @@ int ieee802154_add_key(security_level_t level,
     memcpy(BUF_CFG + 2, key_id, bytes);
   }
   memcpy(BUF_CFG + 2 + 9, key, 16);
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_ADD_KEY, 0, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_ADD_KEY, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS_U32 && index) {
     // Driver adds 1 to ensure it is positive.
     *index = (unsigned) (com.data[0] - 1);
@@ -416,7 +416,7 @@ int ieee802154_add_key(security_level_t level,
 }
 
 int ieee802154_remove_key(unsigned index) {
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_REMOVE_KEY, (unsigned int) index, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_REMOVE_KEY, (unsigned int) index, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (com.type > TOCK_SYSCALL_SUCCESS) {
@@ -458,12 +458,12 @@ int ieee802154_send(unsigned short addr,
 
   // Subscribe to the transmit callback
   bool tx_done = false;
-  subscribe_return_t sub = subscribe2(RADIO_DRIVER, SUBSCRIBE_TX,
-                                      tx_done_callback, (void *) &tx_done);
+  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_TX,
+                                     tx_done_callback, (void *) &tx_done);
   if (!sub.success) return tock_error_to_rcode(sub.error);
 
   // Issue the send command and wait for the transmission to be done.
-  syscall_return_t com = command2(RADIO_DRIVER, COMMAND_SEND, (unsigned int) addr, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SEND, (unsigned int) addr, 0);
   if (com.type < TOCK_SYSCALL_SUCCESS) {
     return tock_error_to_rcode(com.data[0]);
   } else if (com.type != TOCK_SYSCALL_SUCCESS) {
@@ -496,7 +496,7 @@ int ieee802154_receive_sync(const char *frame, unsigned char len) {
 
   // Subscribe to the received callback
   bool rx_done = false;
-  subscribe_return_t sub = subscribe2(RADIO_DRIVER, SUBSCRIBE_RX, rx_done_callback, (void *) &rx_done);
+  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_RX, rx_done_callback, (void *) &rx_done);
   if (!sub.success) return tock_error_to_rcode(sub.error);
 
   // Wait for a frame
@@ -516,7 +516,7 @@ int ieee802154_receive(subscribe_upcall callback,
   // Provide the buffer to the kernel
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, len);
   if (!rw.success) return tock_error_to_rcode(rw.error);
-  subscribe_return_t sub = subscribe2(RADIO_DRIVER, SUBSCRIBE_RX, callback, NULL);
+  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_RX, callback, NULL);
   if (!sub.success) {
     return tock_error_to_rcode(sub.error);
   } else {

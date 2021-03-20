@@ -70,7 +70,7 @@ static void sdcard_upcall (int callback_type, int arg1, int arg2, void* callback
 }
 
 int sdcard_set_callback (subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t sval = subscribe2(DRIVER_NUM_SDCARD, 0, callback, callback_args);
+  subscribe_return_t sval = subscribe(DRIVER_NUM_SDCARD, 0, callback, callback_args);
   if (sval.success) {
     return TOCK_SUCCESS;
   } else {
@@ -97,7 +97,7 @@ int sdcard_set_write_buffer (uint8_t* buffer, uint32_t len) {
 }
 
 int sdcard_is_installed (void) {
-  syscall_return_t sval = command2(DRIVER_NUM_SDCARD, 1, 0, 0);
+  syscall_return_t sval = command(DRIVER_NUM_SDCARD, 1, 0, 0);
   if (sval.type == TOCK_SYSCALL_SUCCESS_U32) {
     return sval.data[0];
   } else {
@@ -106,7 +106,7 @@ int sdcard_is_installed (void) {
 }
 
 int sdcard_initialize (void) {
-  syscall_return_t sval = command2(DRIVER_NUM_SDCARD, 2, 0, 0);
+  syscall_return_t sval = command(DRIVER_NUM_SDCARD, 2, 0, 0);
   if (sval.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -141,7 +141,7 @@ int sdcard_initialize_sync (uint32_t* block_size, uint32_t* size_in_kB) {
 }
 
 int sdcard_read_block (uint32_t sector) {
-  syscall_return_t sval = command2(DRIVER_NUM_SDCARD, 3, sector, 0);
+  syscall_return_t sval = command(DRIVER_NUM_SDCARD, 3, sector, 0);
   if (sval.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -168,7 +168,7 @@ int sdcard_read_block_sync (uint32_t sector) {
 }
 
 int sdcard_write_block (uint32_t sector) {
-  syscall_return_t sval = command2(DRIVER_NUM_SDCARD, 4, sector, 0);
+  syscall_return_t sval = command(DRIVER_NUM_SDCARD, 4, sector, 0);
   if (sval.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {

@@ -50,13 +50,13 @@ int app_state_save(subscribe_upcall callback, void* callback_args) {
   }
 
   subscribe_return_t sret =
-    subscribe2(DRIVER_NUM_APP_FLASH, 0, callback, callback_args);
+    subscribe(DRIVER_NUM_APP_FLASH, 0, callback, callback_args);
   if (!sret.success) {
     return tock_error_to_rcode(sret.error);
   }
 
   syscall_return_t cret =
-    command2(DRIVER_NUM_APP_FLASH, 1, (uint32_t) _app_state_flash_pointer, 0);
+    command(DRIVER_NUM_APP_FLASH, 1, (uint32_t) _app_state_flash_pointer, 0);
   if (cret.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else if (cret.type == TOCK_SYSCALL_FAILURE) {

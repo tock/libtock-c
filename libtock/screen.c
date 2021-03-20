@@ -24,7 +24,7 @@ static uint8_t *buffer   = NULL;
 static size_t buffer_len = 0;
 
 static int screen_subscribe (subscribe_upcall cb, void *userdata) {
-  subscribe_return_t sv = subscribe2(DRIVER_NUM_SCREEN, 0, cb, userdata);
+  subscribe_return_t sv = subscribe(DRIVER_NUM_SCREEN, 0, cb, userdata);
   if (sv.success == 0) {
     return tock_error_to_rcode(sv.error);
   }
@@ -32,7 +32,7 @@ static int screen_subscribe (subscribe_upcall cb, void *userdata) {
 }
 
 static int screen_command (int command_num, int data1, int data2) {
-  syscall_return_t res = command2(DRIVER_NUM_SCREEN, command_num, data1, data2);
+  syscall_return_t res = command(DRIVER_NUM_SCREEN, command_num, data1, data2);
   if (res.type == TOCK_SYSCALL_SUCCESS) {
     return TOCK_SUCCESS;
   } else {
@@ -96,7 +96,7 @@ int screen_get_supported_pixel_format (size_t index) {
 
 // TODO
 bool screen_setup_enabled (void) {
-  syscall_return_t res = command2 (DRIVER_NUM_SCREEN, 1, 0, 0);
+  syscall_return_t res = command (DRIVER_NUM_SCREEN, 1, 0, 0);
   if (res.type == TOCK_SYSCALL_SUCCESS_U32) {
     return res.data[0] != 0;
   } else {

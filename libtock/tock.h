@@ -98,7 +98,7 @@ void tock_exit(uint32_t completion_code) __attribute__ ((noreturn));
 void tock_restart(uint32_t completion_code) __attribute__ ((noreturn));
 
 __attribute__ ((warn_unused_result))
-syscall_return_t command2(uint32_t driver, uint32_t command,
+syscall_return_t command(uint32_t driver, uint32_t command,
 			  int arg1, int arg2);
   
 // Pass this to the subscribe syscall as a function pointer to
@@ -106,7 +106,7 @@ syscall_return_t command2(uint32_t driver, uint32_t command,
 #define TOCK_NULL_UPCALL 0
   
 __attribute__ ((warn_unused_result))
-subscribe_return_t subscribe2(uint32_t driver, uint32_t subscribe,
+subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
 			      subscribe_upcall uc, void* userdata);
 
 __attribute__ ((warn_unused_result))
