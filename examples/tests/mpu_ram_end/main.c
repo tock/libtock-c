@@ -5,7 +5,8 @@ int main(void) {
 
   uint8_t* ram_end = tock_app_memory_ends_at();
 
-  printf("Reading last byte in RAM...\n");
+  printf("Reading last byte in RAM, address 0x%x\n", ram_end - 1);
+  printf("This should fault if there is a grant region.\n");
   uint8_t last_byte = *(ram_end - 1);
   printf("Address: %p, value: %02x\n", (ram_end - 1), last_byte);
 

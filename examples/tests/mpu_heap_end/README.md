@@ -1,5 +1,6 @@
-MPU RAM End
+MPU Heap End
 ===============
 
-This test verifies that an application can read the last byte in its memory
-region, but not the byte immediately after.
+This test checks that an application can read to the end of
+its heap, then walks forward in memory until it faults. This
+finds the first non-readable address in process's RAM.
