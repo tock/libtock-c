@@ -26,7 +26,7 @@ int tone_sync (size_t frequency_hz, size_t duration_ms) {
   if (!sval.success) {
     return tock_error_to_rcode(sval.error);
   }
-  
+
   syscall_return_t cval = command (BUZZER_DRIVER, 1, frequency_hz, duration_ms);
   if (cval.type == TOCK_SYSCALL_SUCCESS) {
     yield_for (&done);

@@ -79,7 +79,6 @@ int main(void) {
   proximity      = driver_exists(DRIVER_NUM_PROXIMITY);
   sound_pressure = driver_exists(DRIVER_NUM_SOUND_PRESSURE);
 
-
   if (ninedof) {
     int buffer;
     ninedof_accel = (ninedof_read_acceleration_sync(&buffer, &buffer, &buffer) == TOCK_SUCCESS);
