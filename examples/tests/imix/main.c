@@ -1,3 +1,4 @@
+#include "math.h"
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -50,73 +51,40 @@ static void button_callback(__attribute__ ((unused)) int btn_num,
 }
 
 static void sample_sensors (void) {
-
+  printf("[imix Sensor Reading]\n");
   // Sensors: temperature/humidity, acceleration, light
   int temp;
   temperature_read_sync(&temp);
+  printf("  Temperature:  %d.%02d degrees C\n", temp/100, temp%100);
+    
   unsigned humi;
   humidity_read_sync(&humi);
-  uint32_t accel_mag = ninedof_read_accel_mag();
+  printf("  Humidity:     %u.%02u%%\n", humi/100, humi%100);
+
+  uint32_t accel_mag = (uint32_t)ninedof_read_accel_mag();
+  printf("  Acceleration: %lu\n", accel_mag);
+  
   int light;
   ambient_light_read_intensity_sync(&light);
-
+  printf("  Light:        %d\n", light);
+  
   // Analog inputs: A0-A5
-  uint16_t val;
-  adc_sample_sync(0, &val);
-  int a0 = (val * 3300) / (4095 << 4);
-  adc_sample_sync(1, &val);
-  int a1 = (val * 3300) / (4095 << 4);
-  adc_sample_sync(2, &val);
-  int a2 = (val * 3300) / (4095 << 4);
-  adc_sample_sync(3, &val);
-  int a3 = (val * 3300) / (4095 << 4);
-  adc_sample_sync(4, &val);
-  int a4 = (val * 3300) / (4095 << 4);
-  adc_sample_sync(5, &val);
-  int a5 = (val * 3300) / (4095 << 4);
+  for (int a = 0; a < 6; a++) {
+    uint16_t val;
+    adc_sample_sync(a, &val);
+    int ival = (val * 3300) / (4095 << 4);
+    printf("  A%i:           %d mV\n", a, ival);
+  }
 
   // Digital inputs: D0, D1, D6, D7
-  int d0 = gpio_read(0);
-  int d1 = gpio_read(1);
-  int d6 = gpio_read(2);
-  int d7 = gpio_read(3);
-
-  // print results
-  printf("[imix Sensor Reading]\n");
-  printf("  Temperature:  %d 1/100 degrees C\n", temp);
-  printf("  Humidity:     %u 0.01%%\n", humi);
-  printf("  Light:        %d\n", light);
-  printf("  Acceleration: %lu\n", accel_mag);
-  printf("  A0:           %d mV\n", a0);
-  printf("  A1:           %d mV\n", a1);
-  printf("  A2:           %d mV\n", a2);
-  printf("  A3:           %d mV\n", a3);
-  printf("  A4:           %d mV\n", a4);
-  printf("  A5:           %d mV\n", a5);
-  printf("  D0:           %d\n", d0);
-  printf("  D1:           %d\n", d1);
-  printf("  D6:           %d\n", d6);
-  printf("  D7:           %d\n", d7);
+  for (int d = 0; d < 4; d++) {
+    int val = gpio_read(0);
+    printf("  D%i:           %d\n", d, val);
+  }
   printf("\n");
 
   // toggle the user LED
   led_toggle(1);
-}
-
-static void send_ieee802154_packet(void) {
-  char packet[64];
-
-  int len = snprintf(packet, sizeof(packet), "Tock running on imix\n");
-
-  int err = ieee802154_send(0x0802,   // destination address (short MAC address)
-                            SEC_LEVEL_NONE,   // No encryption
-                            0,   // unused since SEC_LEVEL_NONE
-                            NULL,   // unused since SEC_LEVEL_NONE
-                            packet,
-                            len);
-  if (err != TOCK_SUCCESS && err != TOCK_ENOACK) {
-    printf("Error sending packet %d\n", err);
-  }
 }
 
 int main(void) {
@@ -127,29 +95,28 @@ int main(void) {
 
   // Setup BLE
   simple_ble_init(&ble_config);
+  printf("[imix] BLE initialized.\n");
   simple_adv_only_name();
+  printf("[imix] BLE advertising.\n");
 
   // Enable button callbacks
   button_subscribe(button_callback, NULL);
   button_enable_interrupt(0);
-
+  printf("[imix] Button initialized.\n");
+  
   // Setup D0, D1, D6, D7
   gpio_enable_input(0, PullDown); // D0
   gpio_enable_input(1, PullDown); // D1
   gpio_enable_input(2, PullDown); // D6
   gpio_enable_input(3, PullDown); // D7
-
-  /* { IEEE802.15.4 configuration... temporary until we have full IP */
-  ieee802154_set_address(0x1540);
-  ieee802154_set_pan(0xABCD);
-  ieee802154_config_commit();
-  ieee802154_up();
-  /* } IEEE802.15.4 configuration */
-
+  printf("[imix] GPIO D0, D1, D6, D7 configured to be pulldown.\n");
+    
+  // Should add UDP here
+  
   // sample sensors every second
   while (1) {
+    printf("[imix] Sampling sensors.\n");
     sample_sensors();
-    send_ieee802154_packet();
     delay_ms(1000);
   }
 }
