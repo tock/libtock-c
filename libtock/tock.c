@@ -1,5 +1,6 @@
 #include <inttypes.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -100,9 +101,9 @@ void yield(void) {
     // registers r4-r8, r10, r11 and SP (and r9 in PCS variants that designate
     // r9 as v6) As our compilation flags mark r9 as the PIC base register, it
     // does not need to be saved. Thus we must clobber r0-3, r12, and LR
-    register uint32_t wait asm ("r0")       = 1; // yield-wait
-    register uint32_t wait_field asm ("r1") = 0; // yield result ptr
-    asm volatile (
+    register uint32_t wait __asm__ ("r0")       = 1; // yield-wait
+    register uint32_t wait_field __asm__ ("r1") = 0; // yield result ptr
+    __asm__ volatile (
       "svc 0       \n"
       :
       : "r" (wait), "r" (wait_field)
@@ -138,9 +139,9 @@ int yield_no_wait(void) {
     // r9 as v6) As our compilation flags mark r9 as the PIC base register, it
     // does not need to be saved. Thus we must clobber r0-3, r12, and LR
     uint8_t result = 0;
-    register uint32_t wait asm ("r0")       = 0; // yield-no-wait
-    register uint8_t* wait_field asm ("r1") = &result; // yield result ptr
-    asm volatile (
+    register uint32_t wait __asm__ ("r0")       = 0; // yield-no-wait
+    register uint8_t* wait_field __asm__ ("r1") = &result; // yield result ptr
+    __asm__ volatile (
       "svc 0       \n"
       :
       : "r" (wait), "r" (wait_field)
@@ -151,9 +152,9 @@ int yield_no_wait(void) {
 }
 
 void tock_exit(uint32_t completion_code) {
-  register uint32_t r0 asm ("r0") = 0; // Terminate
-  register uint32_t r1 asm ("r1") = completion_code;
-  asm volatile (
+  register uint32_t r0 __asm__ ("r0") = 0; // Terminate
+  register uint32_t r1 __asm__ ("r1") = completion_code;
+  __asm__ volatile (
     "svc 6"
     :
     : "r" (r0), "r" (r1)
@@ -163,9 +164,9 @@ void tock_exit(uint32_t completion_code) {
 
 
 void tock_restart(uint32_t completion_code) {
-  register uint32_t r0 asm ("r0") = 1; // Restart
-  register uint32_t r1 asm ("r1") = completion_code;
-  asm volatile (
+  register uint32_t r0 __asm__ ("r0") = 1; // Restart
+  register uint32_t r1 __asm__ ("r1") = completion_code;
+  __asm__ volatile (
     "svc 6"
     :
     : "r" (r0), "r" (r1)
@@ -175,15 +176,15 @@ void tock_restart(uint32_t completion_code) {
 
 subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
                              subscribe_upcall cb, void* userdata) {
-  register uint32_t r0 asm ("r0") = driver;
-  register uint32_t r1 asm ("r1") = subscribe;
-  register void*    r2 asm ("r2") = cb;
-  register void*    r3 asm ("r3") = userdata;
-  register int rtype asm ("r0");
-  register int rv1 asm ("r1");
-  register int rv2 asm ("r2");
-  register int rv3 asm ("r3");
-  asm volatile (
+  register uint32_t r0 __asm__ ("r0") = driver;
+  register uint32_t r1 __asm__ ("r1") = subscribe;
+  register void*    r2 __asm__ ("r2") = cb;
+  register void*    r3 __asm__ ("r3") = userdata;
+  register int rtype __asm__ ("r0");
+  register int rv1 __asm__ ("r1");
+  register int rv2 __asm__ ("r2");
+  register int rv3 __asm__ ("r3");
+  __asm__ volatile (
     "svc 1"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
     : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
@@ -202,15 +203,15 @@ subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
 
 syscall_return_t command(uint32_t driver, uint32_t command,
                          int arg1, int arg2) {
-  register uint32_t r0 asm ("r0") = driver;
-  register uint32_t r1 asm ("r1") = command;
-  register uint32_t r2 asm ("r2") = arg1;
-  register uint32_t r3 asm ("r3") = arg2;
-  register uint32_t rtype asm ("r0");
-  register uint32_t rv1 asm ("r1");
-  register uint32_t rv2 asm ("r2");
-  register uint32_t rv3 asm ("r3");
-  asm volatile (
+  register uint32_t r0 __asm__ ("r0") = driver;
+  register uint32_t r1 __asm__ ("r1") = command;
+  register uint32_t r2 __asm__ ("r2") = arg1;
+  register uint32_t r3 __asm__ ("r3") = arg2;
+  register uint32_t rtype __asm__ ("r0");
+  register uint32_t rv1 __asm__ ("r1");
+  register uint32_t rv2 __asm__ ("r2");
+  register uint32_t rv3 __asm__ ("r3");
+  __asm__ volatile (
     "svc 2"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
     : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
@@ -221,15 +222,15 @@ syscall_return_t command(uint32_t driver, uint32_t command,
 }
 
 allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size) {
-  register uint32_t r0 asm ("r0")       = driver;
-  register uint32_t r1 asm ("r1")       = allow;
-  register const void*    r2 asm ("r2") = ptr;
-  register size_t r3 asm ("r3")         = size;
-  register int rtype asm ("r0");
-  register int rv1 asm ("r1");
-  register int rv2 asm ("r2");
-  register int rv3 asm ("r3");
-  asm volatile (
+  register uint32_t r0 __asm__ ("r0")       = driver;
+  register uint32_t r1 __asm__ ("r1")       = allow;
+  register const void*    r2 __asm__ ("r2") = ptr;
+  register size_t r3 __asm__ ("r3")         = size;
+  register int rtype __asm__ ("r0");
+  register int rv1 __asm__ ("r1");
+  register int rv2 __asm__ ("r2");
+  register int rv3 __asm__ ("r3");
+  __asm__ volatile (
     "svc 4"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
     : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
@@ -248,15 +249,15 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* pt
 }
 
 allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, size_t size) {
-  register uint32_t r0 asm ("r0")       = driver;
-  register uint32_t r1 asm ("r1")       = allow;
-  register const void*    r2 asm ("r2") = ptr;
-  register size_t r3 asm ("r3")         = size;
-  register int rtype asm ("r0");
-  register int rv1 asm ("r1");
-  register int rv2 asm ("r2");
-  register int rv3 asm ("r3");
-  asm volatile (
+  register uint32_t r0 __asm__ ("r0")       = driver;
+  register uint32_t r1 __asm__ ("r1")       = allow;
+  register const void*    r2 __asm__ ("r2") = ptr;
+  register size_t r3 __asm__ ("r3")         = size;
+  register int rtype __asm__ ("r0");
+  register int rv1 __asm__ ("r1");
+  register int rv2 __asm__ ("r2");
+  register int rv3 __asm__ ("r3");
+  __asm__ volatile (
     "svc 3"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
     : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
@@ -275,11 +276,11 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, si
 }
 
 void* memop(uint32_t op_type, int arg1) {
-  register uint32_t r0 asm ("r0") = op_type;
-  register int r1 asm ("r1")      = arg1;
-  register void*   val asm ("r1");
-  register uint32_t code asm ("r0");
-  asm volatile (
+  register uint32_t r0 __asm__ ("r0") = op_type;
+  register int r1 __asm__ ("r1")      = arg1;
+  register void*   val __asm__ ("r1");
+  register uint32_t code __asm__ ("r0");
+  __asm__ volatile (
     "svc 5"
     : "=r" (code), "=r" (val)
     : "r" (r0), "r" (r1)
@@ -304,9 +305,9 @@ void yield(void) {
   if (__yield_check_tasks()) {
     return;
   } else {
-    register uint32_t a0  asm ("a0")        = 1; // yield-wait
-    register uint32_t wait_field asm ("a1") = 0; // yield result ptr
-    asm volatile (
+    register uint32_t a0  __asm__ ("a0")        = 1; // yield-wait
+    register uint32_t wait_field __asm__ ("a1") = 0; // yield result ptr
+    __asm__ volatile (
       "li    a5, 0\n"
       "ecall\n"
       :
@@ -318,15 +319,14 @@ void yield(void) {
   }
 }
 
-
 int yield_no_wait(void) {
   if (__yield_check_tasks()) {
     return 1;
   } else {
     uint8_t result = 0;
-    register uint32_t a0  asm ("a0") = 0; // yield-no-wait
-    register uint8_t* a1  asm ("a1") = &result;
-    asm volatile (
+    register uint32_t a0  __asm__ ("a0") = 0; // yield-no-wait
+    register uint8_t* a1  __asm__ ("a1") = &result;
+    __asm__ volatile (
       "li    a5, 0\n"
       "ecall\n"
       :
@@ -340,9 +340,9 @@ int yield_no_wait(void) {
 
 
 void tock_restart(uint32_t completion_code) {
-  register uint32_t a0  asm ("a0") = 1; // exit-restart
-  register uint32_t a1  asm ("a1") = completion_code;
-  asm volatile (
+  register uint32_t a0  __asm__ ("a0") = 1; // exit-restart
+  register uint32_t a1  __asm__ ("a1") = completion_code;
+  __asm__ volatile (
     "li    a4, 6\n"
     "ecall\n"
     :
@@ -352,9 +352,9 @@ void tock_restart(uint32_t completion_code) {
 }
 
 void tock_exit(uint32_t completion_code) {
-  register uint32_t a0  asm ("a0") = 0; // exit-terminate
-  register uint32_t a1  asm ("a1") = completion_code;
-  asm volatile (
+  register uint32_t a0  __asm__ ("a0") = 0; // exit-terminate
+  register uint32_t a1  __asm__ ("a1") = completion_code;
+  __asm__ volatile (
     "li    a4, 6\n"
     "ecall\n"
     :
@@ -365,15 +365,15 @@ void tock_exit(uint32_t completion_code) {
 
 subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
                              subscribe_upcall uc, void* userdata) {
-  register uint32_t a0  asm ("a0") = driver;
-  register uint32_t a1  asm ("a1") = subscribe;
-  register void*    a2  asm ("a2") = uc;
-  register void*    a3  asm ("a3") = userdata;
-  register int rtype asm ("a0");
-  register int rv1 asm ("a1");
-  register int rv2 asm ("a2");
-  register int rv3 asm ("a3");
-  asm volatile (
+  register uint32_t a0  __asm__ ("a0") = driver;
+  register uint32_t a1  __asm__ ("a1") = subscribe;
+  register void*    a2  __asm__ ("a2") = uc;
+  register void*    a3  __asm__ ("a3") = userdata;
+  register int rtype __asm__ ("a0");
+  register int rv1 __asm__ ("a1");
+  register int rv2 __asm__ ("a2");
+  register int rv3 __asm__ ("a3");
+  __asm__ volatile (
     "li    a4, 1\n"
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
@@ -392,15 +392,15 @@ subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
 
 syscall_return_t command(uint32_t driver, uint32_t command,
                          int arg1, int arg2) {
-  register uint32_t a0  asm ("a0") = driver;
-  register uint32_t a1  asm ("a1") = command;
-  register uint32_t a2  asm ("a2") = arg1;
-  register uint32_t a3  asm ("a3") = arg2;
-  register int rtype asm ("a0");
-  register int rv1 asm ("a1");
-  register int rv2 asm ("a2");
-  register int rv3 asm ("a3");
-  asm volatile (
+  register uint32_t a0  __asm__ ("a0") = driver;
+  register uint32_t a1  __asm__ ("a1") = command;
+  register uint32_t a2  __asm__ ("a2") = arg1;
+  register uint32_t a3  __asm__ ("a3") = arg2;
+  register int rtype __asm__ ("a0");
+  register int rv1 __asm__ ("a1");
+  register int rv2 __asm__ ("a2");
+  register int rv3 __asm__ ("a3");
+  __asm__ volatile (
     "li    a4, 2\n"
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
@@ -412,15 +412,15 @@ syscall_return_t command(uint32_t driver, uint32_t command,
 
 allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
                                   void* ptr, size_t size) {
-  register uint32_t a0  asm ("a0") = driver;
-  register uint32_t a1  asm ("a1") = allow;
-  register void*    a2  asm ("a2") = ptr;
-  register size_t a3  asm ("a3")   = size;
-  register int rtype asm ("a0");
-  register int rv1  asm ("a1");
-  register int rv2  asm ("a2");
-  register int rv3  asm ("a3");
-  asm volatile (
+  register uint32_t a0  __asm__ ("a0") = driver;
+  register uint32_t a1  __asm__ ("a1") = allow;
+  register void*    a2  __asm__ ("a2") = ptr;
+  register size_t a3  __asm__ ("a3")   = size;
+  register int rtype __asm__ ("a0");
+  register int rv1  __asm__ ("a1");
+  register int rv2  __asm__ ("a2");
+  register int rv3  __asm__ ("a3");
+  __asm__ volatile (
     "li    a4, 3\n"
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
@@ -440,15 +440,15 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
 
 allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
                                  const void* ptr, size_t size) {
-  register uint32_t a0  asm ("a0")    = driver;
-  register uint32_t a1  asm ("a1")    = allow;
-  register const void* a2  asm ("a2") = ptr;
-  register size_t a3  asm ("a3")      = size;
-  register int rtype asm ("a0");
-  register int rv1 asm ("a1");
-  register int rv2 asm ("a2");
-  register int rv3 asm ("a3");
-  asm volatile (
+  register uint32_t a0  __asm__ ("a0")    = driver;
+  register uint32_t a1  __asm__ ("a1")    = allow;
+  register const void* a2  __asm__ ("a2") = ptr;
+  register size_t a3  __asm__ ("a3")      = size;
+  register int rtype __asm__ ("a0");
+  register int rv1 __asm__ ("a1");
+  register int rv2 __asm__ ("a2");
+  register int rv3 __asm__ ("a3");
+  __asm__ volatile (
     "li    a4, 4\n"
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
@@ -467,11 +467,11 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
 }
 
 void* memop(uint32_t op_type, int arg1) {
-  register uint32_t a0    asm ("a0") = op_type;
-  register int a1         asm ("a1") = arg1;
-  register void* val      asm ("a1");
-  register uint32_t code  asm ("a0");
-  asm volatile (
+  register uint32_t a0    __asm__ ("a0") = op_type;
+  register int a1         __asm__ ("a1") = arg1;
+  register void* val      __asm__ ("a1");
+  register uint32_t code  __asm__ ("a0");
+  __asm__ volatile (
     "li    a4, 5\n"
     "ecall\n"
     : "=r" (code), "=r" (val)

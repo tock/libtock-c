@@ -61,7 +61,7 @@ static void sample_sensors (void) {
   humidity_read_sync(&humi);
   printf("  Humidity:     %u.%02u%%\n", humi / 100, humi % 100);
 
-  uint32_t accel_mag = (uint32_t)ninedof_read_accel_mag();
+  uint32_t accel_mag = ninedof_read_accel_mag();
   printf("  Acceleration: %lu\n", accel_mag);
 
   int light;

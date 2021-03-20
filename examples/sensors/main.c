@@ -23,7 +23,6 @@ static bool ninedof_mag    = false;
 static bool ninedof_gyro   = false;
 static bool proximity      = false;
 static bool sound_pressure = false;
-
 static void timer_fired(__attribute__ ((unused)) int arg0,
                         __attribute__ ((unused)) int arg1,
                         __attribute__ ((unused)) int arg2,
@@ -79,6 +78,7 @@ int main(void) {
   ninedof        = driver_exists(DRIVER_NUM_NINEDOF);
   proximity      = driver_exists(DRIVER_NUM_PROXIMITY);
   sound_pressure = driver_exists(DRIVER_NUM_SOUND_PRESSURE);
+
 
   if (ninedof) {
     int buffer;
