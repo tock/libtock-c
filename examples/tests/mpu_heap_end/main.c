@@ -13,8 +13,8 @@ int main(void) {
 
   printf("Finding end of heap region...\n");
   while (1) {
-      uint8_t next_byte = *heap_end;
-      printf("Address: %p, value: %02x\n", heap_end, next_byte);
-      heap_end++;
+    uint8_t next_byte = *heap_end;
+    printf("Address: %p, value: %02x\n", heap_end, next_byte);
+    heap_end++;
   }
 }
