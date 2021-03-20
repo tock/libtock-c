@@ -55,19 +55,19 @@ static void sample_sensors (void) {
   // Sensors: temperature/humidity, acceleration, light
   int temp;
   temperature_read_sync(&temp);
-  printf("  Temperature:  %d.%02d degrees C\n", temp/100, temp%100);
-    
+  printf("  Temperature:  %d.%02d degrees C\n", temp / 100, temp % 100);
+
   unsigned humi;
   humidity_read_sync(&humi);
-  printf("  Humidity:     %u.%02u%%\n", humi/100, humi%100);
+  printf("  Humidity:     %u.%02u%%\n", humi / 100, humi % 100);
 
   uint32_t accel_mag = (uint32_t)ninedof_read_accel_mag();
   printf("  Acceleration: %lu\n", accel_mag);
-  
+
   int light;
   ambient_light_read_intensity_sync(&light);
   printf("  Light:        %d\n", light);
-  
+
   // Analog inputs: A0-A5
   for (int a = 0; a < 6; a++) {
     uint16_t val;
@@ -103,16 +103,16 @@ int main(void) {
   button_subscribe(button_callback, NULL);
   button_enable_interrupt(0);
   printf("[imix] Button initialized.\n");
-  
+
   // Setup D0, D1, D6, D7
   gpio_enable_input(0, PullDown); // D0
   gpio_enable_input(1, PullDown); // D1
   gpio_enable_input(2, PullDown); // D6
   gpio_enable_input(3, PullDown); // D7
   printf("[imix] GPIO D0, D1, D6, D7 configured to be pulldown.\n");
-    
+
   // Should add UDP here
-  
+
   // sample sensors every second
   while (1) {
     printf("[imix] Sampling sensors.\n");
