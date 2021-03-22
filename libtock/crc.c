@@ -1,19 +1,43 @@
 #include "crc.h"
+#include "tock.h"
 
 int crc_exists(void) {
-  return command(DRIVER_NUM_CRC, 0, 0, 0) >= 0;
+  syscall_return_t ret = command(DRIVER_NUM_CRC, 0, 0, 0);
+  if (ret.type == TOCK_SYSCALL_SUCCESS) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 int crc_request(enum crc_alg alg) {
-  return command(DRIVER_NUM_CRC, 2, alg, 0);
+  syscall_return_t ret = command(DRIVER_NUM_CRC, 2, alg, 0);
+  if (ret.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else {
+    // printf("Failure on crc_request: %s\n", tock_strerr(ret.data[0]));
+    return tock_error_to_rcode(ret.data[0]);
+  }
 }
 
-int crc_subscribe(subscribe_cb callback, void *ud) {
-  return subscribe(DRIVER_NUM_CRC, 0, callback, ud);
+int crc_subscribe(subscribe_upcall callback, void *ud) {
+  subscribe_return_t ret = subscribe(DRIVER_NUM_CRC, 0, callback, ud);
+  if (ret.success) {
+    return TOCK_SUCCESS;
+  } else {
+    // printf("Failure on crc_subscribe: %s\n", tock_strerr(ret.error));
+    return tock_error_to_rcode(ret.error);
+  }
 }
 
 int crc_set_buffer(const void* buf, size_t len) {
-  return allow(DRIVER_NUM_CRC, 0, (void*) buf, len);
+  allow_ro_return_t ret =  allow_readonly(DRIVER_NUM_CRC, 0, (void*) buf, len);
+  if (ret.success) {
+    return TOCK_SUCCESS;
+  } else {
+    // printf("Failure on crc_set_buffer: %s\n", tock_strerr(ret.error));
+    return tock_error_to_rcode(ret.error);
+  }
 }
 
 struct data {

@@ -127,7 +127,7 @@ int main (void) {
   printf("[BLE] Environmental Sensing IPC Service\n");
 
   // Listen for IPC requests to configure the sensor values.
-  ipc_register_svc(ipc_callback, NULL);
+  ipc_register_service_callback(ipc_callback, NULL);
 
   // Setup BLE
   conn_handle = simple_ble_init(&ble_config)->conn_handle;

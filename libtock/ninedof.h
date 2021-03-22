@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_NINEDOF 0x60004
 
 // Proivide a callback function for acceleration readings
-int ninedof_subscribe(subscribe_cb callback, void* userdata);
+int ninedof_subscribe(subscribe_upcall callback, void* userdata);
 // Read acceleration and relay to callback function
 int ninedof_start_accel_reading(void);
 // Read magnetometer and relay to callback function

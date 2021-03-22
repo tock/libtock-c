@@ -247,7 +247,7 @@ int ieee802154_receive_sync(const char *frame, unsigned char len);
 // `pans`: ((destination PAN ID if present else 0) << 16) | (source PANID if present else 0)
 // `dst_addr`: (addressing mode << 16) | (short address if address is short else 0)
 // `src_addr`: (addressing mode << 16) | (short address if address is short else 0)
-int ieee802154_receive(subscribe_cb callback,
+int ieee802154_receive(subscribe_upcall callback,
                        const char *frame,
                        unsigned char len);
 
@@ -312,6 +312,8 @@ bool ieee802154_frame_get_dst_pan(const char *frame,
 bool ieee802154_frame_get_src_pan(const char *frame,
                                   unsigned short *pan);
 
+// Unallow any allowed rx buffer by allowing a null pointer.
+bool ieee802154_unallow_rx_buf(void);
 #ifdef __cplusplus
 }
 #endif

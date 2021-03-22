@@ -15,7 +15,7 @@ int usb_exists(void);
 //
 // The callback will receive these parameters, in order:
 //    status: SUCCESS if all inputs are valid, else EINVAL
-int usb_subscribe(subscribe_cb, void *);
+int usb_subscribe(subscribe_upcall, void *);
 
 // Enable the USB controller and attach to the bus
 //

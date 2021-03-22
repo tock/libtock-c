@@ -37,7 +37,7 @@ int gpio_read(GPIO_Pin_t pin);
 int gpio_enable_interrupt(GPIO_Pin_t pin, GPIO_InterruptMode_t irq_config);
 int gpio_disable_interrupt(GPIO_Pin_t pin);
 int gpio_disable(GPIO_Pin_t pin);
-int gpio_interrupt_callback(subscribe_cb callback, void* callback_args);
+int gpio_interrupt_callback(subscribe_upcall callback, void* callback_args);
 
 #ifdef __cplusplus
 }

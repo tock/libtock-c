@@ -56,7 +56,7 @@ typedef enum {
 //           3 = LTC2943
 //     2: Got the charge value.
 //     3: A write operation finished.
-int ltc294x_set_callback (subscribe_cb callback, void* callback_args);
+int ltc294x_set_callback (subscribe_upcall callback, void* callback_args);
 
 // Get the current value of the status register. The result will be returned
 // in the callback.

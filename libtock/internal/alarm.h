@@ -16,16 +16,18 @@ extern "C" {
  *
  * Side-effects: cancels any existing/outstanding timers
  */
-int alarm_internal_subscribe(subscribe_cb cb, void *userdata);
+int alarm_internal_subscribe(subscribe_upcall cb, void *userdata);
 
 /*
  * Starts a oneshot alarm
  *
- * expiration - absolute expiration value in clock tics
+ * expiration - absolute expiration value = reference + dt.
+ * Using reference + dt allows library to distinguish expired timers from
+ * timers in the far future.
  *
  * Side-effects: cancels any existing/outstanding timers
  */
-int alarm_internal_set(uint32_t tics);
+int alarm_internal_set(uint32_t reference, uint32_t dt);
 
 
 /*

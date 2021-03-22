@@ -24,8 +24,8 @@ extern "C" {
 
 #define BLE_SCAN_SUB 0
 
-#define BLE_CFG_ADV_BUF_ALLOW 0
-#define BLE_CFG_SCAN_BUF_ALLOW 1
+#define BLE_CFG_ADV_BUF_ALLOWRO 0
+#define BLE_CFG_SCAN_BUF_ALLOWRW 0
 
 #define ADV_IND  0x00
 #define ADV_DIRECT_IND  0x01
@@ -98,7 +98,7 @@ int ble_stop_advertising(void);
 //                        or not
 // len                  - the number of bytes received via the radio
 //
-int ble_start_passive_scan(uint8_t *data, uint8_t len, subscribe_cb callback);
+int ble_start_passive_scan(uint8_t *data, uint8_t len, subscribe_upcall callback);
 
 // stop passive scanning
 int ble_stop_passive_scan(void);

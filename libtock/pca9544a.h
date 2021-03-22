@@ -8,7 +8,7 @@ extern "C" {
 
 #define DRIVER_NUM_PCA9544A 0x80002
 
-int pca9544a_set_callback(subscribe_cb callback, void* callback_args);
+int pca9544a_set_callback(subscribe_upcall callback, void* callback_args);
 
 // Set which of the I2C selector's channels are active.
 // channels is an 8 bit bitmask

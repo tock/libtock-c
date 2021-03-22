@@ -6,10 +6,10 @@ typedef struct {
   bool fired;
 } ambient_light_data_t;
 
-// internal callback for faking synchronous reads
-static void ambient_light_cb(int intensity,
-                             __attribute__ ((unused)) int unused1,
-                             __attribute__ ((unused)) int unused2, void* ud) {
+// callback for synchronous reads
+static void ambient_light_upcall(int intensity,
+                                 __attribute__ ((unused)) int unused1,
+                                 __attribute__ ((unused)) int unused2, void* ud) {
   ambient_light_data_t* result = (ambient_light_data_t*)ud;
   result->intensity = intensity;
   result->fired     = true;
@@ -20,7 +20,7 @@ int ambient_light_read_intensity_sync(int* lux_value) {
   ambient_light_data_t result = {0};
   result.fired = false;
 
-  err = ambient_light_subscribe(ambient_light_cb, (void*)(&result));
+  err = ambient_light_subscribe(ambient_light_upcall, (void*)(&result));
   if (err < TOCK_SUCCESS) {
     return err;
   }
@@ -37,11 +37,21 @@ int ambient_light_read_intensity_sync(int* lux_value) {
   return TOCK_SUCCESS;
 }
 
-int ambient_light_subscribe(subscribe_cb callback, void* userdata) {
-  return subscribe(DRIVER_NUM_AMBIENT_LIGHT, 0, callback, userdata);
+int ambient_light_subscribe(subscribe_upcall callback, void* userdata) {
+  subscribe_return_t ret = subscribe(DRIVER_NUM_AMBIENT_LIGHT, 0, callback, userdata);
+  if (ret.success) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(ret.error);
+  }
 }
 
 int ambient_light_start_intensity_reading(void) {
-  return command(DRIVER_NUM_AMBIENT_LIGHT, 1, 0, 0);
+  syscall_return_t ret = command(DRIVER_NUM_AMBIENT_LIGHT, 1, 0, 0);
+  if (ret.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(ret.data[0]);
+  }
 }
 

@@ -39,7 +39,7 @@ int main(void)
   int err = ble_start_passive_scan(scan, BUF_SIZE, callback);
 
   if (err < TOCK_SUCCESS) {
-    printf("ble_start_passive_scan, error: %s\r\n", tock_strerror(err));
+    printf("ble_start_passive_scan, error: %s\r\n", tock_strrcode(err));
   }
   return 0;
 }

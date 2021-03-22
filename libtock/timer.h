@@ -38,7 +38,7 @@ extern "C" {
  */
 typedef struct tock_timer {
   uint32_t interval;
-  subscribe_cb* cb;
+  subscribe_upcall* cb;
   void* ud;
   alarm_t alarm;
 } tock_timer_t;
@@ -52,7 +52,7 @@ typedef struct tock_timer {
  * \param userdata passed to the callback.
  * \param A handle to the alarm that was created.
  */
-void timer_in(uint32_t ms, subscribe_cb, void*, tock_timer_t* timer);
+void timer_in(uint32_t ms, subscribe_upcall, void*, tock_timer_t* timer);
 
 /** \brief Create a new repeating alarm to fire every `ms` milliseconds.
  *
@@ -65,7 +65,7 @@ void timer_in(uint32_t ms, subscribe_cb, void*, tock_timer_t* timer);
  * \param a pointer to a new tock_timer_t to be used by the implementation to
  *        keep track of the alarm.
  */
-void timer_every(uint32_t ms, subscribe_cb, void*, tock_timer_t* timer);
+void timer_every(uint32_t ms, subscribe_upcall, void*, tock_timer_t* timer);
 
 /** \brief Cancels an existing alarm.
  *

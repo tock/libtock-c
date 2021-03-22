@@ -18,7 +18,7 @@ int main (void) {
   if (rc == TOCK_SUCCESS) {
     printf("Found ROM ID: 0x%llX\n", rom_id);
   } else {
-    printf("Got error: %s\n", tock_strerror(rc));
+    printf("Got error: %s\n", tock_strrcode(rc));
   }
 
   printf("\n");
@@ -28,7 +28,7 @@ int main (void) {
   if (rc == TOCK_SUCCESS) {
     printf("Status: 0x%04X\n", status);
   } else {
-    printf("Got error: %d - %s\n", rc, tock_strerror(rc));
+    printf("Got error: %d - %s\n", rc, tock_strrcode(rc));
   }
 
   printf("\n");
@@ -40,7 +40,7 @@ int main (void) {
     printf("State of charge in uAh: %ld\n", lrint(max17205_get_capacity_uAh(soc_mah)));
     printf("Full charge in uAh: %ld\n", lrint(max17205_get_capacity_uAh(soc_mah_full)));
   } else {
-    printf("Got error: %d - %s\n", rc, tock_strerror(rc));
+    printf("Got error: %d - %s\n", rc, tock_strrcode(rc));
   }
 
   printf("\n");
@@ -52,6 +52,6 @@ int main (void) {
     printf("Voltage (mV): %ld\n", lrint(max17205_get_voltage_mV(voltage)));
     printf("Current (uA): %ld\n", lrint(max17205_get_current_uA(current)));
   } else {
-    printf("Got error: %d - %s\n", rc, tock_strerror(rc));
+    printf("Got error: %d - %s\n", rc, tock_strrcode(rc));
   }
 }

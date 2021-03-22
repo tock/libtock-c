@@ -14,10 +14,10 @@ typedef struct putstr_data {
 static putstr_data_t *putstr_head = NULL;
 static putstr_data_t *putstr_tail = NULL;
 
-static void putstr_cb(int _x __attribute__ ((unused)),
-                      int _y __attribute__ ((unused)),
-                      int _z __attribute__ ((unused)),
-                      void* ud __attribute__ ((unused))) {
+static void putstr_upcall(int _x __attribute__ ((unused)),
+                          int _y __attribute__ ((unused)),
+                          int _z __attribute__ ((unused)),
+                          void* ud __attribute__ ((unused))) {
   putstr_data_t* data = putstr_head;
   data->called = true;
   putstr_head  = data->next;
@@ -26,10 +26,10 @@ static void putstr_cb(int _x __attribute__ ((unused)),
     putstr_tail = NULL;
   } else {
     int ret;
-    ret = putnstr_async(putstr_head->buf, putstr_head->len, putstr_cb, NULL);
+    ret = putnstr_async(putstr_head->buf, putstr_head->len, putstr_upcall, NULL);
     if (ret < 0) {
       // XXX There's no path to report errors currently, so just drop it
-      putstr_cb(0, 0, 0, NULL);
+      putstr_upcall(0, 0, 0, NULL);
     }
   }
 }
@@ -52,7 +52,7 @@ int putnstr(const char *str, size_t len) {
 
   if (putstr_tail == NULL) {
     // Invariant, if tail is NULL, head is also NULL
-    ret = putnstr_async(data->buf, data->len, putstr_cb, NULL);
+    ret = putnstr_async(data->buf, data->len, putstr_upcall, NULL);
     if (ret < 0) goto putnstr_fail_async;
     putstr_head = data;
     putstr_tail = data;
@@ -71,8 +71,7 @@ putnstr_fail_buf_alloc:
   return ret;
 }
 
-int putnstr_async(const char *str, size_t len, subscribe_cb cb, void* userdata) {
-  int ret;
+int putnstr_async(const char *str, size_t len, subscribe_upcall cb, void* userdata) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
   // Currently, allow gives RW access, but we should have a richer set of
@@ -81,27 +80,44 @@ int putnstr_async(const char *str, size_t len, subscribe_cb cb, void* userdata) 
   void* buf = (void*) str;
 #pragma GCC diagnostic pop
 
-  ret = allow(DRIVER_NUM_CONSOLE, 1, buf, len);
-  if (ret < 0) return ret;
+  allow_ro_return_t ro = allow_readonly(DRIVER_NUM_CONSOLE, 1, buf, len);
+  if (!ro.success) {
+    return tock_error_to_rcode(ro.error);
+  }
 
-  ret = subscribe(DRIVER_NUM_CONSOLE, 1, cb, userdata);
-  if (ret < 0) return ret;
+  subscribe_return_t sub = subscribe(DRIVER_NUM_CONSOLE, 1, cb, userdata);
+  if (sub.success == 0) {
+    return tock_error_to_rcode(sub.error);
+  }
 
-  ret = command(DRIVER_NUM_CONSOLE, 1, len, 0);
-  return ret;
+  syscall_return_t com = command(DRIVER_NUM_CONSOLE, 1, len, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
+    // Returned an incorrect success code
+    return TOCK_FAIL;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
-int getnstr_async(char *str, size_t len, subscribe_cb cb, void* userdata) {
-  int ret;
+int getnstr_async(char *buf, size_t len, subscribe_upcall cb, void* userdata) {
+  allow_rw_return_t rw = allow_readwrite(DRIVER_NUM_CONSOLE, 1, buf, len);
+  if (rw.success == 0) {
+    return tock_error_to_rcode(rw.error);
+  }
 
-  ret = allow(DRIVER_NUM_CONSOLE, 2, str, len);
-  if (ret < 0) return ret;
+  subscribe_return_t sub = subscribe(DRIVER_NUM_CONSOLE, 2, cb, userdata);
+  if (sub.success == 0) {
+    return tock_error_to_rcode(sub.error);
+  }
 
-  ret = subscribe(DRIVER_NUM_CONSOLE, 2, cb, userdata);
-  if (ret < 0) return ret;
-
-  ret = command(DRIVER_NUM_CONSOLE, 2, len, 0);
-  return ret;
+  syscall_return_t com = command(DRIVER_NUM_CONSOLE, 2, len, 0);
+  if (com.type >= TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else {
+    return tock_error_to_rcode(com.data[0]);
+  }
 }
 
 typedef struct getnstr_data {
@@ -111,10 +127,10 @@ typedef struct getnstr_data {
 
 static getnstr_data_t getnstr_data = { true, 0 };
 
-static void getnstr_cb(int result,
-                       int _y __attribute__ ((unused)),
-                       int _z __attribute__ ((unused)),
-                       void* ud __attribute__ ((unused))) {
+static void getnstr_upcall(int result,
+                           int _y __attribute__ ((unused)),
+                           int _z __attribute__ ((unused)),
+                           void* ud __attribute__ ((unused))) {
   getnstr_data.result = result;
   getnstr_data.called = true;
 }
@@ -128,8 +144,10 @@ int getnstr(char *str, size_t len) {
   }
   getnstr_data.called = false;
 
-  ret = getnstr_async(str, len, getnstr_cb, NULL);
-  if (ret < 0) return ret;
+  ret = getnstr_async(str, len, getnstr_upcall, NULL);
+  if (ret < 0) {
+    return ret;
+  }
 
   yield_for(&getnstr_data.called);
 
@@ -141,10 +159,16 @@ int getch(void) {
   char buf[1];
 
   r = getnstr(buf, 1);
-
   return (r == TOCK_SUCCESS) ? buf[0] : TOCK_FAIL;
 }
 
 int getnstr_abort(void) {
-  return command(DRIVER_NUM_CONSOLE, 3, 0, 0);
+  syscall_return_t sval = command(DRIVER_NUM_CONSOLE, 3, 0, 0);
+  if (sval.type == TOCK_SYSCALL_SUCCESS) {
+    return TOCK_SUCCESS;
+  } else if (sval.type == TOCK_SYSCALL_FAILURE) {
+    return TOCK_FAIL;
+  } else {
+    return TOCK_EBADRVAL;
+  }
 }

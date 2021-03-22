@@ -8,9 +8,9 @@ extern "C" {
 
 #define DRIVER_NUM_BUTTON 0x3
 
-int button_subscribe(subscribe_cb callback, void *ud);
-int button_enable_interrupt(int pin_num);
-int button_disable_interrupt(int pin_num);
+subscribe_return_t button_subscribe(subscribe_upcall callback, void *ud);
+syscall_return_t button_enable_interrupt(int pin_num);
+syscall_return_t button_disable_interrupt(int pin_num);
 int button_read(int pin_num);
 int button_count(void);
 

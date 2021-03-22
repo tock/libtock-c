@@ -27,7 +27,7 @@ static void ipc_callback(__attribute__ ((unused)) int pid,
 static uint8_t get_number_of_leds(void) {
   _done       = false;
   _led_buf[0] = 0;
-  ipc_notify_svc(_led_service);
+  ipc_notify_service(_led_service);
   yield_for(&_done);
 
   return _led_buf[0];
@@ -40,7 +40,7 @@ static void set_led(uint8_t led_index, uint8_t led_state) {
   _led_buf[1] = led_index; // Choose the LED.
   _led_buf[2] = led_state; // Set the LED.
   _done       = false;
-  ipc_notify_svc(_led_service);
+  ipc_notify_service(_led_service);
   yield_for(&_done);
 }
 
@@ -48,7 +48,7 @@ static void set_led(uint8_t led_index, uint8_t led_state) {
 static uint16_t get_two_random_bytes(void) {
   _done       = false;
   _rng_buf[0] = 2;
-  ipc_notify_svc(_rng_service);
+  ipc_notify_service(_rng_service);
   yield_for(&_done);
 
   return (_rng_buf[0] << 8) | _rng_buf[1];
@@ -63,7 +63,7 @@ int main(void) {
   }
 
   // Setup IPC for LED service
-  ipc_register_client_cb(_led_service, ipc_callback, NULL);
+  ipc_register_client_callback(_led_service, ipc_callback, NULL);
   ipc_share(_led_service, _led_buf, 64);
 
   // Retrieve a handle to the RNG service.
@@ -74,7 +74,7 @@ int main(void) {
   }
 
   // Setup IPC for RNG service
-  ipc_register_client_cb(_rng_service, ipc_callback, NULL);
+  ipc_register_client_callback(_rng_service, ipc_callback, NULL);
   ipc_share(_rng_service, _rng_buf, 64);
 
   // First need to get the number of LEDs.

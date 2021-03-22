@@ -6,6 +6,8 @@ TOCK_USERLAND_BASE_DIR = ../..
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
 
+APP_HEAP_SIZE=8096
+
 # External libraries used
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/libnrfserialization
 

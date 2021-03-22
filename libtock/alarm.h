@@ -37,9 +37,9 @@ extern "C" {
  * management is handled by the underlying implementation.
  */
 typedef struct alarm {
-  uint32_t t0;
-  uint32_t expiration;
-  subscribe_cb *callback;
+  uint32_t reference;
+  uint32_t dt;
+  subscribe_upcall *callback;
   void* ud;
   struct alarm* next;
   struct alarm* prev;
@@ -51,13 +51,14 @@ typedef struct alarm {
  * The `alarm` parameter is allocated by the caller and must live as long as
  * the alarm is outstanding.
  *
- * \param expiration the clock value to schedule the alarm for.
+ * \param reference: the reference time from which the alarm is being set
+ * \param dt: the time after reference that the alarm should fire
  * \param callback a callback to be invoked when the alarm expires.
  * \param userdata passed to the callback.
  * \param a pointer to a new alarm_t to be used by the implementation to keep
  *        track of the alarm.
  */
-void alarm_at(uint32_t expiration, subscribe_cb, void*, alarm_t *alarm);
+void alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall, void*, alarm_t *alarm);
 
 /** \brief Cancels an existing alarm.
  *

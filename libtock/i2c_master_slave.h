@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-#define DRIVER_NUM_I2CMASTERSLAVE 0x80020006
+#define DRIVER_NUM_I2CMASTERSLAVE 0x20006
 
 #define TOCK_I2C_CB_SLAVE_READ_REQUEST   2
 #define TOCK_I2C_CB_SLAVE_READ_COMPLETE  4
@@ -14,7 +14,7 @@ extern "C" {
 #define TOCK_I2C_CB_MASTER_READ          1
 #define TOCK_I2C_CB_MASTER_WRITE         0
 
-int i2c_master_slave_set_callback (subscribe_cb callback, void* callback_args);
+int i2c_master_slave_set_callback (subscribe_upcall callback, void* callback_args);
 int i2c_master_slave_set_master_write_buffer(uint8_t* buffer, uint32_t len);
 int i2c_master_slave_set_master_read_buffer(uint8_t* buffer, uint32_t len);
 int i2c_master_slave_set_slave_read_buffer(uint8_t* buffer, uint32_t len);

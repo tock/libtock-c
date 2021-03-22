@@ -15,12 +15,12 @@ int loopback(GPIO_Pin_t out, GPIO_Pin_t in) {
   // Setup pin directions
   ret = gpio_enable_output(out);
   if (ret != TOCK_SUCCESS) {
-    printf("ERROR: Unable to configure output: %s\n", tock_strerror(ret));
+    printf("ERROR: Unable to configure output: %s\n", tock_strrcode(ret));
     return -1;
   }
   ret = gpio_enable_input(in, PullNone);
   if (ret != TOCK_SUCCESS) {
-    printf("ERROR: Unable to configure input: %s\n", tock_strerror(ret));
+    printf("ERROR: Unable to configure input: %s\n", tock_strrcode(ret));
     return -1;
   }
 
@@ -28,13 +28,13 @@ int loopback(GPIO_Pin_t out, GPIO_Pin_t in) {
     if (i % 2) {
       ret = gpio_set(out);
       if (ret != TOCK_SUCCESS) {
-        printf("ERROR: Unable to set output: %s\n", tock_strerror(ret));
+        printf("ERROR: Unable to set output: %s\n", tock_strrcode(ret));
         return -1;
       }
 
       ret = gpio_read(in);
       if (ret < 0) {
-        printf("ERROR: Unable to read input: %s\n", tock_strerror(ret));
+        printf("ERROR: Unable to read input: %s\n", tock_strrcode(ret));
         return -1;
       }
 
@@ -45,13 +45,13 @@ int loopback(GPIO_Pin_t out, GPIO_Pin_t in) {
     } else {
       ret = gpio_clear(out);
       if (ret != TOCK_SUCCESS) {
-        printf("ERROR: Unable to clear output: %s\n", tock_strerror(ret));
+        printf("ERROR: Unable to clear output: %s\n", tock_strrcode(ret));
         return -1;
       }
 
       ret = gpio_read(in);
       if (ret < 0) {
-        printf("ERROR: Unable to read input: %s\n", tock_strerror(ret));
+        printf("ERROR: Unable to read input: %s\n", tock_strrcode(ret));
         return -1;
       }
 

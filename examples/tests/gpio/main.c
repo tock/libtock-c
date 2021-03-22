@@ -2,8 +2,7 @@
 
 /* This application can operate in three modes: input, output
  * or interrupt. The mode is set as a constant in main().
- *   - Output mode uses the pin connected to LED 0 (through the led()
- *   system call interface.
+ *   - Output mode uses userspace GPIO pin 0 and toggles it up and down.
  *   - Input mode uses userspace GPIO pin 0 (the 0th pin made available
  *   to userspace programs. Consult the boot sequence of your board or
  *   its documentation to determine which hardware pin this is.
@@ -33,11 +32,12 @@ static void timer_cb (__attribute__ ((unused)) int arg0,
 }
 
 // **************************************************
-// GPIO output example: toggles LED.
+// GPIO output example: toggles pin
 // **************************************************
 static void gpio_output(void) {
-  printf("Periodically blinking LED\n");
+  printf("Periodically toggling pin\n");
 
+  gpio_enable_output(0);
   // Start repeating timer
   static bool resume = 0;
   tock_timer_t timer;
@@ -46,7 +46,7 @@ static void gpio_output(void) {
   while (1) {
     yield_for(&resume);
     resume = 0;
-    led_toggle(0);
+    gpio_toggle(0);
   }
 }
 

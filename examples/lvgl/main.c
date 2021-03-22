@@ -22,14 +22,21 @@ int main (void)
      * 0, 0 at the end means an x, y offset after alignment*/
     lv_obj_align(label1, NULL, LV_ALIGN_CENTER, 0, 0);
 
+    unsigned int t = 0;
     /* main loop */
     while (1)
     {
+      t++;
+      if (t % 200 == 0) {
+        char buffer[100];
+        snprintf (buffer, 99, "Seconds: %d", t / 200);
+        lv_label_set_text(label1, buffer);
+      }
       delay_ms (5);
       lvgl_driver_event (5);
     }
   } else {
-    printf ("lvgl init error: %s\n", tock_strerror(status));
+    printf ("lvgl init error: %s\n", tock_strrcode(status));
   }
   return 0;
 }
