@@ -308,7 +308,7 @@ void yield(void) {
     register uint32_t a0  __asm__ ("a0")        = 1; // yield-wait
     register uint32_t wait_field __asm__ ("a1") = 0; // yield result ptr
     __asm__ volatile (
-      "li    a5, 0\n"
+      "li    a4, 0\n"
       "ecall\n"
       :
       : "r" (a0), "r" (wait_field)
@@ -327,7 +327,7 @@ int yield_no_wait(void) {
     register uint32_t a0  __asm__ ("a0") = 0; // yield-no-wait
     register uint8_t* a1  __asm__ ("a1") = &result;
     __asm__ volatile (
-      "li    a5, 0\n"
+      "li    a4, 0\n"
       "ecall\n"
       :
       : "r" (a0), "r" (a1)
