@@ -29,8 +29,8 @@ int udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned char *buf_bind_c
   // does not have to read these addresses or worry about them.
   memcpy(&(handle->addr), addr, sizeof(sock_addr_t));
   int bytes = sizeof(sock_addr_t);
-  allow_rw_return_t rw = allow_readwrite(UDP_DRIVER, ALLOW_RX_CFG, (void *) buf_bind_cfg, 2 * bytes);
-  if (!rw.success) return rw.error;
+  allow_rw_return_t aval = allow_readwrite(UDP_DRIVER, ALLOW_RX_CFG, (void *) buf_bind_cfg, 2 * bytes);
+  if (!aval.success) return tock_status_to_returncode(aval.status);
 
   memcpy(buf_bind_cfg + bytes, &(handle->addr), bytes);
 
@@ -38,48 +38,38 @@ int udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned char *buf_bind_c
   // Notably, the pair chosen must match the address/port to which the
   // app is bound, unless the kernel changes in the future to allow for
   // sending from a port to which the app is not bound.
-  rw = allow_readwrite(UDP_DRIVER, ALLOW_CFG, (void *) BUF_TX_CFG, 2 * bytes);
-  if (!rw.success) return rw.error;
+  aval = allow_readwrite(UDP_DRIVER, ALLOW_CFG, (void *) BUF_TX_CFG, 2 * bytes);
+  if (!aval.success) return tock_status_to_returncode(aval.status);
 
   memcpy(BUF_TX_CFG, &(handle->addr), bytes);
 
-  syscall_return_t ret = command(UDP_DRIVER, COMMAND_BIND, 0, 0);
-  if (ret.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(ret.data[0]);
-  }
+  syscall_return_t cval = command(UDP_DRIVER, COMMAND_BIND, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
 }
 
 int udp_close(__attribute__ ((unused)) sock_handle_t *handle) {
   int bytes = sizeof(sock_addr_t);
   // call allow here to prevent any issues if close is called before bind
   // Driver 'closes' when 0 addr is bound to
-  allow_rw_return_t rw = allow_readwrite(UDP_DRIVER, ALLOW_RX_CFG, (void *) zero_addr, 2 * bytes);
-  if (!rw.success) return rw.error;
+  allow_rw_return_t aval = allow_readwrite(UDP_DRIVER, ALLOW_RX_CFG, (void *) zero_addr, 2 * bytes);
+  if (!aval.success) return tock_status_to_returncode(aval.status);
 
   memset(zero_addr, 0, 2 * bytes);
-  syscall_return_t ret = command(UDP_DRIVER, COMMAND_BIND, 0, 0);
-  if (ret.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(ret.data[0]);
-  }
+  syscall_return_t cval = command(UDP_DRIVER, COMMAND_BIND, 0, 0);
+  int err = tock_command_return_novalue_to_returncode(cval);
+  if (err < 0) return err;
 
-  subscribe_return_t sub = subscribe(UDP_DRIVER, SUBSCRIBE_RX, NULL, (void *) NULL);
-  if (!sub.success) {
-    return tock_error_to_rcode(sub.error);
-  } else {
-    return TOCK_SUCCESS;
-  }
+  // Remove the callback.
+  subscribe_return_t sval = subscribe(UDP_DRIVER, SUBSCRIBE_RX, NULL, (void *) NULL);
+  return tock_subscribe_return_to_returncode(sval);
 }
 
 static int tx_result;
-static void tx_done_callback(int result,
+static void tx_done_callback(int status,
                              __attribute__ ((unused)) int arg2,
                              __attribute__ ((unused)) int arg3,
                              void *ud) {
-  tx_result      = result;
+  tx_result      = tock_status_to_returncode(status);
   *((bool *) ud) = true;
 }
 
@@ -92,20 +82,18 @@ ssize_t udp_send_to(void *buf, size_t len,
   memcpy(BUF_TX_CFG + bytes, dst_addr, bytes);
 
   // Set message buffer
-  allow_ro_return_t ro = allow_readonly(UDP_DRIVER, ALLOW_RO_TX, buf, len);
-  if (!ro.success) return tock_error_to_rcode(ro.error);
+  allow_ro_return_t aval = allow_readonly(UDP_DRIVER, ALLOW_RO_TX, buf, len);
+  if (!aval.success) return tock_status_to_returncode(aval.status);
 
   bool tx_done = false;
-  subscribe_return_t sub = subscribe(UDP_DRIVER, SUBSCRIBE_TX, tx_done_callback, (void *) &tx_done);
-  if (!sub.success) {
-    return tock_error_to_rcode(sub.error);
-  }
+  subscribe_return_t sval = subscribe(UDP_DRIVER, SUBSCRIBE_TX, tx_done_callback, (void *) &tx_done);
+  if (!sval.success) return tock_status_to_returncode(sval.status);
 
   syscall_return_t ret = command(UDP_DRIVER, COMMAND_SEND, 0, 0);
   if (ret.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
+    return RETURNCODE_SUCCESS;
   }
-  // err == 1 indicates packet succesfully passed to radio synchronously.
+  // err == 1 indicates packet successfully passed to radio synchronously.
   // However, wait for send_done to see if tx was successful, then return that result
   // err == 0 indicates packet will be sent asynchronously. Thus, 2 callbacks will be received.
   // the first callback will indicate if the packet was ultimately passed to the radio succesfully.
@@ -129,14 +117,12 @@ static void rx_done_callback(int result,
 }
 
 ssize_t udp_recv_sync(void *buf, size_t len) {
-  allow_rw_return_t rw = allow_readwrite(UDP_DRIVER, ALLOW_RX, (void *) buf, len);
-  if (!rw.success) return tock_error_to_rcode(rw.error);
+  allow_rw_return_t aval = allow_readwrite(UDP_DRIVER, ALLOW_RX, (void *) buf, len);
+  if (!aval.success) return tock_status_to_returncode(aval.status);
 
   bool rx_done = false;
-  subscribe_return_t sub = subscribe(UDP_DRIVER, SUBSCRIBE_RX, rx_done_callback, (void *) &rx_done);
-  if (!sub.success) {
-    return tock_error_to_rcode(sub.error);
-  }
+  subscribe_return_t sval = subscribe(UDP_DRIVER, SUBSCRIBE_RX, rx_done_callback, (void *) &rx_done);
+  if (!sval.success) return tock_status_to_returncode(sval.status);
 
   yield_for(&rx_done);
   return rx_result;
@@ -147,37 +133,25 @@ ssize_t udp_recv(subscribe_upcall callback, void *buf, size_t len) {
   // TODO: verify that this functions returns error if this app is not
   // bound to a socket yet. Probably allow should fail..?
 
-  allow_rw_return_t rw = allow_readwrite(UDP_DRIVER, ALLOW_RX, (void *) buf, len);
-  if (!rw.success) return tock_error_to_rcode(rw.error);
+  allow_rw_return_t aval = allow_readwrite(UDP_DRIVER, ALLOW_RX, (void *) buf, len);
+  if (!aval.success) return tock_status_to_returncode(aval.status);
 
-  subscribe_return_t sub = subscribe(UDP_DRIVER, SUBSCRIBE_RX, callback, NULL);
-  if (!sub.success) {
-    return tock_error_to_rcode(sub.error);
-  }
-  return TOCK_SUCCESS;
+  subscribe_return_t sval = subscribe(UDP_DRIVER, SUBSCRIBE_RX, callback, NULL);
+  return tock_subscribe_return_to_returncode(sval);
 }
 
 int udp_list_ifaces(ipv6_addr_t *ifaces, size_t len) {
 
-  if (!ifaces) return TOCK_EINVAL;
+  if (!ifaces) return RETURNCODE_EINVAL;
 
-  allow_rw_return_t rw = allow_readwrite(UDP_DRIVER, ALLOW_CFG, (void *)ifaces, len * sizeof(ipv6_addr_t));
-  if (!rw.success) return tock_error_to_rcode(rw.error);
+  allow_rw_return_t aval = allow_readwrite(UDP_DRIVER, ALLOW_CFG, (void *)ifaces, len * sizeof(ipv6_addr_t));
+  if (!aval.success) return tock_status_to_returncode(aval.status);
 
-  syscall_return_t ret = command(UDP_DRIVER, COMMAND_GET_IFACES, len, 0);
-  if (ret.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(ret.data[0]);
-  }
+  syscall_return_t cval = command(UDP_DRIVER, COMMAND_GET_IFACES, len, 0);
+  return tock_command_return_novalue_to_returncode(cval);
 }
 
-int udp_get_max_tx_len(void) {
-  syscall_return_t ret = command(UDP_DRIVER, COMMAND_GET_TX_LEN, 0, 0);
-  if (ret.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(ret.data[0]);
-  }
+int udp_get_max_tx_len(int* length) {
+  syscall_return_t cval = command(UDP_DRIVER, COMMAND_GET_TX_LEN, 0, 0);
+  return tock_command_return_u32_to_returncode(cval, (uint32_t*) length);
 }
-

@@ -2,42 +2,27 @@
 #include "tock.h"
 
 int crc_exists(void) {
-  syscall_return_t ret = command(DRIVER_NUM_CRC, 0, 0, 0);
-  if (ret.type == TOCK_SYSCALL_SUCCESS) {
-    return 1;
-  } else {
-    return 0;
-  }
+  return driver_exists(DRIVER_NUM_CRC);
 }
 
 int crc_request(enum crc_alg alg) {
   syscall_return_t ret = command(DRIVER_NUM_CRC, 2, alg, 0);
   if (ret.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
+    return RETURNCODE_SUCCESS;
   } else {
     // printf("Failure on crc_request: %s\n", tock_strerr(ret.data[0]));
-    return tock_error_to_rcode(ret.data[0]);
+    return tock_status_to_returncode(ret.data[0]);
   }
 }
 
 int crc_subscribe(subscribe_upcall callback, void *ud) {
   subscribe_return_t ret = subscribe(DRIVER_NUM_CRC, 0, callback, ud);
-  if (ret.success) {
-    return TOCK_SUCCESS;
-  } else {
-    // printf("Failure on crc_subscribe: %s\n", tock_strerr(ret.error));
-    return tock_error_to_rcode(ret.error);
-  }
+  return tock_subscribe_return_to_returncode(ret);
 }
 
 int crc_set_buffer(const void* buf, size_t len) {
-  allow_ro_return_t ret =  allow_readonly(DRIVER_NUM_CRC, 0, (void*) buf, len);
-  if (ret.success) {
-    return TOCK_SUCCESS;
-  } else {
-    // printf("Failure on crc_set_buffer: %s\n", tock_strerr(ret.error));
-    return tock_error_to_rcode(ret.error);
-  }
+  allow_ro_return_t ret = allow_readonly(DRIVER_NUM_CRC, 0, (void*) buf, len);
+  return tock_allow_ro_return_to_returncode(ret);
 }
 
 struct data {
@@ -46,8 +31,7 @@ struct data {
   uint32_t result;
 };
 
-static void callback(int status, int v1, __attribute__((unused)) int v2, void *data)
-{
+static void callback(int status, int v1, __attribute__((unused)) int v2, void *data) {
   struct data *d = data;
 
   d->fired  = true;
@@ -55,17 +39,21 @@ static void callback(int status, int v1, __attribute__((unused)) int v2, void *d
   d->result = v1;
 }
 
-int crc_compute(const void *buf, size_t buflen, enum crc_alg alg, uint32_t *result)
-{
+int crc_compute(const void *buf, size_t buflen, enum crc_alg alg, uint32_t *result) {
   struct data d = { .fired = false };
+  int ret;
 
-  crc_set_buffer(buf, buflen);
-  crc_subscribe(callback, (void *) &d);
-  crc_request(alg);
+  ret = crc_set_buffer(buf, buflen);
+  if (ret < 0) return ret;
+  ret = crc_subscribe(callback, (void *) &d);
+  if (ret < 0) return ret;
+  ret = crc_request(alg);
+  if (ret < 0) return ret;
   yield_for(&d.fired);
 
-  if (d.status == TOCK_SUCCESS)
+  if (d.status == TOCK_STATUSCODE_SUCCESS) {
     *result = d.result;
+  }
 
-  return d.status;
+  return tock_status_to_returncode(d.status);
 }

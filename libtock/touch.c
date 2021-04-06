@@ -2,23 +2,13 @@
 #include <stdlib.h>
 
 static int touch_subscribe(int subscribe_num, subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t sv = subscribe(DRIVER_NUM_TOUCH, subscribe_num, callback, callback_args);
-  if (sv.success == 0) {
-    return tock_error_to_rcode (sv.error);
-  }
-  return TOCK_SUCCESS;
-}
-
-static syscall_return_t touch_command(int command_num, int arg1, int arg2) {
-  return command(DRIVER_NUM_TOUCH, command_num, arg1, arg2);
+  subscribe_return_t sval = subscribe(DRIVER_NUM_TOUCH, subscribe_num, callback, callback_args);
+  return tock_subscribe_return_to_returncode(sval);
 }
 
 static int touch_allow(int allow_num, void* data, int len) {
-  allow_rw_return_t res = allow_readwrite(DRIVER_NUM_TOUCH, allow_num, data, len);
-  if (res.success == 0) {
-    return tock_error_to_rcode (res.error);
-  }
-  return TOCK_SUCCESS;
+  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_TOUCH, allow_num, data, len);
+  return tock_allow_rw_return_to_returncode(aval);
 }
 
 static touch_t *multi_touch_buffer = NULL;
@@ -36,13 +26,9 @@ static void touch_gesture_callback (int gesture, int data1 __attribute__((unused
   if (gesture_upcall) gesture_upcall (gesture, ud);
 }
 
-int get_number_of_touches (void) {
-  syscall_return_t res = touch_command(100, 0, 0);
-  if (res.type == TOCK_SYSCALL_SUCCESS_U32) {
-    return res.data[0];
-  } else {
-    return tock_error_to_rcode (res.data[0]);
-  }
+int get_number_of_touches (int* touches) {
+  syscall_return_t cval = command(DRIVER_NUM_TOUCH, 100, 0, 0);
+  return tock_command_return_u32_to_returncode(cval, (uint32_t*) touches);
 }
 
 int single_touch_set_callback (touch_callback cb, void* ud) {
@@ -51,23 +37,25 @@ int single_touch_set_callback (touch_callback cb, void* ud) {
 }
 
 int multi_touch_set_callback (touch_callback cb, void* ud, int max_touches) {
-  int err = TOCK_SUCCESS;
+  int err = RETURNCODE_SUCCESS;
   if (cb != NULL) {
     if (multi_touch_buffer == NULL) {
       multi_touch_buffer = (touch_t*)malloc (max_touches * sizeof(touch_t));
       if (multi_touch_buffer) {
         num_touches = max_touches;
         err         = touch_allow (2, multi_touch_buffer, max_touches * sizeof(touch_t));
-        if (err == TOCK_SUCCESS) err = touch_subscribe (2, cb, ud);
-        if (err != TOCK_SUCCESS) {
+        if (err == RETURNCODE_SUCCESS) {
+          err = touch_subscribe (2, cb, ud);
+        }
+        if (err != RETURNCODE_SUCCESS) {
           free (multi_touch_buffer);
           multi_touch_buffer = NULL;
         }
       } else {
-        err = TOCK_ENOMEM;
+        err = RETURNCODE_ENOMEM;
       }
     } else {
-      err = TOCK_EALREADY;
+      err = RETURNCODE_EALREADY;
     }
   } else {
     if (multi_touch_buffer != NULL) {
@@ -95,12 +83,12 @@ int read_touch (int index, unsigned char *id, unsigned char *status, unsigned sh
       *status = multi_touch_buffer[index].status;
       *x      = multi_touch_buffer[index].x;
       *y      = multi_touch_buffer[index].y;
-      return TOCK_SUCCESS;
+      return RETURNCODE_SUCCESS;
     } else {
-      return TOCK_ENOMEM;
+      return RETURNCODE_ENOMEM;
     }
   } else {
-    return TOCK_EINVAL;
+    return RETURNCODE_EINVAL;
   }
 }
 
@@ -108,21 +96,17 @@ int read_touch_full (int index, unsigned char *id, unsigned char *status, unsign
                      unsigned char *size, unsigned char *pressure) {
   if (multi_touch_buffer != NULL) {
     int err = read_touch (index, id, status, x, y);
-    if (err == TOCK_SUCCESS) {
+    if (err == RETURNCODE_SUCCESS) {
       *size     = multi_touch_buffer[index].size;
       *pressure = multi_touch_buffer[index].pressure;
     }
     return err;
   } else {
-    return TOCK_ENOMEM;
+    return RETURNCODE_ENOMEM;
   }
 }
 
 int multi_touch_next (void) {
-  syscall_return_t res = touch_command(10, 0, 0);
-  if (res.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode (res.data[0]);
-  }
+  syscall_return_t cval = command(DRIVER_NUM_TOUCH, 10, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
 }

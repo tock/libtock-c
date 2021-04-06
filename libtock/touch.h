@@ -37,7 +37,7 @@ typedef struct __attribute__((__packed__)) {
 // +---------+-------------+------------------+------------------+-----------+---------------+--------- ...
 // | Touch 0                                                                                 | Touch 1  ...
 
-int get_number_of_touches (void);
+int get_number_of_touches (int* touches);
 
 int single_touch_set_callback (touch_callback cb, void* ud);
 int multi_touch_set_callback (touch_callback cb, void* ud, int max_touches);

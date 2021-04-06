@@ -38,7 +38,7 @@ int tock_enqueue(subscribe_upcall cb, int arg0, int arg1, int arg2, void* ud) {
 int tock_status_to_returncode(statuscode_t status) {
   // Conversion is easy. Since ReturnCode numeric mappings are -1*ErrorCode,
   // and success is 0 in both cases, we can just multiply by -1.
-  return -1*status;
+  return -1 * status;
 }
 
 int tock_command_return_novalue_to_returncode(syscall_return_t command_return) {
@@ -47,7 +47,7 @@ int tock_command_return_novalue_to_returncode(syscall_return_t command_return) {
   } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
     return tock_status_to_returncode(command_return.data[0]);
 
-  // the remaining cases should not happen if using this function.
+    // the remaining cases should not happen if using this function.
 
   } else if (command_return.type == TOCK_SYSCALL_SUCCESS_U32) {
     return RETURNCODE_SUCCESS;
@@ -79,7 +79,7 @@ int tock_command_return_u32_to_returncode(syscall_return_t command_return, uint3
   } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
     return tock_status_to_returncode(command_return.data[0]);
 
-  // the remaining cases should not happen if using this function.
+    // the remaining cases should not happen if using this function.
 
   } else if (command_return.type == TOCK_SYSCALL_SUCCESS) {
     return RETURNCODE_SUCCESS;

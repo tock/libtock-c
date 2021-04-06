@@ -66,7 +66,8 @@ static void callback( __attribute__ ((unused)) int unused0,
                       __attribute__ ((unused)) int unused2,
                       __attribute__ ((unused)) void* ud) {
   for (alarm_t* alarm = root_peek(); alarm != NULL; alarm = root_peek()) {
-    uint32_t now = alarm_read();
+    uint32_t now;
+    alarm_internal_read(&now);
     // has the alarm not expired yet? (distance from `now` has to be larger or
     // equal to distance from current clock value.
     if (alarm->dt > now - alarm->reference) {
@@ -123,21 +124,14 @@ void alarm_cancel(alarm_t* alarm) {
 
 }
 
-uint32_t alarm_read(void) {
-  syscall_return_t rval = command(DRIVER_NUM_ALARM, 2, 0, 0);
-  if (rval.type == TOCK_SYSCALL_SUCCESS_U32) {
-    return rval.data[0];
-  } else {
-    return 0;
-  }
-}
-
 // Timer implementation
 
 void timer_in(uint32_t ms, subscribe_upcall cb, void* ud, tock_timer_t *timer) {
-  uint32_t frequency = alarm_internal_frequency();
-  uint32_t interval  = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
-  uint32_t now       = alarm_read();
+  uint32_t frequency;
+  alarm_internal_frequency(&frequency);
+  uint32_t interval = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
+  uint32_t now;
+  alarm_internal_read(&now);
   alarm_at(now, interval, cb, ud, &timer->alarm);
 }
 
@@ -154,14 +148,16 @@ static void repeating_upcall( uint32_t now,
 }
 
 void timer_every(uint32_t ms, subscribe_upcall cb, void* ud, tock_timer_t* repeating) {
-  uint32_t frequency = alarm_internal_frequency();
-  uint32_t interval  = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
+  uint32_t frequency;
+  alarm_internal_frequency(&frequency);
+  uint32_t interval = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
 
   repeating->interval = interval;
   repeating->cb       = cb;
   repeating->ud       = ud;
 
-  uint32_t now = alarm_read();
+  uint32_t now;
+  alarm_internal_read(&now);
   alarm_at(now, interval, (subscribe_upcall*)repeating_upcall,
            (void*)repeating, &repeating->alarm);
 }
@@ -198,12 +194,12 @@ int yield_for_with_timeout(bool* cond, uint32_t ms) {
 
   while (!*cond) {
     if (timeout) {
-      return TOCK_FAIL;
+      return RETURNCODE_FAIL;
     }
 
     yield();
   }
 
   timer_cancel(&timer);
-  return TOCK_SUCCESS;
+  return RETURNCODE_SUCCESS;
 }

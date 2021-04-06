@@ -12,13 +12,13 @@ extern "C" {
 bool analog_comparator_exists(void);
 
 // Request the number of available ACs
-int analog_comparator_count(void);
+int analog_comparator_count(int* count);
 
 // Compare the voltages of two pins (if one is higher than the other) on the
-// corresponding AC by doing a single comparison. 
+// corresponding AC by doing a single comparison.
 //
 // channel - index of the analog comparator channel, starting at 0.
-bool analog_comparator_comparison(uint8_t channel);
+int analog_comparator_comparison(uint8_t channel, bool* comparison);
 
 // Enable interrupt-based comparisons. This will make the AC listen and send an
 // interrupt as soon as Vp > Vn.

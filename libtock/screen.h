@@ -1,4 +1,4 @@
-// Screen API 
+// Screen API
 
 #pragma once
 
@@ -29,10 +29,10 @@ uint8_t * screen_buffer (void);
 
 // query
 bool screen_setup_enabled (void);
-int screen_get_supported_resolutions (void);
+int screen_get_supported_resolutions (int* resolutions);
 int screen_get_supported_resolution (size_t index, size_t *width, size_t *height);
-int screen_get_supported_pixel_formats (void);
-int screen_get_supported_pixel_format (size_t index);
+int screen_get_supported_pixel_formats (int* formats);
+int screen_get_supported_pixel_format (size_t index, int* format);
 
 // power
 int screen_set_brightness (size_t brightness);
@@ -41,14 +41,14 @@ int screen_invert_off (void);
 
 // pixel format
 int screen_get_bits_per_pixel (size_t format);
-int screen_get_pixel_format (void);
+int screen_get_pixel_format (int* format);
 int screen_set_pixel_format (size_t format);
 
 // resolution and rotation
 int screen_get_resolution (size_t *width, size_t *height);
 int screen_set_resolution (size_t width, size_t height);
 
-int screen_get_rotation (void);
+int screen_get_rotation (int* rotation);
 int screen_set_rotation (size_t rotation);
 
 // drawing

@@ -28,36 +28,18 @@ static void cb(int proximity,
 }
 
 int proximity_set_callback(subscribe_upcall upcall, void *callback_args) {
-  subscribe_return_t sub = subscribe(DRIVER_NUM_PROXIMITY, 0, upcall, callback_args);
-  if (sub.success) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(sub.error);
-  }
+  subscribe_return_t sval = subscribe(DRIVER_NUM_PROXIMITY, 0, upcall, callback_args);
+  return tock_subscribe_return_to_returncode(sval);
 }
 
 int proximity_read(void) {
   syscall_return_t com = command(DRIVER_NUM_PROXIMITY, 1, 0, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int proximity_read_on_interrupt(void) {
   syscall_return_t com = command(DRIVER_NUM_PROXIMITY, 2, threshes.lower_threshold, threshes.higher_threshold);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int proximity_set_interrupt_thresholds(uint8_t lower, uint8_t upper) {
@@ -84,7 +66,7 @@ int proximity_read_sync(uint8_t *proximity) {
 
   *proximity = result.proximity;
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
 
 int proximity_read_on_interrupt_sync(uint8_t *proximity) {
@@ -106,5 +88,5 @@ int proximity_read_on_interrupt_sync(uint8_t *proximity) {
 
   *proximity = result.proximity;
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }

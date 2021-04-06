@@ -20,26 +20,15 @@ static void tsl2561_upcall(__attribute__ ((unused)) int callback_type,
 
 int tsl2561_set_callback (subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_TSL2561, 0, callback, callback_args);
-  if (sval.success) {
-    return 0;
-  } else {
-    return tock_error_to_rcode(sval.error);
-  }
+  return tock_subscribe_return_to_returncode(sval);
 }
 
 int tsl2561_get_lux (void) {
-  syscall_return_t com = command(DRIVER_NUM_TSL2561, 1, 0, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  syscall_return_t cval = command(DRIVER_NUM_TSL2561, 1, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
 }
 
-int tsl2561_get_lux_sync (void) {
+int tsl2561_get_lux_sync (int* lux) {
   int err;
   result.fired = false;
 
@@ -52,5 +41,7 @@ int tsl2561_get_lux_sync (void) {
   // Wait for the callback.
   yield_for(&result.fired);
 
-  return result.value;
+  *lux = result.value;
+
+  return RETURNCODE_SUCCESS;
 }

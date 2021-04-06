@@ -70,10 +70,10 @@ int ieee802154_get_power(char *power);
 // List indices are maintained in the range [0, `ieee802154_max_neighbors()` -
 // 1] and are stable between calls to `ieee802154_remove_neighbor()`.
 
-// Returns the maximum number of neighbors supported.
-int ieee802154_max_neighbors(void);
-// Returns the current number of neighbors.
-int ieee802154_num_neighbors(void);
+// Retrieves the maximum number of neighbors supported.
+int ieee802154_max_neighbors(int* neighbors);
+// Retrieves the current number of neighbors.
+int ieee802154_num_neighbors(int* neighbors);
 // Retrieves the short address of the neighbor at index `index` into `addr`.
 // If successful, returns TOCK_SUCCESS.
 // `index` (in): Index in neighbor list.
@@ -130,10 +130,10 @@ typedef enum {
   KEY_ID_SRC_8_INDEX = 3,
 } key_id_mode_t;
 
-// Returns the maximum number of keys supported.
-int ieee802154_max_keys(void);
-// Returns the current number of keys.
-int ieee802154_num_keys(void);
+// Retrieves the maximum number of keys supported.
+int ieee802154_max_keys(int* keys);
+// Retrieves the current number of keys.
+int ieee802154_num_keys(int* keys);
 // Retrieves the security level of the key at index `index` into `level`.
 // If successful, returns TOCK_SUCCESS.
 // `index` (in): Index in key list.

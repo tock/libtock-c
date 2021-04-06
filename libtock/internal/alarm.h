@@ -40,7 +40,12 @@ int alarm_internal_stop(void);
 /*
  * Get the the timer frequency in Hz.
  */
-unsigned int alarm_internal_frequency(void);
+int alarm_internal_frequency(uint32_t* frequency);
+
+/*
+ * Get the current alarm counter.
+ */
+int alarm_internal_read(uint32_t* time);
 
 #ifdef __cplusplus
 }

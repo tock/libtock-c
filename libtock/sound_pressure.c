@@ -19,40 +19,25 @@ static void cb(int temp,
 }
 
 int sound_pressure_set_callback(subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t sv = subscribe(DRIVER_NUM_SOUND_PRESSURE, 0, callback, callback_args);
-  if (sv.success == 0) {
-    return tock_error_to_rcode(sv.error);
-  }
-  return TOCK_SUCCESS;
+  subscribe_return_t sval = subscribe(DRIVER_NUM_SOUND_PRESSURE, 0, callback, callback_args);
+  return tock_subscribe_return_to_returncode(sval);
 }
 
 int sound_pressure_read(void) {
-  syscall_return_t res = command(DRIVER_NUM_SOUND_PRESSURE, 1, 0, 0);
-  if (res.type == TOCK_SYSCALL_SUCCESS) {
-    return res.data[0];
-  } else {
-    return tock_error_to_rcode (res.data[0]);
-  }
+  syscall_return_t cval = command(DRIVER_NUM_SOUND_PRESSURE, 1, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
 }
 
 // enable sound pressure sensor
 int sound_pressure_enable(void) {
-  syscall_return_t res = command(DRIVER_NUM_SOUND_PRESSURE, 2, 0, 0);
-  if (res.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode (res.data[0]);
-  }
+  syscall_return_t cval = command(DRIVER_NUM_SOUND_PRESSURE, 2, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
 }
 
 // disable sound pressure sensor
 int sound_pressure_disable(void) {
-  syscall_return_t res = command(DRIVER_NUM_SOUND_PRESSURE, 3, 0, 0);
-  if (res.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode (res.data[0]);
-  }
+  syscall_return_t cval = command(DRIVER_NUM_SOUND_PRESSURE, 3, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
 }
 
 int sound_pressure_read_sync(unsigned char* sound_pressure) {
@@ -70,6 +55,5 @@ int sound_pressure_read_sync(unsigned char* sound_pressure) {
 
   *sound_pressure = result.temp;
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
-
