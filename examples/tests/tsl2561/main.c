@@ -8,8 +8,9 @@ int main (void) {
   printf("[TSL2561] Test\n");
 
   // Start a light measurement
-  int lux = tsl2561_get_lux_sync();
-  if (lux == TOCK_ENODEVICE) {
+  int lux;
+  tsl2561_get_lux_sync(&lux);
+  if (lux == RETURNCODE_ENODEVICE) {
     printf("ERROR: No TSL2561 on this board.\n");
   } else if (lux < 0) {
     printf("ERROR: unable to read the sensor (error code: %i)\n", lux);

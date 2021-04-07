@@ -20,7 +20,8 @@ int main(void){
   }
 
   // Check led count
-  int num_leds = led_count();
+  int num_leds;
+  led_count(&num_leds);
   printf("Number of LEDs on the board: %d\n", num_leds);
 
   // Blink LED lights faster as proximity reading increases.

@@ -88,8 +88,8 @@ static void do_sensing_cb(__attribute__ ((unused)) int now,
 
 
 int main(void) {
-  _svc_num = ipc_discover("org.tockos.services.ble-ess");
-  if (_svc_num < 0) {
+  int err = ipc_discover("org.tockos.services.ble-ess", &_svc_num);
+  if (err < 0 || _svc_num < 0) {
     printf("No BLE ESS service installed.\n");
     return -1;
   }

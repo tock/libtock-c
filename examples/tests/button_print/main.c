@@ -19,7 +19,8 @@ int main(void) {
   button_subscribe(button_callback, NULL);
 
   // Enable interrupts on each button.
-  int count = button_count();
+  int count;
+  button_count(&count);
   if (count < 0) {
     printf("Error detecting buttons: %i\n", count);
     return -1;

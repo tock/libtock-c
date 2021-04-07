@@ -75,7 +75,7 @@ int main(void) {
   // bind first. Accordingly, put the delay before the send to ensure it sends second.
   delay_ms(10);
   result = udp_send_to(packet, len, &destination);
-  assert(result == TOCK_SUCCESS); //finally, a valid send attempt
+  assert(result == RETURNCODE_SUCCESS); //finally, a valid send attempt
 
   //of the two apps, app2 binds to port 80 second and should fail
   sock_addr_t addr2 = {
@@ -95,7 +95,7 @@ int main(void) {
 
 
   result = udp_send_to(packet, len, &destination);
-  assert(result == TOCK_SUCCESS); // should succeed, both apps should be bound to different ports
+  assert(result == RETURNCODE_SUCCESS); // should succeed, both apps should be bound to different ports
   printf("App2 test success!\n");
 }
 

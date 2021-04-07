@@ -69,7 +69,7 @@ int main(void) {
     printf(" : %d\n", destination.port);
   }
   result = udp_send_to(packet, len, &destination);
-  assert(result == TOCK_SUCCESS); //finally, a valid send attempt
+  assert(result == RETURNCODE_SUCCESS); //finally, a valid send attempt
 
   //of the two apps, app1 binds to port 80 first and should succeed
   sock_addr_t addr2 = {
@@ -82,7 +82,7 @@ int main(void) {
   delay_ms(100); //to re-sync with other app
 
   result = udp_send_to(packet, len, &destination);
-  assert(result == TOCK_SUCCESS); // should succeed, both apps should be bound to different ports
+  assert(result == RETURNCODE_SUCCESS); // should succeed, both apps should be bound to different ports
 
   printf("App1 test success!\n");
 }

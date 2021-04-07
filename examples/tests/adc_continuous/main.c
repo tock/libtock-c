@@ -43,7 +43,7 @@ static void continuous_sample_cb(uint8_t channel,
 
     // stop single sampling
     int err = adc_stop_sampling();
-    if (err < TOCK_SUCCESS) {
+    if (err < RETURNCODE_SUCCESS) {
       printf("Failed to stop sampling: %d\n", err);
       return;
     }
@@ -52,7 +52,7 @@ static void continuous_sample_cb(uint8_t channel,
     printf("Beginning buffered sampling on channel %d at %d Hz\n",
            ADC_CHANNEL, ADC_HIGHSPEED_FREQUENCY);
     err = adc_continuous_buffered_sample(ADC_CHANNEL, ADC_HIGHSPEED_FREQUENCY);
-    if (err < TOCK_SUCCESS) {
+    if (err < RETURNCODE_SUCCESS) {
       printf("continuous buffered sample error: %d\n", err);
       return;
     }
@@ -90,7 +90,7 @@ static void continuous_buffered_sample_cb(uint8_t channel,
 
     // stop single sampling
     int err = adc_stop_sampling();
-    if (err < TOCK_SUCCESS) {
+    if (err < RETURNCODE_SUCCESS) {
       printf("Failed to stop sampling: %d\n", err);
       return;
     }
@@ -99,7 +99,7 @@ static void continuous_buffered_sample_cb(uint8_t channel,
     printf("Beginning continuous sampling on channel %d at %d Hz\n",
            ADC_CHANNEL, ADC_LOWSPEED_FREQUENCY);
     err = adc_continuous_sample(ADC_CHANNEL, ADC_LOWSPEED_FREQUENCY);
-    if (err < TOCK_SUCCESS) {
+    if (err < RETURNCODE_SUCCESS) {
       printf("continuous sample error: %d\n", err);
       return;
     }
@@ -115,23 +115,25 @@ int main(void) {
     printf("No ADC driver!\n");
     return -1;
   }
-  printf("ADC driver exists with %d channels\n", adc_channel_count());
+  int count;
+  adc_channel_count(&count);
+  printf("ADC driver exists with %d channels\n", count);
 
   // set ADC callbacks
   err = adc_set_continuous_sample_callback(continuous_sample_cb, NULL);
-  if (err < TOCK_SUCCESS) {
+  if (err < RETURNCODE_SUCCESS) {
     printf("set continuous sample callback error: %d\n", err);
     return -1;
   }
   err = adc_set_continuous_buffered_sample_callback(continuous_buffered_sample_cb, NULL);
-  if (err < TOCK_SUCCESS) {
+  if (err < RETURNCODE_SUCCESS) {
     printf("set continuous buffered sample callback error: %d\n", err);
     return -1;
   }
 
   // set main buffer for ADC samples
   err = adc_set_buffer(sample_buffer1, BUF_SIZE);
-  if (err < TOCK_SUCCESS) {
+  if (err < RETURNCODE_SUCCESS) {
     printf("set buffer error: %d\n", err);
     return -1;
   }
@@ -139,7 +141,7 @@ int main(void) {
   // set secondary buffer for ADC samples. In continuous mode, the ADC will
   // automatically switch between the two each callback
   err = adc_set_double_buffer(sample_buffer2, BUF_SIZE);
-  if (err < TOCK_SUCCESS) {
+  if (err < RETURNCODE_SUCCESS) {
     printf("set double buffer error: %d\n", err);
     return -1;
   }
@@ -148,7 +150,7 @@ int main(void) {
   printf("Beginning continuous sampling on channel %d at %d Hz\n",
          ADC_CHANNEL, ADC_LOWSPEED_FREQUENCY);
   err = adc_continuous_sample(ADC_CHANNEL, ADC_LOWSPEED_FREQUENCY);
-  if (err < TOCK_SUCCESS) {
+  if (err < RETURNCODE_SUCCESS) {
     printf("continuous sample error: %d\n", err);
     return -1;
   }

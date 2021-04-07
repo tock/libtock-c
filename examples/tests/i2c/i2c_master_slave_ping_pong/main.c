@@ -26,7 +26,8 @@ static void i2c_callback(int callback_type,
   // time having sent or received a message)
   static bool any_message = false;
   if (!any_message) {
-    int nbuttons = button_count();
+    int nbuttons;
+    button_count(&nbuttons);
     int j;
     for (j = 0; j < nbuttons; j++) {
       button_disable_interrupt(j);
@@ -35,13 +36,13 @@ static void i2c_callback(int callback_type,
 
   if (callback_type == TOCK_I2C_CB_MASTER_WRITE) {
     printf("CB: Master write\n");
-    TOCK_EXPECT(TOCK_SUCCESS, i2c_master_slave_listen());
+    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_listen());
   } else if (callback_type == TOCK_I2C_CB_SLAVE_WRITE) {
     printf("CB: Slave write\n");
     delay_ms(2500);
 
     printf("%s sending\n", is_leader ? "Leader" : "Follower");
-    TOCK_EXPECT(TOCK_SUCCESS, i2c_master_slave_write(is_leader ? FOLLOW_ADDRESS : LEADER_ADDRESS, BUF_SIZE));
+    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(is_leader ? FOLLOW_ADDRESS : LEADER_ADDRESS, BUF_SIZE));
   } else {
     printf("ERROR: Unexepected callback: type %d\n", callback_type);
   }
@@ -64,8 +65,8 @@ static void button_cb(__attribute__((unused)) int btn_num,
 
     printf("Switching to master\n");
 
-    TOCK_EXPECT(TOCK_SUCCESS, i2c_master_slave_set_slave_address(LEADER_ADDRESS));
-    TOCK_EXPECT(TOCK_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
+    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_slave_address(LEADER_ADDRESS));
+    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
   }
 }
 
@@ -79,19 +80,20 @@ int main(void) {
   strcpy((char*) master_write_buf, "Hello friend.\n");
 
   // Set up I2C peripheral
-  TOCK_EXPECT(TOCK_SUCCESS, i2c_master_slave_set_callback(i2c_callback, NULL));
-  TOCK_EXPECT(TOCK_SUCCESS, i2c_master_slave_set_master_write_buffer(master_write_buf, BUF_SIZE));
-  TOCK_EXPECT(TOCK_SUCCESS, i2c_master_slave_set_master_read_buffer(master_read_buf, BUF_SIZE));
-  TOCK_EXPECT(TOCK_SUCCESS, i2c_master_slave_set_slave_write_buffer(slave_write_buf, BUF_SIZE));
-  TOCK_EXPECT(TOCK_SUCCESS, i2c_master_slave_set_slave_read_buffer(slave_read_buf, BUF_SIZE));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_callback(i2c_callback, NULL));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_master_write_buffer(master_write_buf, BUF_SIZE));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_master_read_buffer(master_read_buf, BUF_SIZE));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_slave_write_buffer(slave_write_buf, BUF_SIZE));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_slave_read_buffer(slave_read_buf, BUF_SIZE));
 
-  TOCK_EXPECT(TOCK_SUCCESS, i2c_master_slave_set_slave_address(FOLLOW_ADDRESS));
-  TOCK_EXPECT(TOCK_SUCCESS, i2c_master_slave_listen());
+  TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_slave_address(FOLLOW_ADDRESS));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_listen());
 
   // Set up button peripheral to grab any button press
-  TOCK_EXPECT(true, button_subscribe(button_cb, NULL).success);
+  TOCK_EXPECT(RETURNCODE_SUCCESS, button_subscribe(button_cb, NULL));
 
-  int nbuttons = button_count();
+  int nbuttons;
+  button_count(&nbuttons);
   if (nbuttons < 1) {
     printf("ERROR: This app requires that a board have at least one button.\n");
     exit(-1);
@@ -99,6 +101,6 @@ int main(void) {
 
   int j;
   for (j = 0; j < nbuttons; j++) {
-    TOCK_EXPECT(TOCK_SYSCALL_SUCCESS, button_enable_interrupt(j).type);
+    TOCK_EXPECT(RETURNCODE_SUCCESS, button_enable_interrupt(j));
   }
 }

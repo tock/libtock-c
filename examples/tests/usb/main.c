@@ -15,7 +15,7 @@ int main(void) {
 
   r = usb_enable_and_attach();
 
-  if (r == TOCK_SUCCESS) {
+  if (r == RETURNCODE_SUCCESS) {
     printf("USB test: Enabled and attached\n");
   } else {
     printf("USB test: Attach failed with status %d\n", r);

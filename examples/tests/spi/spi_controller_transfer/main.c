@@ -90,7 +90,8 @@ int main(void) {
 
   button_subscribe(button_cb, NULL);
   printf("Starting spi_controller_transfer.\n");
-  int nbuttons = button_count();
+  int nbuttons;
+  button_count(&nbuttons);
   int j;
   for (j = 0; j < nbuttons; j++) {
     button_enable_interrupt(j);

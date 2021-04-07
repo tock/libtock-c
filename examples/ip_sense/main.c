@@ -64,7 +64,8 @@ int main(void) {
 
     int len = snprintf(packet, sizeof(packet), "%d deg C; %d%% humidity; %d lux;\n",
                        temp / 100, humi / 100, lux);
-    int max_tx_len = udp_get_max_tx_len();
+    int max_tx_len;
+    udp_get_max_tx_len(&max_tx_len);
     if (len > max_tx_len) {
       printf("Cannot send packets longer than %d bytes without changing"
              " constants in kernel\n", max_tx_len);
@@ -76,7 +77,7 @@ int main(void) {
     ssize_t result = udp_send_to(packet, len, &destination);
 
     switch (result) {
-      case TOCK_SUCCESS:
+      case RETURNCODE_SUCCESS:
         printf("Packet sent.\n\n");
         break;
       default:

@@ -16,7 +16,7 @@ int get_number(void) {
   while (1) {
     int c = getch();
 
-    if (c == TOCK_FAIL) {
+    if (c == RETURNCODE_FAIL) {
       printf("\ngetch() failed!\n");
       return 0;
 
@@ -52,8 +52,9 @@ int main(void) {
 
   // Get some random number
   uint16_t random;
-  int ret = rng_sync((uint8_t*) &random, 2, 2);
-  if (ret != 2) {
+  int count;
+  int ret = rng_sync((uint8_t*) &random, 2, 2, &count);
+  if (ret != RETURNCODE_SUCCESS || count != 2) {
     printf("Error getting random number! There is a bug in this game :(\n");
     return -1;
   }

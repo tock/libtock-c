@@ -54,7 +54,7 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
 
 int main(void) {
   // First get the number of LEDs setup on this board.
-  _number_of_leds = led_count();
+  led_count((int*) &_number_of_leds);
 
   ipc_register_service_callback(ipc_callback, NULL);
   return 0;

@@ -15,7 +15,7 @@ AdvertisementList list;
 static void callback(int result, int len, __attribute__((unused)) int unused2,
                      __attribute__((unused)) void* ud)
 {
-  if (result == TOCK_SUCCESS) {
+  if (result == RETURNCODE_SUCCESS) {
     if (Advertisement::checkScanResult(scan, len)) {
       Advertisement advertisement(scan, len);
 
@@ -38,8 +38,8 @@ int main(void)
   // using the pre-configured advertisement interval
   int err = ble_start_passive_scan(scan, BUF_SIZE, callback);
 
-  if (err < TOCK_SUCCESS) {
-    printf("ble_start_passive_scan, error: %s\r\n", tock_strrcode(err));
+  if (err < RETURNCODE_SUCCESS) {
+    printf("ble_start_passive_scan, error: %s\r\n", tock_strrcode(static_cast<returncode_t>(err)));
   }
   return 0;
 }

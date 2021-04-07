@@ -23,8 +23,9 @@ static void rot13_callback(__attribute__ ((unused)) int pid,
 }
 
 int main(void) {
-  rot13_svc_num = ipc_discover("org.tockos.examples.rot13");
-  if (rot13_svc_num < 0) {
+  int err;
+  err = ipc_discover("org.tockos.examples.rot13", &rot13_svc_num);
+  if (err < 0) {
     printf("No rot13 service\n");
     return -1;
   }
@@ -38,4 +39,3 @@ int main(void) {
   ipc_notify_service(rot13_svc_num);
   return 0;
 }
-

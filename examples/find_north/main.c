@@ -6,15 +6,25 @@
 
 int main(void) {
   int x, y, z;
+  int err;
 
   // Choose the LED to use. We want green (which is usually
   // second in RGB), but will take anything.
-  int led      = 0;
-  int num_leds = led_count();
+  int led = 0;
+  int num_leds;
+  err = led_count(&num_leds);
+  if (err < 0) {
+    printf("No LEDs on this board.\n");
+    return err;
+  }
   if (num_leds > 1) led = 1;
 
   while (1) {
-    ninedof_read_magnetometer_sync(&x, &y, &z);
+    err = ninedof_read_magnetometer_sync(&x, &y, &z);
+    if (err < 0) {
+      printf("No magnetometer on this board.\n");
+      return err;
+    }
     printf("x: %d, y: %d, z: %d\n", x, y, z);
 
     // Compute the X-Y angle of the board.

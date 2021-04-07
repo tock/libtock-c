@@ -55,9 +55,11 @@ static uint16_t get_two_random_bytes(void) {
 }
 
 int main(void) {
+  int ret;
+
   // Retrieve a handle to the LED service.
-  _led_service = ipc_discover("org.tockos.tutorials.ipc.led");
-  if (_led_service < 0) {
+  ret = ipc_discover("org.tockos.tutorials.ipc.led", &_led_service);
+  if (ret != RETURNCODE_SUCCESS || _led_service < 0) {
     printf("No led service\n");
     return -1;
   }
@@ -67,8 +69,8 @@ int main(void) {
   ipc_share(_led_service, _led_buf, 64);
 
   // Retrieve a handle to the RNG service.
-  _rng_service = ipc_discover("org.tockos.tutorials.ipc.rng");
-  if (_rng_service < 0) {
+  ret = ipc_discover("org.tockos.tutorials.ipc.rng", &_rng_service);
+  if (ret != RETURNCODE_SUCCESS || _rng_service < 0) {
     printf("No rng service\n");
     return -1;
   }

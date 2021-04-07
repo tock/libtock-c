@@ -56,8 +56,11 @@ static void dowork(uint8_t* from, uint8_t* to, uint32_t incr) {
 
 // Should intentionally overrun the memory region?
 static bool overrun(void) {
-  if (button_count()) {
-    return button_read(0);
+  int count, read;
+  button_count(&count);
+  if (count) {
+    button_read(0, &read);
+    return read;
   }
   return false;
 }

@@ -31,7 +31,7 @@ static void timer_cb(int result __attribute__ ((unused)),
 int main(void) {
 
   int ret = getnstr_async(buf, 60, getnstr_cb, NULL);
-  if (ret != TOCK_SUCCESS) {
+  if (ret != RETURNCODE_SUCCESS) {
     printf("Error doing UART receive.\n");
   }
 

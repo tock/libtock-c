@@ -13,13 +13,13 @@ int main (void) {
   printf("[LPS25HB] Test\n");
 
   // Start a pressure measurement
-  int rc = lps25hb_get_pressure_sync();
+  unsigned pressure;
+  int rc = lps25hb_get_pressure_sync((int*) &pressure);
 
   if (rc < 0) {
     printf("Error getting pressure: %d\n", rc);
   } else {
     // Print the pressure value
-    unsigned pressure = rc;
     printf("\tValue(%u ubar) [0x%X]\n\n", pressure, pressure);
   }
 }

@@ -3,7 +3,9 @@
 
 int main(void) {
   // Ask the kernel how many LEDs are on this board.
-  int num_leds = led_count();
+  int num_leds;
+  int err = led_count(&num_leds);
+  if (err < 0) return err;
 
   // Blink the LEDs in a binary count pattern and scale
   // to the number of LEDs on the board.

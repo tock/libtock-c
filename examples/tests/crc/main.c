@@ -33,7 +33,9 @@ int main(void) {
   printf("[CRC Test] This app tests the CRC syscall interface\n");
 
   // Get a random number to distinguish this app instance
-  if ((r = rng_sync((uint8_t *) &procid, 4, 4)) != 4) {
+  int num_bytes;
+  r = rng_sync((uint8_t *) &procid, 4, 4, &num_bytes);
+  if (r != RETURNCODE_SUCCESS || num_bytes != 4) {
     printf("RNG failure\n");
     exit(1);
   }
@@ -48,13 +50,13 @@ int main(void) {
       struct test_case *t = &test_cases[test_index];
 
       uint32_t result;
-      if ((r = crc_compute(t->input, strlen(t->input), t->alg, &result)) != TOCK_SUCCESS) {
+      if ((r = crc_compute(t->input, strlen(t->input), t->alg, &result)) != RETURNCODE_SUCCESS) {
         printf("CRC compute failed: %d\n", r);
         exit(1);
       }
 
       printf("[%8lx] Case %2d: ", procid, test_index);
-      if (r == TOCK_SUCCESS) {
+      if (r == RETURNCODE_SUCCESS) {
         printf("result=%08lx ", result);
         if (result == t->output)
           printf("(OK)");

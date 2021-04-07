@@ -40,7 +40,8 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
   }
 
   // Fill the buffer with random bytes.
-  int number_of_bytes_received = rng_sync(rng, len, number_of_bytes);
+  int number_of_bytes_received;
+  rng_sync(rng, len, number_of_bytes, &number_of_bytes_received);
   memcpy(buffer, rng, number_of_bytes_received);
   free(rng);
 

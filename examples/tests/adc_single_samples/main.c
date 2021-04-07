@@ -18,7 +18,8 @@ int main(void) {
     return -1;
   }
 
-  int channel_count = adc_channel_count();
+  int channel_count;
+  adc_channel_count(&channel_count);
   printf("ADC driver exists with %d channels\n\n", channel_count);
 
   while (1) {
@@ -42,4 +43,3 @@ int main(void) {
 
   return 0;
 }
-
