@@ -46,30 +46,11 @@ int tock_command_return_novalue_to_returncode(syscall_return_t command_return) {
     return RETURNCODE_SUCCESS;
   } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
     return tock_status_to_returncode(command_return.data[0]);
-
-    // the remaining cases should not happen if using this function.
-
-  } else if (command_return.type == TOCK_SYSCALL_SUCCESS_U32) {
-    return RETURNCODE_SUCCESS;
-  } else if (command_return.type == TOCK_SYSCALL_SUCCESS_U32_U32) {
-    return RETURNCODE_SUCCESS;
-  } else if (command_return.type == TOCK_SYSCALL_SUCCESS_U64) {
-    return RETURNCODE_SUCCESS;
-  } else if (command_return.type == TOCK_SYSCALL_SUCCESS_U32_U32_U32) {
-    return RETURNCODE_SUCCESS;
-  } else if (command_return.type == TOCK_SYSCALL_SUCCESS_U64_U32) {
-    return RETURNCODE_SUCCESS;
-  } else if (command_return.type == TOCK_SYSCALL_FAILURE_U32) {
-    return RETURNCODE_FAIL;
-  } else if (command_return.type == TOCK_SYSCALL_FAILURE_U32_U32) {
-    return RETURNCODE_FAIL;
-  } else if (command_return.type == TOCK_SYSCALL_FAILURE_U64) {
-    return RETURNCODE_FAIL;
+  } else {
+    // The remaining SyscallReturn variants must never happen if using this
+    // function. We return `EBADRVAL` to signal an unexpected return variant.
+    return RETURNCODE_EBADRVAL;
   }
-
-  // This should never happen as all syscall return variant cases have been
-  // handled.
-  return RETURNCODE_EBADRVAL;
 }
 
 int tock_command_return_u32_to_returncode(syscall_return_t command_return, uint32_t* val) {
@@ -78,30 +59,11 @@ int tock_command_return_u32_to_returncode(syscall_return_t command_return, uint3
     return RETURNCODE_SUCCESS;
   } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
     return tock_status_to_returncode(command_return.data[0]);
-
-    // the remaining cases should not happen if using this function.
-
-  } else if (command_return.type == TOCK_SYSCALL_SUCCESS) {
-    return RETURNCODE_SUCCESS;
-  } else if (command_return.type == TOCK_SYSCALL_SUCCESS_U32_U32) {
-    return RETURNCODE_SUCCESS;
-  } else if (command_return.type == TOCK_SYSCALL_SUCCESS_U64) {
-    return RETURNCODE_SUCCESS;
-  } else if (command_return.type == TOCK_SYSCALL_SUCCESS_U32_U32_U32) {
-    return RETURNCODE_SUCCESS;
-  } else if (command_return.type == TOCK_SYSCALL_SUCCESS_U64_U32) {
-    return RETURNCODE_SUCCESS;
-  } else if (command_return.type == TOCK_SYSCALL_FAILURE_U32) {
-    return RETURNCODE_FAIL;
-  } else if (command_return.type == TOCK_SYSCALL_FAILURE_U32_U32) {
-    return RETURNCODE_FAIL;
-  } else if (command_return.type == TOCK_SYSCALL_FAILURE_U64) {
-    return RETURNCODE_FAIL;
+  } else {
+    // The remaining SyscallReturn variants must never happen if using this
+    // function. We return `EBADRVAL` to signal an unexpected return variant.
+    return RETURNCODE_EBADRVAL;
   }
-
-  // This should never happen as all syscall return variant cases have been
-  // handled.
-  return RETURNCODE_EBADRVAL;
 }
 
 int tock_subscribe_return_to_returncode(subscribe_return_t subscribe_return) {
@@ -647,7 +609,7 @@ const char* tock_strrcode(returncode_t returncode) {
     case RETURNCODE_ENOACK:
       return "Packet transmission not acknowledged";
     case RETURNCODE_EBADRVAL:
-      return "Bad R value";
+      return "Invalid SyscallReturn variant";
   }
   return "Invalid error number";
 }
