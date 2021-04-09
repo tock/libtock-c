@@ -19,7 +19,7 @@ int main(void) {
     return -1;
   }
 
-  if (l3gd20_power_on ()) {
+  if (!l3gd20_power_on ()) {
     printf ("L3GD20 device is not present\n");
     return -1;
   }
