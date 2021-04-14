@@ -12,6 +12,7 @@
 #include <tock.h>
 #include <tsl2561.h>
 
+static tock_timer_t timer;
 static bool isl29035       = false;
 static bool tsl2561        = false;
 static bool lps25hb        = false;
@@ -58,12 +59,13 @@ static void timer_fired(__attribute__ ((unused)) int arg0,
   if (ninedof_accel)  printf("Acceleration: X: %d Y: %d Z: %d\n", ninedof_accel_x, ninedof_accel_y, ninedof_accel_z);
   if (ninedof_mag)    printf("Magnetometer: X: %d Y: %d Z: %d\n", ninedof_magneto_x, ninedof_magneto_y, ninedof_magneto_z);
   if (ninedof_gyro)   printf("Gyro:         X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
-  if (prox_reading)   printf("Proximity:                   %u\n", prox_reading);
+  if (proximity)      printf("Proximity:                   %u\n", prox_reading);
   if (sound_pressure) printf("Sound Pressure:              %u\n", sound_pressure_reading);
 
   /* *INDENT-ON* */
 
   printf("\n");
+  timer_in(1000, timer_fired, NULL, &timer);
 }
 
 int main(void) {
@@ -91,8 +93,7 @@ int main(void) {
   }
 
   // Setup periodic timer to sample the sensors.
-  static tock_timer_t timer;
-  timer_every(1000, timer_fired, NULL, &timer);
+  timer_in(1000, timer_fired, NULL, &timer);
 
   return 0;
 }
