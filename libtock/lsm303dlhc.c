@@ -73,7 +73,7 @@ bool lsm303dlhc_is_present (void) {
 
   syscall_return_t com = command(DRIVER_NUM_LSM303DLHC, 1, 0, 0);
   ret = tock_command_return_novalue_to_returncode(com);
-  if (ret < 0) return ret;
+  if (ret < 0) return false;
 
   yield_for (&(response.done));
 
@@ -90,7 +90,7 @@ bool lsm303dlhc_set_power_mode (unsigned char power_mode, bool low_power) {
 
   syscall_return_t com = command(DRIVER_NUM_LSM303DLHC, 2, power_mode, low_power ? 1 : 0);
   ret = tock_command_return_novalue_to_returncode(com);
-  if (ret < 0) return ret;
+  if (ret < 0) return false;
 
   yield_for (&(response.done));
 
@@ -108,7 +108,7 @@ bool lsm303dlhc_set_accelerometer_scale_and_resolution (unsigned char scale, boo
 
   syscall_return_t com = command(DRIVER_NUM_LSM303DLHC, 3, scale, high_resolution ? 1 : 0);
   ret = tock_command_return_novalue_to_returncode(com);
-  if (ret < 0) return ret;
+  if (ret < 0) return false;
 
   yield_for (&(response.done));
   if (response.data1 == 1) {
@@ -128,12 +128,13 @@ bool lsm303dlhc_set_temperature_and_magnetometer_rate (bool temperature, unsigne
 
   syscall_return_t com = command(DRIVER_NUM_LSM303DLHC, 4, rate, temperature ? 1 : 0);
   ret = tock_command_return_novalue_to_returncode(com);
-  if (ret < 0) return ret;
+  if (ret < 0) return false;
 
   yield_for (&(response.done));
 
   return response.data1 ? true : false;
 }
+
 bool lsm303dlhc_set_magnetometer_range (unsigned char range) {
   if (range > 7) range = 7;
   LSM303DLHCResponse response;
@@ -145,7 +146,7 @@ bool lsm303dlhc_set_magnetometer_range (unsigned char range) {
 
   syscall_return_t com = command(DRIVER_NUM_LSM303DLHC, 5, range, 0);
   ret = tock_command_return_novalue_to_returncode(com);
-  if (ret < 0) return ret;
+  if (ret < 0) return false;
 
   yield_for (&(response.done));
   if (response.data1 == 1) {
@@ -160,7 +161,7 @@ int lsm303dlhc_read_acceleration_xyz (LSM303DLHCXYZ *xyz) {
   response.done = false;
 
   int ret = lsm303dlhc_subscribe(command_callback_yield, &response);
-  if (ret < 0) return false;
+  if (ret < 0) return ret;
 
   syscall_return_t com = command(DRIVER_NUM_LSM303DLHC, 6, 0, 0);
   ret = tock_command_return_novalue_to_returncode(com);
@@ -181,7 +182,7 @@ int lsm303dlhc_read_temperature (float *temperature) {
   response.done = false;
 
   int ret = lsm303dlhc_subscribe(command_callback_yield, &response);
-  if (ret < 0) return false;
+  if (ret < 0) return ret;
 
   syscall_return_t com = command(DRIVER_NUM_LSM303DLHC, 7, 0, 0);
   ret = tock_command_return_novalue_to_returncode(com);
@@ -194,12 +195,13 @@ int lsm303dlhc_read_temperature (float *temperature) {
 
   return RETURNCODE_SUCCESS;
 }
+
 int lsm303dlhc_read_magnetometer_xyz (LSM303DLHCXYZ *xyz) {
   LSM303DLHCResponse response;
   response.done = false;
 
   int ret = lsm303dlhc_subscribe(command_callback_yield, &response);
-  if (ret < 0) return false;
+  if (ret < 0) return ret;
 
   syscall_return_t com = command(DRIVER_NUM_LSM303DLHC, 8, 0, 0);
   ret = tock_command_return_novalue_to_returncode(com);

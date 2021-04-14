@@ -31,7 +31,7 @@ int main(void) {
       }
     } else {
       err = ble_set_tx_power(i);
-      if (err >= RETURNCODE_SUCCESS) {
+      if (err < RETURNCODE_SUCCESS) {
         printf("Test failed \t power_level %d is configured faulty\r\n", i);
         return 0;
       }
