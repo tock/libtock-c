@@ -40,10 +40,13 @@ int nrf51_serialization_write(char* tx, int tx_len) {
 }
 
 int nrf51_serialization_read(int rx_len) {
+  int read_len;
   syscall_return_t cval = command(DRIVER_NUM_NRF_SERIALIZATION,
                                   NRF51_SERIALIZATION_COMMAND_READ, rx_len, 0);
-  int ret = tock_command_return_novalue_to_returncode(cval);
+  int ret = tock_command_return_u32_to_returncode(cval, (uint32_t*) &read_len);
   if (ret < 0) return ret;
 
-  return cval.data[0]; // Actual read length
+  // This shouldn't return a length and an error, but it is the signature
+  // libnrfserialization expects.
+  return read_len; // Actual read length
 }
