@@ -253,11 +253,13 @@ int ieee802154_get_key_security_level(unsigned index, security_level_t *level) {
   if (!level) return RETURNCODE_EINVAL;
 
   syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_KEY_LEVEL, (unsigned int) index, 0);
-  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) level);
+  int store_u32 = 0;
+  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) store_u32);
 
   if (ret == RETURNCODE_SUCCESS) {
     // Driver adds 1 to ensure it is positive.
-    *level -= 1;
+    store_u32 -= 1;
+    *level = store_u32;
   }
 
   return ret;
