@@ -43,8 +43,7 @@ int rng_async(subscribe_upcall callback, uint8_t* buf, uint32_t len, uint32_t nu
   ret = rng_set_buffer(buf, len);
   if (ret < 0) return ret;
 
-  ret = rng_get_random(num);
-  return ret;
+  return rng_get_random(num);
 }
 
 int rng_sync(uint8_t* buf, uint32_t len, uint32_t num, int* num_received) {
