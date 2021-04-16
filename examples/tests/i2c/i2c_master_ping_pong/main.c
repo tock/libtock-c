@@ -25,7 +25,7 @@ static void button_cb(__attribute__((unused)) int btn_num,
     pressed = true;
     printf("Sending as master\n");
 
-    TOCK_EXPECT(TOCK_SUCCESS, i2c_master_write_sync(FOLLOW_ADDRESS, master_write_buf, BUF_SIZE));
+    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_write_sync(FOLLOW_ADDRESS, master_write_buf, BUF_SIZE));
     printf("Sent.\n");
   } else {
     pressed = false;
@@ -43,9 +43,10 @@ int main(void) {
 
   // Set up I2C peripheral
   // Set up button peripheral to grab any button press
-  TOCK_EXPECT(true, button_subscribe(button_cb, NULL).success);
+  TOCK_EXPECT(RETURNCODE_SUCCESS, button_subscribe(button_cb, NULL));
 
-  int nbuttons = button_count();
+  int nbuttons;
+  button_count(&nbuttons);
   if (nbuttons < 1) {
     printf("ERROR: This app requires that a board have at least one button.\n");
     exit(-1);
@@ -53,6 +54,6 @@ int main(void) {
 
   int j;
   for (j = 0; j < nbuttons; j++) {
-    TOCK_EXPECT(TOCK_SYSCALL_SUCCESS, button_enable_interrupt(j).type);
+    TOCK_EXPECT(RETURNCODE_SUCCESS, button_enable_interrupt(j));
   }
 }

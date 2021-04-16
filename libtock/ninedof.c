@@ -26,14 +26,10 @@ double ninedof_read_accel_mag(void) {
   int err;
 
   err = ninedof_subscribe(ninedof_upcall, (void*)(&result));
-  if (err < 0) {
-    return err;
-  }
+  if (err < 0) return err;
 
   err = ninedof_start_accel_reading();
-  if (err < 0) {
-    return err;
-  }
+  if (err < 0) return err;
 
   yield_for(&result.fired);
 
@@ -41,39 +37,23 @@ double ninedof_read_accel_mag(void) {
 }
 
 int ninedof_subscribe(subscribe_upcall callback, void* userdata) {
-  subscribe_return_t sv = subscribe(DRIVER_NUM_NINEDOF, 0, callback, userdata);
-  if (sv.success) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode (sv.error);
-  }
+  subscribe_return_t sval = subscribe(DRIVER_NUM_NINEDOF, 0, callback, userdata);
+  return tock_subscribe_return_to_returncode(sval);
 }
 
 int ninedof_start_accel_reading(void) {
   syscall_return_t ret = command(DRIVER_NUM_NINEDOF, 1, 0, 0);
-  if (ret.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(ret.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(ret);
 }
 
 int ninedof_start_magnetometer_reading(void) {
   syscall_return_t ret = command(DRIVER_NUM_NINEDOF, 100, 0, 0);
-  if (ret.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(ret.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(ret);
 }
 
 int ninedof_start_gyro_reading(void) {
   syscall_return_t ret = command(DRIVER_NUM_NINEDOF, 200, 0, 0);
-  if (ret.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(ret.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(ret);
 }
 
 int ninedof_read_acceleration_sync(int* x, int* y, int* z) {
@@ -93,7 +73,7 @@ int ninedof_read_acceleration_sync(int* x, int* y, int* z) {
   *y = res.y;
   *z = res.z;
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
 
 int ninedof_read_magnetometer_sync(int* x, int* y, int* z) {
@@ -113,7 +93,7 @@ int ninedof_read_magnetometer_sync(int* x, int* y, int* z) {
   *y = res.y;
   *z = res.z;
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
 
 int ninedof_read_gyroscope_sync(int* x, int* y, int* z) {
@@ -133,5 +113,5 @@ int ninedof_read_gyroscope_sync(int* x, int* y, int* z) {
   *y = res.y;
   *z = res.z;
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }

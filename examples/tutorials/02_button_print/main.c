@@ -19,7 +19,8 @@ int main(void) {
   button_subscribe(button_callback, NULL);
 
   // Ensure there is a button to use.
-  int count = button_count();
+  int count;
+  button_count(&count);
   if (count < 1) {
     // There are no buttons on this platform.
     printf("Error! No buttons on this platform.\n");

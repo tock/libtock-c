@@ -21,12 +21,12 @@ int ambient_light_read_intensity_sync(int* lux_value) {
   result.fired = false;
 
   err = ambient_light_subscribe(ambient_light_upcall, (void*)(&result));
-  if (err < TOCK_SUCCESS) {
+  if (err < RETURNCODE_SUCCESS) {
     return err;
   }
 
   err = ambient_light_start_intensity_reading();
-  if (err < TOCK_SUCCESS) {
+  if (err < RETURNCODE_SUCCESS) {
     return err;
   }
 
@@ -34,24 +34,16 @@ int ambient_light_read_intensity_sync(int* lux_value) {
 
   *lux_value = result.intensity;
 
-  return TOCK_SUCCESS;
+  return RETURNCODE_SUCCESS;
 }
 
 int ambient_light_subscribe(subscribe_upcall callback, void* userdata) {
   subscribe_return_t ret = subscribe(DRIVER_NUM_AMBIENT_LIGHT, 0, callback, userdata);
-  if (ret.success) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(ret.error);
-  }
+  return tock_subscribe_return_to_returncode(ret);
 }
 
 int ambient_light_start_intensity_reading(void) {
   syscall_return_t ret = command(DRIVER_NUM_AMBIENT_LIGHT, 1, 0, 0);
-  if (ret.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(ret.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(ret);
 }
 

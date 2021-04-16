@@ -35,22 +35,64 @@ int tock_enqueue(subscribe_upcall cb, int arg0, int arg1, int arg2, void* ud) {
   return task_last;
 }
 
-int tock_error_to_rcode(tock_error_t err) {
-  switch (err) {
-    case TOCK_ERROR_FAIL:        return TOCK_FAIL;
-    case TOCK_ERROR_BUSY:        return TOCK_EBUSY;
-    case TOCK_ERROR_ALREADY:     return TOCK_EALREADY;
-    case TOCK_ERROR_OFF:         return TOCK_EOFF;
-    case TOCK_ERROR_RESERVE:     return TOCK_ERESERVE;
-    case TOCK_ERROR_INVAL:       return TOCK_EINVAL;
-    case TOCK_ERROR_SIZE:        return TOCK_ESIZE;
-    case TOCK_ERROR_CANCEL:      return TOCK_ECANCEL;
-    case TOCK_ERROR_NOMEM:       return TOCK_ENOMEM;
-    case TOCK_ERROR_NOSUPPORT:   return TOCK_ENOSUPPORT;
-    case TOCK_ERROR_NODEVICE:    return TOCK_ENODEVICE;
-    case TOCK_ERROR_UNINSTALLED: return TOCK_EUNINSTALLED;
-    case TOCK_ERROR_NOACK:       return TOCK_ENOACK;
-    default:                     return TOCK_FAIL;
+int tock_status_to_returncode(statuscode_t status) {
+  // Conversion is easy. Since ReturnCode numeric mappings are -1*ErrorCode,
+  // and success is 0 in both cases, we can just multiply by -1.
+  return -1 * status;
+}
+
+int tock_command_return_novalue_to_returncode(syscall_return_t command_return) {
+  if (command_return.type == TOCK_SYSCALL_SUCCESS) {
+    return RETURNCODE_SUCCESS;
+  } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    // The remaining SyscallReturn variants must never happen if using this
+    // function. We return `EBADRVAL` to signal an unexpected return variant.
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
+int tock_command_return_u32_to_returncode(syscall_return_t command_return, uint32_t* val) {
+  if (command_return.type == TOCK_SYSCALL_SUCCESS_U32) {
+    *val = command_return.data[0];
+    return RETURNCODE_SUCCESS;
+  } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    // The remaining SyscallReturn variants must never happen if using this
+    // function. We return `EBADRVAL` to signal an unexpected return variant.
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
+int tock_subscribe_return_to_returncode(subscribe_return_t subscribe_return) {
+  // If the subscribe was successful, easily return SUCCESS.
+  if (subscribe_return.success) {
+    return RETURNCODE_SUCCESS;
+  } else {
+    // Not success, so return the proper returncode.
+    return tock_status_to_returncode(subscribe_return.status);
+  }
+}
+
+int tock_allow_rw_return_to_returncode(allow_rw_return_t allow_return) {
+  // If the allow was successful, easily return SUCCESS.
+  if (allow_return.success) {
+    return RETURNCODE_SUCCESS;
+  } else {
+    // Not success, so return the proper returncode.
+    return tock_status_to_returncode(allow_return.status);
+  }
+}
+
+int tock_allow_ro_return_to_returncode(allow_ro_return_t allow_return) {
+  // If the allow was successful, easily return SUCCESS.
+  if (allow_return.success) {
+    return RETURNCODE_SUCCESS;
+  } else {
+    // Not success, so return the proper returncode.
+    return tock_status_to_returncode(allow_return.status);
   }
 }
 
@@ -194,7 +236,7 @@ subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
     subscribe_return_t rval = {true, (subscribe_upcall*)rv1, (void*)rv2, 0};
     return rval;
   } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
-    subscribe_return_t rval = {false, (subscribe_upcall*)rv2, (void*)rv3, (tock_error_t)rv1};
+    subscribe_return_t rval = {false, (subscribe_upcall*)rv2, (void*)rv3, (statuscode_t)rv1};
     return rval;
   } else {
     exit(-1);
@@ -240,7 +282,7 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* pt
     allow_ro_return_t rv = {true, (const void*)rv1, (size_t)rv2, 0};
     return rv;
   } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
-    allow_ro_return_t rv = {false, (const void*)rv2, (size_t)rv3, (tock_error_t)rv1};
+    allow_ro_return_t rv = {false, (const void*)rv2, (size_t)rv3, (statuscode_t)rv1};
     return rv;
   } else {
     // Invalid return type
@@ -267,7 +309,7 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, si
     allow_rw_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
     return rv;
   } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
-    allow_rw_return_t rv = {false, (void*)rv2, (size_t)rv3, (tock_error_t)rv1};
+    allow_rw_return_t rv = {false, (void*)rv2, (size_t)rv3, (statuscode_t)rv1};
     return rv;
   } else {
     // Invalid return type
@@ -383,7 +425,7 @@ subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
     subscribe_return_t rval = {true, (subscribe_upcall*)rv1, (void*)rv2, 0};
     return rval;
   } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
-    subscribe_return_t rval = {false, (subscribe_upcall*)rv2, (void*)rv3, (tock_error_t)rv1};
+    subscribe_return_t rval = {false, (subscribe_upcall*)rv2, (void*)rv3, (statuscode_t)rv1};
     return rval;
   } else {
     exit(-1);
@@ -430,7 +472,7 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
     allow_rw_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
     return rv;
   } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
-    allow_rw_return_t rv = {false, (void*)rv2, (size_t)rv3, (tock_error_t)rv1};
+    allow_rw_return_t rv = {false, (void*)rv2, (size_t)rv3, (statuscode_t)rv1};
     return rv;
   } else {
     // Invalid return type
@@ -458,7 +500,7 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
     allow_ro_return_t rv = {true, (const void*)rv1, (size_t)rv2, 0};
     return rv;
   } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
-    allow_ro_return_t rv = {false, (const void*)rv2, (size_t)rv3, (tock_error_t)rv1};
+    allow_ro_return_t rv = {false, (const void*)rv2, (size_t)rv3, (statuscode_t)rv1};
     return rv;
   } else {
     // Invalid return type
@@ -525,46 +567,49 @@ void* tock_app_writeable_flash_region_ends_at(int region_index) {
 bool driver_exists(uint32_t driver) {
   syscall_return_t sval = command(driver, 0, 0, 0);
   if (sval.type == TOCK_SYSCALL_SUCCESS) {
-    return 1;
+    return true;
   } else {
-    return 0;
+    return false;
   }
 }
 
-const char* tock_strerr(tock_error_t err) {
-  return tock_strrcode(tock_error_to_rcode(err));
+const char* tock_strerr(statuscode_t status) {
+  return tock_strrcode(tock_status_to_returncode(status));
 }
 
-const char* tock_strrcode(int tock_rcode) {
-  switch (tock_rcode) {
-    case TOCK_SUCCESS:
+// Convert a ReturnCode to a string.
+const char* tock_strrcode(returncode_t returncode) {
+  switch (returncode) {
+    case RETURNCODE_SUCCESS:
       return "Success";
-    case TOCK_FAIL:
+    case RETURNCODE_FAIL:
       return "Unknown Error";
-    case TOCK_EBUSY:
+    case RETURNCODE_EBUSY:
       return "Underlying system is busy; retry";
-    case TOCK_EALREADY:
+    case RETURNCODE_EALREADY:
       return "The state requested is already set";
-    case TOCK_EOFF:
+    case RETURNCODE_EOFF:
       return "The component is powered down";
-    case TOCK_ERESERVE:
+    case RETURNCODE_ERESERVE:
       return "Reservation required before use";
-    case TOCK_EINVAL:
+    case RETURNCODE_EINVAL:
       return "An invalid parameter was passed";
-    case TOCK_ESIZE:
+    case RETURNCODE_ESIZE:
       return "Parameter passed was too large";
-    case TOCK_ECANCEL:
+    case RETURNCODE_ECANCEL:
       return "Operation cancelled by a call";
-    case TOCK_ENOMEM:
+    case RETURNCODE_ENOMEM:
       return "Memory required not available";
-    case TOCK_ENOSUPPORT:
+    case RETURNCODE_ENOSUPPORT:
       return "Operation or command is unsupported";
-    case TOCK_ENODEVICE:
+    case RETURNCODE_ENODEVICE:
       return "Device does not exist";
-    case TOCK_EUNINSTALLED:
+    case RETURNCODE_EUNINSTALLED:
       return "Device is not physically installed";
-    case TOCK_ENOACK:
+    case RETURNCODE_ENOACK:
       return "Packet transmission not acknowledged";
+    case RETURNCODE_EBADRVAL:
+      return "Invalid SyscallReturn variant";
   }
   return "Invalid error number";
 }

@@ -13,9 +13,9 @@ extern "C" {
 
 // Performs service discovery
 //
-// Returns the process identifier of the process with the given package name,
+// Retrieves the process identifier of the process with the given package name,
 // or a negative value on error.
-int ipc_discover(const char* pkg_name);
+int ipc_discover(const char* pkg_name, int* svc_id);
 
 // Registers a service callback for this process.
 //
@@ -56,7 +56,7 @@ int ipc_notify_service(int pid);
 // `pid` is the non-zero process id of the recipient.
 // `base` must be aligned to the value of `len`.
 // `len` must be a power-of-two larger than 16.
-allow_rw_return_t ipc_share(int pid, void* base, int len);
+int ipc_share(int pid, void* base, int len);
 
 #ifdef __cplusplus
 }

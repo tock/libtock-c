@@ -31,8 +31,9 @@ static void start_cb(__attribute__ ((unused)) int now,
 }
 
 int main(void) {
-  int spacing  = 1000; // 1 second between each led
-  int num_leds = led_count();
+  int spacing = 1000;  // 1 second between each led
+  int num_leds;
+  led_count(&num_leds);
   interval = spacing * num_leds;
 
   for (int i = 0; i < num_leds; i++) {

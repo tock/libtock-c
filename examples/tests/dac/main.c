@@ -18,12 +18,12 @@ uint16_t sine_samples[100] = {
 };
 
 int main(void) {
-  syscall_return_t ret;
+  int ret;
 
   printf("[DAC] Sine test app\n");
 
   ret = dac_initialize();
-  if (ret.type != TOCK_SYSCALL_SUCCESS) {
+  if (ret != RETURNCODE_SUCCESS) {
     printf("ERROR initializing DAC\n");
     return 1;
   }
@@ -31,7 +31,7 @@ int main(void) {
   while (1) {
     for (int i = 0; i < 100; i++) {
       ret = dac_set_value(sine_samples[i]);
-      if (ret.type != TOCK_SYSCALL_SUCCESS) {
+      if (ret != RETURNCODE_SUCCESS) {
         printf("ERROR setting DAC value\n");
         return 1;
       }

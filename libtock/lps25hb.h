@@ -11,7 +11,7 @@ extern "C" {
 int lps25hb_set_callback (subscribe_upcall callback, void* callback_args);
 int lps25hb_get_pressure (void);
 
-int lps25hb_get_pressure_sync (void);
+int lps25hb_get_pressure_sync (int* pressure);
 
 #ifdef __cplusplus
 }

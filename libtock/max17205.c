@@ -12,25 +12,23 @@ static struct max17205_data result   = { .fired = false, .rc = 0, .value0 = 0, .
 static subscribe_upcall* user_upcall = NULL;
 
 // Internal callback for faking synchronous reads
-static void internal_user_upcall(int return_code,
+static void internal_user_upcall(int status,
                                  int value0,
                                  int value1,
                                  void* ud) {
 
   struct max17205_data* data = (struct max17205_data*) ud;
-  data->rc     = return_code;
+  data->rc     = tock_status_to_returncode(status);
   data->value0 = value0;
   data->value1 = value1;
   data->fired  = true;
 }
 
-static bool is_busy = false;
 // Lower level CB that allows us to stop more commands while busy
 static void max17205_upcall(int return_code,
                             int value0,
                             int value1,
                             void* ud) {
-  is_busy = false;
   if (user_upcall) {
     user_upcall(return_code, value0, value1, ud);
   }
@@ -43,106 +41,33 @@ int max17205_set_callback (subscribe_upcall callback, void* callback_args) {
   // Subscribe to the callback with our lower-layer callback, but pass
   // callback arguments.
   subscribe_return_t sval = subscribe(DRIVER_NUM_MAX17205, 0, max17205_upcall, callback_args);
-  if (sval.success) {
-    return 0;
-  } else {
-    return tock_error_to_rcode(sval.error);
-  }
+  return tock_subscribe_return_to_returncode(sval);
 }
 
 int max17205_read_status(void) {
-  if (is_busy) {
-    return TOCK_EBUSY;
-  } else {
-    is_busy = true;
-    syscall_return_t com = command(DRIVER_NUM_MAX17205, 1, 0, 0);
-    if (com.type == TOCK_SYSCALL_SUCCESS) {
-      return TOCK_SUCCESS;
-    } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-      // Returned an incorrect success code
-      is_busy = false;
-      return TOCK_FAIL;
-    } else {
-      is_busy = false;
-      return tock_error_to_rcode(com.data[0]);
-    }
-  }
+
+  syscall_return_t com = command(DRIVER_NUM_MAX17205, 1, 0, 0);
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int max17205_read_soc(void) {
-  if (is_busy) {
-    return TOCK_EBUSY;
-  } else {
-    is_busy = true;
-    syscall_return_t com = command(DRIVER_NUM_MAX17205, 2, 0, 0);
-    if (com.type == TOCK_SYSCALL_SUCCESS) {
-      return TOCK_SUCCESS;
-    } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-      // Returned an incorrect success code
-      is_busy = false;
-      return TOCK_FAIL;
-    } else {
-      is_busy = false;
-      return tock_error_to_rcode(com.data[0]);
-    }
-  }
+  syscall_return_t com = command(DRIVER_NUM_MAX17205, 2, 0, 0);
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int max17205_read_voltage_current(void) {
-  if (is_busy) {
-    return TOCK_EBUSY;
-  } else {
-    is_busy = true;
-    syscall_return_t com = command(DRIVER_NUM_MAX17205, 3, 0, 0);
-    if (com.type == TOCK_SYSCALL_SUCCESS) {
-      return TOCK_SUCCESS;
-    } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-      // Returned an incorrect success code
-      is_busy = false;
-      return TOCK_FAIL;
-    } else {
-      is_busy = false;
-      return tock_error_to_rcode(com.data[0]);
-    }
-  }
+  syscall_return_t com = command(DRIVER_NUM_MAX17205, 3, 0, 0);
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int max17205_read_coulomb(void) {
-  if (is_busy) {
-    return TOCK_EBUSY;
-  } else {
-    is_busy = true;
-    syscall_return_t com = command(DRIVER_NUM_MAX17205, 4, 0, 0);
-    if (com.type == TOCK_SYSCALL_SUCCESS) {
-      return TOCK_SUCCESS;
-    } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-      // Returned an incorrect success code
-      is_busy = false;
-      return TOCK_FAIL;
-    } else {
-      is_busy = false;
-      return tock_error_to_rcode(com.data[0]);
-    }
-  }
+  syscall_return_t com = command(DRIVER_NUM_MAX17205, 4, 0, 0);
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int max17205_read_rom_id(void) {
-  if (is_busy) {
-    return TOCK_EBUSY;
-  } else {
-    is_busy = true;
-    syscall_return_t com = command(DRIVER_NUM_MAX17205, 5, 0, 0);
-    if (com.type == TOCK_SYSCALL_SUCCESS) {
-      return TOCK_SUCCESS;
-    } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-      // Returned an incorrect success code
-      is_busy = false;
-      return TOCK_FAIL;
-    } else {
-      is_busy = false;
-      return tock_error_to_rcode(com.data[0]);
-    }
-  }
+  syscall_return_t com = command(DRIVER_NUM_MAX17205, 5, 0, 0);
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int max17205_read_status_sync(uint16_t* status) {

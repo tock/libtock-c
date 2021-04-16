@@ -13,7 +13,7 @@ int main(void) {
   int ret         = text_screen_init(15);
   uint8_t *buffer = text_screen_buffer ();
   ret = text_screen_display_on();
-  if (ret == TOCK_SUCCESS) {
+  if (ret == RETURNCODE_SUCCESS) {
     ret = text_screen_set_cursor(0, 0);
     memcpy (buffer, "Hello!", 6);
     ret = text_screen_write(6);

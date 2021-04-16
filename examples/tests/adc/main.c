@@ -54,11 +54,13 @@ int main(void) {
     printf("No ADC driver!\n");
     return -1;
   }
-  printf("ADC driver exists with %d channels\n", adc_channel_count());
+  int count;
+  adc_channel_count(&count);
+  printf("ADC driver exists with %d channels\n", count);
 
   while (1) {
     // iterate through the channels
-    for (uint8_t channel = 0; channel < adc_channel_count(); channel++) {
+    for (uint8_t channel = 0; channel < count; channel++) {
 
       printf("\nSingle Samples - Channel %u\n", channel);
       for (uint32_t i = 0; i < 10; i++) {

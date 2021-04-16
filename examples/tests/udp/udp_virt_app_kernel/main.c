@@ -77,7 +77,7 @@ int main(void) {
     printf(" : %d\n", destination.port);
   }
   result = udp_send_to(packet, len, &destination);
-  assert(result == TOCK_SUCCESS); // send should succeed
+  assert(result == RETURNCODE_SUCCESS); // send should succeed
 
   printf("App part of app/kernel test successful!\n");
 }

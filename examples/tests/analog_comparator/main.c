@@ -10,7 +10,8 @@ static void analog_comparator_comparison_polling(uint8_t channel) {
   uint count = 0;
   while (1) {
     count++;
-    bool result = analog_comparator_comparison(channel);
+    bool result;
+    analog_comparator_comparison(channel, &result);
     printf("Try %d. Result = %d.\n", count, result);
     if (result == 1) {
       printf("This means Vinp > Vinn!\n\n");
@@ -54,7 +55,9 @@ int main(void) {
     exit(1);
   }
 
-  printf("Analog Comparator driver exists with %d channels\n", analog_comparator_count());
+  int count;
+  analog_comparator_count(&count);
+  printf("Analog Comparator driver exists with %d channels\n", count);
 
   // Set mode according to which implementation you want.
   // mode = 0 --> polling comparison
@@ -67,7 +70,7 @@ int main(void) {
 
   // Since channel starts at index 0 and analog_comparator_count starts from 1,
   // a channel equal to count is already non-existing
-  if (channel >= analog_comparator_count()) {
+  if (channel >= count) {
     printf("Specified channel does not exist on this board\n");
     exit(1);
   }

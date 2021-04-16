@@ -22,9 +22,9 @@ int lvgl_driver_init (int buffer_lines)
 {
   size_t width, height;
   int error = screen_get_resolution (&width, &height);
-  if (error == TOCK_SUCCESS) {
+  if (error == RETURNCODE_SUCCESS) {
     error = screen_init (width * buffer_lines * sizeof(lv_color_t));
-    if (error == TOCK_SUCCESS) {
+    if (error == RETURNCODE_SUCCESS) {
       /* share the frame buffer with littlevgl */
       lv_color_t *buf = (lv_color_t*)screen_buffer ();
 

@@ -52,33 +52,33 @@ static void adc_upcall(int callback_type,
 
   switch (callback_type) {
     case SingleSample:
-      result->error   = TOCK_SUCCESS;
+      result->error   = RETURNCODE_SUCCESS;
       result->channel = arg1;
       result->sample  = arg2;
       break;
 
     case ContinuousSample:
-      result->error   = TOCK_SUCCESS;
+      result->error   = RETURNCODE_SUCCESS;
       result->channel = arg1;
       result->sample  = arg2;
       break;
 
     case SingleBuffer:
-      result->error   = TOCK_SUCCESS;
+      result->error   = RETURNCODE_SUCCESS;
       result->channel = (arg1 & 0xFF);
       result->length  = ((arg1 >> 8) & 0xFFFFFF);
       result->buffer  = (uint16_t*)arg2;
       break;
 
     case ContinuousBuffer:
-      result->error   = TOCK_SUCCESS;
+      result->error   = RETURNCODE_SUCCESS;
       result->channel = (arg1 & 0xFF);
       result->length  = ((arg1 >> 8) & 0xFFFFFF);
       result->buffer  = (uint16_t*)arg2;
       break;
 
     default:
-      result->error = TOCK_FAIL;
+      result->error = RETURNCODE_FAIL;
       break;
   }
 
@@ -157,86 +157,53 @@ static void adc_routing_upcall(int callback_type,
 
 int adc_set_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t subval = subscribe(DRIVER_NUM_ADC, 0, callback, callback_args);
-  if (subval.success == 0) {
-    return tock_error_to_rcode(subval.error);
-  }
-  return TOCK_SUCCESS;
+  return tock_subscribe_return_to_returncode(subval);
 }
 
 int adc_set_buffer(uint16_t* buffer, uint32_t len) {
   // we "allow" byte arrays, so this is actually twice as long
   allow_rw_return_t rw = allow_readwrite(DRIVER_NUM_ADC, 0, (void*)buffer, len * 2);
-  if (rw.success == 0) {
-    return tock_error_to_rcode(rw.error);
-  }
-  return TOCK_SUCCESS;
+  return tock_allow_rw_return_to_returncode(rw);
 }
 
 int adc_set_double_buffer(uint16_t* buffer, uint32_t len) {
   // we "allow" byte arrays, so this is actually twice as long
   allow_rw_return_t rw = allow_readwrite(DRIVER_NUM_ADC, 1, (void*)buffer, len * 2);
-  if (rw.success == 0) {
-    return tock_error_to_rcode(rw.error);
-  }
-  return TOCK_SUCCESS;
+  return tock_allow_rw_return_to_returncode(rw);
 }
 
 bool adc_is_present(void) {
-  return command(DRIVER_NUM_ADC, 0, 0, 0).type == TOCK_SYSCALL_SUCCESS_U32;
+  return driver_exists(DRIVER_NUM_ADC);
 }
 
-int adc_channel_count(void) {
+int adc_channel_count(int* count) {
   syscall_return_t res = command(DRIVER_NUM_ADC, 0, 0, 0);
-  if (res.type == TOCK_SYSCALL_SUCCESS_U32) {
-    return res.data[0];
-  } else {
-    return tock_error_to_rcode(res.data[0]);
-  }
+  return tock_command_return_u32_to_returncode(res, (uint32_t*) count);
 }
 
 int adc_single_sample(uint8_t channel) {
   syscall_return_t res = command(DRIVER_NUM_ADC, 1, channel, 0);
-  if (res.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(res.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(res);
 }
 
 int adc_continuous_sample(uint8_t channel, uint32_t frequency) {
   syscall_return_t res = command(DRIVER_NUM_ADC, 2, channel, frequency);
-  if (res.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(res.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(res);
 }
 
 int adc_buffered_sample(uint8_t channel, uint32_t frequency) {
   syscall_return_t res = command(DRIVER_NUM_ADC, 3, channel, frequency);
-  if (res.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(res.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(res);
 }
 
 int adc_continuous_buffered_sample(uint8_t channel, uint32_t frequency) {
   syscall_return_t res = command(DRIVER_NUM_ADC, 4, channel, frequency);
-  if (res.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(res.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(res);
 }
 
 int adc_stop_sampling(void) {
   syscall_return_t res = command(DRIVER_NUM_ADC, 5, 0, 0);
-  if (res.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(res.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(res);
 }
 
 
@@ -273,13 +240,13 @@ int adc_sample_sync(uint8_t channel, uint16_t* sample) {
   int err;
   adc_data_t result = {0};
   result.fired = false;
-  result.error = TOCK_SUCCESS;
+  result.error = RETURNCODE_SUCCESS;
 
   err = adc_set_callback(adc_upcall, (void*) &result);
-  if (err < TOCK_SUCCESS) return err;
+  if (err < RETURNCODE_SUCCESS) return err;
 
   err = adc_single_sample(channel);
-  if (err < TOCK_SUCCESS) return err;
+  if (err < RETURNCODE_SUCCESS) return err;
 
   // wait for callback
   yield_for(&result.fired);
@@ -294,23 +261,23 @@ int adc_sample_buffer_sync(uint8_t channel, uint32_t frequency, uint16_t* buffer
   int err;
   adc_data_t result = {0};
   result.fired = false;
-  result.error = TOCK_SUCCESS;
+  result.error = RETURNCODE_SUCCESS;
 
   err = adc_set_callback(adc_upcall, (void*) &result);
-  if (err < TOCK_SUCCESS) return err;
+  if (err < RETURNCODE_SUCCESS) return err;
 
   err = adc_set_buffer(buffer, length);
-  if (err < TOCK_SUCCESS) return err;
+  if (err < RETURNCODE_SUCCESS) return err;
 
   err = adc_buffered_sample(channel, frequency);
-  if (err < TOCK_SUCCESS) return err;
+  if (err < RETURNCODE_SUCCESS) return err;
 
   // wait for callback
   yield_for(&result.fired);
 
   // copy over result
   if (result.buffer != buffer) {
-    return TOCK_FAIL;
+    return RETURNCODE_FAIL;
   }
 
   return result.error;

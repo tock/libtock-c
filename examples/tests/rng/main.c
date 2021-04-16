@@ -10,7 +10,8 @@ int main (void) {
   printf("[RNG] Test App\n");
 
   while (1) {
-    rng_sync(randbuf, 256, 256);
+    int count;
+    rng_sync(randbuf, 256, 256, &count);
 
     // Print the 256 bytes of randomness.
     char buf[600];

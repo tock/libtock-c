@@ -110,14 +110,19 @@ static void sample_sensors (void) {
   int a5 = (val * 3300) / (4095 << 4);
 
   // Digital inputs: D0, D1, D6, D7
-  int d0 = gpio_read(0);
-  int d1 = gpio_read(1);
-  int d6 = gpio_read(2);
-  int d7 = gpio_read(3);
+  int d0;
+  gpio_read(0, &d0);
+  int d1;
+  gpio_read(1, &d1);
+  int d6;
+  gpio_read(2, &d6);
+  int d7;
+  gpio_read(3, &d7);
 
   // Random bytes
   uint8_t rand[5];
-  rng_sync(rand, 5, 5);
+  int count;
+  rng_sync(rand, 5, 5, &count);
 
   // CRC of the random bytes
   uint32_t crc;

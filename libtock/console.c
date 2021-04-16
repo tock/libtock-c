@@ -35,16 +35,16 @@ static void putstr_upcall(int _x __attribute__ ((unused)),
 }
 
 int putnstr(const char *str, size_t len) {
-  int ret = TOCK_SUCCESS;
+  int ret = RETURNCODE_SUCCESS;
 
   putstr_data_t* data = (putstr_data_t*)malloc(sizeof(putstr_data_t));
-  if (data == NULL) return TOCK_ENOMEM;
+  if (data == NULL) return RETURNCODE_ENOMEM;
 
   data->len    = len;
   data->called = false;
   data->buf    = (char*)malloc(len * sizeof(char));
   if (data->buf == NULL) {
-    ret = TOCK_ENOMEM;
+    ret = RETURNCODE_ENOMEM;
     goto putnstr_fail_buf_alloc;
   }
   strncpy(data->buf, str, len);
@@ -73,51 +73,35 @@ putnstr_fail_buf_alloc:
 
 int putnstr_async(const char *str, size_t len, subscribe_upcall cb, void* userdata) {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-  // Currently, allow gives RW access, but we should have a richer set of
-  // options, such as kernel RO, which would be let us preserve type semantics
-  // all the way down
-  void* buf = (void*) str;
 #pragma GCC diagnostic pop
 
-  allow_ro_return_t ro = allow_readonly(DRIVER_NUM_CONSOLE, 1, buf, len);
+  allow_ro_return_t ro = allow_readonly(DRIVER_NUM_CONSOLE, 1, str, len);
   if (!ro.success) {
-    return tock_error_to_rcode(ro.error);
+    return tock_status_to_returncode(ro.status);
   }
 
   subscribe_return_t sub = subscribe(DRIVER_NUM_CONSOLE, 1, cb, userdata);
-  if (sub.success == 0) {
-    return tock_error_to_rcode(sub.error);
+  if (!sub.success) {
+    return tock_status_to_returncode(sub.status);
   }
 
   syscall_return_t com = command(DRIVER_NUM_CONSOLE, 1, len, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int getnstr_async(char *buf, size_t len, subscribe_upcall cb, void* userdata) {
   allow_rw_return_t rw = allow_readwrite(DRIVER_NUM_CONSOLE, 1, buf, len);
-  if (rw.success == 0) {
-    return tock_error_to_rcode(rw.error);
+  if (!rw.success) {
+    return tock_status_to_returncode(rw.status);
   }
 
   subscribe_return_t sub = subscribe(DRIVER_NUM_CONSOLE, 2, cb, userdata);
-  if (sub.success == 0) {
-    return tock_error_to_rcode(sub.error);
+  if (!sub.success) {
+    return tock_status_to_returncode(sub.status);
   }
 
   syscall_return_t com = command(DRIVER_NUM_CONSOLE, 2, len, 0);
-  if (com.type >= TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 typedef struct getnstr_data {
@@ -140,7 +124,7 @@ int getnstr(char *str, size_t len) {
 
   if (!getnstr_data.called) {
     // A call is already in progress
-    return TOCK_EALREADY;
+    return RETURNCODE_EALREADY;
   }
   getnstr_data.called = false;
 
@@ -159,16 +143,10 @@ int getch(void) {
   char buf[1];
 
   r = getnstr(buf, 1);
-  return (r == TOCK_SUCCESS) ? buf[0] : TOCK_FAIL;
+  return (r == RETURNCODE_SUCCESS) ? buf[0] : RETURNCODE_FAIL;
 }
 
 int getnstr_abort(void) {
-  syscall_return_t sval = command(DRIVER_NUM_CONSOLE, 3, 0, 0);
-  if (sval.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (sval.type == TOCK_SYSCALL_FAILURE) {
-    return TOCK_FAIL;
-  } else {
-    return TOCK_EBADRVAL;
-  }
+  syscall_return_t com = command(DRIVER_NUM_CONSOLE, 3, 0, 0);
+  return tock_command_return_novalue_to_returncode(com);
 }

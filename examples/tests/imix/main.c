@@ -78,7 +78,8 @@ static void sample_sensors (void) {
 
   // Digital inputs: D0, D1, D6, D7
   for (int d = 0; d < 4; d++) {
-    int val = gpio_read(0);
+    int val;
+    gpio_read(0, &val);
     printf("  D%i:           %d\n", d, val);
   }
   printf("\n");

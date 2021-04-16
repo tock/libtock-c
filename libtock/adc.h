@@ -48,7 +48,7 @@ int adc_set_double_buffer(uint16_t* buffer, uint32_t length);
 bool adc_is_present(void);
 
 // query how many channels are available in the ADC driver
-int adc_channel_count(void);
+int adc_channel_count(int* count);
 
 // request a single analog sample
 //

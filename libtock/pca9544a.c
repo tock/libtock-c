@@ -21,59 +21,27 @@ static void pca9544a_upcall(__attribute__ ((unused)) int value,
 
 int pca9544a_set_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_PCA9544A, 0, callback, callback_args);
-  if (sval.success) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(sval.error);
-  }
+  return tock_subscribe_return_to_returncode(sval);
 }
 
 int pca9544a_select_channels(uint32_t channels) {
   syscall_return_t com = command(DRIVER_NUM_PCA9544A, 1, channels, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int pca9544a_disable_all_channels(void) {
   syscall_return_t com = command(DRIVER_NUM_PCA9544A, 2, 0, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int pca9544a_read_interrupts(void) {
   syscall_return_t com = command(DRIVER_NUM_PCA9544A, 3, 0, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int pca9544a_read_selected(void) {
   syscall_return_t com = command(DRIVER_NUM_PCA9544A, 4, 0, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 
@@ -91,7 +59,7 @@ int pca9544a_select_channels_sync(uint32_t channels) {
   // Wait for the callback.
   yield_for(&result.fired);
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
 
 int pca9544a_disable_all_channels_sync(void) {
@@ -107,10 +75,10 @@ int pca9544a_disable_all_channels_sync(void) {
   // Wait for the callback.
   yield_for(&result.fired);
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
 
-int pca9544a_read_interrupts_sync(void) {
+int pca9544a_read_interrupts_sync(int* value) {
   int err;
   result.fired = false;
 
@@ -123,10 +91,12 @@ int pca9544a_read_interrupts_sync(void) {
   // Wait for the callback.
   yield_for(&result.fired);
 
-  return result.value;
+  *value = result.value;
+
+  return RETURNCODE_SUCCESS;
 }
 
-int pca9544a_read_selected_sync(void) {
+int pca9544a_read_selected_sync(int* value) {
   int err;
   result.fired = false;
 
@@ -139,5 +109,7 @@ int pca9544a_read_selected_sync(void) {
   // Wait for the callback.
   yield_for(&result.fired);
 
-  return result.value;
+  *value = result.value;
+
+  return RETURNCODE_SUCCESS;
 }

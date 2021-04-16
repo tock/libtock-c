@@ -11,7 +11,7 @@ int main (void) {
     // Start a light measurement
     int lux;
     int ret = ambient_light_read_intensity_sync(&lux);
-    if (ret == TOCK_ENODEVICE) {
+    if (ret == RETURNCODE_ENODEVICE) {
       printf("ERROR: No ambient light sensor on this board.\n");
     } else if (ret < 0) {
       printf("ERROR: unable to read the sensor (error code: %i)\n", lux);

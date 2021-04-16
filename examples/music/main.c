@@ -32,33 +32,29 @@ int melody[] = {
 #define TEMPO 114
 
 int main(void) {
+  if (!buzzer_exists()) {
+    printf ("There is no available buzzer\n");
+    return -1;
+  }
 
-  // Ask the kernel how many LEDs are on this board.
-  int buzzer = buzzer_exists ();
+  printf ("Ode of Joy\n");
+  int notes     = sizeof(melody) / sizeof(melody[0]) / 2;
+  int wholenote = (60000 * 4) / TEMPO;
+  for (int note = 0; note < notes * 2; note = note + 2) {
 
-  if (buzzer == TOCK_SUCCESS) {
-    printf ("Ode of Joy\n");
-    int notes     = sizeof(melody) / sizeof(melody[0]) / 2;
-    int wholenote = (60000 * 4) / TEMPO;
-    for (int note = 0; note < notes * 2; note = note + 2) {
-
-      // calculates the duration of each note
-      int divider       = melody[note + 1];
-      int note_duration = 0;
-      if (divider > 0) {
-        // regular note, just proceed
-        note_duration = (wholenote) / divider;
-      } else if (divider < 0) {
-        // dotted notes are represented with negative durations!!
-        note_duration  = (wholenote) / abs(divider);
-        note_duration *= 1.5; // increases the duration in half for dotted notes
-      }
-
-      // we only play the note for 90% of the duration, leaving 10% as a pause
-      tone_sync(melody[note] * 3, note_duration * 0.9);
+    // calculates the duration of each note
+    int divider       = melody[note + 1];
+    int note_duration = 0;
+    if (divider > 0) {
+      // regular note, just proceed
+      note_duration = (wholenote) / divider;
+    } else if (divider < 0) {
+      // dotted notes are represented with negative durations!!
+      note_duration  = (wholenote) / abs(divider);
+      note_duration *= 1.5; // increases the duration in half for dotted notes
     }
 
-  }else {
-    printf ("There is no available buzzer\n");
+    // we only play the note for 90% of the duration, leaving 10% as a pause
+    tone_sync(melody[note] * 3, note_duration * 0.9);
   }
 }

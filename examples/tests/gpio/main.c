@@ -66,7 +66,8 @@ static void gpio_input(void) {
 
   while (1) {
     // print pin value
-    int pin_val = gpio_read(0);
+    int pin_val;
+    gpio_read(0, &pin_val);
     printf("\tValue(%d)\n", pin_val);
     yield_for(&resume);
     resume = 0;

@@ -6,7 +6,7 @@ int main (void)
 {
   screen_set_brightness (100);
   int status = lvgl_driver_init (5);
-  if (status == TOCK_SUCCESS) {
+  if (status == RETURNCODE_SUCCESS) {
     /* LittlevGL's Hello World tutorial example */
 
     lv_obj_t * scr = lv_disp_get_scr_act(NULL);         /*Get the current screen*/

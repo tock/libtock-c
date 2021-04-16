@@ -20,10 +20,16 @@ static void button_callback(int btn_num,
 }
 
 int main(void) {
-  button_subscribe(button_callback, NULL);
+  int err;
+
+  err = button_subscribe(button_callback, NULL);
+  if (err < 0) return err;
 
   // Enable interrupts on each button.
-  int count = button_count();
+  int count;
+  err = button_count(&count);
+  if (err < 0) return err;
+
   for (int i = 0; i < count; i++) {
     button_enable_interrupt(i);
   }

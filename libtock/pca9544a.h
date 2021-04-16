@@ -29,8 +29,8 @@ int pca9544a_read_selected(void);
 //
 int pca9544a_select_channels_sync(uint32_t channels);
 int pca9544a_disable_all_channels_sync(void);
-int pca9544a_read_interrupts_sync(void);
-int pca9544a_read_selected_sync(void);
+int pca9544a_read_interrupts_sync(int* value);
+int pca9544a_read_selected_sync(int* value);
 
 #ifdef __cplusplus
 }

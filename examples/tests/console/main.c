@@ -11,7 +11,7 @@ int main(void) {
   while (1) {
     int c = getch();
 
-    if (c == TOCK_FAIL) {
+    if (c == RETURNCODE_FAIL) {
       printf("\ngetch() failed!\n");
     } else {
       printf("Got character: '%c'\n", (char) c);

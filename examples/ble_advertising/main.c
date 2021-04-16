@@ -37,20 +37,20 @@ int main(void) {
   // configure device name as TockOS
   printf(" - Setting the device name... %s\n", device_name);
   err = gap_add_device_name(&adv_data, device_name, DEVICE_NAME_SIZE);
-  if (err < TOCK_SUCCESS)
+  if (err < RETURNCODE_SUCCESS)
     printf("ble_advertise_name, error: %s\r\n", tock_strrcode(err));
 
   // configure list of UUIDs */
   printf(" - Setting the device UUID...\n");
   err = gap_add_service_uuid16(&adv_data, uuids, UUIDS_SIZE);
-  if (err < TOCK_SUCCESS)
+  if (err < RETURNCODE_SUCCESS)
     printf("ble_advertise_uuid16, error: %s\r\n", tock_strrcode(err));
 
   // configure manufacturer data
   printf(" - Setting manufacturer data...\n");
   err = gap_add_manufacturer_specific_data(&adv_data, manufacturer_data,
                                            MANUFACTURER_DATA_SIZE);
-  if (err < TOCK_SUCCESS)
+  if (err < RETURNCODE_SUCCESS)
     printf("ble_advertise_manufacturer_specific_data, error: %s\r\n",
            tock_strrcode(err));
 
@@ -58,13 +58,13 @@ int main(void) {
   printf(" - Setting service data...\n");
   err = gap_add_service_data(&adv_data, uuids[1], fake_temperature_data,
                              FAKE_TEMPERATURE_DATA_SIZE);
-  if (err < TOCK_SUCCESS)
+  if (err < RETURNCODE_SUCCESS)
     printf("ble_advertise_service_data, error: %s\r\n", tock_strrcode(err));
 
   // start advertising
   printf(" - Begin advertising! %s\n", device_name);
   err = ble_start_advertising(ADV_NONCONN_IND, adv_data.buf, adv_data.offset, advertising_interval_ms);
-  if (err < TOCK_SUCCESS)
+  if (err < RETURNCODE_SUCCESS)
     printf("ble_start_advertising, error: %s\r\n", tock_strrcode(err));
 
   // configuration complete

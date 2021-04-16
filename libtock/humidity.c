@@ -20,22 +20,12 @@ static void humidity_upcall(int humidity,
 
 int humidity_set_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_HUMIDITY, 0, callback, callback_args);
-  if (sval.success) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(sval.error);
-  }
+  return tock_subscribe_return_to_returncode(sval);
 }
 
 int humidity_read(void) {
-  syscall_return_t sval = command(DRIVER_NUM_HUMIDITY, 1, 0, 0);
-  if (sval.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (sval.type == TOCK_SYSCALL_FAILURE) {
-    return tock_error_to_rcode(sval.data[0]);
-  } else {
-    return TOCK_EBADRVAL;
-  }
+  syscall_return_t rval = command(DRIVER_NUM_HUMIDITY, 1, 0, 0);
+  return tock_command_return_novalue_to_returncode(rval);
 }
 
 int humidity_read_sync(unsigned* humidity) {

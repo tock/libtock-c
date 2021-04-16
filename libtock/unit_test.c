@@ -228,8 +228,9 @@ void unit_test_runner(unit_test_fun *tests, uint32_t test_count,
   test->timeout_ms = timeout_ms;
 
   // Establish communication with the test supervisor service.
-  int test_svc = ipc_discover(svc_name);
-  if (test_svc < 0) return;
+  int test_svc;
+  int err = ipc_discover(svc_name, &test_svc);
+  if (err < 0) return;
 
   // Register the callback for cooperative scheduling.
   ipc_register_client_callback(test_svc, continue_callback, NULL);

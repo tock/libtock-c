@@ -84,16 +84,16 @@ int main(void) {
   ssize_t result = udp_recv(callback, packet_rx, MAX_RX_PACKET_LEN);
 
   switch (result) {
-    case TOCK_SUCCESS:
+    case RETURNCODE_SUCCESS:
       printf("Succesfully bound to socket, listening for UDP packets\n\n");
       break;
-    case TOCK_EINVAL:
+    case RETURNCODE_EINVAL:
       printf("The address requested is not a local interface\n");
       break;
-    case TOCK_EBUSY:
+    case RETURNCODE_EBUSY:
       printf("Another userland app has already bound to this addr/port\n");
       break;
-    case TOCK_ERESERVE:
+    case RETURNCODE_ERESERVE:
       printf("Receive Failure. Must bind to a port before calling receive\n");
       break;
     default:

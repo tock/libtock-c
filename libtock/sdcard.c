@@ -40,29 +40,29 @@ static void sdcard_upcall (int callback_type, int arg1, int arg2, void* callback
   switch (callback_type) {
     case 0:
       // card_detection_changed
-      result->error = TOCK_EUNINSTALLED;
+      result->error = RETURNCODE_EUNINSTALLED;
       break;
 
     case 1:
       // init_done
       result->block_size = arg1;
       result->size_in_kB = arg2;
-      result->error      = TOCK_SUCCESS;
+      result->error      = RETURNCODE_SUCCESS;
       break;
 
     case 2:
       // read_done
-      result->error = TOCK_SUCCESS;
+      result->error = RETURNCODE_SUCCESS;
       break;
 
     case 3:
       // write_done
-      result->error = TOCK_SUCCESS;
+      result->error = RETURNCODE_SUCCESS;
       break;
 
     case 4:
       // error
-      result->error = arg1;
+      result->error = tock_status_to_returncode(arg1);
       break;
   }
 
@@ -71,54 +71,34 @@ static void sdcard_upcall (int callback_type, int arg1, int arg2, void* callback
 
 int sdcard_set_callback (subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_SDCARD, 0, callback, callback_args);
-  if (sval.success) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(sval.error);
-  }
+  return tock_subscribe_return_to_returncode(sval);
 }
 
 int sdcard_set_read_buffer (uint8_t* buffer, uint32_t len) {
-  allow_rw_return_t rval = allow_readwrite(DRIVER_NUM_SDCARD, 0, (void*) buffer, len);
-  if (rval.success) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(rval.error);
-  }
+  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_SDCARD, 0, (void*) buffer, len);
+  return tock_allow_rw_return_to_returncode(aval);
 }
 
 int sdcard_set_write_buffer (uint8_t* buffer, uint32_t len) {
-  allow_ro_return_t rval = allow_readonly(DRIVER_NUM_SDCARD, 1, (void*) buffer, len);
-  if (rval.success) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(rval.error);
-  }
+  allow_ro_return_t aval = allow_readonly(DRIVER_NUM_SDCARD, 1, (void*) buffer, len);
+  return tock_allow_ro_return_to_returncode(aval);
 }
 
 int sdcard_is_installed (void) {
-  syscall_return_t sval = command(DRIVER_NUM_SDCARD, 1, 0, 0);
-  if (sval.type == TOCK_SYSCALL_SUCCESS_U32) {
-    return sval.data[0];
-  } else {
-    return tock_error_to_rcode(sval.data[0]);
-  }
+  syscall_return_t cval = command(DRIVER_NUM_SDCARD, 1, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
 }
 
 int sdcard_initialize (void) {
-  syscall_return_t sval = command(DRIVER_NUM_SDCARD, 2, 0, 0);
-  if (sval.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(sval.data[0]);
-  }
+  syscall_return_t cval = command(DRIVER_NUM_SDCARD, 2, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
 }
 
 int sdcard_initialize_sync (uint32_t* block_size, uint32_t* size_in_kB) {
   int err;
   sdcard_data_t result;
   result.fired = false;
-  result.error = TOCK_SUCCESS;
+  result.error = RETURNCODE_SUCCESS;
 
   err = sdcard_set_callback(sdcard_upcall, (void*) &result);
   if (err < 0) return err;
@@ -141,19 +121,15 @@ int sdcard_initialize_sync (uint32_t* block_size, uint32_t* size_in_kB) {
 }
 
 int sdcard_read_block (uint32_t sector) {
-  syscall_return_t sval = command(DRIVER_NUM_SDCARD, 3, sector, 0);
-  if (sval.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(sval.data[0]);
-  }
+  syscall_return_t cval = command(DRIVER_NUM_SDCARD, 3, sector, 0);
+  return tock_command_return_novalue_to_returncode(cval);
 }
 
 int sdcard_read_block_sync (uint32_t sector) {
   int err;
   sdcard_data_t result;
   result.fired = false;
-  result.error = TOCK_SUCCESS;
+  result.error = RETURNCODE_SUCCESS;
 
   err = sdcard_set_callback(sdcard_upcall, (void*) &result);
   if (err < 0) return err;
@@ -168,19 +144,15 @@ int sdcard_read_block_sync (uint32_t sector) {
 }
 
 int sdcard_write_block (uint32_t sector) {
-  syscall_return_t sval = command(DRIVER_NUM_SDCARD, 4, sector, 0);
-  if (sval.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(sval.data[0]);
-  }
+  syscall_return_t cval = command(DRIVER_NUM_SDCARD, 4, sector, 0);
+  return tock_command_return_novalue_to_returncode(cval);
 }
 
 int sdcard_write_block_sync (uint32_t sector) {
   int err;
   sdcard_data_t result;
   result.fired = false;
-  result.error = TOCK_SUCCESS;
+  result.error = RETURNCODE_SUCCESS;
 
   err = sdcard_set_callback(sdcard_upcall, (void*) &result);
   if (err < 0) return err;
@@ -193,4 +165,3 @@ int sdcard_write_block_sync (uint32_t sector) {
 
   return result.error;
 }
-

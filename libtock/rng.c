@@ -21,53 +21,45 @@ static void rng_upcall(__attribute__ ((unused)) int callback_type,
   data->received = received;
 }
 
-allow_rw_return_t rng_set_buffer(uint8_t* buf, uint32_t len) {
-  return allow_readwrite(DRIVER_NUM_RNG, 0, (void*) buf, len);
+int rng_set_buffer(uint8_t* buf, uint32_t len) {
+  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_RNG, 0, (void*) buf, len);
+  return tock_allow_rw_return_to_returncode(aval);
 }
 
-subscribe_return_t rng_set_callback(subscribe_upcall callback, void* callback_args) {
-  return subscribe(DRIVER_NUM_RNG, 0, callback, callback_args);
+int rng_set_callback(subscribe_upcall callback, void* callback_args) {
+  subscribe_return_t sval = subscribe(DRIVER_NUM_RNG, 0, callback, callback_args);
+  return tock_subscribe_return_to_returncode(sval);
 }
 
-syscall_return_t rng_get_random(int num_bytes) {
-  return command(DRIVER_NUM_RNG, 1, num_bytes, 0);
+int rng_get_random(int num_bytes) {
+  syscall_return_t com = command(DRIVER_NUM_RNG, 1, num_bytes, 0);
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int rng_async(subscribe_upcall callback, uint8_t* buf, uint32_t len, uint32_t num) {
-  subscribe_return_t sres = rng_set_callback(callback, NULL);
-  if (!sres.success) return tock_error_to_rcode(sres.error);
+  int ret = rng_set_callback(callback, NULL);
+  if (ret < 0) return ret;
 
-  allow_rw_return_t ares = rng_set_buffer(buf, len);
-  if (!ares.success) return tock_error_to_rcode(ares.error);
+  ret = rng_set_buffer(buf, len);
+  if (ret < 0) return ret;
 
-  syscall_return_t res = rng_get_random(num);
-  if (res.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (res.type == TOCK_SYSCALL_FAILURE) {
-    return tock_error_to_rcode(res.data[0]);
-  } else {
-    // Unexpected return code variant
-    exit(-1);
-  }
+  return rng_get_random(num);
 }
 
-int rng_sync(uint8_t* buf, uint32_t len, uint32_t num) {
-  allow_rw_return_t ares = rng_set_buffer(buf, len);
-  if (!ares.success) return tock_error_to_rcode(ares.error);
+int rng_sync(uint8_t* buf, uint32_t len, uint32_t num, int* num_received) {
+  int ret = rng_set_buffer(buf, len);
+  if (ret < 0) return ret;
 
-  subscribe_return_t sres = rng_set_callback(rng_upcall, (void*) &result);
-  if (!sres.success) return tock_error_to_rcode(sres.error);
+  ret = rng_set_callback(rng_upcall, (void*) &result);
+  if (ret < 0) return ret;
 
   result.fired = false;
-  syscall_return_t res = rng_get_random(num);
-  if (res.type == TOCK_SYSCALL_SUCCESS) {
-    yield_for(&result.fired);
-    return result.received;
-  } else if (res.type == TOCK_SYSCALL_FAILURE) {
-    // We assume that after an error the callback is not called
-    return tock_error_to_rcode(res.data[0]);
-  } else {
-    // Unexpected return code variant
-    exit(-1);
-  }
+  ret = rng_get_random(num);
+  if (ret < 0) return ret;
+
+  yield_for(&result.fired);
+
+  *num_received = result.received;
+
+  return RETURNCODE_SUCCESS;
 }

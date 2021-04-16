@@ -68,7 +68,7 @@ int main(void) {
     ssize_t result = udp_send_to(packet, len, &destination);
 
     switch (result) {
-      case TOCK_SUCCESS:
+      case RETURNCODE_SUCCESS:
         if (DEBUG) {
           printf("Packet sent.\n\n");
         }

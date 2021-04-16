@@ -23,9 +23,10 @@ int rng_async(subscribe_upcall callback, uint8_t* buf, uint32_t len, uint32_t nu
  *    buf: user defined buffer.
  *    len: length of buffer.
  *    num: number of random bytes requested.
- *  returns number of random bytes acquired on success, negative on failure.
+ *    num_received: pointer which will be set with number of bytes received.
+ *  returns ReturnCode.
  */
-int rng_sync(uint8_t* buf, uint32_t len, uint32_t num);
+int rng_sync(uint8_t* buf, uint32_t len, uint32_t num, int* num_received);
 
 /*  rng_set_callback()
  *  Registers a callback function that is called when requested randomness is
@@ -35,21 +36,21 @@ int rng_sync(uint8_t* buf, uint32_t len, uint32_t num);
  *      where receieved is the number of random bytes actually returned by the rng.
  *    callback_args: unused.
  */
-subscribe_return_t rng_set_callback(subscribe_upcall callback, void* callback_args);
+int rng_set_callback(subscribe_upcall callback, void* callback_args);
 
 /*  rng_set_buffer()
  *  Registers buffer to hold received randomness. Call before rng_get_random().
  *    buffer: pointer to uint8_t array to store randomness
  *    len: length of buffer.
  */
-allow_rw_return_t rng_set_buffer(uint8_t* buf, uint32_t len);
+int rng_set_buffer(uint8_t* buf, uint32_t len);
 
 /*  rng_get_random
  *  Starts random number generator. Call after rng_set_callback and
  *  rng_set_buffer.
  *    num_bytes: number of random bytes requested.
  */
-syscall_return_t rng_get_random(int num_bytes);
+int rng_get_random(int num_bytes);
 
 #ifdef __cplusplus
 }

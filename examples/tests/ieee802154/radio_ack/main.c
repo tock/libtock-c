@@ -30,10 +30,10 @@ int main(void) {
                               NULL,
                               packet_tx,
                               BUF_SIZE);
-    if (err == TOCK_SUCCESS) {
+    if (err == RETURNCODE_SUCCESS) {
       led_toggle(0);
       printf("Packet sent and acked.\n");
-    } else if (err == TOCK_ENOACK) {
+    } else if (err == RETURNCODE_ENOACK) {
       printf("Packet sent, but not acked.\n");
     } else {
       printf("Failed to send packet.\n");

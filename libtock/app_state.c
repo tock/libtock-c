@@ -17,12 +17,12 @@ static int app_state_init(void) {
   allow_ro_return_t aret =
     allow_readonly(DRIVER_NUM_APP_FLASH, 0, _app_state_ram_pointer, _app_state_size);
   if (!aret.success) {
-    return tock_error_to_rcode(aret.error);
+    return tock_status_to_returncode(aret.status);
   }
 
   // Check that we have a region to use for this.
   int number_regions = tock_app_number_writeable_flash_regions();
-  if (number_regions == 0) return TOCK_ENOMEM;
+  if (number_regions == 0) return RETURNCODE_ENOMEM;
 
   // Get the pointer to flash which we need to ask the kernel where it is.
   _app_state_flash_pointer = tock_app_writeable_flash_region_begins_at(0);
@@ -52,18 +52,12 @@ int app_state_save(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sret =
     subscribe(DRIVER_NUM_APP_FLASH, 0, callback, callback_args);
   if (!sret.success) {
-    return tock_error_to_rcode(sret.error);
+    return tock_status_to_returncode(sret.status);
   }
 
   syscall_return_t cret =
     command(DRIVER_NUM_APP_FLASH, 1, (uint32_t) _app_state_flash_pointer, 0);
-  if (cret.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (cret.type == TOCK_SYSCALL_FAILURE) {
-    return tock_error_to_rcode(cret.data[0]);
-  } else {
-    return TOCK_EBADRVAL;
-  }
+  return tock_command_return_novalue_to_returncode(cret);
 }
 
 

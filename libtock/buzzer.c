@@ -17,34 +17,32 @@ static void callback(__attribute__ ((unused)) int unused,
 }
 
 int buzzer_exists (void) {
-  return command (BUZZER_DRIVER, 0, 0, 0).type == TOCK_SYSCALL_SUCCESS;
+  return driver_exists(BUZZER_DRIVER);
 }
 
 int tone_sync (size_t frequency_hz, size_t duration_ms) {
   bool done = false;
-  subscribe_return_t sval = subscribe (BUZZER_DRIVER, 0, callback_sync, &done);
+  subscribe_return_t sval = subscribe(BUZZER_DRIVER, 0, callback_sync, &done);
   if (!sval.success) {
-    return tock_error_to_rcode(sval.error);
+    return tock_status_to_returncode(sval.status);
   }
 
-  syscall_return_t cval = command (BUZZER_DRIVER, 1, frequency_hz, duration_ms);
-  if (cval.type == TOCK_SYSCALL_SUCCESS) {
-    yield_for (&done);
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(cval.data[0]);
+  syscall_return_t cval = command(BUZZER_DRIVER, 1, frequency_hz, duration_ms);
+  if (cval.type != TOCK_SYSCALL_SUCCESS) {
+    return tock_command_return_novalue_to_returncode(cval);
   }
+
+  // Wait for tone to finish.
+  yield_for(&done);
+  return RETURNCODE_SUCCESS;
 }
 
 int tone (size_t frequency_hz, size_t duration_ms, void (*tone_done)(void)) {
-  subscribe_return_t sval = subscribe (BUZZER_DRIVER, 0, callback, tone_done);
+  subscribe_return_t sval = subscribe(BUZZER_DRIVER, 0, callback, tone_done);
   if (!sval.success) {
-    return tock_error_to_rcode(sval.error);
+    return tock_status_to_returncode(sval.status);
   }
-  syscall_return_t cval = command (BUZZER_DRIVER, 1, frequency_hz, duration_ms);
-  if (cval.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(cval.data[0]);
-  }
+
+  syscall_return_t cval = command(BUZZER_DRIVER, 1, frequency_hz, duration_ms);
+  return tock_command_return_novalue_to_returncode(cval);
 }

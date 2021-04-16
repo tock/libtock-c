@@ -54,8 +54,14 @@ static void multi_tocuh_event (int num_touches, int data2 __attribute__ ((unused
 }
 
 int main(void) {
-  int num_touches = get_number_of_touches ();
+  int err;
+  int num_touches;
+  err = get_number_of_touches (&num_touches);
+  if (err < 0) {
+    return -1;
+  }
   printf ("Number of touches: %d\n", num_touches);
+
   if (num_touches == 0) {
     printf ("No touch found\n");
   }else if (num_touches == 1) {

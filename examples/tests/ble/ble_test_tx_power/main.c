@@ -25,13 +25,13 @@ int main(void) {
 
     if (is_valid) {
       err = ble_set_tx_power(i);
-      if (err < TOCK_SUCCESS) {
+      if (err < RETURNCODE_SUCCESS) {
         printf("Test failed \t power_level %d could not be configured\r\n", i);
         return 0;
       }
     } else {
       err = ble_set_tx_power(i);
-      if (err >= TOCK_SUCCESS) {
+      if (err == RETURNCODE_SUCCESS) {
         printf("Test failed \t power_level %d is configured faulty\r\n", i);
         return 0;
       }

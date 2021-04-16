@@ -21,23 +21,12 @@ static void ltc294x_upcall(__attribute__ ((unused)) int callback_type,
 
 int ltc294x_set_callback (subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_LTC294X, 0, callback, callback_args);
-  if (sval.success) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(sval.error);
-  }
+  return tock_subscribe_return_to_returncode(sval);
 }
 
 int ltc294x_read_status(void) {
   syscall_return_t com = command(DRIVER_NUM_LTC294X, 1, 0, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int ltc294x_configure(ltc294x_model_e model,
@@ -67,124 +56,53 @@ int ltc294x_configure(ltc294x_model_e model,
   }
 
   syscall_return_t com = command(DRIVER_NUM_LTC294X, 10, model, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    // great
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  int ret = tock_command_return_novalue_to_returncode(com);
+  if (ret < 0) return ret;
 
   uint8_t cmd = (int_pin & 0x03) | ((M & 0x07) << 2) | ((vbat & 0x03) << 5);
   com = command(DRIVER_NUM_LTC294X, 2, cmd, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int ltc294x_reset_charge(void) {
   syscall_return_t com = command(DRIVER_NUM_LTC294X, 3, 0, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int ltc294x_set_high_threshold(uint16_t threshold) {
   syscall_return_t com = command(DRIVER_NUM_LTC294X, 4, threshold, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int ltc294x_set_low_threshold(uint16_t threshold) {
   syscall_return_t com = command(DRIVER_NUM_LTC294X, 5, threshold, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int ltc294x_get_charge(void) {
   syscall_return_t com = command(DRIVER_NUM_LTC294X, 6, 0, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int ltc294x_get_voltage(void) {
   syscall_return_t com = command(DRIVER_NUM_LTC294X, 8, 0, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int ltc294x_get_current(void) {
   syscall_return_t com = command(DRIVER_NUM_LTC294X, 9, 0, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int ltc294x_shutdown(void) {
   syscall_return_t com = command(DRIVER_NUM_LTC294X, 7, 0, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
 
 int ltc294x_set_model(ltc294x_model_e model) {
   syscall_return_t com = command(DRIVER_NUM_LTC294X, 10, model, 0);
-  if (com.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (com.type > TOCK_SYSCALL_SUCCESS) {
-    // Returned an incorrect success code
-    return TOCK_FAIL;
-  } else {
-    return tock_error_to_rcode(com.data[0]);
-  }
+  return tock_command_return_novalue_to_returncode(com);
 }
-
-
 
 int ltc294x_read_status_sync(void) {
   int err;
@@ -199,7 +117,7 @@ int ltc294x_read_status_sync(void) {
   // Wait for the ADC callback.
   yield_for(&result.fired);
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
 
 int ltc294x_configure_sync(ltc294x_model_e model,
@@ -218,7 +136,7 @@ int ltc294x_configure_sync(ltc294x_model_e model,
   // Wait for the ADC callback.
   yield_for(&result.fired);
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
 
 int ltc294x_reset_charge_sync(void) {
@@ -234,7 +152,7 @@ int ltc294x_reset_charge_sync(void) {
   // Wait for the ADC callback.
   yield_for(&result.fired);
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
 
 int ltc294x_set_high_threshold_sync(uint16_t threshold) {
@@ -250,7 +168,7 @@ int ltc294x_set_high_threshold_sync(uint16_t threshold) {
   // Wait for the ADC callback.
   yield_for(&result.fired);
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
 
 int ltc294x_set_low_threshold_sync(uint16_t threshold) {
@@ -266,10 +184,10 @@ int ltc294x_set_low_threshold_sync(uint16_t threshold) {
   // Wait for the ADC callback.
   yield_for(&result.fired);
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
 
-int ltc294x_get_charge_sync(void) {
+int ltc294x_get_charge_sync(int* charge) {
   int err;
   result.fired = false;
 
@@ -282,10 +200,12 @@ int ltc294x_get_charge_sync(void) {
   // Wait for the ADC callback.
   yield_for(&result.fired);
 
-  return result.charge;
+  *charge = result.charge;
+
+  return RETURNCODE_SUCCESS;
 }
 
-int ltc294x_get_voltage_sync(void) {
+int ltc294x_get_voltage_sync(int* voltage) {
   int err;
   result.fired = false;
 
@@ -298,10 +218,12 @@ int ltc294x_get_voltage_sync(void) {
   // Wait for the callback.
   yield_for(&result.fired);
 
-  return result.charge;
+  *voltage = result.charge;
+
+  return RETURNCODE_SUCCESS;
 }
 
-int ltc294x_get_current_sync(void) {
+int ltc294x_get_current_sync(int* current) {
   int err;
   result.fired = false;
 
@@ -314,7 +236,9 @@ int ltc294x_get_current_sync(void) {
   // Wait for the callback.
   yield_for(&result.fired);
 
-  return result.charge;
+  *current = result.charge;
+
+  return RETURNCODE_SUCCESS;
 }
 
 int ltc294x_shutdown_sync(void) {
@@ -330,7 +254,7 @@ int ltc294x_shutdown_sync(void) {
   // Wait for the ADC callback.
   yield_for(&result.fired);
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
 
 int ltc294x_convert_to_coulomb_uah(int c, int Rsense, uint16_t prescaler, ltc294x_model_e model) {

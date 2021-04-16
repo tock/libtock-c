@@ -20,22 +20,12 @@ static void temp_upcall(int temp,
 
 int temperature_set_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_TEMPERATURE, 0, callback, callback_args);
-  if (sval.success) {
-    return TOCK_SUCCESS;
-  } else {
-    return tock_error_to_rcode(sval.error);
-  }
+  return tock_subscribe_return_to_returncode(sval);
 }
 
 int temperature_read(void) {
-  syscall_return_t sval = command(DRIVER_NUM_TEMPERATURE, 1, 0, 0);
-  if (sval.type == TOCK_SYSCALL_SUCCESS) {
-    return TOCK_SUCCESS;
-  } else if (sval.type == TOCK_SYSCALL_FAILURE) {
-    return tock_error_to_rcode(sval.data[0]);
-  } else {
-    return TOCK_EBADRVAL;
-  }
+  syscall_return_t cval = command(DRIVER_NUM_TEMPERATURE, 1, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
 }
 
 int temperature_read_sync(int* temperature) {
@@ -53,6 +43,5 @@ int temperature_read_sync(int* temperature) {
 
   *temperature = result.temp;
 
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
-
