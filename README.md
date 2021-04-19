@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/tock/libtock-c.svg?branch=master)](https://travis-ci.org/tock/libtock-c)
+![Build Status](https://github.com/tock/libtock-c/workflows/ci/badge.svg)
 [![irc](https://img.shields.io/badge/irc-%23tock-lightgrey.svg)](https://kiwiirc.com/client/irc.freenode.net/tock)
 
 Tock Userland
