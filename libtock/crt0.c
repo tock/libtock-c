@@ -261,9 +261,9 @@ void _c_start_pic(uint32_t app_start, uint32_t mem_start) {
   // Fix up the Global Offset Table (GOT).
 
   // Get the address in memory of where the table should go.
-  volatile uint32_t* got_start = (uint32_t*)(myhdr->got_start + mem_start);
+  uint32_t* got_start = (uint32_t*)(myhdr->got_start + mem_start);
   // Get the address in flash of where the table currently is.
-  volatile uint32_t* got_sym_start = (uint32_t*)(myhdr->got_sym_start + app_start);
+  uint32_t* got_sym_start = (uint32_t*)(myhdr->got_sym_start + app_start);
   // Iterate all entries in the table and correct the addresses.
   for (uint32_t i = 0; i < (myhdr->got_size / (uint32_t)sizeof(uint32_t)); i++) {
     // Use the sentinel here. If the most significant bit is 0, then we know
