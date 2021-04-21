@@ -18,7 +18,8 @@ void _start(void* app_start __attribute__((unused)),
 
 #elif defined(__riscv)
   __asm__ volatile (
-      "li    a0, 0\n"
+      "li    a0, 1\n" // yield-wait
+      "li    a4, 0\n" // yield system call class
       "ecall\n"
       :
       :
