@@ -1,4 +1,4 @@
-// Do nothing. yield() immediately.
+// Crash immediately by executing a system call with an invalid system call class id
 
 // Define the `_start_` signature.
 void _start(void* app_start, void* mem_start, void* memory_len, void* app_heap_break);
