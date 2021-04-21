@@ -10,6 +10,7 @@ void _start(void* app_start __attribute__((unused)),
   // Yield.
 #if defined(__thumb__)
   __asm__ volatile (
+      "movs r0, #1 \n"
       "svc 0       \n"
       :
       :
