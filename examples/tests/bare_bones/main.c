@@ -3,6 +3,7 @@
 // Define the `_start_` signature.
 void _start(void* app_start, void* mem_start, void* memory_len, void* app_heap_break);
 
+__attribute__((naked))
 void _start(void* app_start __attribute__((unused)),
             void* mem_start __attribute__((unused)),
             void* memory_len __attribute__((unused)),
