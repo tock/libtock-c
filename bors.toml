@@ -1,8 +1,8 @@
 # List of commit statuses that must pass on the merge commit before it is
 # pushed to master.
 status = [
-  "ci-format",
-  "ci-build",
+  "ci-format (ubuntu-20.04)",
+  "ci-build (ubuntu-20.04)",
 ]
 
 # List of PR labels that may not be attached to a PR when it is r+-ed.
