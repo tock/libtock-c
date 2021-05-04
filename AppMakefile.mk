@@ -129,11 +129,7 @@ endef
 # generated
 define BUILD_RULES
 
-# Force this to be built every time so we always generate the needed ld file
-# with the correct addresses.
-.PHONY: _FORCE_USERLAND_LD_CUSTOM
-
-$$(BUILDDIR)/$(1)/$(2).custom.ld: $$(LAYOUT) _FORCE_USERLAND_LD_CUSTOM | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(2).custom.ld: $$(LAYOUT) | $$(BUILDDIR)/$(1)
 	@# Start with a copy of the template / generic ld script
 	$$(Q)cp $$< $$@
 	@# #616 #635: sed is not cross-platform
