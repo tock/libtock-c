@@ -55,14 +55,14 @@ ifeq ($(RISCV),)
 TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4 cortex-m7
 else
 # Include the RISC-V targets.
-#  rv32imac|rv32imac.0x20040040.0x80002400 # RISC-V for HiFive1b
+#  rv32imac|rv32imac.0x20040040.0x80002800 # RISC-V for HiFive1b
 #  rv32imac|rv32imac.0x404*.0x8000*        # RISC-V for arty-e21
 #  rv32imc|rv32imc.0x20030040.0x10003400   # RISC-V for OpenTitan
 TOCK_TARGETS ?= cortex-m0\
                 cortex-m3\
                 cortex-m4\
                 cortex-m7\
-                rv32imac|rv32imac.0x20040040.0x80002400|0x20040040|0x80002400\
+                rv32imac|rv32imac.0x20040040.0x80002800|0x20040040|0x80002800\
                 rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000\
                 rv32imac|rv32imac.0x40440060.0x80007000|0x40440060|0x80007000\
                 rv32imc|rv32imc.0x20030080.0x10005000|0x20030080|0x10005000
