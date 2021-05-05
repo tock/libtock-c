@@ -9,7 +9,7 @@ should be around 1 seconds with a margin of error within 1 millisecond.
 
 To run the test,
 ```bash
-python3 gpio_test.py Nrf52840GpioTest
+sudo python3 gpio_test.py Nrf52840GpioTest
 ```
 
 Switch board name to the test you intend to run. Otherwise, python unittest
