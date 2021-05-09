@@ -19,9 +19,14 @@ class Pin:
     def __init__(self, pin_no, pin_name = None):
         # Set initial variables to invalid value
         self.pin = InputDevice(pin_no)
+
+        # Monitor variable
         self.prev_state = -1
         self.prev_toggle_time = -1
         self.toggle_period = -1
+
+        # Test variable
+        self.has_toggled = False
 
     def read_pin(self):
         """Reads input state and record toggle if a toggle of pin has been 
@@ -30,17 +35,16 @@ class Pin:
         Argument:
         state (boolean) - Input state of pin
         """
-        if self.is_toggled():
-            self.toggle_period = -1
-            self.prev_toggle_time = -1
 
+        # Check current pin state
         if self.pin.value:
             if self.prev_state == 0:
                 # Toggle appeared
                 if self.prev_toggle_time > 0:
                     self.toggle_period = time.time() - self.prev_toggle_time
-                else:
-                    self.prev_toggle_time = time.time()
+                    self.has_toggled = True
+
+                self.prev_toggle_time = time.time()
                 
             self.prev_state = 1
 
@@ -49,13 +53,18 @@ class Pin:
                 # Toggle appeared
                 if self.prev_toggle_time > 0:
                     self.toggle_period = time.time() - self.prev_toggle_time
-                else:
-                    self.prev_toggle_time = time.time()
+                    self.has_toggled = True
+
+                self.prev_toggle_time = time.time()
             
             self.prev_state = 0
 
+    def reset(self):
+        """Reset will only reset value of toggle_period by design"""
+        self.toggle_period = -1
+
     def is_toggled(self):
-        """Return if the toggle has been recorded"""
+        """Check if the pin has been toggled in the past cycle"""
         return self.toggle_period > 0
 
 ################################################################################
@@ -83,29 +92,64 @@ logger.info('Initiating GPIO test...',
 ################################################################################
 
 class GpioTest(unittest.TestCase):
+    def within_margin_error(self, value, target, margin_err):
+        """Check if the value is within the given margin of error"""
+        return value < target + margin_err and value > target - margin_err
+
     # Since the test toggles pin 0 every 1 second, the tester shall poll the pin
     # state twice the output rate to capture the changes.
-    def test_toggle(self):
+    def test_sync_toggle(self):
         """Monitoring pin state every 500 ms
         
         Note: Since the test toggles pin every 1 second, the tester shall poll
         the pin state twice the output rate to capture the changes.
         """
         # Change line from docs to logging info
-        print('\n')
+        print()
 
-        for n in range(8):
-            logger.info(
-                ('P0 state: high' 
-                if self.P0.pin.value 
-                else 'P0 state: low'),
-                extra={'timegap': time_gap(TEST_START_TIME)})
-            self.P0.read_pin()
-            if self.P0.is_toggled():
-                logger.info(f'D0 state toggled in {self.P0.toggle_period}s',
+        TEST_CYCLE_TIME = 8
+        EXPECTED_TIME_PERIOD = 1
+        MOE = 0.01
+        MAX_PIN_NO = 5
+
+        for pin_no in range(0, MAX_PIN_NO):
+            # If pin exists
+            if hasattr(self, f'P{pin_no}'):
+                pin_wrapper = getattr(self, f'P{pin_no}')
+
+                # Monitor pin over cycle count
+                for n in range(TEST_CYCLE_TIME):
+
+                    # Log pin state
+                    logger.info(
+                        (f'P{pin_no} state: high' 
+                        if pin_wrapper.pin.value 
+                        else f'P{pin_no} state: low'),
+                        extra={'timegap': time_gap(TEST_START_TIME)})
+                
+                    pin_wrapper.read_pin()
+
+                    # If pin just toggled
+                    if pin_wrapper.is_toggled():
+                        logger.info(
+                            (f'P{pin_no} state toggled in ' +
+                            f'{pin_wrapper.toggle_period}s'),
                             extra={'timegap': time_gap(TEST_START_TIME)})
 
-            time.sleep(0.5)
+                        # ASSERT toggle period around 1 second
+                        self.assertTrue(
+                            self.within_margin_error(pin_wrapper.toggle_period,
+                                                    EXPECTED_TIME_PERIOD,
+                                                    MOE))
+
+                        pin_wrapper.reset()
+
+                    # End of cycle, go to sleep
+                    time.sleep(0.5)
+
+                # Ensure pin has toggled
+                self.assertTrue(pin_wrapper.has_toggled)
+            
 
 class Nrf52840GpioTest(GpioTest):
     def setUp(self):
