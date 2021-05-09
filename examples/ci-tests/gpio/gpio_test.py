@@ -6,6 +6,10 @@ import time
 import unittest
 from gpiozero import InputDevice
 
+################################################################################
+# Helper classes and functions
+################################################################################
+
 def time_gap(start_time):
     """Return time gap between current time and start_time
 
@@ -67,6 +71,8 @@ class Pin:
         """Check if the pin has been toggled in the past cycle"""
         return self.toggle_period > 0
 
+# END
+
 ################################################################################
 # Start test and logger
 ################################################################################
@@ -88,7 +94,7 @@ logger.info('Initiating GPIO test...',
 # END
 
 ################################################################################
-# Test Cases
+# Test Case Module
 ################################################################################
 
 class GpioTest(unittest.TestCase):
@@ -149,7 +155,12 @@ class GpioTest(unittest.TestCase):
 
                 # Ensure pin has toggled
                 self.assertTrue(pin_wrapper.has_toggled)
-            
+
+# END
+
+################################################################################
+# Test Case Setup
+################################################################################
 
 class Nrf52840GpioTest(GpioTest):
     def setUp(self):
@@ -159,6 +170,12 @@ class Nrf52840GpioTest(GpioTest):
         self.P2 = Pin(13)
         self.P3 = Pin(19)
         self.P4 = Pin(26)
+
+# END
+
+################################################################################
+# Main
+################################################################################
 
 if __name__ == '__main__':
     unittest.main()
