@@ -566,7 +566,8 @@ void* tock_app_writeable_flash_region_ends_at(int region_index) {
 
 bool driver_exists(uint32_t driver) {
   syscall_return_t sval = command(driver, 0, 0, 0);
-  if (sval.type == TOCK_SYSCALL_SUCCESS) {
+  // Any success type says the driver exists.
+  if (sval.type >= TOCK_SYSCALL_SUCCESS) {
     return true;
   } else {
     return false;
