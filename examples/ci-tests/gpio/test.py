@@ -162,7 +162,7 @@ class GpioTest(unittest.TestCase):
 # Test Case Setup
 ################################################################################
 
-class Nrf52840GpioTest(GpioTest):
+class Nrf52840Test(GpioTest):
     def setUp(self):
         # Assign input pins
         self.P0 = Pin(5)
