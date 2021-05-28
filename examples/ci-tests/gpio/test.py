@@ -1,4 +1,4 @@
-# gpio_test.py
+# GPIO Test
 # This tester corresponds to libtock-c/examples/ci-tests/gpio test.
 
 import logging
