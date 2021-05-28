@@ -70,10 +70,11 @@ class BleTest(unittest.TestCase):
 # Test Case Setup
 ################################################################################
 
-class Nrf52840Test(GpioTest):
+class Nrf52840Test(BleTest):
     def setUp(self):
         logger.info('Setting up for nrf52840dk BLE test...',
             extra={'timegap': time_gap(TEST_START_TIME)})
+
 # END
 
 ################################################################################
