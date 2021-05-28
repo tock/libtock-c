@@ -5,6 +5,7 @@ import logging
 import time
 import unittest
 import os
+import subprocess
 
 ################################################################################
 # Helper classes and functions
@@ -56,7 +57,13 @@ class BleTest(unittest.TestCase):
         print() # Line change
         os.system('sudo systemctl status hciuart')
         print() # Line change
-        os.system('timeout 5 sudo hcitool lescan')
+        proc = subprocess.Popen(['sudo', 'hcitool', 'lescan'])
+
+        try:
+            proc.communicate(timeout=5)
+        except subprocess.TimeoutExpired:
+            logger.info('Scan ended.',
+                extra={'timegap': time_gap(TEST_START_TIME)})
 
         # Restart bluetooth
         # Note: the scanning process is corrupted whenever we try to kill it, so
