@@ -164,6 +164,9 @@ class GpioTest(unittest.TestCase):
 
 class Nrf52840Test(GpioTest):
     def setUp(self):
+        logger.info('Setting up for nrf52840dk GPIO test...',
+            extra={'timegap': time_gap(TEST_START_TIME)})
+
         # Assign input pins
         self.P0 = Pin(5)
         self.P1 = Pin(6)
