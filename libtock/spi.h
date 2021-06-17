@@ -8,6 +8,11 @@ extern "C" {
 
 #define DRIVER_NUM_SPI 0x20001
 
+int spi_set_callback(subscribe_upcall callback, void* callback_args);
+
+int spi_set_master_write_buffer(const uint8_t* buffer, uint32_t len);
+int spi_set_master_read_buffer(uint8_t* buffer, uint32_t len);
+
 /* SPI system calls */
 int spi_init(void);
 /* All SPI operations depend on which peripheral is

@@ -60,6 +60,21 @@ int spi_write_byte(unsigned char byte) {
   return tock_command_return_novalue_to_returncode(cval);
 }
 
+int spi_set_callback(subscribe_upcall callback, void* callback_args) {
+  subscribe_return_t sval = subscribe(DRIVER_NUM_SPI, 0, callback, callback_args);
+  return tock_subscribe_return_to_returncode(sval);
+}
+
+int spi_set_master_write_buffer(const uint8_t* buffer, uint32_t len) {
+  allow_ro_return_t aval = allow_readonly(DRIVER_NUM_SPI, 0, (const void*) buffer, len);
+  return tock_allow_ro_return_to_returncode(aval);
+}
+
+int spi_set_master_read_buffer(uint8_t* buffer, uint32_t len) {
+  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_SPI, 0, (void*) buffer, len);
+  return tock_allow_rw_return_to_returncode(aval);
+}
+
 static void spi_upcall(__attribute__ ((unused)) int unused0,
                        __attribute__ ((unused)) int unused1,
                        __attribute__ ((unused)) int unused2,
@@ -70,11 +85,17 @@ static void spi_upcall(__attribute__ ((unused)) int unused0,
 int spi_write(const char* buf,
               size_t len,
               subscribe_upcall cb, bool* cond) {
-  allow_ro_return_t aval = allow_readonly(DRIVER_NUM_SPI, 0, buf, len);
-  if (aval.success == 0 ) return tock_status_to_returncode(aval.status);
+  int ret = 0;
 
-  subscribe_return_t sval = subscribe(DRIVER_NUM_SPI, 0, cb, cond);
-  if (sval.success == 0) return tock_status_to_returncode(sval.status);
+  ret = spi_set_master_write_buffer((const uint8_t*) buf, len);
+  if (ret != RETURNCODE_SUCCESS) {
+    return ret;
+  }
+
+  ret = spi_set_callback(cb, cond);
+  if (ret != RETURNCODE_SUCCESS) {
+    return ret;
+  }
 
   syscall_return_t cval = command(DRIVER_NUM_SPI, 2, len, 0);
   return tock_command_return_novalue_to_returncode(cval);
@@ -84,9 +105,12 @@ int spi_read_write(const char* write,
                    char* read,
                    size_t len,
                    subscribe_upcall cb, bool* cond) {
+  int ret = 0;
 
-  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_SPI, 0, (void*)read, len);
-  if (aval.success == 0) return tock_status_to_returncode(aval.status);
+  ret = spi_set_master_read_buffer((uint8_t*) read, len);
+  if (ret != RETURNCODE_SUCCESS) {
+    return ret;
+  }
 
   return spi_write(write, len, cb, cond);
 }
