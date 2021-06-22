@@ -50,4 +50,6 @@ int main(void) {
   printf("   done\r\n");
 
   yield();
+
+  return 0;
 }
