@@ -26,9 +26,9 @@ int i2c_master_slave_set_callback(subscribe_upcall callback, void* callback_args
   return tock_subscribe_return_to_returncode(sval);
 }
 
-int i2c_master_slave_set_master_write_buffer(uint8_t* buffer, uint32_t len) {
-  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_I2CMASTERSLAVE, 0, (void*) buffer, len);
-  return tock_allow_rw_return_to_returncode(aval);
+int i2c_master_slave_set_master_write_buffer(const uint8_t* buffer, uint32_t len) {
+  allow_ro_return_t aval = allow_readonly(DRIVER_NUM_I2CMASTERSLAVE, 0, (const void*) buffer, len);
+  return tock_allow_ro_return_to_returncode(aval);
 }
 
 int i2c_master_slave_set_master_read_buffer(uint8_t* buffer, uint32_t len) {
@@ -36,9 +36,9 @@ int i2c_master_slave_set_master_read_buffer(uint8_t* buffer, uint32_t len) {
   return tock_allow_rw_return_to_returncode(aval);
 }
 
-int i2c_master_slave_set_slave_read_buffer(uint8_t* buffer, uint32_t len) {
-  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_I2CMASTERSLAVE, 2, (void*) buffer, len);
-  return tock_allow_rw_return_to_returncode(aval);
+int i2c_master_slave_set_slave_read_buffer(const uint8_t* buffer, uint32_t len) {
+  allow_ro_return_t aval = allow_readonly(DRIVER_NUM_I2CMASTERSLAVE, 2, (const void*) buffer, len);
+  return tock_allow_ro_return_to_returncode(aval);
 }
 
 int i2c_master_slave_set_slave_write_buffer(uint8_t* buffer, uint32_t len) {
@@ -52,6 +52,7 @@ int i2c_master_slave_write(uint8_t address, uint8_t length) {
   return tock_command_return_novalue_to_returncode(cval);
 }
 
+// Data is written from the write buffer and then read into the read buffer
 int i2c_master_slave_write_read(uint8_t address, uint8_t write_length, uint8_t read_length) {
   uint32_t a = (((uint32_t) write_length) << 16) | ((uint32_t) read_length << 8) | address;
   syscall_return_t cval = command(DRIVER_NUM_I2CMASTERSLAVE, 7, a, 0);
