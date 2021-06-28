@@ -17,13 +17,13 @@ int hmac_set_callback (subscribe_upcall callback, void* callback_args) {
 }
 
 int hmac_set_key_buffer(uint8_t* buffer, uint32_t len) {
-  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_HMAC, TOCK_HMAC_KEY_BUF, (void*) buffer, len);
-  return tock_allow_rw_return_to_returncode(aval);
+  allow_ro_return_t aval = allow_readonly(DRIVER_NUM_HMAC, TOCK_HMAC_KEY_BUF, (void*) buffer, len);
+  return tock_allow_ro_return_to_returncode(aval);
 }
 
 int hmac_set_data_buffer(uint8_t* buffer, uint32_t len) {
-  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_HMAC, TOCK_HMAC_DATA_BUF, (void*) buffer, len);
-  return tock_allow_rw_return_to_returncode(aval);
+  allow_ro_return_t aval = allow_readonly(DRIVER_NUM_HMAC, TOCK_HMAC_DATA_BUF, (void*) buffer, len);
+  return tock_allow_ro_return_to_returncode(aval);
 }
 
 int hmac_set_dest_buffer(uint8_t* buffer, uint32_t len) {
