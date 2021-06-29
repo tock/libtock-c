@@ -14,6 +14,8 @@ int hmac_set_dest_buffer(uint8_t* buffer, uint32_t len);
 
 int hmac_set_algorithm(uint8_t hash);
 int hmac_run(void);
+int hmac_update(void);
+int hmac_finish(void);
 
 #ifdef __cplusplus
 }

@@ -10,6 +10,8 @@
 
 #define TOCK_HMAC_SET_ALGORITHM   0
 #define TOCK_HMAC_RUN             1
+#define TOCK_HMAC_UPDATE          2
+#define TOCK_HMAC_FINISH          3
 
 int hmac_set_callback (subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_HMAC, TOCK_HMAC_CB, callback, callback_args);
@@ -38,5 +40,15 @@ int hmac_set_algorithm(uint8_t hash) {
 
 int hmac_run(void) {
   syscall_return_t cval = command(DRIVER_NUM_HMAC, TOCK_HMAC_RUN, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
+}
+
+int hmac_update(void) {
+  syscall_return_t cval = command(DRIVER_NUM_HMAC, TOCK_HMAC_UPDATE, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
+}
+
+int hmac_finish(void) {
+  syscall_return_t cval = command(DRIVER_NUM_HMAC, TOCK_HMAC_FINISH, 0, 0);
   return tock_command_return_novalue_to_returncode(cval);
 }
