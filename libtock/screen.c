@@ -28,7 +28,7 @@ static int screen_subscribe (subscribe_upcall cb, void *userdata) {
   return tock_subscribe_return_to_returncode(sval);
 }
 
-static int screen_allow (void* ptr, size_t size) {
+static int screen_allow (const void* ptr, size_t size) {
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_SCREEN, 0, ptr, size);
   return tock_allow_ro_return_to_returncode(aval);
 }
