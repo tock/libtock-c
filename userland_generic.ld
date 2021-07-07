@@ -190,6 +190,9 @@ SECTIONS {
       *(.ARM.exidx* .gnu.linkonce.armexidx.*)
     } > FLASH
     PROVIDE_HIDDEN (__exidx_end = .);
+
+    /* used for LINUX */
+    /DISCARD/ : {*(*)}
 }
 
 ASSERT(_got <= _bss, "
