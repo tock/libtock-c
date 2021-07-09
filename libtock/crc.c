@@ -5,8 +5,8 @@ int crc_exists(void) {
   return driver_exists(DRIVER_NUM_CRC);
 }
 
-int crc_request(enum crc_alg alg) {
-  syscall_return_t ret = command(DRIVER_NUM_CRC, 2, alg, 0);
+int crc_request(enum crc_alg alg, size_t len) {
+  syscall_return_t ret = command(DRIVER_NUM_CRC, 1, alg, (uint32_t)len);
   if (ret.type == TOCK_SYSCALL_SUCCESS) {
     return RETURNCODE_SUCCESS;
   } else {
@@ -33,7 +33,6 @@ struct data {
 
 static void callback(int status, int v1, __attribute__((unused)) int v2, void *data) {
   struct data *d = data;
-
   d->fired  = true;
   d->status = status;
   d->result = v1;
@@ -42,12 +41,11 @@ static void callback(int status, int v1, __attribute__((unused)) int v2, void *d
 int crc_compute(const void *buf, size_t buflen, enum crc_alg alg, uint32_t *result) {
   struct data d = { .fired = false };
   int ret;
-
   ret = crc_set_buffer(buf, buflen);
   if (ret < 0) return ret;
   ret = crc_subscribe(callback, (void *) &d);
   if (ret < 0) return ret;
-  ret = crc_request(alg);
+  ret = crc_request(alg, buflen);
   if (ret < 0) return ret;
   yield_for(&d.fired);
 
