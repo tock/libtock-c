@@ -48,10 +48,9 @@ int main(void) {
   while (1) {
     for (int test_index = 0; test_index < n_test_cases; test_index++) {
       struct test_case *t = &test_cases[test_index];
-
       uint32_t result;
       if ((r = crc_compute(t->input, strlen(t->input), t->alg, &result)) != RETURNCODE_SUCCESS) {
-        printf("CRC compute failed: %d\n", r);
+        printf("CRC compute failed: %s\n", tock_strrcode(r));
         exit(1);
       }
 

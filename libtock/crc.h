@@ -22,11 +22,7 @@ enum crc_alg {
     CRC_32C,
 
     /// Polynomial 0x1021, no output post-processing
-    CRC_SAM4L_16,
-    /// Polynomial 0x04C11DB7, no output post-processing
-    CRC_SAM4L_32,
-    /// Polynomial 0x1EDC6F41, no output post-processing
-    CRC_SAM4L_32C,
+    CRC_16CCITT,
 };
 
 // Does the driver exist?
@@ -58,7 +54,7 @@ int crc_set_buffer(const void*, size_t);
 //
 // Returns EBUSY if a computation is already in progress.
 // Returns ESIZE if the buffer is too big for the unit.
-int crc_request(enum crc_alg);
+int crc_request(enum crc_alg, size_t len);
 
 #ifdef __cplusplus
 }
