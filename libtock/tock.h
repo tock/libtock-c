@@ -165,6 +165,9 @@ __attribute__ ((warn_unused_result))
 allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, size_t size);
 
 __attribute__ ((warn_unused_result))
+allow_rw_return_t allow_shared(uint32_t driver, uint32_t allow, void* ptr, size_t size);
+
+__attribute__ ((warn_unused_result))
 allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size);
 
 // Call the memop syscall.

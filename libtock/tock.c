@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "ros.h"
 #include "tock.h"
 
 typedef struct {
@@ -99,6 +100,24 @@ int tock_allow_ro_return_to_returncode(allow_ro_return_t allow_return) {
 void yield_for(bool *cond) {
   while (!*cond) {
     yield();
+  }
+}
+
+int quick_yield(void* base) {
+  if (task_cur != task_last) {
+    tock_task_t task = task_queue[task_cur];
+    task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
+    task.cb(task.arg0, task.arg1, task.arg2, task.ud);
+    return 1;
+  } else {
+    uint32_t tasks = ros_get_pending_tasks(base);
+
+    if (tasks > 0) {
+      // Waiting tasks, call yield
+      yield();
+    }
+
+    return tasks;
   }
 }
 
@@ -317,6 +336,33 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, si
   }
 }
 
+allow_rw_return_t allow_shared(uint32_t driver, uint32_t allow, void* ptr, size_t size) {
+  register uint32_t r0 __asm__ ("r0")       = driver;
+  register uint32_t r1 __asm__ ("r1")       = allow;
+  register const void*    r2 __asm__ ("r2") = ptr;
+  register size_t r3 __asm__ ("r3")         = size;
+  register int rtype __asm__ ("r0");
+  register int rv1 __asm__ ("r1");
+  register int rv2 __asm__ ("r2");
+  register int rv3 __asm__ ("r3");
+  __asm__ volatile (
+    "svc 7"
+    : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
+    : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
+    : "memory"
+    );
+  if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    allow_rw_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
+    return rv;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
+    allow_rw_return_t rv = {false, (void*)rv2, (size_t)rv3, (statuscode_t)rv1};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(1);
+  }
+}
+
 void* memop(uint32_t op_type, int arg1) {
   register uint32_t r0 __asm__ ("r0") = op_type;
   register int r1 __asm__ ("r1")      = arg1;
@@ -464,6 +510,34 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
   register int rv3  __asm__ ("a3");
   __asm__ volatile (
     "li    a4, 3\n"
+    "ecall\n"
+    : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
+    : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
+    : "memory");
+  if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    allow_rw_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
+    return rv;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
+    allow_rw_return_t rv = {false, (void*)rv2, (size_t)rv3, (statuscode_t)rv1};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(1);
+  }
+}
+
+allow_rw_return_t allow_shared(uint32_t driver, uint32_t allow,
+                               void* ptr, size_t size) {
+  register uint32_t a0  __asm__ ("a0") = driver;
+  register uint32_t a1  __asm__ ("a1") = allow;
+  register void*    a2  __asm__ ("a2") = ptr;
+  register size_t a3  __asm__ ("a3")   = size;
+  register int rtype __asm__ ("a0");
+  register int rv1  __asm__ ("a1");
+  register int rv2  __asm__ ("a2");
+  register int rv3  __asm__ ("a3");
+  __asm__ volatile (
+    "li    a4, 7\n"
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
     : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
