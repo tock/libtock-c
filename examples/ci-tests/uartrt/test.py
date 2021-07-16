@@ -8,14 +8,11 @@ TARGET_ACKNOWLEDGEMENT = ""
 sp = serial.Serial(port="/dev/ttyACM0", baudrate=115200, bytesize=8, timeout=2)
 ser = serial.Serial(port="/dev/ttyS0", baudrate=115200, bytesize=8, parity="N", stopbits=1);
 print("Starting Uart Rx/TX Test...\n")
-#replace with true
 while(1):
     c = random.randint(65, 90)
-    #c = "H"
-    #time.sleep(5)
     message = chr(c)
     ser.write(struct.pack('<H', c))
-    #ser.print(c)
+
     
     time.sleep(5)
     if(sp.in_waiting > 0):
@@ -33,19 +30,6 @@ while(1):
                 print("Correct Serial Communication Message Received")
                 break
        
-    #print("Message sent: " + message)
-    #time.sleep(5)
-    #message_received = sp.readline()
-    #message_received = message_received.decode("Ascii")
-    #print("Message: " + message_received + "\n")
-    #char_received = message_received[0]
-    #print("Echoed: " + char_received)
-
-    #if(char_received == message):
-        #print("Correct Serial Communication Message Received")
-        #break
-    
-
 
 print("Uart Rx/Tx Test Passes")
 sp.close()
@@ -53,5 +37,4 @@ ser.close()
 sp.open()
 ser.open()
 time.sleep(4)
-# print("C")
 ser.write(b"yeah")
