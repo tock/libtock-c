@@ -24,6 +24,9 @@ static void sha_cb(__attribute__((unused)) int result,
 int main(void) {
   printf("[TEST] SHA Example Test\r\n");
 
+  // Set SHA256 as the algorithm
+  sha_set_algorithm(0);
+
   printf("Loading in the data buf...\r\n");
   TOCK_EXPECT(RETURNCODE_SUCCESS, sha_set_data_buffer(data_buf, DATA_LEN));
   printf("   done\r\n");
