@@ -38,3 +38,9 @@ sp.open()
 ser.open()
 time.sleep(4)
 ser.write(b"yeah")
+
+
+class Nrf52840Test(UartTest):
+    def setUp(self):
+        logger.info('Setting up for nrf52840dk Uart Rx/Tx test...',
+            extra={'timegap': time_gap(TEST_START_TIME)})
