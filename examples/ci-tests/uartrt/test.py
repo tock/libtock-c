@@ -39,6 +39,33 @@ ser.open()
 time.sleep(4)
 ser.write(b"yeah")
 
+class UartTest(unittest.TestCase):
+    def test_uart_rx_tx:
+        while(1):
+            c = random.randint(65, 90)
+            message = chr(c)
+            ser.write(struct.pack('<H', c))
+
+    
+            time.sleep(5)
+            if(sp.in_waiting > 0):
+                # print("A")
+                print("Message sent: " + message)
+                #time.sleep(5)
+                sp.readline()
+                if(sp.in_waiting > 0):
+                    message_received = sp.readline()
+                    message_received = message_received.decode("Ascii")
+                    print("Message: " + message_received)
+                    char_received = message_received[-1]
+                    print("Echoed: " + char_received + "\n")
+                    if(char_received == message):
+                        print("Correct Serial Communication Message Received")
+                        self.assertTrue(true)
+                        break
+        
+        
+
 
 class Nrf52840Test(UartTest):
     def setUp(self):
