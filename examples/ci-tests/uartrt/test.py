@@ -1,3 +1,5 @@
+import logging
+import unittest
 import serial
 import time
 import random
@@ -76,8 +78,15 @@ logger.info('Initiating UART test...',
 ################################################################################
 
 class UartTest(unittest.TestCase):
-    def test_uart_rx_tx:
+    def test_uart_rx_tx(self):
         while(1):
+            logger.info('Waiting for message...',
+                extra={'timegap': time_gap(TEST_START_TIME)})
+            
+            buffer_period = float(time_gap(TEST_START_TIME))
+            if(buffer_period > 45.0):
+                self.assertTrue(False)
+            
             c = random.randint(65, 90)
             TARGET_ACKNOWLEDGEMENT = chr(c)
             ser.write(struct.pack('<H', c))
@@ -88,7 +97,7 @@ class UartTest(unittest.TestCase):
             time.sleep(5)
             if(sp.in_waiting > 0):
                 # print("A")
-                logger.info('Message sent: ' + TARGET_ACKNNOWLEDGEMENT,
+                logger.info('Message sent: ' + TARGET_ACKNOWLEDGEMENT,
                            extra={'timegap': time_gap(TEST_START_TIME)})
                 #time.sleep(5)
                 sp.readline()
@@ -99,10 +108,14 @@ class UartTest(unittest.TestCase):
                     char_received = message_received[-1]
                     #print("Echoed: " + char_received + "\n")
                     if(char_received == TARGET_ACKNOWLEDGEMENT):
-                        print("Message Received (r[character]): " + message_received)
-                        print("Echoed: " + char_received + "\n")
+                        logger.info("Message Received (r[character]): " + message_received,
+                                   extra={'timegap': time_gap(TEST_START_TIME)})
+                        logger.info("Echoed: " + char_received,
+                                   extra={'timegap': time_gap(TEST_START_TIME)})
                         print("Correct Serial Communication Message Received")
-                        self.assertTrue(true)
+                        self.assertTrue(True)
+                        sp.close()
+                        ser.close()
                         break
         
 # END
