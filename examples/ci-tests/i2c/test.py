@@ -1,8 +1,6 @@
 from smbus import SMBus
 import time
-import os
 import logging
-import subprocess
 import unittest
 import serial
 
@@ -31,7 +29,7 @@ def message_converter(message):
     encoded = []                    # Encoded message for ascii values
     chars = list(message)           # Spliting the string message into characters
     
-    for items in char:
+    for items in chars:
         encoded.append(ord(items))  # Filling encoded with ascii values of characters
     
     return encoded
@@ -62,40 +60,47 @@ logger.info('Initiating I2C Rx test...',
 # Test Case Module
 ################################################################################
 
-class I2CRxTest:
+class I2CRxTest(unittest.TestCase):
     def test_i2c_slave_configuration(self):
         
         print()
-        logger.info('Sending I2C Message: ' + ,
+        logger.info('Sending I2C Message: ' + MESSAGE,
             extra={'timegap': time_gap(TEST_START_TIME)})
         
         received = False
         
         message_to_send = message_converter(MESSAGE)
 
+        time.sleep(1)
         try:
             bus.write_i2c_block_data(ADDRESS, MASTER, message_to_send)
             
-            logger.info('Message sent Sucessfully: {MESSAGE}\n' + scan_result_str,
+            logger.info('Message Sent Sucessfully.\n',
                         extra={'timegap': time_gap(TEST_START_TIME)})
-
+            time.sleep(1)
             received = True
         except OSError:
             print("OS error: {0}".format(err))
 
-            logger.info('Test failed...' + scan_result_str,
+            logger.info('Test failed...',
                         extra={'timegap': time_gap(TEST_START_TIME)})
             print()
+
+            time.sleep(1)
         except TimeoutError:
-            logger.info('Connection is poor: Time out error...\n' + scan_result_str,
+            logger.info('Connection is poor: Time out error...\n',
                         extra={'timegap': time_gap(TEST_START_TIME)})
 
-            logger.info('Test failed...' + scan_result_str,
+            logger.info('Test failed...',
                         extra={'timegap': time_gap(TEST_START_TIME)})
             print()
+
+            time.sleep(1)
         finally:
-            logger.info('I2C Communication Ended...' + scan_result_str,
+            logger.info('I2C Communication Ended...',
                         extra={'timegap': time_gap(TEST_START_TIME)})
+
+            time.sleep(1)
             self.assertTrue(received)
 # END
 
