@@ -86,7 +86,7 @@ UPGRADE_ELF2TAB := $(shell $(SHELL) -c "printf '%s\n%s\n' '$(ELF2TAB_REQUIRED_VE
 
 ifeq ($(UPGRADE_ELF2TAB),yes)
   $(info Trying to update elf2tab to >= $(ELF2TAB_REQUIRED_VERSION))
-  override undefine ELF2TAB_EXISTS
+  ELF2TAB_EXISTS =
 endif
 
 ifndef ELF2TAB_EXISTS
