@@ -25,6 +25,10 @@ STACK_SIZE       ?= 2048
 APP_HEAP_SIZE    ?= 1024
 KERNEL_HEAP_SIZE ?= 1024
 
+# Set default required kernel version
+KERNEL_MAJOR_VERSION     ?= 2
+KERNEL_MINOR_VERSION     ?= 0
+
 # PACKAGE_NAME is used to identify the application for IPC and for error reporting
 PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 
@@ -73,12 +77,30 @@ TOCK_ARCHS := $(sort $(foreach target, $(TOCK_TARGETS), $(firstword $(subst |, ,
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
+ELF2TAB_REQUIRED_VERSION := 0.7.0
 ELF2TAB_EXISTS := $(shell $(SHELL) -c "command -v $(ELF2TAB)")
+ELF2TAB_VERSION := $(shell $(SHELL) -c "$(ELF2TAB) --version | cut -d ' ' -f 2")
+
+# Check elf2tab version
+UPGRADE_ELF2TAB := $(shell $(SHELL) -c "printf '%s\n%s\n' '$(ELF2TAB_REQUIRED_VERSION)' '$(ELF2TAB_VERSION)' | sort --check=quiet --version-sort || echo yes")
+
+ifeq ($(UPGRADE_ELF2TAB),yes)
+  $(info Trying to update elf2tab to >= $(ELF2TAB_REQUIRED_VERSION))
+  ELF2TAB_EXISTS =
+endif
+
 ifndef ELF2TAB_EXISTS
   $(shell cargo install elf2tab)
+  # Check elf2tab version after install
+  ELF2TAB_VERSION := $(shell $(SHELL) -c "$(ELF2TAB) --version | cut -d ' ' -f 2")
+  UPGRADE_ELF2TAB := $(shell $(SHELL) -c "printf '%s\n%s\n' '$(ELF2TAB_REQUIRED_VERSION)' '$(ELF2TAB_VERSION)' | sort --check=quiet --version-sort || echo yes")
+  ifeq ($(UPGRADE_ELF2TAB),yes)
+    $(error Failed to automatically update elf2tab, please update manually elf2tab to >= $(ELF2TAB_REQUIRED_VERSION))
+  endif
 endif
+
 ELF2TAB_ARGS += -n $(PACKAGE_NAME)
-ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE)
+ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE) --kernel-major $(KERNEL_MAJOR_VERSION) --kernel-minor $(KERNEL_MINOR_VERSION)
 
 # Setup the correct toolchain for each architecture.
 TOOLCHAIN_cortex-m0 := arm-none-eabi
