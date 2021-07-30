@@ -92,6 +92,7 @@ endif
 ifndef ELF2TAB_EXISTS
   $(shell cargo install elf2tab)
   # Check elf2tab version after install
+  ELF2TAB_VERSION := $(shell $(SHELL) -c "$(ELF2TAB) --version | cut -d ' ' -f 2")
   UPGRADE_ELF2TAB := $(shell $(SHELL) -c "printf '%s\n%s\n' '$(ELF2TAB_REQUIRED_VERSION)' '$(ELF2TAB_VERSION)' | sort --check=quiet --version-sort || echo yes")
   ifeq ($(UPGRADE_ELF2TAB),yes)
     $(error Failed to automatically update elf2tab, please update manually elf2tab to >= $(ELF2TAB_REQUIRED_VERSION))
