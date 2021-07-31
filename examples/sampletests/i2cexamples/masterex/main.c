@@ -37,7 +37,7 @@ static void i2c_callback(int callback_type,
     
     delay_ms(2500);
 
-    printf("%s sending\n", is_leader ? "Leader" : "Follower");
+    printf("Sending: Hello friend.\n");
     TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(is_leader ? FOLLOW_ADDRESS : LEADER_ADDRESS, BUF_SIZE));
   }  else {
     printf("ERROR: Unexepected callback: type %d\n", callback_type);
