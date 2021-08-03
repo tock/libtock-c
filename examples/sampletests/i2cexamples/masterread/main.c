@@ -34,10 +34,19 @@ static void i2c_callback(int callback_type,
   }
 
   if (callback_type == TOCK_I2C_CB_MASTER_READ) {
-    printf("Master Reader: \n");
+    printf("Master Reader\n");
     delay_ms(2500);
 
     printf("Read Buffer After: >%.*s<\n", BUF_SIZE, master_read_buf);
+    memcpy((char*) master_write_buf, (char*) master_read_buf, BUF_SIZE);
+    //master_write_buf[BUF_SIZE - 1] = '\0';
+    printf("Write Buf Now: >%.*s<\n", BUF_SIZE, master_write_buf);
+    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
+  } else if (callback_type == TOCK_I2C_CB_MASTER_WRITE) {
+    delay_ms(1500);
+
+    printf("Sending; >%.*s<\n", BUF_SIZE, master_write_buf);
+    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
   } else {
     printf("ERROR: Unexepected callback: type %d\n", callback_type);
   }
@@ -72,7 +81,7 @@ int main(void) {
 
   // Prepare buffers
   strcpy((char*) master_write_buf, "Hello friend.\n");
-  strcpy((char*) master_read_buf, "Nothing,Nowhere");
+  strcpy((char*) master_read_buf, "Hello I Master\n");
 
   // Set up I2C peripheral
   TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_callback(i2c_callback, NULL));
