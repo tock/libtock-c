@@ -108,6 +108,16 @@ typedef struct {
   statuscode_t status;
 } allow_ro_return_t;
 
+// Return structure from a memop syscall. The syscall implementation does the
+// conversion into this type.
+typedef struct {
+  // Returned statuscode from syscall.
+  statuscode_t status;
+  // Optional return data depending on the memop variant called. Only set if
+  // status is `TOCK_STATUSCODE_SUCCESS`.
+  uint32_t data;
+} memop_return_t;
+
 ////////////////////////////////////////////////////////////////////////////////
 ///
 /// HELPER FUNCTIONS
@@ -168,7 +178,7 @@ __attribute__ ((warn_unused_result))
 allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size);
 
 // Call the memop syscall.
-void* memop(uint32_t op_type, int arg1);
+memop_return_t memop(uint32_t op_type, int arg1);
 
 // Wrappers around memop to support app introspection
 void* tock_app_memory_begins_at(void);
