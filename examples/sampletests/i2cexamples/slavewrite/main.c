@@ -7,6 +7,7 @@
 
 #define BUF_SIZE 16
 #define FOLLOW_ADDRESS 0x41
+#define LEADER_ADDRESS 0x40
 
 uint8_t master_write_buf[BUF_SIZE];
 uint8_t master_read_buf[BUF_SIZE];
@@ -37,7 +38,8 @@ static void i2c_callback(int callback_type,
     printf("CB: Slave write\n");
     
     delay_ms(2500);
-    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
+    //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
+    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(LEADER_ADDRESS, BUF_SIZE));
   } else {
     printf("ERROR: Unexepected callback: type %d\n", callback_type);
   }
@@ -60,7 +62,8 @@ static void button_cb(__attribute__((unused)) int btn_num,
 
     printf("Sending to master\n");
 
-    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
+    //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
+    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(LEADER_ADDRESS, BUF_SIZE));
   }
 }
 
@@ -72,6 +75,7 @@ int main(void) {
 
   // Prepare buffers
   strcpy((char*) master_write_buf, "Hello friend.\n");
+  strcpy((char*) slave_write_buf, "Hello friend.\n");
 
   // Set up I2C peripheral
   TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_callback(i2c_callback, NULL));
