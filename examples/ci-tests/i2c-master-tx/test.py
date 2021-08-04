@@ -23,6 +23,8 @@ GPIO.setup(BUTTON_1, GPIO.OUT) # BUTTON_1 pin set as output
 # Set up PiGPIO properly by configuring it on pi then importing library
 os.system('sudo pigpiod')
 import pigpio
+
+pi = pigpio.pi() # Configure the Raspberry Pi as slave
 # PiGPIO configured.
 
 ################################################################################
@@ -99,7 +101,8 @@ logger.info('Initiating I2C Master Tx Test...',
 class I2CMasterTxTest(unittest.TestCase):
     def test_i2c_master_tx_configuration(self):
         """ Set up for Raspberry Pi configuration """
-
+        global pi
+        
         print()
         logger.info('Receiving Message As Slave... ',
             extra={'timegap': time_gap(TEST_START_TIME)})
@@ -107,7 +110,7 @@ class I2CMasterTxTest(unittest.TestCase):
         received = False
         
         # Pi Slave setup
-        pi = pigpio.pi()
+        # pi = pigpio.pi()
 
         if not pi.connected:
             exit()
