@@ -81,7 +81,7 @@ int main(void) {
 
   // Prepare buffers
   strcpy((char*) master_write_buf, "Hello friend.\n");
-  strcpy((char*) master_read_buf, "Hello am Master\n");
+  strcpy((char*) master_read_buf, "Hello friend.\n");
 
   // Set up I2C peripheral
   TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_callback(i2c_callback, NULL));

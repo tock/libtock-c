@@ -68,10 +68,8 @@ def i2c(id, tick):
             extra={'timegap': time_gap(TEST_START_TIME)})
       
       if(FIRST_RX < 1):
-         string_received = d.decode()
-         string_split = string_received.splitlines()
-         MESSAGE_CONFIRMATION = string_split[0]
-         FIRST_RX += 1
+        MESSAGE_CONFIRMATION = d.decode()
+        FIRST_RX += 1
 
 # END
 
