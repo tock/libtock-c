@@ -4,8 +4,8 @@ import unittest
 import RPi.GPIO as GPIO
 import os
 
-MESSAGE = "Hello friend." # Message Master sends to slave
-MESSAGE_RECEIVED = ""
+MESSAGE = 'Hello friend.' # Message Master sends to slave
+MESSAGE_RECEIVED = ''
 FIRST_RX = 0
 
 SDA = 10 # Broadcom pin 10 (P1 pin 19)
@@ -45,7 +45,7 @@ def reset():
    GPIO.output(RESET, GPIO.LOW)
    time.sleep(1)
    GPIO.output(RESET, GPIO.HIGH)
-   print("finished reset")
+   #print("finished reset")
 
 def press_button():
    global BUTTON_1
@@ -54,7 +54,7 @@ def press_button():
    GPIO.output(BUTTON_1, GPIO.HIGH)
    time.sleep(1)
    GPIO.output(BUTTON_1, GPIO.LOW)
-   print("finished button press")
+   #print("finished button press")
 
 def i2c(id, tick):
    global pi
@@ -65,11 +65,14 @@ def i2c(id, tick):
    s, b, d = pi.bsc_i2c(I2C_ADDR)
 
    if b:
-      logger.info('Messsage Received: ' + d[:-1],
+      array = str(d[:-1])
+      logger.info('Messsage Received: ' + array,
             extra={'timegap': time_gap(TEST_START_TIME)})
       
-      if(f < 1):
-         MESSAGE_RECEIVED = d.decode()
+      if(FIRST_RX < 1):
+         string_received = d.decode()
+         string_split = string_received.splitlines()
+         MESSAGE_RECEIVED = string_split[0]
          FIRST_RX += 1
 
 # END
@@ -102,7 +105,8 @@ class I2CMasterTxTest(unittest.TestCase):
     def test_i2c_master_tx_configuration(self):
         """ Set up for Raspberry Pi configuration """
         global pi
-        
+        global MESSAGE_RECEIVED
+
         print()
         logger.info('Receiving Message As Slave... ',
             extra={'timegap': time_gap(TEST_START_TIME)})
@@ -133,6 +137,7 @@ class I2CMasterTxTest(unittest.TestCase):
 
         time.sleep(12)          # Time to wait for messages to be sent (Should see four messages logged)
         
+        MESSAGE_RECEIVED = str(MESSAGE_RECEIVED)
         MESSAGE_RECEIVED = MESSAGE_RECEIVED.strip()
 
         logger.info('Expected Message: ' + MESSAGE,
@@ -142,6 +147,10 @@ class I2CMasterTxTest(unittest.TestCase):
             extra={'timegap': time_gap(TEST_START_TIME)})
 
         if (MESSAGE_RECEIVED == MESSAGE):
+
+            reset()      # Reset application to stop sending messages
+
+            time.sleep(1)
 
             logger.info('Connection Satisfied.',
                 extra={'timegap': time_gap(TEST_START_TIME)})
@@ -154,6 +163,10 @@ class I2CMasterTxTest(unittest.TestCase):
             GPIO.cleanup()
 
             pi.stop()
+
+            received = True
+
+            time.sleep(1)
 
             logger.info('I2C Master Tx Test has ended.',
                 extra={'timegap': time_gap(TEST_START_TIME)})
@@ -168,9 +181,11 @@ class I2CMasterTxTest(unittest.TestCase):
 
             pi.bsc_i2c(0) # Disable BSC peripheral
 
-            PIO.cleanup()
+            GPIO.cleanup()
 
             pi.stop()
+
+            time.sleep(2)
 
             logger.info('I2C Master Tx Test has ended.',
                 extra={'timegap': time_gap(TEST_START_TIME)})
