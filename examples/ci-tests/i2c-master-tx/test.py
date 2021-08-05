@@ -148,11 +148,11 @@ class I2CMasterTxTest(unittest.TestCase):
 
             pi.bsc_i2c(0) # Disable BSC peripheral
 
-            GPIO.cleanup()
-
             pi.stop()
 
             reset()      # Reset application to stop sending messages
+
+            GPIO.cleanup()
 
             time.sleep(1)
 
@@ -168,17 +168,16 @@ class I2CMasterTxTest(unittest.TestCase):
 
         else:
             
-            #Close setup
-
+            # Close setup
             e.cancel()
 
-            pi.bsc_i2c(0)   # Disable BSC peripheral
-
-            GPIO.cleanup()
+            pi.bsc_i2c(0) # Disable BSC peripheral
 
             pi.stop()
 
-            reset()         # Reset application to stop sending messages
+            reset()      # Reset application to stop sending messages
+
+            GPIO.cleanup()
 
             time.sleep(1)
 
