@@ -57,19 +57,19 @@ def press_button():
 def i2c(id, tick):
    global pi
    global FIRST_RX
-   global MESSAGE_RECEIVED
+   global MESSAGE_CONFIRMATION
    global I2C_ADDR
 
    s, b, d = pi.bsc_i2c(I2C_ADDR, b"\nHello I'm Slave\n")
 
    if b:
-      array = str(d[:-1])
-      logger.info('Messsage Call Back From Master: ' + array,
-            extra={'timegap': time_gap(TEST_START_TIME)})
-      
       if(FIRST_RX < 1):
         MESSAGE_CONFIRMATION = d.decode()
         FIRST_RX += 1
+
+      array = str(d[:-1])
+      logger.info('Messsage Call Back From Master: ' + array,
+            extra={'timegap': time_gap(TEST_START_TIME)})
 
 # END
 
