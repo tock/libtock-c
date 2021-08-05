@@ -45,7 +45,6 @@ def reset():
    GPIO.output(RESET, GPIO.LOW)
    time.sleep(1)
    GPIO.output(RESET, GPIO.HIGH)
-   #print("finished reset")
 
 def press_button():
    global BUTTON_1
@@ -54,7 +53,6 @@ def press_button():
    GPIO.output(BUTTON_1, GPIO.HIGH)
    time.sleep(1)
    GPIO.output(BUTTON_1, GPIO.LOW)
-   #print("finished button press")
 
 def i2c(id, tick):
    global pi
@@ -112,9 +110,6 @@ class I2CMasterTxTest(unittest.TestCase):
             extra={'timegap': time_gap(TEST_START_TIME)})
         
         received = False
-        
-        # Pi Slave setup
-        # pi = pigpio.pi()
 
         if not pi.connected:
             exit()
@@ -148,13 +143,6 @@ class I2CMasterTxTest(unittest.TestCase):
 
         if (MESSAGE_RECEIVED == MESSAGE):
 
-            reset()      # Reset application to stop sending messages
-
-            time.sleep(1)
-
-            logger.info('Connection Satisfied.',
-                extra={'timegap': time_gap(TEST_START_TIME)})
-
             # Close setup
             e.cancel()
 
@@ -164,6 +152,12 @@ class I2CMasterTxTest(unittest.TestCase):
 
             pi.stop()
 
+            reset()      # Reset application to stop sending messages
+
+            time.sleep(1)
+
+            logger.info('Connection Satisfied.',
+                extra={'timegap': time_gap(TEST_START_TIME)})
             received = True
 
             time.sleep(1)
@@ -173,19 +167,25 @@ class I2CMasterTxTest(unittest.TestCase):
             self.assertTrue(received)
 
         else:
-
-            logger.info('Connection was not Satisfied. Wrong/No message received.',
-                extra={'timegap': time_gap(TEST_START_TIME)})
+            
+            #Close setup
 
             e.cancel()
 
-            pi.bsc_i2c(0) # Disable BSC peripheral
+            pi.bsc_i2c(0)   # Disable BSC peripheral
 
             GPIO.cleanup()
 
             pi.stop()
 
-            time.sleep(2)
+            reset()         # Reset application to stop sending messages
+
+            time.sleep(1)
+
+            logger.info('Connection was not Satisfied. Wrong/No message received.',
+                extra={'timegap': time_gap(TEST_START_TIME)})
+
+            time.sleep(1)
 
             logger.info('I2C Master Tx Test has ended.',
                 extra={'timegap': time_gap(TEST_START_TIME)})
