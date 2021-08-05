@@ -519,7 +519,7 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
 memop_return_t memop(uint32_t op_type, int arg1) {
   register uint32_t a0    __asm__ ("a0") = op_type;
   register int a1         __asm__ ("a1") = arg1;
-  register void* val      __asm__ ("a1");
+  register uint32_t val   __asm__ ("a1");
   register uint32_t code  __asm__ ("a0");
   __asm__ volatile (
     "li    a4, 5\n"
@@ -581,9 +581,6 @@ void* tock_app_grant_begins_at(void) {
   else return NULL;
 }
 
-// #pragma GCC diagnostic push
-// #pragma GCC diagnostic ignored "-Wbad-function-cast"
-
 // Returns the number of writeable flash regions defined in the process's
 // header.
 int tock_app_number_writeable_flash_regions(void) {
@@ -591,7 +588,6 @@ int tock_app_number_writeable_flash_regions(void) {
   if (ret.status == TOCK_STATUSCODE_SUCCESS) return (int) ret.data;
   else return 0;
 }
-// #pragma GCC diagnostic pop
 
 // Returns the address where the writeable flash region specified by
 // `region_index` starts. Returns NULL if the specified writeable flash region
