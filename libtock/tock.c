@@ -317,10 +317,10 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, si
   }
 }
 
-void* memop(uint32_t op_type, int arg1) {
+memop_return_t memop(uint32_t op_type, int arg1) {
   register uint32_t r0 __asm__ ("r0") = op_type;
   register int r1 __asm__ ("r1")      = arg1;
-  register void*   val __asm__ ("r1");
+  register uint32_t val __asm__ ("r1");
   register uint32_t code __asm__ ("r0");
   __asm__ volatile (
     "svc 5"
@@ -328,10 +328,18 @@ void* memop(uint32_t op_type, int arg1) {
     : "r" (r0), "r" (r1)
     : "memory"
     );
-  if (code == TOCK_SYSCALL_SUCCESS_U32) {
-    return val;
+  if (code == TOCK_SYSCALL_SUCCESS) {
+    memop_return_t rv = {TOCK_STATUSCODE_SUCCESS, 0};
+    return rv;
+  } else if (code == TOCK_SYSCALL_SUCCESS_U32) {
+    memop_return_t rv = {TOCK_STATUSCODE_SUCCESS, val};
+    return rv;
+  } else if (code == TOCK_SYSCALL_FAILURE) {
+    memop_return_t rv = {(statuscode_t) val, 0};
+    return rv;
   } else {
-    return NULL;
+    // Invalid return type
+    exit(1);
   }
 }
 
@@ -508,10 +516,10 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
   }
 }
 
-void* memop(uint32_t op_type, int arg1) {
+memop_return_t memop(uint32_t op_type, int arg1) {
   register uint32_t a0    __asm__ ("a0") = op_type;
   register int a1         __asm__ ("a1") = arg1;
-  register void* val      __asm__ ("a1");
+  register uint32_t val   __asm__ ("a1");
   register uint32_t code  __asm__ ("a0");
   __asm__ volatile (
     "li    a4, 5\n"
@@ -520,48 +528,83 @@ void* memop(uint32_t op_type, int arg1) {
     : "r" (a0), "r" (a1)
     : "memory"
     );
-  if (code == TOCK_SYSCALL_SUCCESS_U32) {
-    return val;
+  if (code == TOCK_SYSCALL_SUCCESS) {
+    memop_return_t rv = {TOCK_STATUSCODE_SUCCESS, 0};
+    return rv;
+  } else if (code == TOCK_SYSCALL_SUCCESS_U32) {
+    memop_return_t rv = {TOCK_STATUSCODE_SUCCESS, val};
+    return rv;
+  } else if (code == TOCK_SYSCALL_FAILURE) {
+    memop_return_t rv = {(statuscode_t) val, 0};
+    return rv;
   } else {
-    return NULL;
+    // Invalid return type
+    exit(1);
   }
 }
 
 #endif
 
+// Returns the address where the process's RAM region starts.
 void* tock_app_memory_begins_at(void) {
-  return memop(2, 0);
+  memop_return_t ret = memop(2, 0);
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
+  else return NULL;
 }
 
+// Returns the address immediately after the end of the process's RAM region.
 void* tock_app_memory_ends_at(void) {
-  return memop(3, 0);
+  memop_return_t ret = memop(3, 0);
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
+  else return NULL;
 }
 
+// Returns the address where the process's flash region starts.
 void* tock_app_flash_begins_at(void) {
-  return memop(4, 0);
+  memop_return_t ret = memop(4, 0);
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
+  else return NULL;
 }
 
+// Returns the address immediately after the end of the process's flash region.
 void* tock_app_flash_ends_at(void) {
-  return memop(5, 0);
+  memop_return_t ret = memop(5, 0);
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
+  else return NULL;
 }
 
+// Returns the address where the process's grant region (which is memory owned
+// by the kernel) begins.
 void* tock_app_grant_begins_at(void) {
-  return memop(6, 0);
+  memop_return_t ret = memop(6, 0);
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
+  else return NULL;
 }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wbad-function-cast"
+// Returns the number of writeable flash regions defined in the process's
+// header.
 int tock_app_number_writeable_flash_regions(void) {
-  return (int) memop(7, 0);
+  memop_return_t ret = memop(7, 0);
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (int) ret.data;
+  else return 0;
 }
-#pragma GCC diagnostic pop
 
+// Returns the address where the writeable flash region specified by
+// `region_index` starts. Returns NULL if the specified writeable flash region
+// does not exist.
 void* tock_app_writeable_flash_region_begins_at(int region_index) {
-  return memop(8, region_index);
+  memop_return_t ret = memop(8, region_index);
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
+  else return NULL;
 }
 
+// Returns the address immediately after the writeable flash region specified by
+// `region_index` ends. Returns NULL if the specified writeable flash region
+// does not exist.
 void* tock_app_writeable_flash_region_ends_at(int region_index) {
-  return memop(9, region_index);
+  memop_return_t ret = memop(9, region_index);
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
+  else return NULL;
 }
 
 bool driver_exists(uint32_t driver) {
