@@ -168,7 +168,7 @@ int screen_init (size_t len)
   if (buffer != NULL) {
     r = RETURNCODE_EALREADY;
   }else {
-    buffer = (uint8_t*)malloc (len);
+    buffer = (uint8_t*)calloc (1, len);
     if (buffer != NULL) {
       buffer_len = len;
       r = screen_allow (buffer, len);
