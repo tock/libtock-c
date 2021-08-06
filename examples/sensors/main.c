@@ -13,7 +13,7 @@
 #include <tsl2561.h>
 
 static tock_timer_t timer;
-static bool light          = false;
+static bool light = false;
 static bool tsl2561        = false;
 static bool lps25hb        = false;
 static bool temperature    = false;
@@ -72,6 +72,7 @@ int main(void) {
   printf("[Sensors] Starting Sensors App.\n");
   printf("[Sensors] All available sensors on the platform will be sampled.\n");
 
+  /* *INDENT-OFF* */
   light          = driver_exists(DRIVER_NUM_AMBIENT_LIGHT);
   tsl2561        = driver_exists(DRIVER_NUM_TSL2561);
   lps25hb        = driver_exists(DRIVER_NUM_LPS25HB);
@@ -80,6 +81,7 @@ int main(void) {
   ninedof        = driver_exists(DRIVER_NUM_NINEDOF);
   proximity      = driver_exists(DRIVER_NUM_PROXIMITY);
   sound_pressure = driver_exists(DRIVER_NUM_SOUND_PRESSURE);
+  /* *INDENT-ON* */
 
   if (ninedof) {
     int buffer;
@@ -88,6 +90,7 @@ int main(void) {
     ninedof_gyro  = (ninedof_read_gyroscope_sync(&buffer, &buffer, &buffer) == RETURNCODE_SUCCESS);
   }
 
+  /* *INDENT-OFF* */
   if (light)          printf("[Sensors]   Sampling Ambient Light sensor.\n");
   if (tsl2561)        printf("[Sensors]   Sampling TSL2561 Light sensor.\n");
   if (lps25hb)        printf("[Sensors]   Sampling LPS25HB pressure sensor.\n");
@@ -98,6 +101,7 @@ int main(void) {
   if (ninedof_gyro)   printf("[Sensors]   Sampling Gyroscope.\n");
   if (proximity)      printf("[Sensors]   Sampling Proximity sensor.\n");
   if (sound_pressure) printf("[Sensors]   Sampling Sound Pressure sensor.\n");
+  /* *INDENT-ON* */
 
   if (sound_pressure) {
     sound_pressure_enable();
