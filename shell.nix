@@ -52,10 +52,10 @@ let
     cargoSha256 = "14z6564jmxd2627m5zjsnc3qjsxy5fymnxlmz0fjhi4gkwyiygjk";
   };
 in
-  with pkgs;
-  stdenv.mkDerivation {
+  pkgs.mkShell {
     name = "tock-dev";
-    buildInputs = [
+
+    buildInputs = with pkgs; [
       elf2tab
       gcc-arm-embedded
       python3Full
