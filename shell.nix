@@ -15,8 +15,8 @@
 
 with builtins;
 let
-  inherit (pkgs) stdenv;
-  pythonPackages = stdenv.lib.fix' (self: with self; pkgs.python3Packages //
+  inherit (pkgs) stdenv lib;
+  pythonPackages = lib.fix' (self: with self; pkgs.python3Packages //
   {
 
     tockloader = buildPythonPackage rec {
