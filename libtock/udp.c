@@ -77,7 +77,7 @@ ssize_t udp_send_to(void *buf, size_t len,
                     sock_addr_t *dst_addr) {
   // Set dest addr
   // NOTE: bind() must be called previously for this to work
-  // If bind() has not been called, command(COMMAND_SEND) will return ??
+  // If bind() has not been called, command(COMMAND_SEND) will return RESERVE
   int bytes = sizeof(sock_addr_t);
   memcpy(BUF_TX_CFG + bytes, dst_addr, bytes);
 
@@ -90,12 +90,12 @@ ssize_t udp_send_to(void *buf, size_t len,
   if (!sval.success) return tock_status_to_returncode(sval.status);
 
   syscall_return_t ret = command(UDP_DRIVER, COMMAND_SEND, 0, 0);
-  if (ret.type == TOCK_SYSCALL_SUCCESS) {
-    return RETURNCODE_SUCCESS;
+  if (ret.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(ret.data[0]);
   }
-  // err == 1 indicates packet successfully passed to radio synchronously.
+  // ret.val == 1 indicates packet successfully passed to radio synchronously.
   // However, wait for send_done to see if tx was successful, then return that result
-  // err == 0 indicates packet will be sent asynchronously. Thus, 2 callbacks will be received.
+  // ret.val == 0 indicates packet will be sent asynchronously. Thus, 2 callbacks will be received.
   // the first callback will indicate if the packet was ultimately passed to the radio succesfully.
   // The second callback will only occur if the first callback is SUCCESS - and the second callback
   // in this case is the result of the tx itself (as reported by the radio).
