@@ -34,10 +34,7 @@ static int text_screen_command (int command_num, int data1, int data2) {
 }
 
 static int text_screen_allow (const void* ptr, size_t size) {
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_TEXT_SCREEN, 0, ptr, size);
-  #pragma GCC diagnostic pop
   return tock_allow_ro_return_to_returncode(aval);
 }
 
@@ -47,7 +44,7 @@ int text_screen_init (size_t len)
   if (buffer != NULL) {
     r = RETURNCODE_EALREADY;
   } else {
-    buffer = (uint8_t*) malloc (len);
+    buffer = (uint8_t*) calloc (1, len);
     if (buffer != NULL) {
       buffer_len = len;
       r = text_screen_allow (buffer, len);
