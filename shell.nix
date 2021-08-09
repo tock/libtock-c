@@ -61,4 +61,10 @@ in
       python3Full
       pythonPackages.tockloader
     ] ++ (lib.optional (!disableRiscvToolchain) pkgsCross.riscv32-embedded.buildPackages.gcc);
+
+    shellHook = ''
+      ${if (!disableRiscvToolchain) then ''
+        export RISCV=1
+      '' else ""}
+    '';
   }

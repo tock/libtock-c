@@ -109,8 +109,26 @@ TOOLCHAIN_cortex-m0 := arm-none-eabi
 TOOLCHAIN_cortex-m3 := arm-none-eabi
 TOOLCHAIN_cortex-m4 := arm-none-eabi
 TOOLCHAIN_cortex-m7 := arm-none-eabi
-TOOLCHAIN_rv32imac := riscv64-unknown-elf
-TOOLCHAIN_rv32imc := riscv64-unknown-elf
+
+# RISC-V toolchains, irrespective of their name-tuple, can compile for
+# essentially any target. Thus, try a few known names and choose the one for
+# which a gcc is found.
+ifneq (,$(shell which riscv64-none-elf-gcc 2>/dev/null))
+  TOOLCHAIN_rv32imac := riscv64-none-elf
+  TOOLCHAIN_rv32imc := riscv64-none-elf
+  TOOLCHAIN_rv32i := riscv64-none-elf
+else ifneq (,$(shell which riscv32-none-elf-gcc 2>/dev/null))
+  TOOLCHAIN_rv32imac := riscv32-none-elf
+  TOOLCHAIN_rv32imc := riscv32-none-elf
+  TOOLCHAIN_rv32i := riscv32-none-elf
+else
+  # Fallback option. We don't particularly want to throw an error (even if
+  # RISCV=1 is set) as this configuration makefile can be useful without a
+  # proper toolchain.
+  TOOLCHAIN_rv32imac := riscv64-unknown-elf
+  TOOLCHAIN_rv32imc := riscv64-unknown-elf
+  TOOLCHAIN_rv32i := riscv64-unknown-elf
+endif
 
 # Flags for building app Assembly, C, C++ files
 # n.b. make convention is that CPPFLAGS are shared for C and C++ sources
@@ -141,6 +159,12 @@ override CPPFLAGS_PIC += \
       -fPIC
 
 # Add different flags for different architectures
+override CPPFLAGS_rv32i += \
+      -march=rv32i\
+      -mabi=ilp32\
+      -mcmodel=medlow\
+      -Wl,--no-relax   # Prevent use of global_pointer for riscv
+
 override CPPFLAGS_rv32imc += \
       -march=rv32imc\
       -mabi=ilp32\
@@ -156,6 +180,7 @@ override CPPFLAGS_rv32imac += \
 override LINK_LIBS_rv32 += \
       -lgcc -lstdc++ -lsupc++
 
+override LINK_LIBS_rv32i    += $(LINK_LIBS_rv32)
 override LINK_LIBS_rv32imc  += $(LINK_LIBS_rv32)
 override LINK_LIBS_rv32imac += $(LINK_LIBS_rv32)
 
