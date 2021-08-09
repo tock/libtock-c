@@ -5,13 +5,19 @@
 #  * `tockloader`
 #  * arm-none-eabi toolchain
 #  * elf2tab
+#  * (optionally) riscv32-embedded toolchain
 #
 # To use:
 #
 #  $ nix-shell
 #
+# The RISC-V toolchain can be disabled optionally. This will further
+# prevent RISC-V specific environment variables from being set in the
+# Nix shell environment:
+#
+#  $ nix-shell shell.nix --arg disableRiscvToolchain true
 
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixpkgs> {}, disableRiscvToolchain ? false }:
 
 with builtins;
 let
@@ -54,5 +60,5 @@ in
       gcc-arm-embedded
       python3Full
       pythonPackages.tockloader
-      ];
+    ] ++ (lib.optional (!disableRiscvToolchain) pkgsCross.riscv32-embedded.buildPackages.gcc);
   }
