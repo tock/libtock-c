@@ -60,7 +60,7 @@ int main(void) {
   while (1) {
     // wait for gpio pin to be pressed
     while (button_press == 0) {
-      button_press = button_read(0);
+      button_read(0, &button_press);
     }
     count++;
 
@@ -75,7 +75,7 @@ int main(void) {
     ssize_t result = udp_send_to(packet, len, &destination);
 
     switch (result) {
-      case TOCK_SUCCESS:
+      case RETURNCODE_SUCCESS:
         if (DEBUG) {
           printf("Packet sent.\n");
         }
@@ -86,7 +86,7 @@ int main(void) {
 
     // Debounce
     while (button_press != 0) {
-      button_press = button_read(0);
+      button_read(0, &button_press);
     }
   }
 }

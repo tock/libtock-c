@@ -6,7 +6,6 @@
 #include <button.h>
 #include <timer.h>
 
-#include <ieee802154.h>
 #include <udp.h>
 
 #define DEBUG 0
@@ -28,10 +27,6 @@ int main(void) {
     dest_addr,
     16123
   };
-
-  ieee802154_set_pan(0xABCD);
-  ieee802154_config_commit();
-  ieee802154_up();
 
   ipv6_addr_t ifaces[10];
   udp_list_ifaces(ifaces, 10);
