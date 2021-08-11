@@ -15,5 +15,5 @@ rebuild-newlib: newlib-$(NEWLIB_VERSION)
 	@rm -rf newlib-$(NEWLIB_VERSION)-out
 	@mkdir -p newlib-$(NEWLIB_VERSION)-out
 	@echo "Entering directory newlib-$(NEWLIB_VERSION)-out"
-	cd newlib-$(NEWLIB_VERSION)-out; sh ../build.sh ../$<
+	cd newlib-$(NEWLIB_VERSION)-out; sh ../build-arm.sh ../$<
 	cd newlib-$(NEWLIB_VERSION)-out; sh ../build-riscv.sh ../$<
