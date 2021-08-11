@@ -152,10 +152,24 @@ override CPPFLAGS_rv32imac += \
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
 
 override LINK_LIBS_rv32 += \
-      -lc -lgcc -lm -lstdc++ -lsupc++
+      -lgcc -lstdc++ -lsupc++
 
 override LINK_LIBS_rv32imc  += $(LINK_LIBS_rv32)
 override LINK_LIBS_rv32imac += $(LINK_LIBS_rv32)
+
+override LEGACY_LIBS_rv32 += \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libm.a
+
+override LEGACY_LIBS_rv32im += \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libm.a
+
+override LEGACY_LIBS_rv32imc += $(LEGACY_LIBS_rv32im)
+
+override LEGACY_LIBS_rv32imac += \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libm.a
 
 override CPPFLAGS_cortex-m += \
       $(CPPFLAGS_PIC)\
