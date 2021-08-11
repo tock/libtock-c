@@ -1,4 +1,4 @@
-GCC_VERSION ?= 10.2.0
+GCC_VERSION ?= 11.2.0
 
 all: rebuild-gcc
 

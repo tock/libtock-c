@@ -19,12 +19,12 @@ export CFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -fPIC -msin
 export CXXFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -fPIC -msingle-pic-base -mno-pic-data-is-text-relative -mthumb -mcpu=cortex-m0 -isystem $NEWLIB_INCLUDE_PATH"
 
 if gcc --version | grep -q clang; then
-  echo "$(tput bold)System gcc is clang. Overriding with gcc-10"
-  echo "$(tput sgr0)You may need to brew install gcc@10 if you haven't."
+  echo "$(tput bold)System gcc is clang. Overriding with gcc-11"
+  echo "$(tput sgr0)You may need to brew install gcc@11 if you haven't."
   echo ""
   sleep 2
-  export CC=gcc-10
-  export CXX=g++-10
+  export CC=gcc-11
+  export CXX=g++-11
 
   gmp=$($CC -v 2>&1 | tr " " "\n" | grep gmp)
   mpfr=$($CC -v 2>&1 | tr " " "\n" | grep mpfr)
