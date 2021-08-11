@@ -157,7 +157,7 @@ override LINK_LIBS_rv32 += \
 override LINK_LIBS_rv32imc  += $(LINK_LIBS_rv32)
 override LINK_LIBS_rv32imac += $(LINK_LIBS_rv32)
 
-override LEGACY_LIBS_rv32 += \
+override LEGACY_LIBS_rv32i += \
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libm.a
 
