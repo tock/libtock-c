@@ -15,4 +15,4 @@ $NEWLIB_SRC_DIR/configure --target=riscv64-unknown-elf \
   --enable-newlib-global-atexit \
   --enable-newlib-nano-formatted-io
 
-make CFLAGS_FOR_TARGET='-g -Os -ffunction-sections -fdata-sections'
+make -j$(nproc) CFLAGS_FOR_TARGET='-g -Os -ffunction-sections -fdata-sections'
