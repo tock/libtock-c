@@ -1,4 +1,4 @@
-NEWLIB_VERSION ?= 2.5.0.20170421
+NEWLIB_VERSION ?= 4.1.0
 
 all: rebuild-newlib
 
@@ -16,3 +16,4 @@ rebuild-newlib: newlib-$(NEWLIB_VERSION)
 	@mkdir -p newlib-$(NEWLIB_VERSION)-out
 	@echo "Entering directory newlib-$(NEWLIB_VERSION)-out"
 	cd newlib-$(NEWLIB_VERSION)-out; sh ../build.sh ../$<
+	cd newlib-$(NEWLIB_VERSION)-out; sh ../build-riscv.sh ../$<
