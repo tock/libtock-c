@@ -62,7 +62,9 @@ static void sdcard_upcall (int callback_type, int arg1, int arg2, void* callback
 
     case 4:
       // error
-      result->error = tock_status_to_returncode(arg1);
+      // This is not a STATUSCODE, but rather an SD Card specific error
+      // See capsule sdcard.rs `enum SdCardError`
+      result->error = arg1;
       break;
   }
 
@@ -80,13 +82,15 @@ int sdcard_set_read_buffer (uint8_t* buffer, uint32_t len) {
 }
 
 int sdcard_set_write_buffer (uint8_t* buffer, uint32_t len) {
-  allow_ro_return_t aval = allow_readonly(DRIVER_NUM_SDCARD, 1, (void*) buffer, len);
+  allow_ro_return_t aval = allow_readonly(DRIVER_NUM_SDCARD, 0, (void*) buffer, len);
   return tock_allow_ro_return_to_returncode(aval);
 }
 
 int sdcard_is_installed (void) {
   syscall_return_t cval = command(DRIVER_NUM_SDCARD, 1, 0, 0);
-  return tock_command_return_novalue_to_returncode(cval);
+  uint32_t result       = 0;
+  tock_command_return_u32_to_returncode(cval, &result);
+  return (int)result;
 }
 
 int sdcard_initialize (void) {
