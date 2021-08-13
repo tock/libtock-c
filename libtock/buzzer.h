@@ -91,6 +91,7 @@
 #define NOTE_CS8 4435
 #define NOTE_D8  4699
 #define NOTE_DS8 4978
+#define REST 0
 
 int buzzer_exists (void);
 int tone_sync (size_t frequency_hz, size_t duration_ms);
