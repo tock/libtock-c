@@ -79,7 +79,7 @@ logger.info('Initiating I2C Rx test...',
 ################################################################################
 
 class I2CRxTest(unittest.TestCase):
-    def test_i2c_slave_configuration(self):
+    def test_i2c_slave_tx_configuration(self):
         
         print()
         logger.info('Communicating with I2C Device to Receive Message: ' + MESSAGE,

@@ -60,7 +60,7 @@ logger.info('Initiating I2C Rx test...',
 ################################################################################
 
 class I2CRxTest(unittest.TestCase):
-    def test_i2c_slave_configuration(self):
+    def test_i2c_slave_rx_configuration(self):
         
         print()
         logger.info('Sending I2C Message: ' + MESSAGE,
@@ -99,7 +99,27 @@ class I2CRxTest(unittest.TestCase):
             logger.info('I2C Communication Ended...',
                         extra={'timegap': time_gap(TEST_START_TIME)})
 
+            logger.info('I2C Communication Ended...',
+                        extra={'timegap': time_gap(TEST_START_TIME)})
+
+            reset()      # Reset application to stop sending messages
+
+            # Close Setup
+            GPIO.cleanup()
+
+            bus.close()
+
             time.sleep(1)
+
+            logger.info('Connection Satisfied.',
+                extra={'timegap': time_gap(TEST_START_TIME)})
+            received = True
+
+            time.sleep(1)
+
+            logger.info('I2C Slave Rx Test has ended.',
+                extra={'timegap': time_gap(TEST_START_TIME)})
+            
             self.assertTrue(received)
 # END
 
