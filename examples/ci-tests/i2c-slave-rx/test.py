@@ -102,8 +102,6 @@ class I2CRxTest(unittest.TestCase):
             logger.info('I2C Communication Ended...',
                         extra={'timegap': time_gap(TEST_START_TIME)})
 
-            reset()      # Reset application to stop sending messages
-
             # Close Setup
 
             bus.close()
