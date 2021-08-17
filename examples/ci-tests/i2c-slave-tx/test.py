@@ -66,10 +66,10 @@ LOG_FORMAT = "%(timegap)s %(levelname)s -- %(message)s"
 logging.basicConfig(format=LOG_FORMAT)
 
 # Logger add formatter
-logger = logging.getLogger('I2C Rx Test')
+logger = logging.getLogger('I2C Tx Test')
 logger.setLevel('INFO')
 
-logger.info('Initiating I2C Rx test...',
+logger.info('Initiating I2C Tx test...',
             extra={'timegap': time_gap(TEST_START_TIME)})
 
 # END
@@ -153,10 +153,11 @@ class I2CRxTest(unittest.TestCase):
 
 class Nrf52840Test(I2CRxTest):
     def setUp(self):
-        logger.info('Setting up for nrf52840dk I2C Rx test...',
+        reset()
+
+        logger.info('Setting up for nrf52840dk I2C Tx test...',
             extra={'timegap': time_gap(TEST_START_TIME)})
 
-        reset()
 
 # END
 

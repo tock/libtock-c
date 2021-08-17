@@ -105,7 +105,6 @@ class I2CRxTest(unittest.TestCase):
             reset()      # Reset application to stop sending messages
 
             # Close Setup
-            GPIO.cleanup()
 
             bus.close()
 
