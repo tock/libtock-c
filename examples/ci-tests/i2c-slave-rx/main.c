@@ -6,7 +6,6 @@
 #include <timer.h>
 
 #define BUF_SIZE 17
-#define LEADER_ADDRESS 0x40
 #define FOLLOW_ADDRESS 0x41
 
 uint8_t slave_write_buf[BUF_SIZE];
@@ -30,7 +29,7 @@ int main(void) {
   printf("I2C Slave Read \n");
 
   //Preparing buffer
-  strncpy(slave_write_buf, "0123456789ABCDEF", BUF_SIZE);
+  strncpy((char*) slave_write_buf, "0123456789ABCDEF", BUF_SIZE);
   printf("Buffer is >%.*s<\n", BUF_SIZE, slave_write_buf);
 
   // Set up I2C peripheral
