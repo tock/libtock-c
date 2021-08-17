@@ -99,9 +99,6 @@ class I2CRxTest(unittest.TestCase):
             logger.info('I2C Communication Ended...',
                         extra={'timegap': time_gap(TEST_START_TIME)})
 
-            logger.info('I2C Communication Ended...',
-                        extra={'timegap': time_gap(TEST_START_TIME)})
-
             # Close Setup
 
             bus.close()

@@ -30,7 +30,7 @@ int main(void) {
   printf("I2C Slave Read \n");
 
   //Preparing buffer
-  strncpy(slave_write_buf, "0123456789ABCDEFG", BUF_SIZE);
+  strncpy(slave_write_buf, "0123456789ABCDEF", BUF_SIZE);
   printf("Buffer is >%.*s<\n", BUF_SIZE, slave_write_buf);
 
   // Set up I2C peripheral
