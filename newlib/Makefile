@@ -1,4 +1,4 @@
-NEWLIB_VERSION ?= 2.5.0.20170421
+NEWLIB_VERSION ?= 4.1.0
 
 all: rebuild-newlib
 
@@ -12,7 +12,17 @@ newlib-$(NEWLIB_VERSION): newlib-$(NEWLIB_VERSION).tar.gz
 	@touch $@ # Touch so directory appears newer than tarball
 
 rebuild-newlib: newlib-$(NEWLIB_VERSION)
-	@rm -rf newlib-$(NEWLIB_VERSION)-out
-	@mkdir -p newlib-$(NEWLIB_VERSION)-out
-	@echo "Entering directory newlib-$(NEWLIB_VERSION)-out"
-	cd newlib-$(NEWLIB_VERSION)-out; sh ../build.sh ../$<
+	@echo ""
+	@echo "=== BEGINNING ARM BUILD =========================="
+	@echo ""
+	@rm -rf newlib-arm-$(NEWLIB_VERSION)-out
+	@mkdir -p newlib-arm-$(NEWLIB_VERSION)-out
+	@echo "Entering directory newlib-arm-$(NEWLIB_VERSION)-out"
+	cd newlib-arm-$(NEWLIB_VERSION)-out; sh ../build-arm.sh ../$<
+	@echo ""
+	@echo "=== BEGINNING RISC-V BUILD =========================="
+	@echo ""
+	@rm -rf newlib-riscv-$(NEWLIB_VERSION)-out
+	@mkdir -p newlib-riscv-$(NEWLIB_VERSION)-out
+	@echo "Entering directory newlib-riscv-$(NEWLIB_VERSION)-out"
+	cd newlib-riscv-$(NEWLIB_VERSION)-out; sh ../build-riscv.sh ../$<
