@@ -1,13 +1,23 @@
 from smbus import SMBus
 import time
+import os
 import logging
 import unittest
+import RPi.GPIO as GPIO
+
+RESET = 21 # Broadcom pin 21 (P1 pin 40)
+BUTTON_1 = 20 # Broadcom pin 20 (P1 pin 38)
+
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(RESET, GPIO.OUT) # RESET pin set as output
+GPIO.setup(BUTTON_1, GPIO.OUT) # BUTTON_1 pin set as output
 
 ADDRESS = 0x41 # bus address to the Slave Device
 MASTER = 0x40 # Raspberry Pi Master Address
-MESSAGE = "Hello I'm Master" # Message to send to slave
+MESSAGE = "Hello friend." # Message sent from slave
+BUF_SIZE = 16
 bus = SMBus(1) # indicates /dev/ic2-1
-
 
 ################################################################################
 # Helper Functions
@@ -20,18 +30,27 @@ def time_gap(start_time):
     """
     return "{:.6f}".format(time.time() - start_time)
 
-def message_converter(message):
-    """Return list of ascii values for each character in message
-    Argument:
-    string I2C_message
-    """
-    encoded = []                    # Encoded message for ascii values
-    chars = list(message)           # Spliting the string message into characters
-    
-    for items in chars:
-        encoded.append(ord(items))  # Filling encoded with ascii values of characters
-    
-    return encoded
+def reset():
+   global RESET
+   """Button is Reset"""
+
+   GPIO.output(RESET, GPIO.LOW)
+   time.sleep(1)
+   GPIO.output(RESET, GPIO.HIGH)
+
+def press_button():
+   global BUTTON_1
+   """Button is one of User Buttons"""
+
+   GPIO.output(BUTTON_1, GPIO.HIGH)
+   time.sleep(1)
+   GPIO.output(BUTTON_1, GPIO.LOW)
+
+def message_decoder(data):
+    string = ''
+    for item in data:
+        string += chr(item)
+    return string
 
 # END
 
@@ -63,21 +82,29 @@ class I2CRxTest(unittest.TestCase):
     def test_i2c_slave_configuration(self):
         
         print()
-        logger.info('Sending I2C Message: ' + MESSAGE,
+        logger.info('Communicating with I2C Device to Receive Message: ' + MESSAGE,
             extra={'timegap': time_gap(TEST_START_TIME)})
         
         received = False
-        
-        message_to_send = message_converter(MESSAGE)
 
-        time.sleep(1)
+        press_button()
+        
         try:
-            bus.write_i2c_block_data(ADDRESS, MASTER, message_to_send)
+            dataM = bus.read_i2c_block_data(ADDRESS, MASTER, BUF_SIZE)
+            message = message_decoder(dataM)
+            message = str(message)
+            message_stripped = message.splitlines()
+            message_received = message_stripped[0]
+
+            if(MESSAGE == message_received):
             
-            logger.info('Message Sent Sucessfully.\n',
-                        extra={'timegap': time_gap(TEST_START_TIME)})
-            time.sleep(1)
-            received = True
+                logger.info('Message Received: ' + message_received,
+                            extra={'timegap': time_gap(TEST_START_TIME)})
+                time.sleep(1)
+                logger.info('Message Sent Successfully from Slave\n',
+                            extra={'timegap': time_gap(TEST_START_TIME)})
+                received = True
+            
         except OSError:
             print("OS error: {0}".format(err))
 
@@ -99,7 +126,24 @@ class I2CRxTest(unittest.TestCase):
             logger.info('I2C Communication Ended...',
                         extra={'timegap': time_gap(TEST_START_TIME)})
 
+            reset()      # Reset application to stop sending messages
+
+            # Close Setup
+            GPIO.cleanup()
+
+            bus.close()
+
             time.sleep(1)
+
+            logger.info('Connection Satisfied.',
+                extra={'timegap': time_gap(TEST_START_TIME)})
+            received = True
+
+            time.sleep(1)
+
+            logger.info('I2C Slave Tx Test has ended.\n',
+                extra={'timegap': time_gap(TEST_START_TIME)})
+            
             self.assertTrue(received)
 # END
 
@@ -111,6 +155,8 @@ class Nrf52840Test(I2CRxTest):
     def setUp(self):
         logger.info('Setting up for nrf52840dk I2C Rx test...',
             extra={'timegap': time_gap(TEST_START_TIME)})
+
+        reset()
 
 # END
 

@@ -5,9 +5,9 @@
 #include <i2c_master_slave.h>
 #include <timer.h>
 
-#define BUF_SIZE 6
+#define BUF_SIZE 16
+//#define LEADER_ADDRESS 0x40
 #define FOLLOW_ADDRESS 0x41
-#define LEADER_ADDRESS 0x40
 
 uint8_t master_write_buf[BUF_SIZE];
 uint8_t master_read_buf[BUF_SIZE];
@@ -34,40 +34,17 @@ static void i2c_callback(int callback_type,
     }
   }
 
-  if (callback_type == TOCK_I2C_CB_MASTER_WRITE) {
-    printf("CB: Slave Read\n");
-    
-    delay_ms(1000);
-    //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
-    //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(LEADER_ADDRESS, BUF_SIZE));
-    //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_listen());
-    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write_read(FOLLOW_ADDRESS, BUF_SIZE, BUF_SIZE));
-  } else if (callback_type == TOCK_I2C_CB_SLAVE_WRITE) {
+  if (callback_type == TOCK_I2C_CB_SLAVE_WRITE) {
     printf("CB: Slave write\n");
-    //delay_ms(2500);
-
-    printf("Write Buffer v2 is >%.*s<\n", BUF_SIZE, slave_write_buf);
-    //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_listen());
-    //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
-    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write_read(FOLLOW_ADDRESS, BUF_SIZE, BUF_SIZE));
-    } else if (callback_type == TOCK_I2C_CB_SLAVE_READ_REQUEST) {
-    printf("CB: Slave write\n");
-    delay_ms(2500);
 
     printf("%s sending\n", is_leader ? "Leader" : "Follower");
-    //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(LEADER_ADDRESS, BUF_SIZE));
-    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
-    } else if (callback_type == 7) {
-      printf("CB: Slave write 7\n");
-      //delay_ms(2500);
-
-      printf("Write Buffer v2 is >%.*s<\n", BUF_SIZE, slave_write_buf);
-      //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_listen());
-      TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
-    } else {
+    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_enable_slave_read(BUF_SIZE));
+    printf("Message Sent...\n");
+  } else {
     printf("ERROR: Unexepected callback: type %d\n", callback_type);
   }
 }
+
 
 // This is the callback for the button press.
 // A button press indicates that this device should start the ping-pong
@@ -86,10 +63,7 @@ static void button_cb(__attribute__((unused)) int btn_num,
 
     printf("Sending to master\n");
 
-    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
-    //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_listen());
-    //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(LEADER_ADDRESS, BUF_SIZE));
-    //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write_read(FOLLOW_ADDRESS, BUF_SIZE, BUF_SIZE));
+    TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_enable_slave_read(BUF_SIZE));
   }
 }
 
@@ -97,27 +71,18 @@ static void button_cb(__attribute__((unused)) int btn_num,
 // callbacks for I2C and button presses. Normal operation of this test takes
 // place in the subsequent callbacks.
 int main(void) {
-  printf("I2C Slave Sender");
+  printf("I2C Master/Slave Ping-Pong\n");
 
   // Prepare buffers
-  // BUF_SIZE = 16
-  //strcpy((char*) master_write_buf, "Hello friend.\n");
-  //strcpy((char*) slave_write_buf, "Hello friend.\n");
-
-  // BUF_SIZE = 6 BELOW
-  strcpy((char*) master_write_buf, "Hello");
-  strcpy((char*) slave_write_buf, "Hello");
-  strcpy((char*) slave_read_buf, "Hello");
-
-  printf("Buffer is >%.*s<\n", BUF_SIZE, slave_write_buf);
+  strcpy((char*) master_write_buf, "Hello friend.\n");
+  strcpy((char*) slave_read_buf, "Hello friend.\n");
 
   // Set up I2C peripheral
   TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_callback(i2c_callback, NULL));
-  //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_enable_slave_read(BUF_SIZE));
-  TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_master_write_buffer(master_write_buf, BUF_SIZE));
+  //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_master_write_buffer(master_write_buf, BUF_SIZE));
+  //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_master_read_buffer(master_read_buf, BUF_SIZE));
   TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_slave_write_buffer(slave_write_buf, BUF_SIZE));
   TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_slave_read_buffer(slave_read_buf, BUF_SIZE));
-
 
   TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_slave_address(FOLLOW_ADDRESS));
   TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_listen());
