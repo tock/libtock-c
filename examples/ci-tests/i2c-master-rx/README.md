@@ -6,7 +6,7 @@
 
 To run the test,
 ```bash
-sudo python3 test.py Nrf52840GpioTest
+sudo python3 test.py Nrf52840Test
 ```
 
 Switch board name to the test you intend to run. Otherwise, python unittest
