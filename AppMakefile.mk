@@ -275,7 +275,7 @@ $(BUILDDIR)/$(PACKAGE_NAME).tab: $(foreach platform, $(TOCK_TARGETS), $(BUILDDIR
 
 # Rules for building apps
 .PHONY:	all
-all:	$(BUILDDIR)/$(PACKAGE_NAME).tab size
+all:	$(BUILDDIR)/$(PACKAGE_NAME).tab
 
 # The size target accumulates dependencies in the platform build rule creation
 .PHONY: size
