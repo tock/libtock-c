@@ -1,4 +1,5 @@
 #include "tock.h"
+#include <stdlib.h>
 #include <string.h>
 
 #if defined(STACK_SIZE)
@@ -328,9 +329,7 @@ void _c_start_pic(uint32_t app_start, uint32_t mem_start) {
   }
 
   main();
-  while (1) {
-    yield();
-  }
+  exit(0);
 }
 
 // C startup routine for apps compiled with fixed addresses (i.e. no PIC).
@@ -365,7 +364,5 @@ void _c_start_nopic(uint32_t app_start, uint32_t mem_start) {
   memset(bss_start, 0, myhdr->bss_size);
 
   main();
-  while (1) {
-    yield();
-  }
+  exit(0);
 }
