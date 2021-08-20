@@ -202,12 +202,12 @@ override LEGACY_LIBS_cortex-m += \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libgcc.a
 
 override LEGACY_LIBS_cortex-m7 += $(LEGACY_LIBS_cortex-m) \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7e-m/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7e-m/libm.a
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
 
 override LEGACY_LIBS_cortex-m4 += $(LEGACY_LIBS_cortex-m) \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7e-m/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7e-m/libm.a
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
 
 override LEGACY_LIBS_cortex-m3 += $(LEGACY_LIBS_cortex-m) \
       $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
