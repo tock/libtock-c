@@ -62,8 +62,9 @@ else
 #  rv32imac|rv32imac.0x20040040.0x80002800 # RISC-V for HiFive1b
 #  rv32imac|rv32imac.0x404*.0x8000*        # RISC-V for arty-e21
 #  rv32imac|rv32imac.0x403B0060.0x3FCC0000 # RISC-V for ESP32-C3
-#  rv32imc|rv32imc.0x20030040.0x10003400   # RISC-V for OpenTitan
+#  rv32imc|rv32imc.0x20030080.0x10005000   # RISC-V for OpenTitan
 #  rv32imc|rv32imc.0x41000060.0x42008000   # RISC-V for LiteX Arty-A7
+#  rv32i|rv32i.0x00080060.0x40008000       # RISC-V for LiteX Simulator
 TOCK_TARGETS ?= cortex-m0\
                 cortex-m3\
                 cortex-m4\
@@ -73,7 +74,8 @@ TOCK_TARGETS ?= cortex-m0\
                 rv32imac|rv32imac.0x40440060.0x80007000|0x40440060|0x80007000\
                 rv32imac|rv32imac.0x403B0060.0x3FCC0000|0x403B0060|0x3FCC0000\
                 rv32imc|rv32imc.0x20030080.0x10005000|0x20030080|0x10005000\
-                rv32imc|rv32imc.0x41000060.0x42008000|0x41000060|0x42008000
+                rv32imc|rv32imc.0x41000060.0x42008000|0x41000060|0x42008000\
+                rv32i|rv32i.0x00080060.0x40008000|0x00080060|0x40008000
 endif
 
 # Generate TOCK_ARCHS, the set of architectures listed in TOCK_TARGETS
