@@ -118,21 +118,17 @@ TOOLCHAIN_cortex-m7 := arm-none-eabi
 # essentially any target. Thus, try a few known names and choose the one for
 # which a gcc is found.
 ifneq (,$(shell which riscv64-none-elf-gcc 2>/dev/null))
-  TOOLCHAIN_rv32imac := riscv64-none-elf
-  TOOLCHAIN_rv32imc := riscv64-none-elf
   TOOLCHAIN_rv32i := riscv64-none-elf
 else ifneq (,$(shell which riscv32-none-elf-gcc 2>/dev/null))
-  TOOLCHAIN_rv32imac := riscv32-none-elf
-  TOOLCHAIN_rv32imc := riscv32-none-elf
   TOOLCHAIN_rv32i := riscv32-none-elf
 else
   # Fallback option. We don't particularly want to throw an error (even if
   # RISCV=1 is set) as this configuration makefile can be useful without a
   # proper toolchain.
-  TOOLCHAIN_rv32imac := riscv64-unknown-elf
-  TOOLCHAIN_rv32imc := riscv64-unknown-elf
   TOOLCHAIN_rv32i := riscv64-unknown-elf
 endif
+TOOLCHAIN_rv32imac := $(TOOLCHAIN_rv32i)
+TOOLCHAIN_rv32imc := $(TOOLCHAIN_rv32i)
 
 # Flags for building app Assembly, C, C++ files
 # n.b. make convention is that CPPFLAGS are shared for C and C++ sources
