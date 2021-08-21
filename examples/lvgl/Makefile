@@ -13,7 +13,8 @@ C_SRCS += $(wildcard *.c)
 
 # include $(TOCK_USERLAND_BASE_DIR)/lvgl/lvgl.mk
 
-APP_HEAP_SIZE := 20000
+APP_HEAP_SIZE := 40000
+STACK_SIZE := 4096
 
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.
