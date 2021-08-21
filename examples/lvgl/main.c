@@ -4,16 +4,15 @@
 
 static void event_handler(lv_event_t * e)
 {
-    lv_event_code_t code = lv_event_get_code(e);
-    unsigned int *seconds = (unsigned int*)lv_event_get_user_data(e);
+  lv_event_code_t code  = lv_event_get_code(e);
+  unsigned int *seconds = (unsigned int*)lv_event_get_user_data(e);
 
-    if(code == LV_EVENT_CLICKED) {
-        LV_LOG_USER("Clicked");
-        *seconds = 0;
-    }
-    else if(code == LV_EVENT_VALUE_CHANGED) {
-        LV_LOG_USER("Toggled");
-    }
+  if (code == LV_EVENT_CLICKED) {
+    LV_LOG_USER("Clicked");
+    *seconds = 0;
+  } else if (code == LV_EVENT_VALUE_CHANGED) {
+    LV_LOG_USER("Toggled");
+  }
 }
 
 int main (void)

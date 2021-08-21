@@ -39,12 +39,10 @@ int screen_get_supported_resolutions (int* resolutions) {
   fbr.done  = false;
 
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 11, 0, 0);
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       *resolutions = fbr.data1;
       ret = fbr.error;
@@ -58,16 +56,14 @@ int screen_get_supported_resolution (size_t index, size_t *width, size_t *height
   fbr.done = false;
 
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 12, index, 0);
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       *width  = fbr.data1;
       *height = fbr.data2;
-      ret = fbr.error;
+      ret     = fbr.error;
     }
   }
   return ret;
@@ -79,15 +75,13 @@ int screen_get_supported_pixel_formats (int* formats) {
   fbr.done  = false;
 
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 13, 0, 0);
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       *formats = fbr.data1;
-      ret = fbr.error;
+      ret      = fbr.error;
     }
   }
   return ret;
@@ -99,15 +93,13 @@ int screen_get_supported_pixel_format (size_t index, int* format) {
   fbr.done  = false;
 
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 14, index, 0);
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       *format = fbr.data1;
-      ret = fbr.error;
+      ret     = fbr.error;
     }
   }
   return ret;
@@ -123,12 +115,10 @@ int screen_set_brightness (size_t brightness) {
   fbr.done = false;
 
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 3, brightness, 0);
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       ret = fbr.error;
     }
@@ -141,12 +131,10 @@ int screen_invert_on (void) {
   fbr.done = false;
 
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 4, 0, 0);
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       ret = fbr.error;
     }
@@ -159,12 +147,10 @@ int screen_invert_off (void) {
   fbr.done = false;
 
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 5, 0, 0);
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       ret = fbr.error;
     }
@@ -199,16 +185,14 @@ int screen_get_resolution (size_t *width, size_t *height) {
   fbr.done = false;
 
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 23, 0, 0);
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       *width  = fbr.data1;
       *height = fbr.data2;
-      ret = fbr.error;
+      ret     = fbr.error;
     }
   }
   return ret;
@@ -217,14 +201,12 @@ int screen_get_resolution (size_t *width, size_t *height) {
 int screen_set_resolution (size_t width, size_t height) {
   ScreenReturn fbr;
   fbr.done = false;
-  
+
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 24, width, height);
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       ret = fbr.error;
     }
@@ -261,15 +243,13 @@ int screen_get_pixel_format (int* format) {
   fbr.done  = false;
 
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 25, 0, 0);
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       *format = fbr.data1;
-      ret = fbr.error;
+      ret     = fbr.error;
     }
   }
   return ret;
@@ -280,12 +260,10 @@ int screen_set_pixel_format (size_t format) {
   fbr.done = false;
 
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 26, format, 0);
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       ret = fbr.error;
     }
@@ -299,15 +277,13 @@ int screen_get_rotation (int* rotation) {
   fbr.done  = false;
 
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 21, 0, 0);
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       *rotation = fbr.data1;
-      ret = fbr.error;
+      ret       = fbr.error;
     }
   }
   return ret;
@@ -318,12 +294,10 @@ int screen_set_rotation (size_t rotation) {
   fbr.done = false;
 
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 22, rotation, 0);
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       ret = fbr.error;
     }
@@ -348,13 +322,11 @@ int screen_set_frame (uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
   fbr.done = false;
 
   int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS)
-  {
+  if (ret == RETURNCODE_SUCCESS) {
     syscall_return_t com = command(DRIVER_NUM_SCREEN, 100, ((x & 0xFFFF) << 16) | ((y & 0xFFFF)),
-                                 ((width & 0xFFFF) << 16) | ((height & 0xFFFF)));
+                                   ((width & 0xFFFF) << 16) | ((height & 0xFFFF)));
     ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS)
-    {
+    if (ret == RETURNCODE_SUCCESS) {
       yield_for (&fbr.done);
       ret = fbr.error;
     }
@@ -375,10 +347,9 @@ int screen_fill (size_t color) {
     if (ret == TOCK_STATUSCODE_SUCCESS) {
       syscall_return_t com = command(DRIVER_NUM_SCREEN, 300, 0, 0);
       ret = tock_command_return_novalue_to_returncode(com);
-      if (ret == TOCK_STATUSCODE_SUCCESS) 
-      {
+      if (ret == TOCK_STATUSCODE_SUCCESS) {
         yield_for (&fbr.done);
-        ret = fbr.error; 
+        ret = fbr.error;
       }
     }
     screen_allow (NULL, 0);
@@ -391,8 +362,7 @@ int screen_write (size_t length) {
   fbr.done = false;
 
   int ret = screen_allow (buffer, buffer_len);
-  if (ret == TOCK_STATUSCODE_SUCCESS)
-  {
+  if (ret == TOCK_STATUSCODE_SUCCESS) {
     ret = screen_subscribe(screen_callback, &fbr);
     if (ret == TOCK_STATUSCODE_SUCCESS) {
       syscall_return_t com = command(DRIVER_NUM_SCREEN, 200, length, 0);
