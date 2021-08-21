@@ -358,7 +358,7 @@ void yield(void) {
     register uint32_t a0  __asm__ ("a0")        = 1; // yield-wait
     register uint32_t wait_field __asm__ ("a1") = 0; // yield result ptr
     __asm__ volatile (
-      "li    a4, 0\n"
+      "li       a4, 0\n"
       "ecall\n"
       :
       : "r" (a0), "r" (wait_field)
@@ -377,7 +377,7 @@ int yield_no_wait(void) {
     register uint32_t a0  __asm__ ("a0") = 0; // yield-no-wait
     register uint8_t* a1  __asm__ ("a1") = &result;
     __asm__ volatile (
-      "li    a4, 0\n"
+      "li       a4, 0\n"
       "ecall\n"
       :
       : "r" (a0), "r" (a1)
@@ -392,11 +392,11 @@ int yield_no_wait(void) {
 void tock_restart(uint32_t completion_code) {
   register uint32_t a0  __asm__ ("a0") = 1; // exit-restart
   register uint32_t a1  __asm__ ("a1") = completion_code;
+  register uint32_t a4  __asm__ ("a4") = 6;
   __asm__ volatile (
-    "li    a4, 6\n"
     "ecall\n"
     :
-    : "r" (a0), "r" (a1)
+    : "r" (a0), "r" (a1), "r" (a4)
     : "memory");
   __builtin_unreachable();
 }
@@ -404,11 +404,11 @@ void tock_restart(uint32_t completion_code) {
 void tock_exit(uint32_t completion_code) {
   register uint32_t a0  __asm__ ("a0") = 0; // exit-terminate
   register uint32_t a1  __asm__ ("a1") = completion_code;
+  register uint32_t a4  __asm__ ("a4") = 6;
   __asm__ volatile (
-    "li    a4, 6\n"
     "ecall\n"
     :
-    : "r" (a0), "r" (a1)
+    : "r" (a0), "r" (a1), "r" (a4)
     : "memory");
   __builtin_unreachable();
 }
@@ -419,15 +419,15 @@ subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
   register uint32_t a1  __asm__ ("a1") = subscribe;
   register void*    a2  __asm__ ("a2") = uc;
   register void*    a3  __asm__ ("a3") = userdata;
+  register uint32_t a4  __asm__ ("a4") = 1;
   register int rtype __asm__ ("a0");
   register int rv1 __asm__ ("a1");
   register int rv2 __asm__ ("a2");
   register int rv3 __asm__ ("a3");
   __asm__ volatile (
-    "li    a4, 1\n"
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
-    : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
+    : "r" (a0), "r" (a1), "r" (a2), "r" (a3), "r" (a4)
     : "memory");
   if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
     subscribe_return_t rval = {true, (subscribe_upcall*)rv1, (void*)rv2, 0};
@@ -446,15 +446,15 @@ syscall_return_t command(uint32_t driver, uint32_t command,
   register uint32_t a1  __asm__ ("a1") = command;
   register uint32_t a2  __asm__ ("a2") = arg1;
   register uint32_t a3  __asm__ ("a3") = arg2;
+  register uint32_t a4  __asm__ ("a4") = 2;
   register int rtype __asm__ ("a0");
   register int rv1 __asm__ ("a1");
   register int rv2 __asm__ ("a2");
   register int rv3 __asm__ ("a3");
   __asm__ volatile (
-    "li    a4, 2\n"
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
-    : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
+    : "r" (a0), "r" (a1), "r" (a2), "r" (a3), "r" (a4)
     : "memory");
   syscall_return_t rval = {rtype, {rv1, rv2, rv3}};
   return rval;
@@ -466,15 +466,15 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
   register uint32_t a1  __asm__ ("a1") = allow;
   register void*    a2  __asm__ ("a2") = ptr;
   register size_t a3  __asm__ ("a3")   = size;
+  register uint32_t a4  __asm__ ("a4") = 3;
   register int rtype __asm__ ("a0");
   register int rv1  __asm__ ("a1");
   register int rv2  __asm__ ("a2");
   register int rv3  __asm__ ("a3");
   __asm__ volatile (
-    "li    a4, 3\n"
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
-    : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
+    : "r" (a0), "r" (a1), "r" (a2), "r" (a3), "r" (a4)
     : "memory");
   if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
     allow_rw_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
@@ -494,15 +494,15 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
   register uint32_t a1  __asm__ ("a1")    = allow;
   register const void* a2  __asm__ ("a2") = ptr;
   register size_t a3  __asm__ ("a3")      = size;
+  register uint32_t a4  __asm__ ("a4")    = 4;
   register int rtype __asm__ ("a0");
   register int rv1 __asm__ ("a1");
   register int rv2 __asm__ ("a2");
   register int rv3 __asm__ ("a3");
   __asm__ volatile (
-    "li    a4, 4\n"
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
-    : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
+    : "r" (a0), "r" (a1), "r" (a2), "r" (a3), "r" (a4)
     : "memory");
   if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
     allow_ro_return_t rv = {true, (const void*)rv1, (size_t)rv2, 0};
@@ -519,13 +519,13 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
 memop_return_t memop(uint32_t op_type, int arg1) {
   register uint32_t a0    __asm__ ("a0") = op_type;
   register int a1         __asm__ ("a1") = arg1;
+  register uint32_t a4    __asm__ ("a4") = 5;
   register uint32_t val   __asm__ ("a1");
   register uint32_t code  __asm__ ("a0");
   __asm__ volatile (
-    "li    a4, 5\n"
     "ecall\n"
     : "=r" (code), "=r" (val)
-    : "r" (a0), "r" (a1)
+    : "r" (a0), "r" (a1), "r" (a4)
     : "memory"
     );
   if (code == TOCK_SYSCALL_SUCCESS) {
