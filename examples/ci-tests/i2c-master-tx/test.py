@@ -22,6 +22,7 @@ GPIO.setup(BUTTON_1, GPIO.OUT) # BUTTON_1 pin set as output
 
 # Set up PiGPIO properly by configuring it on pi then importing library
 os.system('sudo pigpiod')
+time.sleep(1)
 import pigpio
 
 pi = pigpio.pi() # Configure the Raspberry Pi as slave
@@ -164,6 +165,10 @@ class I2CMasterTxTest(unittest.TestCase):
 
             logger.info('I2C Master Tx Test has ended.',
                 extra={'timegap': time_gap(TEST_START_TIME)})
+
+            os.system('sudo killall pigpiod')
+            time.sleep(1)
+
             self.assertTrue(received)
 
         else:
@@ -188,6 +193,10 @@ class I2CMasterTxTest(unittest.TestCase):
 
             logger.info('I2C Master Tx Test has ended.',
                 extra={'timegap': time_gap(TEST_START_TIME)})
+
+            os.system('sudo killall pigpiod')
+            time.sleep(1)
+
             self.assertTrue(received)
 
 

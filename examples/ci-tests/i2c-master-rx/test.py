@@ -7,6 +7,8 @@ import os
 MESSAGE_SENT = "Hello I'm Slave" # Message Master sends to slave
 MESSAGE_CONFIRMATION= ''
 FIRST_RX = 0
+dummy = False #Setup for dummy transaction (Buffer takes one transaction session to update)
+
 
 SDA = 10 # Broadcom pin 10 (P1 pin 19)
 SCL = 11 # Broadcom pin 11 (P1 pin 23)
@@ -22,6 +24,8 @@ GPIO.setup(BUTTON_1, GPIO.OUT) # BUTTON_1 pin set as output
 
 # Set up PiGPIO properly by configuring it on pi then importing library
 os.system('sudo pigpiod')
+time.sleep(1)
+
 import pigpio
 
 pi = pigpio.pi() # Configure the Raspberry Pi as slave
@@ -59,17 +63,58 @@ def i2c(id, tick):
    global FIRST_RX
    global MESSAGE_CONFIRMATION
    global I2C_ADDR
+   global dummy
 
    s, b, d = pi.bsc_i2c(I2C_ADDR, b"\nHello I'm Slave\n")
+   if not dummy:
+      if b:
+         if(FIRST_RX < 1):
+           MESSAGE_CONFIRMATION = d.decode()
+           FIRST_RX += 1
 
-   if b:
-      if(FIRST_RX < 1):
-        MESSAGE_CONFIRMATION = d.decode()
-        FIRST_RX += 1
+         array = str(d[:-1])
+         logger.info('Messsage Call Back From Master: ' + array,
+               extra={'timegap': time_gap(TEST_START_TIME)})
 
-      array = str(d[:-1])
-      logger.info('Messsage Call Back From Master: ' + array,
-            extra={'timegap': time_gap(TEST_START_TIME)})
+
+def dummy_transaction():
+    global pi
+    global I2C_ADDR
+    global dummy
+    """
+    This function is used to conteract the update delay
+    on the i2c slave buffer. The delay occurs when the buffer is
+    updated and requires the bus to enact a transcation before the
+    update actually takes place. This function, then, initiates
+    that transaction to occur, and update the buffer in proper time.
+    """
+
+    dummy = True # Update to initiate the dummy transaction properly
+
+    if not pi.connected:
+            exit()
+
+    press_button()
+
+    # Add pull-ups in case external pull-ups haven't been added (For Raspberry Pi)
+
+    pi.set_pull_up_down(SDA, pigpio.PUD_UP)
+    pi.set_pull_up_down(SCL, pigpio.PUD_UP)
+
+    # Respond to BSC slave activity
+    e = pi.event_callback(pigpio.EVENT_BSC, i2c)
+
+    pi.bsc_i2c(I2C_ADDR)
+
+    time.sleep(4)
+
+    e.cancel()
+
+    pi.bsc_i2c(0)
+
+    reset()
+
+    dummy = False # Return to normal, so proper testing is conducted
 
 # END
 
@@ -103,10 +148,12 @@ class I2CMasterRxTest(unittest.TestCase):
         global pi
         global MESSAGE_CONFIRMATION
 
+        dummy_transaction() # Initiate the dummy transaction (updates buffer in proper time)
+
         print()
         logger.info('Sending Messages As Slave... ',
             extra={'timegap': time_gap(TEST_START_TIME)})
-        
+
         received = False
 
         if not pi.connected:
@@ -163,6 +210,10 @@ class I2CMasterRxTest(unittest.TestCase):
 
             logger.info('I2C Master Rx Test has ended.',
                 extra={'timegap': time_gap(TEST_START_TIME)})
+
+            os.system('sudo killall pigpiod')
+            time.sleep(1)
+
             self.assertTrue(received)
 
         else:
@@ -188,6 +239,10 @@ class I2CMasterRxTest(unittest.TestCase):
 
             logger.info('I2C Master Rx Test has ended.',
                 extra={'timegap': time_gap(TEST_START_TIME)})
+
+            os.system('sudo killall pigpiod')
+            time.sleep(1)
+
             self.assertTrue(received)
 
 

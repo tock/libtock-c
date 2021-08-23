@@ -6,40 +6,11 @@ import random
 import struct
 
 TARGET_ACKNOWLEDGEMENT = ""
-
-sp = serial.Serial(port="/dev/ttyACM0", baudrate=115200, bytesize=8, timeout=2)
+sp = None
+#sp = serial.Serial(port="/dev/ttyACM0", baudrate=115200, bytesize=8, timeout=2)
+#sp = serial.Serial(port="/dev/ttyUSB0", baudrate=115200, bytesize=8, timeout=2)
 ser = serial.Serial(port="/dev/ttyS0", baudrate=115200, bytesize=8, parity="N", stopbits=1);
 print("Starting Uart Rx/TX Test...\n")
-#while(1):
-#    c = random.randint(65, 90)
-#    message = chr(c)
-#    ser.write(struct.pack('<H', c))
-#
-#    
-#    time.sleep(5)
-#    if(sp.in_waiting > 0):
-#        # print("A")
-#        print("Message sent: " + message)
-#        #time.sleep(5)
-#        sp.readline()
-#        if(sp.in_waiting > 0):
-#            message_received = sp.readline()
-#            message_received = message_received.decode("Ascii")
-#            print("Message: " + message_received)
-#            char_received = message_received[-1]
-#            print("Echoed: " + char_received + "\n")
-#            if(char_received == message):
-#               print("Correct Serial Communication Message Received")
-#                break
-#       
-
-#print("Uart Rx/Tx Test Passes")
-#sp.close()
-#ser.close()
-#sp.open()
-#ser.open()
-#time.sleep(4)
-#ser.write(b"yeah")
 
 ################################################################################
 # Helper Functions
@@ -85,6 +56,8 @@ class UartTest(unittest.TestCase):
             
             buffer_period = float(time_gap(TEST_START_TIME))
             if(buffer_period > 45.0):
+                sp.close()
+                ser.close()
                 self.assertTrue(False)
             
             c = random.randint(65, 90)
@@ -96,7 +69,7 @@ class UartTest(unittest.TestCase):
     
             time.sleep(5)
             if(sp.in_waiting > 0):
-                # print("A")
+                print("A")
                 logger.info('Message sent: ' + TARGET_ACKNOWLEDGEMENT,
                            extra={'timegap': time_gap(TEST_START_TIME)})
                 #time.sleep(5)
@@ -127,7 +100,18 @@ class UartTest(unittest.TestCase):
 
 class Nrf52840Test(UartTest):
     def setUp(self):
+        global sp
+
+        sp = serial.Serial(port="/dev/ttyACM0", baudrate=115200, bytesize=8, timeout=2)
         logger.info('Setting up for nrf52840dk Uart Rx/Tx test...',
+            extra={'timegap': time_gap(TEST_START_TIME)})
+
+class HailTest(UartTest):
+    def setUp(self):
+        global sp
+
+        sp = serial.Serial(port="/dev/ttyUSB0", baudrate=115200, bytesize=8, parity="N", stopbits=1);
+        logger.info('Setting up for hail Uart Rx/Tx test...',
             extra={'timegap': time_gap(TEST_START_TIME)})
 
 # END
