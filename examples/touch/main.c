@@ -3,7 +3,7 @@
 #include <timer.h>
 #include <touch.h>
 
-static void tocuh_event (int status, int x, int y, void *ud __attribute__ ((unused))) {
+static void touch_event (int status, int x, int y, void *ud __attribute__ ((unused))) {
   switch (status) {
     case TOUCH_STATUS_PRESSED: {
       printf ("pressed ");
