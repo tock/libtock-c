@@ -6,10 +6,10 @@ import random
 import struct
 
 TARGET_ACKNOWLEDGEMENT = ""
-sp = None
-#sp = serial.Serial(port="/dev/ttyACM0", baudrate=115200, bytesize=8, timeout=2)
-#sp = serial.Serial(port="/dev/ttyUSB0", baudrate=115200, bytesize=8, timeout=2)
+sp = None       # Serial port for specific boards to read the echo of messages
 ser = serial.Serial(port="/dev/ttyS0", baudrate=115200, bytesize=8, parity="N", stopbits=1)
+
+
 print("Starting Uart Rx/TX Test...\n")
 
 ################################################################################
@@ -69,17 +69,17 @@ class UartTest(unittest.TestCase):
     
             time.sleep(5)
             if(sp.in_waiting > 0):
+
                 logger.info('Message sent: ' + TARGET_ACKNOWLEDGEMENT,
                            extra={'timegap': time_gap(TEST_START_TIME)})
-                #time.sleep(5)
                 sp.readline()
                 if(sp.in_waiting > 0):
+
                     message_received = sp.readline()
                     message_received = message_received.decode("Ascii")
-                    #print("Message: " + message_received)
                     char_received = message_received[-1]
-                    #print("Echoed: " + char_received + "\n")
                     if(char_received == TARGET_ACKNOWLEDGEMENT):
+
                         logger.info("Message Received (r[character]): " + message_received,
                                    extra={'timegap': time_gap(TEST_START_TIME)})
                         logger.info("Echoed: " + char_received,
@@ -109,7 +109,7 @@ class HailTest(UartTest):
     def setUp(self):
         global sp
 
-        sp = serial.Serial(port="/dev/ttyUSB0", baudrate=115200, bytesize=8, parity="N", stopbits=1);
+        sp = serial.Serial(port="/dev/ttyUSB0", baudrate=115200, bytesize=8, parity="N", stopbits=1)
         logger.info('Setting up for hail Uart Rx/Tx test...',
             extra={'timegap': time_gap(TEST_START_TIME)})
 

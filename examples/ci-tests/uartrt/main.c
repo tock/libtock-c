@@ -12,13 +12,6 @@ int main(void) {
   while (1) {
     int c = getch();
 
-    /*if (c == RETURNCODE_FAIL) {
-      printf("\ngetch() failed!\n");
-    } else {
-      printf("\n%c\n", (char) c);
-    }*/
-    
-    //delay_ms(3000);
     char m = (char) c;
     
     char message[3];
@@ -31,10 +24,6 @@ int main(void) {
     delay_ms(1000);
     
     putnstr(message, (strlen(message)));
-
-    //size_t len = 4;
-    //getnstr(echo_message, len);
-    //printf("%s", echo_message);
     
     delay_ms(3000);
     /*if(strcmp(echo_message, "") != 0){
@@ -44,11 +33,4 @@ int main(void) {
     delay_ms(2000);
   }
   
-  
-  /*while(true){
-    // Send Acknowledgement
-    const char* ack = "true";
-    putnstr(ack, (strlen(ack)));
-  }
-  return 0;*/
 }
