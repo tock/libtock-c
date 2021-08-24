@@ -5,7 +5,7 @@
  */
 
 /* Memory Spaces Definitions, 448K flash, 64K ram */
-PROG_LENGTH = 0x00040000;
+PROG_LENGTH = 0x00070000;
 RAM_LENGTH  = 0x00010000;
 
 ENTRY(_start)
