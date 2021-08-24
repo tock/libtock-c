@@ -29,6 +29,8 @@ int main(void) {
     button_enable_interrupt(0);
   }
 
-  // Can just return here. The application will continue to execute.
-  return 0;
+  // Loop forever waiting on button presses.
+  while (1) {
+    yield();
+  }
 }

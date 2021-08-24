@@ -25,5 +25,8 @@ static void rot13_callback(int pid, int len, int buf, __attribute__ ((unused)) v
 int main(void) {
   ipc_register_service_callback("org.tockos.examples.rot13", rot13_callback,
                                 NULL);
-  return 0;
+
+  while (1) {
+    yield();
+  }
 }
