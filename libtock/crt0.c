@@ -328,8 +328,7 @@ void _c_start_pic(uint32_t app_start, uint32_t mem_start) {
     }
   }
 
-  main();
-  exit(0);
+  exit(main());
 }
 
 // C startup routine for apps compiled with fixed addresses (i.e. no PIC).
@@ -363,6 +362,5 @@ void _c_start_nopic(uint32_t app_start, uint32_t mem_start) {
   char* bss_start = (char*)(myhdr->bss_start + mem_start);
   memset(bss_start, 0, myhdr->bss_size);
 
-  main();
-  exit(0);
+  exit(main());
 }
