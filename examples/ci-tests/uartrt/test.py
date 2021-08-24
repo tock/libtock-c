@@ -9,7 +9,7 @@ TARGET_ACKNOWLEDGEMENT = ""
 sp = None
 #sp = serial.Serial(port="/dev/ttyACM0", baudrate=115200, bytesize=8, timeout=2)
 #sp = serial.Serial(port="/dev/ttyUSB0", baudrate=115200, bytesize=8, timeout=2)
-ser = serial.Serial(port="/dev/ttyS0", baudrate=115200, bytesize=8, parity="N", stopbits=1);
+ser = serial.Serial(port="/dev/ttyS0", baudrate=115200, bytesize=8, parity="N", stopbits=1)
 print("Starting Uart Rx/TX Test...\n")
 
 ################################################################################
@@ -69,7 +69,6 @@ class UartTest(unittest.TestCase):
     
             time.sleep(5)
             if(sp.in_waiting > 0):
-                print("A")
                 logger.info('Message sent: ' + TARGET_ACKNOWLEDGEMENT,
                            extra={'timegap': time_gap(TEST_START_TIME)})
                 #time.sleep(5)

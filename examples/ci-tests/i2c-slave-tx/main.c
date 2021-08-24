@@ -6,7 +6,6 @@
 #include <timer.h>
 
 #define BUF_SIZE 16
-//#define LEADER_ADDRESS 0x40
 #define FOLLOW_ADDRESS 0x41
 
 uint8_t master_write_buf[BUF_SIZE];
@@ -79,8 +78,6 @@ int main(void) {
 
   // Set up I2C peripheral
   TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_callback(i2c_callback, NULL));
-  //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_master_write_buffer(master_write_buf, BUF_SIZE));
-  //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_master_read_buffer(master_read_buf, BUF_SIZE));
   TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_slave_write_buffer(slave_write_buf, BUF_SIZE));
   TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_slave_read_buffer(slave_read_buf, BUF_SIZE));
 

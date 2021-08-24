@@ -66,10 +66,10 @@ LOG_FORMAT = "%(timegap)s %(levelname)s -- %(message)s"
 logging.basicConfig(format=LOG_FORMAT)
 
 # Logger add formatter
-logger = logging.getLogger('I2C Tx Test')
+logger = logging.getLogger('I2C Slave Tx Test')
 logger.setLevel('INFO')
 
-logger.info('Initiating I2C Tx test...',
+logger.info('Initiating I2C Slave Tx test...',
             extra={'timegap': time_gap(TEST_START_TIME)})
 
 # END
@@ -78,7 +78,7 @@ logger.info('Initiating I2C Tx test...',
 # Test Case Module
 ################################################################################
 
-class I2CRxTest(unittest.TestCase):
+class I2CSlaveTxTest(unittest.TestCase):
     def test_i2c_slave_tx_configuration(self):
         
         print()
@@ -100,9 +100,17 @@ class I2CRxTest(unittest.TestCase):
             
                 logger.info('Message Received: ' + message_received,
                             extra={'timegap': time_gap(TEST_START_TIME)})
+
                 time.sleep(1)
+
                 logger.info('Message Sent Successfully from Slave\n',
                             extra={'timegap': time_gap(TEST_START_TIME)})
+
+                logger.info('Connection Satisfied.',
+                extra={'timegap': time_gap(TEST_START_TIME)})
+
+                time.sleep(1)
+
                 received = True
             
         except OSError:
@@ -135,12 +143,6 @@ class I2CRxTest(unittest.TestCase):
 
             time.sleep(1)
 
-            logger.info('Connection Satisfied.',
-                extra={'timegap': time_gap(TEST_START_TIME)})
-            received = True
-
-            time.sleep(1)
-
             logger.info('I2C Slave Tx Test has ended.\n',
                 extra={'timegap': time_gap(TEST_START_TIME)})
             
@@ -151,11 +153,11 @@ class I2CRxTest(unittest.TestCase):
 # Test Case Setup
 ################################################################################
 
-class Nrf52840Test(I2CRxTest):
+class Nrf52840Test(I2CSlaveTxTest):
     def setUp(self):
         reset()
 
-        logger.info('Setting up for nrf52840dk I2C Tx test...',
+        logger.info('Setting up for nrf52840dk I2C Slave Tx test...',
             extra={'timegap': time_gap(TEST_START_TIME)})
 
 

@@ -38,7 +38,6 @@ static void i2c_callback(int callback_type,
     delay_ms(2500);
 
     printf("Sending: Hello friend.\n");
-    //TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
     TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(FOLLOW_ADDRESS, BUF_SIZE));
   }  else {
     printf("ERROR: Unexepected callback: type %d\n", callback_type);

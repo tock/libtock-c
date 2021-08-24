@@ -59,7 +59,7 @@ logger.info('Initiating I2C Rx test...',
 # Test Case Module
 ################################################################################
 
-class I2CRxTest(unittest.TestCase):
+class I2CSlaveRxTest(unittest.TestCase):
     def test_i2c_slave_rx_configuration(self):
         
         print()
@@ -121,9 +121,9 @@ class I2CRxTest(unittest.TestCase):
 # Test Case Setup
 ################################################################################
 
-class Nrf52840Test(I2CRxTest):
+class Nrf52840Test(I2CSlaveRxTest):
     def setUp(self):
-        logger.info('Setting up for nrf52840dk I2C Rx test...',
+        logger.info('Setting up for nrf52840dk I2C Slave Rx test...',
             extra={'timegap': time_gap(TEST_START_TIME)})
 
 # END
