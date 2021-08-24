@@ -87,7 +87,7 @@ class I2CSlaveTxTest(unittest.TestCase):
         
         received = False
 
-        press_button()
+        press_button() # Used to press one of the user buttons on the board
         
         try:
             dataM = bus.read_i2c_block_data(ADDRESS, MASTER, BUF_SIZE)
@@ -155,7 +155,7 @@ class I2CSlaveTxTest(unittest.TestCase):
 
 class Nrf52840Test(I2CSlaveTxTest):
     def setUp(self):
-        reset()
+        reset() # Used to activate the reset button on board
 
         logger.info('Setting up for nrf52840dk I2C Slave Tx test...',
             extra={'timegap': time_gap(TEST_START_TIME)})

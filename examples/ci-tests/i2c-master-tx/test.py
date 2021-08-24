@@ -115,7 +115,7 @@ class I2CMasterTxTest(unittest.TestCase):
         if not pi.connected:
             exit()
 
-        press_button()          # Used to press on of the user buttons on the board
+        press_button()          # Used to press one of the user buttons on the board
 
         # Add pull-ups in case external pull-ups haven't been added (For Raspberry Pi)
 

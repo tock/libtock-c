@@ -7,7 +7,7 @@ import os
 MESSAGE_SENT = "Hello I'm Slave" # Message Master sends to slave
 MESSAGE_CONFIRMATION= ''
 FIRST_RX = 0
-dummy = False #Setup for dummy transaction (Buffer takes one transaction session to update)
+dummy = False #Setup for dummy transaction (Buffer takes one transaction session to update properly)
 
 
 SDA = 10 # Broadcom pin 10 (P1 pin 19)
@@ -66,6 +66,8 @@ def i2c(id, tick):
    global dummy
 
    s, b, d = pi.bsc_i2c(I2C_ADDR, b"\nHello I'm Slave\n")
+
+   # Check if dummy transaction is occuring, if not, test has started.
    if not dummy:
       if b:
          if(FIRST_RX < 1):
@@ -85,11 +87,11 @@ def dummy_transaction():
     This function is used to conteract the update delay
     on the i2c slave buffer. The delay occurs when the buffer is
     updated and requires the bus to enact a transcation before the
-    update actually takes place. This function, then, initiates
-    that transaction to occur, and update the buffer in proper time.
+    update to the buffer actually takes place. This function, then, 
+    initiates that transaction to occur, and update the buffer in proper time.
     """
 
-    dummy = True # Update to initiate the dummy transaction properly
+    dummy = True # Update to initiate the dummy transaction properly on the i2c function
 
     if not pi.connected:
             exit()
@@ -114,7 +116,7 @@ def dummy_transaction():
 
     reset()
 
-    dummy = False # Return to normal, so proper testing is conducted
+    dummy = False # End dummy transaction, so proper testing is conducted on i2c function
 
 # END
 
@@ -148,7 +150,7 @@ class I2CMasterRxTest(unittest.TestCase):
         global pi
         global MESSAGE_CONFIRMATION
 
-        dummy_transaction() # Initiate the dummy transaction (updates buffer in proper time)
+        dummy_transaction() # Initiate the dummy transaction to update buffer in proper time
 
         print()
         logger.info('Sending Messages As Slave... ',
@@ -159,7 +161,7 @@ class I2CMasterRxTest(unittest.TestCase):
         if not pi.connected:
             exit()
 
-        press_button()          # Used to press on of the user buttons on the board
+        press_button()          # Used to press one of the user buttons on the board
 
         # Add pull-ups in case external pull-ups haven't been added (For Raspberry Pi)
 
