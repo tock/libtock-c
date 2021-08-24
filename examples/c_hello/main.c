@@ -17,5 +17,5 @@ static void nop(
 
 int main(void) {
   putnstr_async(hello, strlen(hello), nop, NULL);
-  return 0;
+  yield();
 }

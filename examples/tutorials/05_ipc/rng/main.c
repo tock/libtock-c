@@ -53,5 +53,8 @@ int main(void) {
   // Register the IPC service for this app. It is identified by the PACKAGE_NAME
   // of this app.
   ipc_register_service_callback(ipc_callback, NULL);
-  return 0;
+
+  while (1) {
+    yield();
+  }
 }

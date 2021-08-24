@@ -37,5 +37,8 @@ int main(void) {
   ipc_share(rot13_svc_num, rb, 64);
 
   ipc_notify_service(rot13_svc_num);
-  return 0;
+
+  while (1) {
+    yield();
+  }
 }

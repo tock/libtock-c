@@ -70,5 +70,8 @@ int main(void) {
   // configuration complete
   printf("Now advertising every %d ms as '%s'\n", advertising_interval_ms,
          device_name);
-  return 0;
+
+  while (1) {
+    yield();
+  }
 }

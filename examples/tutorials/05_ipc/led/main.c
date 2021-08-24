@@ -57,5 +57,8 @@ int main(void) {
   led_count((int*) &_number_of_leds);
 
   ipc_register_service_callback(ipc_callback, NULL);
-  return 0;
+
+  while (1) {
+    yield();
+  }
 }
