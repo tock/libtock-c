@@ -1,7 +1,7 @@
-lvGL 6.1.2 for Tock OS
+lvGL 8.0.2 for Tock OS
 ===================================
 
-LittlevGL is a free and open-source graphics library providing everything you need to create embedded GUI with easy-to-use graphical elements, beautiful visual effects and low memory footprint.
+Light and Versatile Graphics Library is a free and open-source graphics library providing everything you need to create embedded GUI with easy-to-use graphical elements, beautiful visual effects and low memory footprint.
 
 See https://docs.littlevgl.com/en/html/index.html for documentation.
 
@@ -22,6 +22,14 @@ Checkout the lvgl submodule in this directory
 
     $ git submodule init -- lvgl
     $ git submodule update
+
+For faster build times, edit the `lvgl/lvgl.mk` file and comment the examples.
+```
+# include $(LVGL_DIR)/$(LVGL_DIR_NAME)/examples/examples.mk
+include $(LVGL_DIR)/$(LVGL_DIR_NAME)/src/extra/extra.mk
+include $(LVGL_DIR)/$(LVGL_DIR_NAME)/src/core/lv_core.mk
+...
+```
 
 then run `make`
 

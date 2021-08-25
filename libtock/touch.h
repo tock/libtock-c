@@ -9,6 +9,7 @@
 #define TOUCH_STATUS_RELEASED 0
 #define TOUCH_STATUS_PRESSED 1
 #define TOUCH_STATUS_MOVED 2
+#define TOUCH_STATUS_UNSTARTED 3
 
 #define GESTURE_NO 0
 #define GESTURE_SWIPE_UP 1
@@ -39,7 +40,12 @@ typedef struct __attribute__((__packed__)) {
 
 int get_number_of_touches (int* touches);
 
+int enable_single_touch(void);
+int disable_single_touch(void);
 int single_touch_set_callback (touch_callback cb, void* ud);
+
+int enable_multi_touch(void);
+int disable_multi_touch(void);
 int multi_touch_set_callback (touch_callback cb, void* ud, int max_touches);
 int gesture_set_callback (gesture_callback cb, void* ud);
 
