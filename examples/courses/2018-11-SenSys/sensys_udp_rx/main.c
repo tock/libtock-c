@@ -101,6 +101,9 @@ int main(void) {
       break;
   }
 
+  // Note: Prior to 2.0, libtock-c kept apps alive in an implicit busy loop.
+  // Since 2.0, apps must now explicitly include their own event loop to
+  // avoid termination.
   while (1) {
     yield();
   }
