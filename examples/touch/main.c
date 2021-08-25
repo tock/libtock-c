@@ -23,7 +23,7 @@ static void touch_event (int status, int x, int y, void *ud __attribute__ ((unus
   printf ("(%d): %d y %d\n", status, x, y);
 }
 
-static void multi_tocuh_event (int num_touches, int data2 __attribute__ ((unused)), int data3 __attribute__ (
+static void multi_touch_event (int num_touches, int data2 __attribute__ ((unused)), int data3 __attribute__ (
                                  (unused)), void *ud __attribute__ ((unused))) {
   for (int i = 0; i < num_touches; i++) {
     unsigned char id, status;
@@ -62,11 +62,11 @@ int main(void) {
   }else if (num_touches == 1) {
     // single touch
     enable_single_touch();
-    single_touch_set_callback (tocuh_event, NULL);
+    single_touch_set_callback (touch_event, NULL);
   }else {
     // multi touch
     enable_multi_touch();
-    multi_touch_set_callback (multi_tocuh_event, NULL, num_touches);
+    multi_touch_set_callback (multi_touch_event, NULL, num_touches);
   }
   return 0;
 }
