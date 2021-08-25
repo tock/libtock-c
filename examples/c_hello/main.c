@@ -17,5 +17,9 @@ static void nop(
 
 int main(void) {
   putnstr_async(hello, strlen(hello), nop, NULL);
+  // Because we used the async method (as opposed to something synchronous,
+  // such as printf), we must explicitly wait for the asynchronous write to complete.
   yield();
+  // Now we are done.
+  return 0;
 }
