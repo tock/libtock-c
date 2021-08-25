@@ -5,6 +5,9 @@ import logging
 import time
 import unittest
 import os
+import subprocess
+
+TARGET_NAME = 'TockOS'
 
 ################################################################################
 # Helper classes and functions
@@ -12,7 +15,6 @@ import os
 
 def time_gap(start_time):
     """Return time gap between current time and start_time
-
     Argument:
     start_time - Start time
     """
@@ -56,16 +58,62 @@ class BleTest(unittest.TestCase):
         print() # Line change
         os.system('sudo systemctl status hciuart')
         print() # Line change
-        os.system('sudo timeout 5 stdbuf -oL hcitool lescan')
-        print() # Line change
-        logger.info('BLE scan ended.',
-            extra={'timegap': time_gap(TEST_START_TIME)})
+        # os.system('sudo timeout 5 stdbuf -oL hcitool lescan')
+        # print() # Line change
+        scan_cmd = 'sudo timeout 5 stdbuf -oL hcitool lescan'
 
-        # Restart bluetooth
-        # Note: the scanning process is corrupted whenever we try to kill it, so
-        #       for now, we resort to restarting bluetooth every test, but if
-        #       there is a better implementation, feel free to change this.
-        os.system('sudo hciconfig hci0 down; sudo hciconfig hci0 up')
+        # BLE scan flag
+        found = False
+
+        try:
+            scan_result = subprocess.check_output(scan_cmd, 
+                                              stderr=subprocess.STDOUT,
+                                              shell=True)
+            scan_result_str = scan_result.decode('ascii')
+            logger.info('Scan result:\n' + scan_result_str,
+                        extra={'timegap': time_gap(TEST_START_TIME)})
+            
+            # Search for target board name
+            scan_entries = scan_result_str.split('\n')
+            print(scan_entries)
+
+            for entry in scan_entries:
+                mac_addr, name = entry.split(' ')
+                print(name)
+
+                if name == TARGET_NAME:
+                    found = True
+
+        except subprocess.CalledProcessError as err:
+            # Print error
+            scan_result_str = err.output.decode('ascii')
+
+            logger.info('Scan result error:\n' + scan_result_str,
+                        extra={'timegap': time_gap(TEST_START_TIME)})
+
+            # Search for target board name
+            scan_entries = scan_result_str.split('\n')
+
+            for entry in scan_entries:
+                if entry != '':
+                    mac_addr, name = entry.split(' ', 1)
+
+                    if name == TARGET_NAME:
+                        found = True
+
+        finally:
+            logger.info('BLE scan ended.',
+                extra={'timegap': time_gap(TEST_START_TIME)})
+
+            # Restart bluetooth
+            # Note: the scanning process is corrupted whenever we try to kill it, so
+            #       for now, we resort to restarting bluetooth every test, but if
+            #       there is a better implementation, feel free to change this.
+            logger.info('Restarting test harness bluetooth.',
+                extra={'timegap': time_gap(TEST_START_TIME)})
+            os.system('sudo hciconfig hci0 down; sudo hciconfig hci0 up')
+
+            self.assertTrue(found)
 
 # END
 

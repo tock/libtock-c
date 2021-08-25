@@ -174,6 +174,18 @@ class Nrf52840Test(GpioTest):
         self.P3 = Pin(19)
         self.P4 = Pin(26)
 
+class HailTest(GpioTest):
+    def setUp(self):
+        logger.info('Setting up for Hail GPIO test...',
+            extra={'timegap': time_gap(TEST_START_TIME)})
+
+        # Assign input pins
+        self.P0 = Pin(5)
+        self.P1 = Pin(6)
+        self.P2 = Pin(13)
+        self.P3 = Pin(19)
+
+
 # END
 
 ################################################################################

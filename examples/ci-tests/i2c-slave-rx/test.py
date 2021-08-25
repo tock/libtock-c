@@ -1,3 +1,6 @@
+# I2C Slave Rx Test
+# This tester corresponds to libtock-c/examples/ci-tests/i2c-slave-rx test.
+
 from smbus import SMBus
 import time
 import logging

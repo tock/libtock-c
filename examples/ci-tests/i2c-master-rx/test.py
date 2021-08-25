@@ -1,3 +1,6 @@
+# I2C Master Rx Test
+# This tester corresponds to libtock-c/examples/ci-tests/i2c-master-rx test.
+
 import time
 import logging
 import unittest
