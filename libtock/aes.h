@@ -9,7 +9,20 @@ extern "C" {
 int aes_set_callback(subscribe_upcall callback, void* callback_args);
 
 int aes_set_key_buffer(const uint8_t* buffer, uint32_t len);
+/*
+ * Contains the IV buffer, if applicable.
+ */
 int aes_set_iv_buffer(const uint8_t* buffer, uint32_t len);
+
+/*
+ * Contains the nonce for CCM buffer.
+ */
+int aes_set_nonce_buffer(const uint8_t* buffer, uint32_t len);
+
+/*
+ * Contains the source buffer.
+ * If doing a AES CCM operation this sets the mlen value to `len`.
+ */
 int aes_set_source_buffer(const uint8_t* buffer, uint32_t len);
 int aes_set_dest_buffer(uint8_t* buffer, uint32_t len);
 
@@ -24,6 +37,7 @@ int aes_check_status(void);
  *    * 0 -> AES128Ctr
  *    * 1 -> AES128CBC
  *    * 2 -> AES128ECB
+ *    * 3 -> AES128CCM
  * encrypting:
  *    * true -> Encrypt the source data
  *    * false -> Decrypt the source data
@@ -64,6 +78,26 @@ int aes_crypt(void);
  * `aes_set_algorithm()` and `aes_setup()` as the key and IV will be cleared.
  */
 int aes_finish(void);
+
+/*
+ * This sets the A offset for AES CCM.
+ */
+int aes_ccm_set_a_off(uint32_t value);
+
+/*
+ * This sets the M offset for AES CCM.
+ */
+int aes_ccm_set_m_off(uint32_t value);
+
+/*
+ * This sets the mic length for AES CCM.
+ */
+int aes_ccm_set_mic_len(uint32_t value);
+
+/*
+ * This sets the confidential bool for AES CCM.
+ */
+int aes_ccm_set_confidential(bool value);
 
 #ifdef __cplusplus
 }
