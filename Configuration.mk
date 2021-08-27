@@ -141,6 +141,10 @@ endif
 TOOLCHAIN_rv32imac := $(TOOLCHAIN_rv32i)
 TOOLCHAIN_rv32imc := $(TOOLCHAIN_rv32i)
 
+ifeq ($(findstring -gcc,$(CC)),-gcc)
+    CC_IS_GCC := yes
+endif
+
 # Flags for building app Assembly, C, C++ files
 # n.b. make convention is that CPPFLAGS are shared for C and C++ sources
 # [CFLAGS is C only, CXXFLAGS is C++ only]
@@ -151,12 +155,15 @@ override CPPFLAGS += \
       -gdwarf-2\
       -Os\
       -fdata-sections -ffunction-sections\
-      -fstack-usage -Wstack-usage=$(STACK_SIZE)\
+      -fstack-usage\
       -Wall\
       -Wextra\
       -Wl,--warn-common\
       -Wl,--gc-sections\
       -Wl,--build-id=none
+ifeq ($(CC_IS_GCC),yes)
+  override CPPFLAGS += -Wstack-usage=$(STACK_SIZE)
+endif
 
 # Generic PIC flags for architectures with compiler support for FDPIC. Note!
 # These flags are not sufficient for full PIC support as Tock requires. The
@@ -298,7 +305,6 @@ override CPPFLAGS += -Wformat-nonliteral #        # can't check format string (m
 override CPPFLAGS += -Wformat-security #          # using untrusted format strings (maybe disable)
 override CPPFLAGS += -Wformat-y2k #               # use of strftime that assumes two digit years
 override CPPFLAGS += -Winit-self #                # { int i = i }
-override CPPFLAGS += -Wlogical-op #               # "suspicous use of logical operators in expressions" (a lint)
 override CPPFLAGS += -Wmissing-declarations #     # ^same? not sure how these differ
 override CPPFLAGS += -Wmissing-field-initializers # if init'ing struct w/out field names, warn if not all used
 override CPPFLAGS += -Wmissing-format-attribute # # something looks printf-like but isn't marked as such
@@ -307,10 +313,13 @@ override CPPFLAGS += -Wmultichar #                # use of 'foo' instead of "foo
 override CPPFLAGS += -Wpointer-arith #            # sizeof things not define'd (i.e. sizeof(void))
 override CPPFLAGS += -Wredundant-decls #          # { int i; int i; } (a lint)
 override CPPFLAGS += -Wshadow #                   # int foo(int a) { int a = 1; } inner a shadows outer a
-override CPPFLAGS += -Wtrampolines #              # attempt to generate a trampoline on the NX stack
 override CPPFLAGS += -Wunused-macros #            # macro defined in this file not used
 override CPPFLAGS += -Wunused-parameter #         # function parameter is unused aside from its declaration
 override CPPFLAGS += -Wwrite-strings #            # { char* c = "foo"; c[0] = 'b' } <-- "foo" should be r/o
+ifeq ($(CC_IS_GCC),yes)
+  override CPPFLAGS += -Wlogical-op #             # "suspicous use of logical operators in expressions" (a lint)
+  override CPPFLAGS += -Wtrampolines #            # attempt to generate a trampoline on the NX stack
+endif
 
 #CPPFLAGS += -Wabi -Wabi-tag              # inter-compiler abi issues
 #CPPFLAGS += -Waggregate-return           # warn if things return struct's
@@ -347,10 +356,12 @@ override CPPFLAGS += -Wwrite-strings #            # { char* c = "foo"; c[0] = 'b
 
 # C-only warnings
 override CFLAGS += -Wbad-function-cast #          # not obvious when this would trigger, could drop if annoying
-override CFLAGS += -Wjump-misses-init #           # goto or switch skips over a variable initialziation
 override CFLAGS += -Wmissing-prototypes #         # global fn defined w/out prototype (should be static or in .h)
 override CFLAGS += -Wnested-externs #             # mis/weird-use of extern keyword
 override CFLAGS += -Wold-style-definition #       # this garbage: void bar (a) int a; { }
+ifeq ($(CC_IS_GCC),yes)
+  override CFLAGS += -Wjump-misses-init #         # goto or switch skips over a variable initialziation
+endif
 
 #CFLAGS += -Wunsuffixed-float-constants # # { float f=0.67; if(f==0.67) printf("y"); else printf("n"); } => n
 #                                         ^ doesn't seem to work right? find_north does funny stuff
