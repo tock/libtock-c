@@ -666,3 +666,9 @@ void tock_expect(int expected, int actual, const char* file, unsigned line) {
     exit(-1);
   }
 }
+
+void wait_for_upcalls(void) {
+  while (1) {
+    yield();
+  }
+}

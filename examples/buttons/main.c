@@ -34,7 +34,5 @@ int main(void) {
     button_enable_interrupt(i);
   }
 
-  while (1) {
-    yield();
-  }
+  wait_for_upcalls();
 }

@@ -201,6 +201,8 @@ const char* tock_strrcode(returncode_t returncode);
 void tock_expect(int expected, int actual, const char* file, unsigned line);
 #define TOCK_EXPECT(_e, _a) tock_expect((_e), (_a), __FILE__, __LINE__)
 
+void wait_for_upcalls(void);
+
 #ifdef __cplusplus
 }
 #endif
