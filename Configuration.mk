@@ -157,13 +157,14 @@ override CPPFLAGS += \
       -fdata-sections -ffunction-sections\
       -fstack-usage\
       -Wall\
-      -Wextra\
-      -Wl,--warn-common\
-      -Wl,--gc-sections\
-      -Wl,--build-id=none
+      -Wextra
 ifeq ($(CC_IS_GCC),yes)
   override CPPFLAGS += -Wstack-usage=$(STACK_SIZE)
 endif
+override WLFLAGS += \
+      -Wl,--warn-common\
+      -Wl,--gc-sections\
+      -Wl,--build-id=none
 
 # Generic PIC flags for architectures with compiler support for FDPIC. Note!
 # These flags are not sufficient for full PIC support as Tock requires. The
@@ -180,19 +181,25 @@ override CPPFLAGS_PIC += \
 override CPPFLAGS_rv32i += \
       -march=rv32i\
       -mabi=ilp32\
-      -mcmodel=medlow\
+      -mcmodel=medlow
+
+override WLFLAGS_rv32i += \
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
 
 override CPPFLAGS_rv32imc += \
       -march=rv32imc\
       -mabi=ilp32\
-      -mcmodel=medlow\
+      -mcmodel=medlow
+
+override WLFLAGS_rv32imc += \
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
 
 override CPPFLAGS_rv32imac += \
       -march=rv32imac\
       -mabi=ilp32\
-      -mcmodel=medlow\
+      -mcmodel=medlow
+
+override WLFLAGS_rv32imac += \
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
 
 override LINK_LIBS_rv32 += \
