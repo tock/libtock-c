@@ -58,11 +58,17 @@ PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 ifeq ($(RISCV),)
 TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4 cortex-m7
 else
+OPENTITAN_TOCK_TARGETS := rv32imc|rv32imc.0x20030080.0x10005000|0x20030080|0x10005000\
+                          rv32imc|rv32imc.0x20030880.0x10008000|0x20030880|0x10008000\
+                          rv32imc|rv32imc.0x20032080.0x10008000|0x20032080|0x10008000\
+                          rv32imc|rv32imc.0x20034080.0x10008000|0x20034080|0x10008000
+
+ARTY_E21_TOCK_TARGETS := rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000\
+                         rv32imac|rv32imac.0x40440060.0x80007000|0x40440060|0x80007000
+
 # Include the RISC-V targets.
-#  rv32imac|rv32imac.0x20040040.0x80002800 # RISC-V for HiFive1b
-#  rv32imac|rv32imac.0x404*.0x8000*        # RISC-V for arty-e21
+#  rv32imac|rv32imac.0x20040060.0x80002800 # RISC-V for HiFive1b
 #  rv32imac|rv32imac.0x403B0060.0x3FCC0000 # RISC-V for ESP32-C3
-#  rv32imc|rv32imc.0x20030080.0x10005000   # RISC-V for OpenTitan
 #  rv32imc|rv32imc.0x41000060.0x42008000   # RISC-V for LiteX Arty-A7
 #  rv32i|rv32i.0x00080060.0x40008000       # RISC-V for LiteX Simulator
 TOCK_TARGETS ?= cortex-m0\
@@ -70,12 +76,11 @@ TOCK_TARGETS ?= cortex-m0\
                 cortex-m4\
                 cortex-m7\
                 rv32imac|rv32imac.0x20040060.0x80002800|0x20040060|0x80002800\
-                rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000\
-                rv32imac|rv32imac.0x40440060.0x80007000|0x40440060|0x80007000\
                 rv32imac|rv32imac.0x403B0060.0x3FCC0000|0x403B0060|0x3FCC0000\
-                rv32imc|rv32imc.0x20030080.0x10005000|0x20030080|0x10005000\
                 rv32imc|rv32imc.0x41000060.0x42008000|0x41000060|0x42008000\
-                rv32i|rv32i.0x00080060.0x40008000|0x00080060|0x40008000
+                rv32i|rv32i.0x00080060.0x40008000|0x00080060|0x40008000\
+                $(OPENTITAN_TOCK_TARGETS) \
+                $(ARTY_E21_TOCK_TARGETS)
 endif
 
 # Generate TOCK_ARCHS, the set of architectures listed in TOCK_TARGETS
@@ -121,6 +126,8 @@ ifneq (,$(shell which riscv64-none-elf-gcc 2>/dev/null))
   TOOLCHAIN_rv32i := riscv64-none-elf
 else ifneq (,$(shell which riscv32-none-elf-gcc 2>/dev/null))
   TOOLCHAIN_rv32i := riscv32-none-elf
+else ifneq (,$(shell which riscv64-elf-gcc 2>/dev/null))
+  TOOLCHAIN_rv32i := riscv64-elf
 else
   # Fallback option. We don't particularly want to throw an error (even if
   # RISCV=1 is set) as this configuration makefile can be useful without a
