@@ -126,6 +126,8 @@ ifneq (,$(shell which riscv64-none-elf-gcc 2>/dev/null))
   TOOLCHAIN_rv32i := riscv64-none-elf
 else ifneq (,$(shell which riscv32-none-elf-gcc 2>/dev/null))
   TOOLCHAIN_rv32i := riscv32-none-elf
+else ifneq (,$(shell which riscv64-elf-gcc 2>/dev/null))
+  TOOLCHAIN_rv32i := riscv64-elf
 else
   # Fallback option. We don't particularly want to throw an error (even if
   # RISCV=1 is set) as this configuration makefile can be useful without a
