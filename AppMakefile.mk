@@ -65,6 +65,7 @@ ifdef LDFLAGS
   $(warning need to parse the LDFLAGS into things like -Wl,-<flag> for each)
   $(warning entry, but that proved a little fragile on first attempt so)
   $(warning it is not currently done. Sorry.)
+  $(warning Please use WLFLAGS if you need to pass linker flags.)
   $(warning *******************************************************)
 endif
 
