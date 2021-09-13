@@ -135,6 +135,14 @@ Prerequisites
           --enable-newlib-global-atexit \
           --enable-newlib-nano-formatted-io
         ```
+1. Optional: libtock-c also includes support for building RISC-V targets with
+   the LLVM clang compiler. If you have a compatible clang toolchain, you can
+   add `CLANG=1` to the make command to use clang instead of the default GCC.
+
+       $ make RISCV=1 CLANG=1
+
+   This support is only included for RISC-V targets as Cortex-M targets require
+   the FDPIC support only present in GCC.
 
 1. You will also need an up-to-date version of
    [elf2tab](https://crates.io/crates/elf2tab). The build system will install

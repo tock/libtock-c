@@ -151,7 +151,13 @@ CC_cortex-m7 := $(CC_cortex-m)
 # For RISC-V we default to GCC, but can support clang as well. Eventually, one
 # or both toolchains might support the PIC we need, at which point we would
 # default to that.
-CC_rv32     := -gcc
+ifeq ($(CLANG),)
+  # Default to GCC
+  CC_rv32     := -gcc
+else
+  # If `CLANG=1` on command line, use -clang
+  CC_rv32     := -clang
+endif
 CC_rv32i    := $(CC_rv32)
 CC_rv32imc  := $(CC_rv32)
 CC_rv32imac := $(CC_rv32)
