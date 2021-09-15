@@ -197,6 +197,10 @@ ifeq ($(findstring -gcc,$(CC_rv32)),-gcc)
   override CFLAGS_toolchain_rv32 += $(CFLAGS_gcc)
 endif
 
+# note: There are no non-gcc, clang-specific flags currently in use, so there is no
+# equivalent CPPFLAGS_clang currently. If there are clang-only flags in the future,
+# one can/should be added.
+
 # Generic PIC flags for architectures with compiler support for FDPIC. Note!
 # These flags are not sufficient for full PIC support as Tock requires. The
 # `-fPIC` flag generally only allows the .text and .data sections to be at
