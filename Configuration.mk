@@ -13,7 +13,6 @@ MAKEFLAGS += -R
 # Toolchain programs
 AR := -ar
 AS := -as
-CC := -gcc
 CXX := -g++
 OBJDUMP := -objdump
 RANLIB := -ranlib
@@ -121,13 +120,17 @@ TOOLCHAIN_cortex-m7 := arm-none-eabi
 
 # RISC-V toolchains, irrespective of their name-tuple, can compile for
 # essentially any target. Thus, try a few known names and choose the one for
-# which a gcc is found.
+# which a compiler is found.
 ifneq (,$(shell which riscv64-none-elf-gcc 2>/dev/null))
   TOOLCHAIN_rv32i := riscv64-none-elf
 else ifneq (,$(shell which riscv32-none-elf-gcc 2>/dev/null))
   TOOLCHAIN_rv32i := riscv32-none-elf
 else ifneq (,$(shell which riscv64-elf-gcc 2>/dev/null))
   TOOLCHAIN_rv32i := riscv64-elf
+else ifneq (,$(shell which riscv64-unknown-elf-clang 2>/dev/null))
+  TOOLCHAIN_rv32i := riscv64-unknown-elf
+else ifneq (,$(shell which riscv32-unknown-elf-clang 2>/dev/null))
+  TOOLCHAIN_rv32i := riscv32-unknown-elf
 else
   # Fallback option. We don't particularly want to throw an error (even if
   # RISCV=1 is set) as this configuration makefile can be useful without a
@@ -136,6 +139,28 @@ else
 endif
 TOOLCHAIN_rv32imac := $(TOOLCHAIN_rv32i)
 TOOLCHAIN_rv32imc := $(TOOLCHAIN_rv32i)
+
+# Setup the correct compiler. For cortex-m we only support GCC as it is the only
+# toolchain with the PIC support we need for Tock userspace apps.
+CC_cortex-m  := -gcc
+CC_cortex-m0 := $(CC_cortex-m)
+CC_cortex-m3 := $(CC_cortex-m)
+CC_cortex-m4 := $(CC_cortex-m)
+CC_cortex-m7 := $(CC_cortex-m)
+
+# For RISC-V we default to GCC, but can support clang as well. Eventually, one
+# or both toolchains might support the PIC we need, at which point we would
+# default to that.
+ifeq ($(CLANG),)
+  # Default to GCC
+  CC_rv32     := -gcc
+else
+  # If `CLANG=1` on command line, use -clang
+  CC_rv32     := -clang
+endif
+CC_rv32i    := $(CC_rv32)
+CC_rv32imc  := $(CC_rv32)
+CC_rv32imac := $(CC_rv32)
 
 # Flags for building app Assembly, C, C++ files
 # n.b. make convention is that CPPFLAGS are shared for C and C++ sources
@@ -147,12 +172,34 @@ override CPPFLAGS += \
       -gdwarf-2\
       -Os\
       -fdata-sections -ffunction-sections\
-      -fstack-usage -Wstack-usage=$(STACK_SIZE)\
+      -fstack-usage\
       -Wall\
-      -Wextra\
+      -Wextra
+override WLFLAGS += \
       -Wl,--warn-common\
       -Wl,--gc-sections\
       -Wl,--build-id=none
+
+# Various flags for a specific toolchain. Different compilers may have different
+# supported features. For GCC we warn if the compiler estimates the stack usage
+# will be greater than the allocated stack size.
+override CPPFLAGS_gcc += -Wstack-usage=$(STACK_SIZE)
+
+# Based on the toolchain used by each architecture, add in toolchain-specific
+# flags. We assume that each architecture family uses the same toolchain.
+ifeq ($(findstring -gcc,$(CC_cortex-m)),-gcc)
+  override CPPFLAGS_toolchain_cortex-m += $(CPPFLAGS_gcc)
+  override CFLAGS_toolchain_cortex-m += $(CFLAGS_gcc)
+endif
+
+ifeq ($(findstring -gcc,$(CC_rv32)),-gcc)
+  override CPPFLAGS_toolchain_rv32 += $(CPPFLAGS_gcc)
+  override CFLAGS_toolchain_rv32 += $(CFLAGS_gcc)
+endif
+
+# note: There are no non-gcc, clang-specific flags currently in use, so there is no
+# equivalent CPPFLAGS_clang currently. If there are clang-only flags in the future,
+# one can/should be added.
 
 # Generic PIC flags for architectures with compiler support for FDPIC. Note!
 # These flags are not sufficient for full PIC support as Tock requires. The
@@ -165,23 +212,39 @@ override CPPFLAGS_PIC += \
       -Wl,--emit-relocs\
       -fPIC
 
+override CFLAGS_rv32 += \
+      $(CFLAGS_toolchain_rv32)
+
+override CFLAGS_rv32i    += $(CFLAGS_rv32)
+override CFLAGS_rv32imc  += $(CFLAGS_rv32)
+override CFLAGS_rv32imac += $(CFLAGS_rv32)
+
+override CPPFLAGS_rv32 += \
+      $(CPPFLAGS_toolchain_rv32)
+
 # Add different flags for different architectures
-override CPPFLAGS_rv32i += \
+override CPPFLAGS_rv32i += $(CPPFLAGS_rv32) \
       -march=rv32i\
       -mabi=ilp32\
-      -mcmodel=medlow\
+      -mcmodel=medlow
+
+override WLFLAGS_rv32i += \
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
 
-override CPPFLAGS_rv32imc += \
+override CPPFLAGS_rv32imc += $(CPPFLAGS_rv32) \
       -march=rv32imc\
       -mabi=ilp32\
-      -mcmodel=medlow\
+      -mcmodel=medlow
+
+override WLFLAGS_rv32imc += \
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
 
-override CPPFLAGS_rv32imac += \
+override CPPFLAGS_rv32imac += $(CPPFLAGS_rv32) \
       -march=rv32imac\
       -mabi=ilp32\
-      -mcmodel=medlow\
+      -mcmodel=medlow
+
+override WLFLAGS_rv32imac += \
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
 
 override LINK_LIBS_rv32 += \
@@ -205,7 +268,16 @@ override LEGACY_LIBS_rv32imac += \
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libm.a
 
+override CFLAGS_cortex-m += \
+      $(CFLAGS_toolchain_cortex-m)
+
+override CFLAGS_cortex-m0 += $(CFLAGS_cortex-m)
+override CFLAGS_cortex-m3 += $(CFLAGS_cortex-m)
+override CFLAGS_cortex-m4 += $(CFLAGS_cortex-m)
+override CFLAGS_cortex-m7 += $(CFLAGS_cortex-m)
+
 override CPPFLAGS_cortex-m += \
+      $(CPPFLAGS_toolchain_cortex-m)\
       $(CPPFLAGS_PIC)\
       -mthumb\
       -mfloat-abi=soft\
@@ -294,7 +366,6 @@ override CPPFLAGS += -Wformat-nonliteral #        # can't check format string (m
 override CPPFLAGS += -Wformat-security #          # using untrusted format strings (maybe disable)
 override CPPFLAGS += -Wformat-y2k #               # use of strftime that assumes two digit years
 override CPPFLAGS += -Winit-self #                # { int i = i }
-override CPPFLAGS += -Wlogical-op #               # "suspicous use of logical operators in expressions" (a lint)
 override CPPFLAGS += -Wmissing-declarations #     # ^same? not sure how these differ
 override CPPFLAGS += -Wmissing-field-initializers # if init'ing struct w/out field names, warn if not all used
 override CPPFLAGS += -Wmissing-format-attribute # # something looks printf-like but isn't marked as such
@@ -303,10 +374,12 @@ override CPPFLAGS += -Wmultichar #                # use of 'foo' instead of "foo
 override CPPFLAGS += -Wpointer-arith #            # sizeof things not define'd (i.e. sizeof(void))
 override CPPFLAGS += -Wredundant-decls #          # { int i; int i; } (a lint)
 override CPPFLAGS += -Wshadow #                   # int foo(int a) { int a = 1; } inner a shadows outer a
-override CPPFLAGS += -Wtrampolines #              # attempt to generate a trampoline on the NX stack
 override CPPFLAGS += -Wunused-macros #            # macro defined in this file not used
 override CPPFLAGS += -Wunused-parameter #         # function parameter is unused aside from its declaration
 override CPPFLAGS += -Wwrite-strings #            # { char* c = "foo"; c[0] = 'b' } <-- "foo" should be r/o
+
+override CPPFLAGS_gcc += -Wlogical-op #           # "suspicious use of logical operators in expressions" (a lint)
+override CPPFLAGS_gcc += -Wtrampolines #          # attempt to generate a trampoline on the NX stack
 
 #CPPFLAGS += -Wabi -Wabi-tag              # inter-compiler abi issues
 #CPPFLAGS += -Waggregate-return           # warn if things return struct's
@@ -343,10 +416,11 @@ override CPPFLAGS += -Wwrite-strings #            # { char* c = "foo"; c[0] = 'b
 
 # C-only warnings
 override CFLAGS += -Wbad-function-cast #          # not obvious when this would trigger, could drop if annoying
-override CFLAGS += -Wjump-misses-init #           # goto or switch skips over a variable initialziation
 override CFLAGS += -Wmissing-prototypes #         # global fn defined w/out prototype (should be static or in .h)
 override CFLAGS += -Wnested-externs #             # mis/weird-use of extern keyword
 override CFLAGS += -Wold-style-definition #       # this garbage: void bar (a) int a; { }
+
+override CFLAGS_gcc += -Wjump-misses-init #       # goto or switch skips over a variable initialization
 
 #CFLAGS += -Wunsuffixed-float-constants # # { float f=0.67; if(f==0.67) printf("y"); else printf("n"); } => n
 #                                         ^ doesn't seem to work right? find_north does funny stuff
@@ -425,7 +499,10 @@ ifneq ($(V),)
   $(info **************************************************)
   $(info Config:)
   $(info GIT: $(shell git describe --always 2>&1))
-  $(info CC=$(CC))
+  $(info $(TOOLCHAIN_cortex-m4)$(CC_cortex-m4) --version: $(shell $(TOOLCHAIN_cortex-m4)$(CC_cortex-m4) --version))
+ifneq ($(RISCV),)
+  $(info $(TOOLCHAIN_rv32i)$(CC_rv32i) --version: $(shell $(TOOLCHAIN_rv32i)$(CC_rv32i) --version))
+endif
   $(info LAYOUT=$(LAYOUT))
   $(info MAKEFLAGS=$(MAKEFLAGS))
   $(info PACKAGE_NAME=$(PACKAGE_NAME))
