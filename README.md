@@ -71,66 +71,11 @@ Prerequisites
    $ sudo apt install gcc-riscv64-unknown-elf
    ```
 
-   Unfortunately, Ubuntu does not currently (June 2020) provide a package for
-   RISC-V libc. We have created a .deb file you can use to install a suitable
-   libc based on newlib:
-   ```
-   $ wget http://cs.virginia.edu/~bjc8c/archive/newlib_3.3.0-1_amd64.deb
-   $ sudo dpkg -i newlib_3.3.0-1_amd64.deb
-   ```
-
-   If you would rather compile your own newlib-based libc, follow the steps below.
-   Section [newlib-nano][newlib-nano] describes some extra config options to
-   build a size optimised newlib.
-   ```
-   # Download newlib 3.3 from https://sourceware.org/newlib/
-   wget ftp://sourceware.org/pub/newlib/newlib-3.3.0.tar.gz
-   tar -xvf newlib-3.3.0.tar.gz
-   cd newlib-3.3.0
-   # Disable stdlib for building
-   export CFLAGS=-nostdlib
-   # Run configure
-   ./configure --disable-newlib-supplied-syscalls --with-gnu-ld --with-newlib --enable-languages=c --target=riscv64-unknown-elf --host=x86 --disable-multi-lib --prefix /usr
-   # Build and then install
-   make -j8
-   sudo make install
-   ```
-
-   Alternatively, you may use a pre-compiled toolchain that we created with
-   Crosstool-NG.
-   ```
-   $ wget http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
-   $ unzip gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
-   # add gcc-riscv64-unknown-elf-8.3.0-ubuntu/bin to your `$PATH` variable.
-   ```
-
    **Arch**:
    ```
    $ sudo pacman -Syu riscv64-elf-gcc riscv32-elf-newlib
    ```
 
-   **newlib-nano**:
-
-   newlib can require a large amount of memory, espicially for printing.
-   If this is a concern you can instead use a more size optimised version.
-   As of August 2020 there are a few options for this.
-       * See if the version of newlib from your distro already has the flags
-         below enabled. If it does it's already size optimsed.
-       * See if your distro pacakges a newlib-nano (Debian does this) that
-         will already include the flags below.
-       * See if your distro packages picolibc, which is a optimised fork of newlib.
-       * You can compile newlib with these extra flags:
-        ```
-          --enable-newlib-reent-small \
-          --disable-newlib-fvwrite-in-streamio \
-          --disable-newlib-fseek-optimization \
-          --disable-newlib-wide-orient \
-          --enable-newlib-nano-malloc \
-          --disable-newlib-unbuf-stream-opt \
-          --enable-lite-exit \
-          --enable-newlib-global-atexit \
-          --enable-newlib-nano-formatted-io
-        ```
 1. Optional: libtock-c also includes support for building RISC-V targets with
    the LLVM clang compiler. If you have a compatible clang toolchain, you can
    add `CLANG=1` to the make command to use clang instead of the default GCC.
