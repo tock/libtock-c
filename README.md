@@ -114,13 +114,15 @@ execute the build script:
 
     $ cd examples
     $ ./build_all.sh
+      or
+    $ RISCV=1 ./build_all.sh
 
 This will install `elf2tab` if it is not yet installed and compile all the
-examples for cortex-m0, cortex-m3, cortex-m4, cortex-m7, and rv32imac. It does
-this because the compiler emits slightly (or significantly) different
-instructions for each variant. When installing the application, `tockloader`
-will select the correct version for the architecture of the board being
-programmed.
+examples for cortex-m0, cortex-m3, cortex-m4, cortex-m7, and (optionally) rv32i*
+platforms. It does this because the compiler emits slightly (or significantly)
+different instructions for each variant. When installing the application,
+`tockloader` will select the correct version for the architecture of the board
+being programmed.
 
 The build process will ultimately create a `tab` file (a "Tock Application
 Bundle") for each example application. The `tab` contains the
@@ -129,7 +131,7 @@ deployed to a board using `tockloader`. For example to one of the
 Nordic development boards:
 
 ```
-$ tockloader install --board nrf52dk --jlink blink/build/blink.tab
+$ tockloader install blink/build/blink.tab
 Installing apps on the board...
 Using known arch and jtag-device for known board nrf52dk
 Finished in 2.567 seconds
@@ -137,26 +139,26 @@ Finished in 2.567 seconds
 
 You can remove an application with
 
-    $ tockloader uninstall --board nrf52dk --jlink blink
+    $ tockloader uninstall blink
 
 or remove all installed applications with
 
-    $ tockloader uninstall --board nrf52dk --jlink
+    $ tockloader uninstall
 
 Tock applications are designed to be generic and run on any Tock-compatible
 board. However, compiled applications typically depend on specific drivers,
 which not all boards provide. For example, some applications expect an IEEE
 802.15.4 radio interface which not all boards support. If you load an
-application onto a board that does not support every driver/system call it
-uses, some system calls will return error codes (`ENODEVICE` or `ENOSUPPORT`).
+application onto a board that does not support every driver/system call it uses,
+some system calls will return error codes (`ENODEVICE` or `ENOSUPPORT`).
 
 Next Steps
 ----------
 
-The next step is to read the [overview](doc/overview.md) that
-describes how applications in TockOS are structured and then look at
-some of the examples in detail. The description of the [compilation
-environment](doc/compilation.md) may also be of interest.
+The next step is to read the [overview](doc/overview.md) that describes how
+applications in TockOS are structured and then look at some of the examples in
+detail. The description of the [compilation environment](doc/compilation.md) may
+also be of interest.
 
 License
 -------
