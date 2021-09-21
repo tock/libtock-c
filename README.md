@@ -54,9 +54,8 @@ Prerequisites
 
 1. Optional: libtock-c also includes support for building for RISC-V targets.
    These are not included by default since obtaining the toolchain can be
-   difficult (as of June 2020). You will need a `riscv64-unknown-elf` GCC
-   toolchain that supports rv32 targets as well (i.e. is compiled with multilib
-   support).
+   difficult (as of June 2020). You will need a toolchain that supports rv32
+   targets (i.e. is compiled with multilib support).
 
    To actually build for the RISC-V targets, add `RISCV=1` to the make command:
 
@@ -64,11 +63,8 @@ Prerequisites
 
    **MacOS**:
    ```
-   $ brew tap riscv/riscv && brew update && brew install riscv-gnu-toolchain --with-multilib
+   $ brew tap riscv/riscv && brew update && brew install riscv-gnu-toolchain
    ```
-   Warning: this will compile from source, and takes a while. Also this will
-   build a bleeding-edge version of GCC, and there is a small chance it will not
-   work. However, we have successfully obtained a toolchain this way.
 
    **Ubuntu (19.10 or later)**:
    ```
