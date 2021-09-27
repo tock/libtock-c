@@ -239,7 +239,7 @@ subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
     subscribe_return_t rval = {false, (subscribe_upcall*)rv2, (void*)rv3, (statuscode_t)rv1};
     return rval;
   } else {
-    exit(-1);
+    exit(1);
   }
 }
 
@@ -286,7 +286,7 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* pt
     return rv;
   } else {
     // Invalid return type
-    exit(-1);
+    exit(1);
   }
 }
 
@@ -436,7 +436,7 @@ subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
     subscribe_return_t rval = {false, (subscribe_upcall*)rv2, (void*)rv3, (statuscode_t)rv1};
     return rval;
   } else {
-    exit(-1);
+    exit(1);
   }
 }
 
@@ -512,7 +512,7 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
     return rv;
   } else {
     // Invalid return type
-    exit(-1);
+    exit(1);
   }
 }
 
@@ -663,6 +663,6 @@ void tock_expect(int expected, int actual, const char* file, unsigned line) {
     printf("Expectation failure in \"%s\" at line %u\n", file, line);
     printf("Expected value: %d\n", expected);
     printf(" But got value: %d (possible error: %s)\n", actual, tock_strrcode(actual));
-    exit(-1);
+    exit(1);
   }
 }
