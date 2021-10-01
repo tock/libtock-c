@@ -103,7 +103,7 @@ void yield_for(bool *cond) {
 }
 
 // Returns 1 if a task is processed, 0 otherwise
-static int __yield_check_tasks(void) {
+int yield_check_tasks(void) {
   if (task_cur != task_last) {
     tock_task_t task = task_queue[task_cur];
     task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
@@ -118,7 +118,7 @@ static int __yield_check_tasks(void) {
 
 
 void yield(void) {
-  if (__yield_check_tasks()) {
+  if (yield_check_tasks()) {
     return;
   } else {
     // Note: A process stops yielding when there is a callback ready to run,
@@ -155,7 +155,7 @@ void yield(void) {
 }
 
 int yield_no_wait(void) {
-  if (__yield_check_tasks()) {
+  if (yield_check_tasks()) {
     return 1;
   } else {
     // Note: A process stops yielding when there is a callback ready to run,
@@ -317,6 +317,36 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, si
   }
 }
 
+
+allow_userspace_r_return_t allow_userspace_read(uint32_t driver,
+                                                uint32_t allow, void* ptr,
+                                                size_t size) {
+  register uint32_t r0 __asm__ ("r0")       = driver;
+  register uint32_t r1 __asm__ ("r1")       = allow;
+  register const void*    r2 __asm__ ("r2") = ptr;
+  register size_t r3 __asm__ ("r3")         = size;
+  register int rtype __asm__ ("r0");
+  register int rv1 __asm__ ("r1");
+  register int rv2 __asm__ ("r2");
+  register int rv3 __asm__ ("r3");
+  __asm__ volatile (
+    "svc 7"
+    : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
+    : "r" (r0), "r" (r1), "r" (r2), "r" (r3)
+    : "memory"
+    );
+  if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    allow_userspace_r_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
+    return rv;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
+    allow_userspace_r_return_t rv = {false, (void*)rv2, (size_t)rv3, (statuscode_t)rv1};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(-1);
+  }
+}
+
 memop_return_t memop(uint32_t op_type, int arg1) {
   register uint32_t r0 __asm__ ("r0") = op_type;
   register int r1 __asm__ ("r1")      = arg1;
@@ -352,7 +382,7 @@ memop_return_t memop(uint32_t op_type, int arg1) {
 // a0-a3. Nothing specifically syscall related is pushed to the process stack.
 
 void yield(void) {
-  if (__yield_check_tasks()) {
+  if (yield_check_tasks()) {
     return;
   } else {
     register uint32_t a0  __asm__ ("a0")        = 1; // yield-wait
@@ -370,7 +400,7 @@ void yield(void) {
 }
 
 int yield_no_wait(void) {
-  if (__yield_check_tasks()) {
+  if (yield_check_tasks()) {
     return 1;
   } else {
     uint8_t result = 0;
@@ -485,6 +515,35 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
   } else {
     // Invalid return type
     exit(1);
+  }
+}
+
+allow_userspace_r_return_t allow_userspace_read(uint32_t driver,
+                                                uint32_t allow, void* ptr,
+                                                size_t size) {
+  register uint32_t a0  __asm__ ("a0") = driver;
+  register uint32_t a1  __asm__ ("a1") = allow;
+  register void*    a2  __asm__ ("a2") = ptr;
+  register size_t a3  __asm__ ("a3")   = size;
+  register int rtype __asm__ ("a0");
+  register int rv1  __asm__ ("a1");
+  register int rv2  __asm__ ("a2");
+  register int rv3  __asm__ ("a3");
+  __asm__ volatile (
+    "li    a4, 7\n"
+    "ecall\n"
+    : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
+    : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
+    : "memory");
+  if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    allow_userspace_r_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
+    return rv;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
+    allow_userspace_r_return_t rv = {false, (void*)rv2, (size_t)rv3, (statuscode_t)rv1};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(-1);
   }
 }
 

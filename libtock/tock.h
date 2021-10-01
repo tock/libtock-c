@@ -108,6 +108,15 @@ typedef struct {
   statuscode_t status;
 } allow_ro_return_t;
 
+// Return structure from an userspace readable allow syscall. The syscall
+// implementation does the conversion into this type.
+typedef struct {
+  bool success;
+  void* ptr;
+  size_t size;
+  statuscode_t status;
+} allow_userspace_r_return_t;
+
 // Return structure from a memop syscall. The syscall implementation does the
 // conversion into this type.
 typedef struct {
@@ -154,6 +163,7 @@ int tock_allow_ro_return_to_returncode(allow_ro_return_t);
 
 int tock_enqueue(subscribe_upcall cb, int arg0, int arg1, int arg2, void* ud);
 
+int yield_check_tasks(void);
 void yield(void);
 void yield_for(bool*);
 int yield_no_wait(void);
@@ -173,6 +183,11 @@ subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe, subscribe_upca
 
 __attribute__ ((warn_unused_result))
 allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, size_t size);
+
+__attribute__ ((warn_unused_result))
+allow_userspace_r_return_t allow_userspace_read(uint32_t driver,
+                                                uint32_t allow, void* ptr,
+                                                size_t size);
 
 __attribute__ ((warn_unused_result))
 allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size);
