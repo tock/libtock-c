@@ -1,20 +1,63 @@
-# Hardware CI Tests
+# I2C Master RX Test
 
-## Run Python Test
+## Test Description
 
-`test.py` provides basic test that sends message from slave to master, and waits for master to send message containing the slave message. This is essentially a Rx/Tx test, but we are primarily focusing on the reception of master here. The message sent from master will be printed over a 12 second period. If message sent from master is the exact same from message sent from slave, the test will pass.
+`test.py` provides the following tests:
+
+### I2CMasterRxTest
+
+This receives message from the device-under-test as I2C Master from the RPi as I2C Slave.
+
+  1. The device-under-test configures itself as I2C master with address 0x40 and awaits button press.
+  1. The test harness presses a button (GPIO toggle) on device-under-test to indicate the device-under-test to prepare interaction and receive message as master.
+  1. The test harness issues an I2C write transaction of 16 bytes and awaits master to send back read data.
+  1. The test harness validates that the data received from device-under-test and sent back to test harness matches the expected string sent `"Hello I'm Slave"`.
+
+## Example Output
+
+      0.000194 INFO -- Initiating I2C Master Rx Test...
+      1.017061 INFO -- Setting up for nrf52840dk I2C Master Rx test...
+      1.017617 INFO -- Sending Messages As Slave... 
+      2.020165 INFO -- Initiating Transmission of Messages...
+      4.521819 INFO -- Messsage Call Back From Master: bytearray(b"Hello I\'m Slave")
+      6.014079 INFO -- Messsage Call Back From Master: bytearray(b"Hello I\'m Slave")
+      7.507251 INFO -- Messsage Call Back From Master: bytearray(b"Hello I\'m Slave")
+      8.999247 INFO -- Messsage Call Back From Master: bytearray(b"Hello I\'m Slave")
+      10.492707 INFO -- Messsage Call Back From Master: bytearray(b"Hello I\'m Slave")
+      11.984940 INFO -- Messsage Call Back From Master: bytearray(b"Hello I\'m Slave")
+      13.477794 INFO -- Messsage Call Back From Master: bytearray(b"Hello I\'m Slave")
+      14.020983 INFO -- Message Sent: Hello I'm Slave
+      14.021415 INFO -- Message Called Back from Master: Hello I'm Slave
+      16.025693 INFO -- Connection Satisfied.
+      17.027202 INFO -- I2C Master Rx Test has ended.
+
+
+      .
+      ----------------------------------------------------------------------
+      Ran 1 test in 17.011s
+
+      OK
+
+## Notes
+
+When manually invoking the test harness, you must specify the board under test.
+Otherwise, python unittest will attempt to run tests for all platforms.
 
 To run the test,
 ```bash
 sudo python3 test.py Nrf52840Test
 ```
 
-Switch board name to the test you intend to run. Otherwise, python unittest
-will attempt to run all tests.
+
+### Supported Boards
+
+CI has been validated and runs on the following hardware platforms:
 
 Board | Test Name
 ------|----------
 nrf52840dk | Nrf52840Test
+
+### Test Configuration Notes
 
 **NOTE**
 This test requires the Raspberry Pi to be set as slave. Thus, you must use Broadcom Pins 10 & 11 (SDA & SCL resepectively) or GPIO pin 19 and 23. You must also download the open source python library "pigpio" which enables slave access on the Raspberry Pi. How to download the library is done here on **CI Hardware Documentation - Raspberry Pi setup**
