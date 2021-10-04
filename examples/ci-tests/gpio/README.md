@@ -30,6 +30,20 @@ This test polls the pin output every 500 milliseconds of the RPi, and it monitor
      5.025043 INFO -- P1 state: low
      5.526238 INFO -- P1 state: high
      5.526565 INFO -- P1 state toggled in 1.002182960510254s
+     . (more pins tested)
+     .
+     .
+     18.559103 INFO -- P4 state: low
+     18.559625 INFO -- P4 state toggled in 1.0026240348815918s
+     19.060595 INFO -- P4 state: low
+     19.561740 INFO -- P4 state: high
+     19.562210 INFO -- P4 state toggled in 1.00258469581604s
+     .
+     ----------------------------------------------------------------------
+
+     Ran 1 test in 20.055s
+
+     OK
 
 ## Notes
 
