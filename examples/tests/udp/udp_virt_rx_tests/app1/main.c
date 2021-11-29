@@ -5,7 +5,6 @@
 #include "timer.h"
 #include "tock.h"
 
-#include <ieee802154.h>
 #include <udp.h>
 
 /*
@@ -67,11 +66,6 @@ int main(void) {
   handle = &h;
   udp_bind(handle, &addr, BUF_BIND_CFG);
 
-  ieee802154_set_address(49138); // Corresponds to the dst mac addr set in kernel
-  ieee802154_set_pan(0xABCD);
-  ieee802154_config_commit();
-  ieee802154_up();
-
   memset(packet_rx, 0, MAX_RX_PACKET_LEN);
   ssize_t result = udp_recv(callback, packet_rx, MAX_RX_PACKET_LEN);
 
@@ -82,10 +76,10 @@ int main(void) {
     case RETURNCODE_EINVAL:
       printf("The address requested is not a local interface\n");
       break;
-    case TOCK_EBUSY:
+    case RETURNCODE_EBUSY:
       printf("Another userland app has already bound to this addr/port\n");
       break;
-    case TOCK_ERESERVE:
+    case RETURNCODE_ERESERVE:
       printf("Receive Failure. Must bind to a port before calling receive\n");
       break;
     default:

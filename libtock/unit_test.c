@@ -137,6 +137,7 @@ static bool list_contains(linked_list_t *list, unit_test_t *test) {
   unit_test_t *curr = list->head;
   while (curr) {
     if (curr == test) return true;
+    curr = curr->next;
   }
   return false;
 }

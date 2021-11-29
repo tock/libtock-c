@@ -31,9 +31,29 @@ int get_number_of_touches (int* touches) {
   return tock_command_return_u32_to_returncode(cval, (uint32_t*) touches);
 }
 
+int enable_single_touch(void) {
+  syscall_return_t cval = command(DRIVER_NUM_TOUCH, 1, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
+}
+
+int disable_single_touch(void) {
+  syscall_return_t cval = command(DRIVER_NUM_TOUCH, 2, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
+}
+
 int single_touch_set_callback (touch_callback cb, void* ud) {
   single_touch_upcall = cb;
   return touch_subscribe (0, cb != NULL ? touch_single_touch_callback : NULL, ud);
+}
+
+int enable_multi_touch(void) {
+  syscall_return_t cval = command(DRIVER_NUM_TOUCH, 11, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
+}
+
+int disable_multi_touch(void) {
+  syscall_return_t cval = command(DRIVER_NUM_TOUCH, 12, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
 }
 
 int multi_touch_set_callback (touch_callback cb, void* ud, int max_touches) {

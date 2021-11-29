@@ -6,7 +6,6 @@
 #include <button.h>
 #include <timer.h>
 
-#include <ieee802154.h>
 #include <udp.h>
 
 #define DEBUG 0
@@ -28,10 +27,6 @@ int main(void) {
     dest_addr,
     16124
   };
-
-  ieee802154_set_pan(0xABCD);
-  ieee802154_config_commit();
-  ieee802154_up();
 
   ipv6_addr_t ifaces[10];
   udp_list_ifaces(ifaces, 10);
@@ -60,7 +55,9 @@ int main(void) {
   }
 
   //bound, now try sending a too-long packet
-  result = udp_send_to(packet, udp_get_max_tx_len() + 1, &destination);
+  int max_len = 0;
+  udp_get_max_tx_len(&max_len);
+  result = udp_send_to(packet, max_len + 1, &destination);
   assert(result < 0); //should fail bc too long
 
   if (DEBUG) {

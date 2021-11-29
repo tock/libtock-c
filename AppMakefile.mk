@@ -52,6 +52,10 @@ $(foreach lib, $(EXTERN_LIBS), $(eval $(call EXTERN_LIB_RULES,$(lib))))
 
 
 # Some sanity checks for variables before they are used
+
+# Warn users about LDFLAGS currently being ignored. We currently use the WLFLAGS
+# and WLFLAGS_$(march) variables to pass linker options through the compiler,
+# by encoding them as `-Wl,...` options.
 ifdef LDFLAGS
   $(warning *******************************************************)
   $(warning LDFLAGS are currently ignored!!)
@@ -61,6 +65,7 @@ ifdef LDFLAGS
   $(warning need to parse the LDFLAGS into things like -Wl,-<flag> for each)
   $(warning entry, but that proved a little fragile on first attempt so)
   $(warning it is not currently done. Sorry.)
+  $(warning Please use WLFLAGS if you need to pass linker flags.)
   $(warning *******************************************************)
 endif
 
@@ -90,8 +95,8 @@ $$(BUILDDIR)/$(1):
 # More info on our approach here: http://stackoverflow.com/questions/97338
 $$(BUILDDIR)/$(1)/%.o: %.c | $$(BUILDDIR)/$(1)
 	$$(TRACE_CC)
-	$$(Q)$$(TOOLCHAIN_$(1))$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
-	$$(Q)$$(TOOLCHAIN_$(1))$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
 $$(BUILDDIR)/$(1)/%.o: %.cc | $$(BUILDDIR)/$(1)
 	$$(TRACE_CXX)
@@ -141,8 +146,7 @@ $$(BUILDDIR)/$(1)/$(2).custom.ld: $$(LAYOUT) | $$(BUILDDIR)/$(1)
 # Collect all desired built output.
 $$(BUILDDIR)/$(1)/$(2).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(2).custom.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
-	$$(Q)$$(TOOLCHAIN_$(1))$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1))\
-	    --entry=_start\
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(WLFLAGS) $$(WLFLAGS_$(1))\
 	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
 	    -Xlinker --defsym=APP_HEAP_SIZE=$$(APP_HEAP_SIZE)\
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
@@ -229,8 +233,7 @@ endif
 # Step 2: Create a new ELF with the layout that matches what's loaded
 $$(BUILDDIR)/$(1)/$(2).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(2).userland_debug.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
-	$$(Q)$$(TOOLCHAIN_$(1))$$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1))\
-	    --entry=_start\
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(WLFLAGS) $$(WLFLAGS_$(1))\
 	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
 	    -Xlinker --defsym=APP_HEAP_SIZE=$$(APP_HEAP_SIZE)\
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
