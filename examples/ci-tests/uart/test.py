@@ -4,7 +4,7 @@ import time
 TARGET_RECEIVED_MESSAGE = "cse145 is cool"
 TARGET_ACKNOWLEDGEMENT = "true"
 
-sp = serial.Serial(port="/dev/ttyACM0", baudrate=115200, bytesize=8, timeout=2)
+sp = serial.Serial(port="/dev/ttyUSB0", baudrate=115200, bytesize=8, timeout=2)
 print("Starting Uart Test...")
 while(True):
     # print("B")

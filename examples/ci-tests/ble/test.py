@@ -126,6 +126,11 @@ class Nrf52840Test(BleTest):
         logger.info('Setting up for nrf52840dk BLE test...',
             extra={'timegap': time_gap(TEST_START_TIME)})
 
+class HailTest(BleTest):
+    def setUp(self):
+        logger.info('Setting up for nrf52840dk BLE test...',
+            extra={'timegap': time_gap(TEST_START_TIME)})
+
 # END
 
 ################################################################################

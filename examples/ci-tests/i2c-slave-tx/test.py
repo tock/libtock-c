@@ -6,21 +6,24 @@ import time
 import os
 import logging
 import unittest
-import RPi.GPIO as GPIO
+from gpiozero import InputDevice
+from gpiozero import OutputDevice
 
 RESET = 21 # Broadcom pin 21 (P1 pin 40)
 BUTTON_1 = 20 # Broadcom pin 20 (P1 pin 38)
 
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(RESET, GPIO.OUT) # RESET pin set as output
-GPIO.setup(BUTTON_1, GPIO.OUT) # BUTTON_1 pin set as output
+button = OutputDevice(BUTTON_1)
+reset_button = OutputDevice(RESET)
 
 ADDRESS = 0x41 # bus address to the Slave Device
 MASTER = 0x40 # Raspberry Pi Master Address
 MESSAGE = "Hello friend." # Message sent from slave
 BUF_SIZE = 16
 bus = SMBus(1) # indicates /dev/ic2-1
+
+# cancelling slave configuration pins
+pin_1 = InputDevice(10)
+pin_2 = InputDevice(11)
 
 ################################################################################
 # Helper Functions
@@ -37,17 +40,19 @@ def reset():
    global RESET
    """Button is Reset"""
 
-   GPIO.output(RESET, GPIO.LOW)
-   time.sleep(1)
-   GPIO.output(RESET, GPIO.HIGH)
+   reset_button.off()
+   time.sleep(1.1)
+   reset_button.on()
+   time.sleep(0.5)
 
 def press_button():
    global BUTTON_1
    """Button is one of User Buttons"""
 
-   GPIO.output(BUTTON_1, GPIO.HIGH)
-   time.sleep(1)
-   GPIO.output(BUTTON_1, GPIO.LOW)
+   button.on()
+   time.sleep(1.1)
+   button.off()
+   time.sleep(0.5)
 
 def message_decoder(data):
     string = ''
@@ -90,6 +95,8 @@ class I2CSlaveTxTest(unittest.TestCase):
         
         received = False
 
+        time.sleep(2)  # Wait until app has fully reset
+
         press_button() # Used to press one of the user buttons on the board
         
         try:
@@ -116,7 +123,7 @@ class I2CSlaveTxTest(unittest.TestCase):
 
                 received = True
             
-        except OSError:
+        except OSError as err:
             print("OS error: {0}".format(err))
 
             logger.info('Test failed...',
@@ -138,9 +145,6 @@ class I2CSlaveTxTest(unittest.TestCase):
                         extra={'timegap': time_gap(TEST_START_TIME)})
 
             reset()      # Reset application to stop sending messages
-
-            # Close Setup
-            GPIO.cleanup()
 
             bus.close()
 

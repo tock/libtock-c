@@ -6,6 +6,8 @@ import logging
 import unittest
 import RPi.GPIO as GPIO
 import os
+from gpiozero import InputDevice
+from gpiozero import OutputDevice
 
 MESSAGE = 'Hello friend.' # Message Master sends to slave
 MESSAGE_RECEIVED = ''
@@ -18,10 +20,8 @@ BUTTON_1 = 20 # Broadcom pin 20 (P1 pin 38)
 
 I2C_ADDR = 0x41 # Raspberry Pi Address
 
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(RESET, GPIO.OUT) # RESET pin set as output
-GPIO.setup(BUTTON_1, GPIO.OUT) # BUTTON_1 pin set as output
+button = OutputDevice(BUTTON_1)
+reset_button = OutputDevice(RESET)
 
 # Set up PiGPIO properly by configuring it on pi then importing library
 os.system('sudo pigpiod')
@@ -46,17 +46,19 @@ def reset():
    global RESET
    """Button is Reset"""
 
-   GPIO.output(RESET, GPIO.LOW)
-   time.sleep(1)
-   GPIO.output(RESET, GPIO.HIGH)
+   reset_button.off()
+   time.sleep(1.1)
+   reset_button.on()
+   time.sleep(0.5)
 
 def press_button():
    global BUTTON_1
    """Button is one of User Buttons"""
 
-   GPIO.output(BUTTON_1, GPIO.HIGH)
-   time.sleep(1)
-   GPIO.output(BUTTON_1, GPIO.LOW)
+   button.on()
+   time.sleep(1.1)
+   button.off()
+   time.sleep(0.5)
 
 def i2c(id, tick):
    global pi
@@ -118,6 +120,8 @@ class I2CMasterTxTest(unittest.TestCase):
         if not pi.connected:
             exit()
 
+        time.sleep(2)           # Wait until app has fully reset
+
         press_button()          # Used to press one of the user buttons on the board
 
         # Add pull-ups in case external pull-ups haven't been added (For Raspberry Pi)
@@ -156,8 +160,6 @@ class I2CMasterTxTest(unittest.TestCase):
 
             reset()      # Reset application to stop sending messages
 
-            GPIO.cleanup()
-
             time.sleep(1)
 
             logger.info('Connection Satisfied.',
@@ -184,8 +186,6 @@ class I2CMasterTxTest(unittest.TestCase):
             pi.stop()
 
             reset()      # Reset application to stop sending messages
-
-            GPIO.cleanup()
 
             time.sleep(1)
 
