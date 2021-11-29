@@ -46,6 +46,10 @@ const int COMMAND_SEND = 26;
 // parameters / return codes are not enough te contain the required data.
 unsigned char BUF_CFG[27];
 
+bool ieee802154_driver_is_present(void) {
+  return driver_exists(RADIO_DRIVER);
+}
+
 int ieee802154_up(void) {
   // Spin until radio is on. Maybe this can be done with a callback?
   while (!ieee802154_is_up()) {

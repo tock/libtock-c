@@ -54,11 +54,12 @@ static void dowork(uint8_t* from, uint8_t* to, uint32_t incr) {
   }
 }
 
-// Should intentionally overrun the memory region?
+// Should intentionally overrun the memory region? Determined based on
+// the state of the first button if one is present on the board.
 static bool overrun(void) {
-  int count, read;
-  button_count(&count);
-  if (count) {
+  int count, read, res;
+  res = button_count(&count);
+  if (res == RETURNCODE_SUCCESS && count) {
     button_read(0, &read);
     return read;
   }

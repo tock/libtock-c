@@ -67,11 +67,12 @@ int main(void) {
 
     // get randomness
     uint32_t rand = 0;
-    int err = rng_sync((uint8_t*)&rand, 4, 4);
+    int num_received = 0;
+    int err = rng_sync((uint8_t*)&rand, 4, 4, &num_received);
     if (err < 0) {
       printf("Error obtaining random number: %d\n", err);
-    } else if (err < 4) {
-      printf("Only obtained %d bytes of randomness\n", err);
+    } else if (num_received < 4) {
+      printf("Only obtained %d bytes of randomness\n", num_received);
     }
 
     int len = serialize_to_json(packet, sizeof(packet), rand, temp, humi, lux);
@@ -83,7 +84,7 @@ int main(void) {
     ssize_t result = udp_send_to(packet, len, &destination);
 
     switch (result) {
-      case TOCK_SUCCESS:
+      case RETURNCODE_SUCCESS:
         if (DEBUG) {
           printf("Packet sent.\n\n");
         }

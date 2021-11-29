@@ -77,12 +77,11 @@ int _kill(pid_t pid, int sig)
 
 caddr_t _sbrk(int incr)
 {
-  void* ret;
+  memop_return_t ret;
   ret = memop(1, incr);
-  if ( ((int) ret) == RETURNCODE_ENOMEM) {
+  if (ret.status != TOCK_STATUSCODE_SUCCESS) {
     errno = ENOMEM;
     return (caddr_t) -1;
   }
-  return ret;
+  return (caddr_t) ret.data;
 }
-

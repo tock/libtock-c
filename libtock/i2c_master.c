@@ -2,7 +2,7 @@
 
 #define DRIVER_NUM_I2CMASTER 0x20003
 
-#define TOCK_I2C_MASTER_CB       1
+#define TOCK_I2C_MASTER_CB       0
 #define TOCK_I2C_MASTER_BUF      1
 
 

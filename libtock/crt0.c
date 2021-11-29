@@ -127,6 +127,11 @@ void _start(void* app_start __attribute__((unused)),
     "movs r1, r5\n"
     "svc 5\n"                   // memop
     //
+    // Setup initial stack pointer for normal execution. If we did this before
+    // then this is redundant and just a no-op. If not then no harm in
+    // re-setting it.
+    "mov  sp, r4\n"
+    //
     // Debug support, tell the kernel the stack location
     //
     // memop(10, stacktop);
@@ -140,11 +145,6 @@ void _start(void* app_start __attribute__((unused)),
     "movs r0, #11\n"
     "movs r1, r5\n"
     "svc 5\n"                   // memop
-    //
-    // Setup initial stack pointer for normal execution. If we did this before
-    // then this is redundant and just a no-op. If not then no harm in
-    // re-setting it.
-    "mov  sp, r4\n"
     //
     // Set the special PIC register r9. This has to be set to the address of the
     // beginning of the GOT section. The PIC code uses this as a reference point
@@ -209,12 +209,16 @@ void _start(void* app_start __attribute__((unused)),
     "skip_set_sp:\n"            // Back to regularly scheduled programming.
 
     // Call `brk` to set to requested memory
-
     // memop(0, stacktop + appdata_size);
     "li  a4, 5\n"               // a4 = 5   // memop syscall
     "li  a0, 0\n"               // a0 = 0
     "mv  a1, t1\n"              // a1 = app_brk
     "ecall\n"                   // memop
+
+    //
+    // Setup initial stack pointer for normal execution
+    "mv   sp, s1\n"             // sp = stacktop
+
     //
     // Debug support, tell the kernel the stack location
     //
@@ -231,9 +235,7 @@ void _start(void* app_start __attribute__((unused)),
     "li  a0, 11\n"              // a0 = 11
     "mv  a1, t1\n"              // a1 = app_brk
     "ecall\n"                   // memop
-    //
-    // Setup initial stack pointer for normal execution
-    "mv   sp, s1\n"             // sp = stacktop
+
     // Call into the rest of startup. This should never return.
     "mv   a0, s0\n"             // first arg is app_start
     "mv   s0, sp\n"             // Set the frame pointer to sp.

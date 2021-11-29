@@ -36,7 +36,13 @@ $($(LIBNAME)_BUILDDIR)/headers/%.headers: %.c | $($(LIBNAME)_BUILDDIR)/headers
 headers.tar.gz: $(HDRS)
 	mkdir -p headers
 	cat build/headers/*.headers | awk '{$$1=$$1};1' | awk '{print $$1}' | sort | grep '\.h' | grep -v libtock | uniq | xargs -IFOO cp FOO headers/
-	tar czf headers.tar.gz headers
+	# Make tar file reproducible, as described at https://reproducible-builds.org/docs/archives/
+	tar \
+	  --sort=name \
+	  --mtime="1970-01-01 00:01:00Z" \
+	  --owner=0 --group=0 --numeric-owner \
+	  --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
+	  -czf headers.tar.gz headers
 
 .PHONY: clean
 clean::

@@ -13,7 +13,6 @@ MAKEFLAGS += -R
 # Toolchain programs
 AR := -ar
 AS := -as
-CC := -gcc
 CXX := -g++
 OBJDUMP := -objdump
 RANLIB := -ranlib
@@ -24,6 +23,10 @@ SIZE := -size
 STACK_SIZE       ?= 2048
 APP_HEAP_SIZE    ?= 1024
 KERNEL_HEAP_SIZE ?= 1024
+
+# Set default required kernel version
+KERNEL_MAJOR_VERSION     ?= 2
+KERNEL_MINOR_VERSION     ?= 0
 
 # PACKAGE_NAME is used to identify the application for IPC and for error reporting
 PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
@@ -54,18 +57,29 @@ PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 ifeq ($(RISCV),)
 TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4 cortex-m7
 else
+OPENTITAN_TOCK_TARGETS := rv32imc|rv32imc.0x20030080.0x10005000|0x20030080|0x10005000\
+                          rv32imc|rv32imc.0x20030880.0x10008000|0x20030880|0x10008000\
+                          rv32imc|rv32imc.0x20032080.0x10008000|0x20032080|0x10008000\
+                          rv32imc|rv32imc.0x20034080.0x10008000|0x20034080|0x10008000
+
+ARTY_E21_TOCK_TARGETS := rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000\
+                         rv32imac|rv32imac.0x40440060.0x80007000|0x40440060|0x80007000
+
 # Include the RISC-V targets.
-#  rv32imac|rv32imac.0x20040040.0x80002800 # RISC-V for HiFive1b
-#  rv32imac|rv32imac.0x404*.0x8000*        # RISC-V for arty-e21
-#  rv32imc|rv32imc.0x20030040.0x10003400   # RISC-V for OpenTitan
+#  rv32imac|rv32imac.0x20040060.0x80002800 # RISC-V for HiFive1b
+#  rv32imac|rv32imac.0x403B0060.0x3FCC0000 # RISC-V for ESP32-C3
+#  rv32imc|rv32imc.0x41000060.0x42008000   # RISC-V for LiteX Arty-A7
+#  rv32i|rv32i.0x00080060.0x40008000       # RISC-V for LiteX Simulator
 TOCK_TARGETS ?= cortex-m0\
                 cortex-m3\
                 cortex-m4\
                 cortex-m7\
-                rv32imac|rv32imac.0x20040040.0x80002800|0x20040040|0x80002800\
-                rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000\
-                rv32imac|rv32imac.0x40440060.0x80007000|0x40440060|0x80007000\
-                rv32imc|rv32imc.0x20030080.0x10005000|0x20030080|0x10005000
+                rv32imac|rv32imac.0x20040060.0x80002800|0x20040060|0x80002800\
+                rv32imac|rv32imac.0x403B0060.0x3FCC0000|0x403B0060|0x3FCC0000\
+                rv32imc|rv32imc.0x41000060.0x42008000|0x41000060|0x42008000\
+                rv32i|rv32i.0x00080060.0x40008000|0x00080060|0x40008000\
+                $(OPENTITAN_TOCK_TARGETS) \
+                $(ARTY_E21_TOCK_TARGETS)
 endif
 
 # Generate TOCK_ARCHS, the set of architectures listed in TOCK_TARGETS
@@ -73,20 +87,80 @@ TOCK_ARCHS := $(sort $(foreach target, $(TOCK_TARGETS), $(firstword $(subst |, ,
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
+ELF2TAB_REQUIRED_VERSION := 0.7.0
 ELF2TAB_EXISTS := $(shell $(SHELL) -c "command -v $(ELF2TAB)")
+ELF2TAB_VERSION := $(shell $(SHELL) -c "$(ELF2TAB) --version | cut -d ' ' -f 2")
+
+# Check elf2tab version
+UPGRADE_ELF2TAB := $(shell $(SHELL) -c "printf '%s\n%s\n' '$(ELF2TAB_REQUIRED_VERSION)' '$(ELF2TAB_VERSION)' | sort --check=quiet --version-sort || echo yes")
+
+ifeq ($(UPGRADE_ELF2TAB),yes)
+  $(info Trying to update elf2tab to >= $(ELF2TAB_REQUIRED_VERSION))
+  ELF2TAB_EXISTS =
+endif
+
 ifndef ELF2TAB_EXISTS
   $(shell cargo install elf2tab)
+  # Check elf2tab version after install
+  ELF2TAB_VERSION := $(shell $(SHELL) -c "$(ELF2TAB) --version | cut -d ' ' -f 2")
+  UPGRADE_ELF2TAB := $(shell $(SHELL) -c "printf '%s\n%s\n' '$(ELF2TAB_REQUIRED_VERSION)' '$(ELF2TAB_VERSION)' | sort --check=quiet --version-sort || echo yes")
+  ifeq ($(UPGRADE_ELF2TAB),yes)
+    $(error Failed to automatically update elf2tab, please update manually elf2tab to >= $(ELF2TAB_REQUIRED_VERSION))
+  endif
 endif
+
 ELF2TAB_ARGS += -n $(PACKAGE_NAME)
-ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE)
+ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE) --kernel-major $(KERNEL_MAJOR_VERSION) --kernel-minor $(KERNEL_MINOR_VERSION)
 
 # Setup the correct toolchain for each architecture.
 TOOLCHAIN_cortex-m0 := arm-none-eabi
 TOOLCHAIN_cortex-m3 := arm-none-eabi
 TOOLCHAIN_cortex-m4 := arm-none-eabi
 TOOLCHAIN_cortex-m7 := arm-none-eabi
-TOOLCHAIN_rv32imac := riscv64-unknown-elf
-TOOLCHAIN_rv32imc := riscv64-unknown-elf
+
+# RISC-V toolchains, irrespective of their name-tuple, can compile for
+# essentially any target. Thus, try a few known names and choose the one for
+# which a compiler is found.
+ifneq (,$(shell which riscv64-none-elf-gcc 2>/dev/null))
+  TOOLCHAIN_rv32i := riscv64-none-elf
+else ifneq (,$(shell which riscv32-none-elf-gcc 2>/dev/null))
+  TOOLCHAIN_rv32i := riscv32-none-elf
+else ifneq (,$(shell which riscv64-elf-gcc 2>/dev/null))
+  TOOLCHAIN_rv32i := riscv64-elf
+else ifneq (,$(shell which riscv64-unknown-elf-clang 2>/dev/null))
+  TOOLCHAIN_rv32i := riscv64-unknown-elf
+else ifneq (,$(shell which riscv32-unknown-elf-clang 2>/dev/null))
+  TOOLCHAIN_rv32i := riscv32-unknown-elf
+else
+  # Fallback option. We don't particularly want to throw an error (even if
+  # RISCV=1 is set) as this configuration makefile can be useful without a
+  # proper toolchain.
+  TOOLCHAIN_rv32i := riscv64-unknown-elf
+endif
+TOOLCHAIN_rv32imac := $(TOOLCHAIN_rv32i)
+TOOLCHAIN_rv32imc := $(TOOLCHAIN_rv32i)
+
+# Setup the correct compiler. For cortex-m we only support GCC as it is the only
+# toolchain with the PIC support we need for Tock userspace apps.
+CC_cortex-m  := -gcc
+CC_cortex-m0 := $(CC_cortex-m)
+CC_cortex-m3 := $(CC_cortex-m)
+CC_cortex-m4 := $(CC_cortex-m)
+CC_cortex-m7 := $(CC_cortex-m)
+
+# For RISC-V we default to GCC, but can support clang as well. Eventually, one
+# or both toolchains might support the PIC we need, at which point we would
+# default to that.
+ifeq ($(CLANG),)
+  # Default to GCC
+  CC_rv32     := -gcc
+else
+  # If `CLANG=1` on command line, use -clang
+  CC_rv32     := -clang
+endif
+CC_rv32i    := $(CC_rv32)
+CC_rv32imc  := $(CC_rv32)
+CC_rv32imac := $(CC_rv32)
 
 # Flags for building app Assembly, C, C++ files
 # n.b. make convention is that CPPFLAGS are shared for C and C++ sources
@@ -98,12 +172,34 @@ override CPPFLAGS += \
       -gdwarf-2\
       -Os\
       -fdata-sections -ffunction-sections\
-      -fstack-usage -Wstack-usage=$(STACK_SIZE)\
+      -fstack-usage\
       -Wall\
-      -Wextra\
+      -Wextra
+override WLFLAGS += \
       -Wl,--warn-common\
       -Wl,--gc-sections\
       -Wl,--build-id=none
+
+# Various flags for a specific toolchain. Different compilers may have different
+# supported features. For GCC we warn if the compiler estimates the stack usage
+# will be greater than the allocated stack size.
+override CPPFLAGS_gcc += -Wstack-usage=$(STACK_SIZE)
+
+# Based on the toolchain used by each architecture, add in toolchain-specific
+# flags. We assume that each architecture family uses the same toolchain.
+ifeq ($(findstring -gcc,$(CC_cortex-m)),-gcc)
+  override CPPFLAGS_toolchain_cortex-m += $(CPPFLAGS_gcc)
+  override CFLAGS_toolchain_cortex-m += $(CFLAGS_gcc)
+endif
+
+ifeq ($(findstring -gcc,$(CC_rv32)),-gcc)
+  override CPPFLAGS_toolchain_rv32 += $(CPPFLAGS_gcc)
+  override CFLAGS_toolchain_rv32 += $(CFLAGS_gcc)
+endif
+
+# note: There are no non-gcc, clang-specific flags currently in use, so there is no
+# equivalent CPPFLAGS_clang currently. If there are clang-only flags in the future,
+# one can/should be added.
 
 # Generic PIC flags for architectures with compiler support for FDPIC. Note!
 # These flags are not sufficient for full PIC support as Tock requires. The
@@ -116,26 +212,72 @@ override CPPFLAGS_PIC += \
       -Wl,--emit-relocs\
       -fPIC
 
+override CFLAGS_rv32 += \
+      $(CFLAGS_toolchain_rv32)
+
+override CFLAGS_rv32i    += $(CFLAGS_rv32)
+override CFLAGS_rv32imc  += $(CFLAGS_rv32)
+override CFLAGS_rv32imac += $(CFLAGS_rv32)
+
+override CPPFLAGS_rv32 += \
+      $(CPPFLAGS_toolchain_rv32)
+
 # Add different flags for different architectures
-override CPPFLAGS_rv32imc += \
-      -march=rv32imc\
+override CPPFLAGS_rv32i += $(CPPFLAGS_rv32) \
+      -march=rv32i\
       -mabi=ilp32\
-      -mcmodel=medlow\
+      -mcmodel=medlow
+
+override WLFLAGS_rv32i += \
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
 
-override CPPFLAGS_rv32imac += \
+override CPPFLAGS_rv32imc += $(CPPFLAGS_rv32) \
+      -march=rv32imc\
+      -mabi=ilp32\
+      -mcmodel=medlow
+
+override WLFLAGS_rv32imc += \
+      -Wl,--no-relax   # Prevent use of global_pointer for riscv
+
+override CPPFLAGS_rv32imac += $(CPPFLAGS_rv32) \
       -march=rv32imac\
       -mabi=ilp32\
-      -mcmodel=medlow\
+      -mcmodel=medlow
+
+override WLFLAGS_rv32imac += \
       -Wl,--no-relax   # Prevent use of global_pointer for riscv
 
 override LINK_LIBS_rv32 += \
-      -lc -lgcc -lm -lstdc++ -lsupc++
+      -lgcc -lstdc++ -lsupc++
 
+override LINK_LIBS_rv32i    += $(LINK_LIBS_rv32)
 override LINK_LIBS_rv32imc  += $(LINK_LIBS_rv32)
 override LINK_LIBS_rv32imac += $(LINK_LIBS_rv32)
 
+override LEGACY_LIBS_rv32i += \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libm.a
+
+override LEGACY_LIBS_rv32im += \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libm.a
+
+override LEGACY_LIBS_rv32imc += $(LEGACY_LIBS_rv32im)
+
+override LEGACY_LIBS_rv32imac += \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libm.a
+
+override CFLAGS_cortex-m += \
+      $(CFLAGS_toolchain_cortex-m)
+
+override CFLAGS_cortex-m0 += $(CFLAGS_cortex-m)
+override CFLAGS_cortex-m3 += $(CFLAGS_cortex-m)
+override CFLAGS_cortex-m4 += $(CFLAGS_cortex-m)
+override CFLAGS_cortex-m7 += $(CFLAGS_cortex-m)
+
 override CPPFLAGS_cortex-m += \
+      $(CPPFLAGS_toolchain_cortex-m)\
       $(CPPFLAGS_PIC)\
       -mthumb\
       -mfloat-abi=soft\
@@ -159,16 +301,26 @@ override CPPFLAGS_cortex-m0 += $(CPPFLAGS_cortex-m) \
 
 # Single-arch libraries, to be phased out
 override LEGACY_LIBS_cortex-m += \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/libm.a\
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libstdc++.a\
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libsupc++.a\
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libgcc.a
 
-override LEGACY_LIBS_cortex-m7 += $(LEGACY_LIBS_cortex-m)
-override LEGACY_LIBS_cortex-m4 += $(LEGACY_LIBS_cortex-m)
-override LEGACY_LIBS_cortex-m3 += $(LEGACY_LIBS_cortex-m)
-override LEGACY_LIBS_cortex-m0 += $(LEGACY_LIBS_cortex-m)
+override LEGACY_LIBS_cortex-m7 += $(LEGACY_LIBS_cortex-m) \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
+
+override LEGACY_LIBS_cortex-m4 += $(LEGACY_LIBS_cortex-m) \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
+
+override LEGACY_LIBS_cortex-m3 += $(LEGACY_LIBS_cortex-m) \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
+
+override LEGACY_LIBS_cortex-m0 += $(LEGACY_LIBS_cortex-m) \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v6-m/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v6-m/libm.a
+
 
 # This allows Tock to add additional warnings for functions that frequently cause problems.
 # See the included header for more details.
@@ -214,7 +366,6 @@ override CPPFLAGS += -Wformat-nonliteral #        # can't check format string (m
 override CPPFLAGS += -Wformat-security #          # using untrusted format strings (maybe disable)
 override CPPFLAGS += -Wformat-y2k #               # use of strftime that assumes two digit years
 override CPPFLAGS += -Winit-self #                # { int i = i }
-override CPPFLAGS += -Wlogical-op #               # "suspicous use of logical operators in expressions" (a lint)
 override CPPFLAGS += -Wmissing-declarations #     # ^same? not sure how these differ
 override CPPFLAGS += -Wmissing-field-initializers # if init'ing struct w/out field names, warn if not all used
 override CPPFLAGS += -Wmissing-format-attribute # # something looks printf-like but isn't marked as such
@@ -223,10 +374,12 @@ override CPPFLAGS += -Wmultichar #                # use of 'foo' instead of "foo
 override CPPFLAGS += -Wpointer-arith #            # sizeof things not define'd (i.e. sizeof(void))
 override CPPFLAGS += -Wredundant-decls #          # { int i; int i; } (a lint)
 override CPPFLAGS += -Wshadow #                   # int foo(int a) { int a = 1; } inner a shadows outer a
-override CPPFLAGS += -Wtrampolines #              # attempt to generate a trampoline on the NX stack
 override CPPFLAGS += -Wunused-macros #            # macro defined in this file not used
 override CPPFLAGS += -Wunused-parameter #         # function parameter is unused aside from its declaration
 override CPPFLAGS += -Wwrite-strings #            # { char* c = "foo"; c[0] = 'b' } <-- "foo" should be r/o
+
+override CPPFLAGS_gcc += -Wlogical-op #           # "suspicious use of logical operators in expressions" (a lint)
+override CPPFLAGS_gcc += -Wtrampolines #          # attempt to generate a trampoline on the NX stack
 
 #CPPFLAGS += -Wabi -Wabi-tag              # inter-compiler abi issues
 #CPPFLAGS += -Waggregate-return           # warn if things return struct's
@@ -263,10 +416,11 @@ override CPPFLAGS += -Wwrite-strings #            # { char* c = "foo"; c[0] = 'b
 
 # C-only warnings
 override CFLAGS += -Wbad-function-cast #          # not obvious when this would trigger, could drop if annoying
-override CFLAGS += -Wjump-misses-init #           # goto or switch skips over a variable initialziation
 override CFLAGS += -Wmissing-prototypes #         # global fn defined w/out prototype (should be static or in .h)
 override CFLAGS += -Wnested-externs #             # mis/weird-use of extern keyword
 override CFLAGS += -Wold-style-definition #       # this garbage: void bar (a) int a; { }
+
+override CFLAGS_gcc += -Wjump-misses-init #       # goto or switch skips over a variable initialization
 
 #CFLAGS += -Wunsuffixed-float-constants # # { float f=0.67; if(f==0.67) printf("y"); else printf("n"); } => n
 #                                         ^ doesn't seem to work right? find_north does funny stuff
@@ -344,7 +498,11 @@ ifneq ($(V),)
   $(info TOCK USERLAND BUILD SYSTEM -- VERBOSE BUILD)
   $(info **************************************************)
   $(info Config:)
-  $(info CC=$(CC))
+  $(info GIT: $(shell git describe --always 2>&1))
+  $(info $(TOOLCHAIN_cortex-m4)$(CC_cortex-m4) --version: $(shell $(TOOLCHAIN_cortex-m4)$(CC_cortex-m4) --version))
+ifneq ($(RISCV),)
+  $(info $(TOOLCHAIN_rv32i)$(CC_rv32i) --version: $(shell $(TOOLCHAIN_rv32i)$(CC_rv32i) --version))
+endif
   $(info LAYOUT=$(LAYOUT))
   $(info MAKEFLAGS=$(MAKEFLAGS))
   $(info PACKAGE_NAME=$(PACKAGE_NAME))

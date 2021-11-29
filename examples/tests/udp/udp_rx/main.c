@@ -71,10 +71,14 @@ int main(void) {
   }
   ;
 
-  ieee802154_set_address(49138); // Corresponds to the dst mac addr set in kernel
-  ieee802154_set_pan(0xABCD);
-  ieee802154_config_commit();
-  ieee802154_up();
+  if (ieee802154_driver_is_present()) {
+    ieee802154_set_address(49138); // Corresponds to the dst mac addr set in kernel
+    ieee802154_set_pan(0xABCD);
+    ieee802154_config_commit();
+    ieee802154_up();
+  } else {
+    printf("No 15.4 driver present, set mac address manually in kernel.\n");
+  }
 
   memset(packet_rx, 0, MAX_RX_PACKET_LEN);
   ssize_t result = udp_recv(callback, packet_rx, MAX_RX_PACKET_LEN);
