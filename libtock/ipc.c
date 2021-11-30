@@ -17,8 +17,15 @@ int ipc_discover(const char* pkg_name, int* svc_id) {
   return RETURNCODE_SUCCESS;
 }
 
-int ipc_register_service_callback(subscribe_upcall callback, void *ud) {
-  subscribe_return_t sval = subscribe(IPC_DRIVER_NUM, 0, callback, ud);
+int ipc_register_service_callback(const char *pkg_name,
+                                  subscribe_upcall callback, void *ud) {
+  int svc_id;
+
+  // Look up the service id so we can subscribe as the service
+  int ret = ipc_discover(pkg_name, &svc_id);
+  if (ret < 0) return ret;
+
+  subscribe_return_t sval = subscribe(IPC_DRIVER_NUM, svc_id, callback, ud);
   return tock_subscribe_return_to_returncode(sval);
 }
 
