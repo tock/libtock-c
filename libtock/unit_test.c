@@ -422,5 +422,6 @@ static void unit_test_service_callback(int pid,
 void unit_test_service(void) {
   pending_pids.head = NULL;
   pending_pids.tail = NULL;
-  ipc_register_service_callback(unit_test_service_callback, &pending_pids);
+  ipc_register_service_callback("org.tockos.unit_test",
+                                unit_test_service_callback, &pending_pids);
 }
