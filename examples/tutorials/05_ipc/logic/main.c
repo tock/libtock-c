@@ -6,8 +6,8 @@
 // Every 500 ms use the RNG service to randomly select an LED to turn on or
 // off and then use the LED service to control that LED.
 
-int _led_service = -1;
-int _rng_service = -1;
+size_t _led_service = -1;
+size_t _rng_service = -1;
 char _led_buf[64] __attribute__((aligned(64)));
 char _rng_buf[64] __attribute__((aligned(64)));
 
@@ -59,7 +59,7 @@ int main(void) {
 
   // Retrieve a handle to the LED service.
   ret = ipc_discover("org.tockos.tutorials.ipc.led", &_led_service);
-  if (ret != RETURNCODE_SUCCESS || _led_service < 0) {
+  if (ret != RETURNCODE_SUCCESS) {
     printf("No led service\n");
     return -1;
   }
@@ -70,7 +70,7 @@ int main(void) {
 
   // Retrieve a handle to the RNG service.
   ret = ipc_discover("org.tockos.tutorials.ipc.rng", &_rng_service);
-  if (ret != RETURNCODE_SUCCESS || _rng_service < 0) {
+  if (ret != RETURNCODE_SUCCESS) {
     printf("No rng service\n");
     return -1;
   }
