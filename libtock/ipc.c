@@ -30,9 +30,6 @@ int ipc_register_service_callback(const char *pkg_name,
 }
 
 int ipc_register_client_callback(int svc_id, subscribe_upcall callback, void *ud) {
-  if (svc_id <= 0) {
-    return RETURNCODE_FAIL;
-  }
   subscribe_return_t sval = subscribe(IPC_DRIVER_NUM, svc_id, callback, ud);
   return tock_subscribe_return_to_returncode(sval);
 }
