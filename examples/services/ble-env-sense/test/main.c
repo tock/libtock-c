@@ -4,7 +4,7 @@
 #include <ipc.h>
 #include <timer.h>
 
-int _svc_num = 0;
+size_t _svc_num = 0;
 
 char buf[64] __attribute__((aligned(64)));
 
@@ -28,12 +28,12 @@ static void ipc_callback(__attribute__ ((unused)) int pid,
 
 int main(void) {
   int err = ipc_discover("org.tockos.services.ble-ess", &_svc_num);
-  if (err < 0 || _svc_num < 0) {
+  if (err < 0) {
     printf("No BLE ESS service installed.\n");
     return -1;
   }
 
-  printf("Found BLE ESS service (%i)\n", _svc_num);
+  printf("Found BLE ESS service (%u)\n", _svc_num);
 
   delay_ms(1500);
 

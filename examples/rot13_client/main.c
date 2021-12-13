@@ -4,7 +4,7 @@
 
 #include <ipc.h>
 
-int rot13_svc_num = 0;
+size_t rot13_svc_num = 0;
 
 char buf[64] __attribute__((aligned(64)));
 
