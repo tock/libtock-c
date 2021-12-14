@@ -110,7 +110,7 @@ Prerequisites
 
    **Arch**:
    ```
-   $ sudo pacman -Syu riscv64-elf-gcc riscv32-elf-newlib
+   $ sudo pacman -Syu riscv64-elf-gcc riscv32-elf-newlib arm-none-eabi-newlib riscv64-elf-newlib
    ```
 
    **newlib-nano**:
