@@ -229,7 +229,7 @@ void unit_test_runner(unit_test_fun *tests, uint32_t test_count,
   test->timeout_ms = timeout_ms;
 
   // Establish communication with the test supervisor service.
-  int test_svc;
+  size_t test_svc;
   int err = ipc_discover(svc_name, &test_svc);
   if (err < 0) return;
 
@@ -422,5 +422,6 @@ static void unit_test_service_callback(int pid,
 void unit_test_service(void) {
   pending_pids.head = NULL;
   pending_pids.tail = NULL;
-  ipc_register_service_callback(unit_test_service_callback, &pending_pids);
+  ipc_register_service_callback("org.tockos.unit_test",
+                                unit_test_service_callback, &pending_pids);
 }
