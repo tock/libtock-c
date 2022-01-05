@@ -1,8 +1,11 @@
 #include "alarm.h"
 #include "internal/alarm.h"
 #include "timer.h"
+
+#include <console.h>
 #include <limits.h>
 #include <stdlib.h>
+
 
 // Returns 0 if a <= b < c, 1 otherwise
 static int within_range(uint32_t a, uint32_t b, uint32_t c) {
@@ -71,7 +74,9 @@ static void callback( __attribute__ ((unused)) int unused0,
     // has the alarm not expired yet? (distance from `now` has to be larger or
     // equal to distance from current clock value.
     if (alarm->dt > now - alarm->reference) {
-      alarm_internal_set(alarm->reference, alarm->dt);
+      if (alarm_internal_set(alarm->reference, alarm->dt) != RETURNCODE_SUCCESS)
+        putnstr("Err: failed to set Alarm\n", sizeof("Err: failed to set Alarm"));
+
       break;
     } else {
       root_pop();
@@ -100,7 +105,9 @@ void alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall cb, void* ud, al
 
   if (root_peek() == alarm) {
     alarm_internal_subscribe((subscribe_upcall*)callback, NULL);
-    alarm_internal_set(alarm->reference, alarm->dt);
+
+    if (alarm_internal_set(alarm->reference, alarm->dt) != RETURNCODE_SUCCESS)
+      putnstr("Err: failed to set Alarm\n", sizeof("Err: failed to set Alarm"));
   }
 }
 
@@ -115,7 +122,8 @@ void alarm_cancel(alarm_t* alarm) {
   if (root == alarm) {
     root = alarm->next;
     if (root != NULL) {
-      alarm_internal_set(root->reference, root->dt);
+      if (alarm_internal_set(root->reference, root->dt) != RETURNCODE_SUCCESS)
+        putnstr("Err: failed to set Alarm\n", sizeof("Err: failed to set Alarm"));
     }
   }
 
