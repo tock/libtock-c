@@ -1,11 +1,8 @@
 #include "alarm.h"
 #include "internal/alarm.h"
 #include "timer.h"
-
-#include <console.h>
 #include <limits.h>
 #include <stdlib.h>
-
 
 // Returns 0 if a <= b < c, 1 otherwise
 static int within_range(uint32_t a, uint32_t b, uint32_t c) {
@@ -74,9 +71,7 @@ static void callback( __attribute__ ((unused)) int unused0,
     // has the alarm not expired yet? (distance from `now` has to be larger or
     // equal to distance from current clock value.
     if (alarm->dt > now - alarm->reference) {
-      if (alarm_internal_set(alarm->reference, alarm->dt) != RETURNCODE_SUCCESS)
-        putnstr("Err: failed to set Alarm\n", sizeof("Err: failed to set Alarm"));
-
+      alarm_internal_set(alarm->reference, alarm->dt);
       break;
     } else {
       root_pop();
@@ -89,7 +84,7 @@ static void callback( __attribute__ ((unused)) int unused0,
   }
 }
 
-void alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall cb, void* ud, alarm_t* alarm) {
+int alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall cb, void* ud, alarm_t* alarm) {
   alarm->reference = reference;
   alarm->dt        = dt;
   alarm->callback  = cb;
@@ -106,9 +101,9 @@ void alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall cb, void* ud, al
   if (root_peek() == alarm) {
     alarm_internal_subscribe((subscribe_upcall*)callback, NULL);
 
-    if (alarm_internal_set(alarm->reference, alarm->dt) != RETURNCODE_SUCCESS)
-      putnstr("Err: failed to set Alarm\n", sizeof("Err: failed to set Alarm"));
+    return alarm_internal_set(alarm->reference, alarm->dt);
   }
+  return RETURNCODE_SUCCESS;
 }
 
 void alarm_cancel(alarm_t* alarm) {
@@ -122,8 +117,7 @@ void alarm_cancel(alarm_t* alarm) {
   if (root == alarm) {
     root = alarm->next;
     if (root != NULL) {
-      if (alarm_internal_set(root->reference, root->dt) != RETURNCODE_SUCCESS)
-        putnstr("Err: failed to set Alarm\n", sizeof("Err: failed to set Alarm"));
+      alarm_internal_set(root->reference, root->dt);
     }
   }
 
@@ -134,13 +128,13 @@ void alarm_cancel(alarm_t* alarm) {
 
 // Timer implementation
 
-void timer_in(uint32_t ms, subscribe_upcall cb, void* ud, tock_timer_t *timer) {
+int timer_in(uint32_t ms, subscribe_upcall cb, void* ud, tock_timer_t *timer) {
   uint32_t frequency;
   alarm_internal_frequency(&frequency);
   uint32_t interval = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
   uint32_t now;
   alarm_internal_read(&now);
-  alarm_at(now, interval, cb, ud, &timer->alarm);
+  return alarm_at(now, interval, cb, ud, &timer->alarm);
 }
 
 static void repeating_upcall( uint32_t now,
@@ -181,11 +175,17 @@ static void delay_upcall(__attribute__ ((unused)) int unused0,
   *((bool*)ud) = true;
 }
 
-void delay_ms(uint32_t ms) {
+int delay_ms(uint32_t ms) {
   bool cond = false;
   tock_timer_t timer;
-  timer_in(ms, delay_upcall, &cond, &timer);
+  int rc;
+
+  if ((rc = timer_in(ms, delay_upcall, &cond, &timer)) != RETURNCODE_SUCCESS) {
+    return rc;
+  }
+
   yield_for(&cond);
+  return rc;
 }
 
 static void yield_for_timeout_upcall(__attribute__ ((unused)) int unused0,
