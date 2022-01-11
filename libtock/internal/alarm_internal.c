@@ -7,7 +7,8 @@ int alarm_internal_subscribe(subscribe_upcall cb, void *userdata) {
 
 int alarm_internal_set(uint32_t reference, uint32_t tics) {
   syscall_return_t rval = command(DRIVER_NUM_ALARM, 6, reference, tics);
-  return tock_command_return_novalue_to_returncode(rval);
+  uint32_t rc;
+  return tock_command_return_u32_to_returncode(rval, &rc);
 }
 
 int alarm_internal_stop(void) {
