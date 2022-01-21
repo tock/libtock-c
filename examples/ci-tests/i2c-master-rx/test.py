@@ -44,23 +44,21 @@ def time_gap(start_time):
     """
     return "{:.6f}".format(time.time() - start_time)
 
-def reset():
-   global RESET
-   """Button is Reset"""
-
-   reset_button.off()
-   time.sleep(1.1)
-   reset_button.on()
-   time.sleep(0.5)
-
 def press_button():
    global BUTTON_1
    """Button is one of User Buttons"""
 
    button.on()
-   time.sleep(1.1)
+   time.sleep(1.5)
    button.off()
-   time.sleep(0.5)
+
+def reset():
+   global RESET
+
+   reset_button.on()
+   time.sleep(1.1)
+   reset_button.off()
+   reset_button.toggle() # Set Pin to tri-state
 
 def i2c(id, tick):
    global pi
@@ -72,7 +70,7 @@ def i2c(id, tick):
    s, b, d = pi.bsc_i2c(I2C_ADDR, b"\nHello I'm Slave\n")
 
    # Check if dummy transaction is occuring, if not, test has started.
-   if not dummy:
+   if dummy:
       if b:
          if(FIRST_RX < 1):
            MESSAGE_CONFIRMATION = d.decode()
@@ -81,7 +79,6 @@ def i2c(id, tick):
          array = str(d[:-1])
          logger.info('Messsage Call Back From Master: ' + array,
                extra={'timegap': time_gap(TEST_START_TIME)})
-
 
 def dummy_transaction():
     global pi
@@ -94,8 +91,6 @@ def dummy_transaction():
     update to the buffer actually takes place. This function, then, 
     initiates that transaction to occur, and update the buffer in proper time.
     """
-
-    dummy = True # Update to initiate the dummy transaction properly on the i2c function
 
     if not pi.connected:
             exit()
@@ -114,15 +109,18 @@ def dummy_transaction():
 
     time.sleep(4)
 
-    e.cancel()
-
-    pi.bsc_i2c(0)
-
+    # Reset Operation
+    time.sleep(1)
     reset()
+    time.sleep(1)
 
-    dummy = False # End dummy transaction, so proper testing is conducted on i2c function
 
-# END
+def close():
+   time.sleep(5)
+
+   pi.stop()
+   os.system('sudo killall pigpiod')
+
 
 ################################################################################
 # Start test and logger
@@ -153,8 +151,10 @@ class I2CMasterRxTest(unittest.TestCase):
         """ Set up for Raspberry Pi configuration """
         global pi
         global MESSAGE_CONFIRMATION
+        global dummy
 
         dummy_transaction() # Initiate the dummy transaction to update buffer in proper time
+        dummy = True # Update to initiate the dummy transaction properly on the i2c function
 
         print()
         logger.info('Sending Messages As Slave... ',
@@ -184,24 +184,20 @@ class I2CMasterRxTest(unittest.TestCase):
             extra={'timegap': time_gap(TEST_START_TIME)})
 
         time.sleep(12)          # Time to wait for messages to be sent (Should see four messages logged)
-        
+
         MESSAGE_CONFIRMATION = str(MESSAGE_CONFIRMATION)
         MESSAGE_CONFIRMATION = MESSAGE_CONFIRMATION.strip()
-
-        logger.info('Message Sent: ' + MESSAGE_SENT,
-            extra={'timegap': time_gap(TEST_START_TIME)})
-
-        logger.info('Message Called Back from Master: ' + MESSAGE_CONFIRMATION,
-            extra={'timegap': time_gap(TEST_START_TIME)})
 
         if (MESSAGE_CONFIRMATION == MESSAGE_SENT):
 
             # Close setup
-            e.cancel()
+            close()
 
-            pi.bsc_i2c(0)   # Disable BSC peripheral
+            logger.info('Message Sent: ' + MESSAGE_SENT,
+               extra={'timegap': time_gap(TEST_START_TIME)})
 
-            pi.stop()
+            logger.info('Message Called Back from Master: ' + MESSAGE_CONFIRMATION,
+               extra={'timegap': time_gap(TEST_START_TIME)})
 
             reset()         # Reset application to stop sending messages
 
@@ -217,20 +213,19 @@ class I2CMasterRxTest(unittest.TestCase):
             logger.info('I2C Master Rx Test has ended.',
                 extra={'timegap': time_gap(TEST_START_TIME)})
 
-            os.system('sudo killall pigpiod')
-            time.sleep(1)
-
             self.assertTrue(received)
 
         else:
 
-            #Close setup
+            # Close setup
 
-            e.cancel()
+            close()
 
-            pi.bsc_i2c(0)   # Disable BSC peripheral
+            logger.info('Message Sent: ' + MESSAGE_SENT,
+               extra={'timegap': time_gap(TEST_START_TIME)})
 
-            pi.stop()
+            logger.info('Message Called Back from Master: ' + MESSAGE_CONFIRMATION,
+               extra={'timegap': time_gap(TEST_START_TIME)})
 
             reset()         # Reset application to stop sending messages
 
@@ -244,9 +239,6 @@ class I2CMasterRxTest(unittest.TestCase):
             logger.info('I2C Master Rx Test has ended.',
                 extra={'timegap': time_gap(TEST_START_TIME)})
 
-            os.system('sudo killall pigpiod')
-            time.sleep(1)
-
             self.assertTrue(received)
 
 
@@ -259,7 +251,9 @@ class I2CMasterRxTest(unittest.TestCase):
 class Nrf52840Test(I2CMasterRxTest):
     def setUp(self):
         
+        time.sleep(1)
         reset()                 # Used to activate the reset button on board
+        time.sleep(1)
 
         logger.info('Setting up for nrf52840dk I2C Master Rx test...',
             extra={'timegap': time_gap(TEST_START_TIME)})

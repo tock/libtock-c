@@ -42,23 +42,22 @@ def time_gap(start_time):
     """
     return "{:.6f}".format(time.time() - start_time)
 
-def reset():
-   global RESET
-   """Button is Reset"""
-
-   reset_button.off()
-   time.sleep(1.1)
-   reset_button.on()
-   time.sleep(0.5)
-
 def press_button():
    global BUTTON_1
    """Button is one of User Buttons"""
 
    button.on()
-   time.sleep(1.1)
+   time.sleep(1.5)
    button.off()
-   time.sleep(0.5)
+
+def reset():
+   global RESET
+   """Button used to reset the app"""
+
+   reset_button.on()
+   time.sleep(1.1)
+   reset_button.off()
+   reset_button.toggle() # Set Pin to tri-state
 
 def i2c(id, tick):
    global pi
@@ -78,6 +77,12 @@ def i2c(id, tick):
          string_split = string_received.splitlines()
          MESSAGE_RECEIVED = string_split[0]
          FIRST_RX += 1
+
+def close():
+   time.sleep(5)
+
+   pi.stop()
+   os.system('sudo killall pigpiod')
 
 # END
 
@@ -143,20 +148,16 @@ class I2CMasterTxTest(unittest.TestCase):
         MESSAGE_RECEIVED = str(MESSAGE_RECEIVED)
         MESSAGE_RECEIVED = MESSAGE_RECEIVED.strip()
 
-        logger.info('Expected Message: ' + MESSAGE,
-            extra={'timegap': time_gap(TEST_START_TIME)})
-
-        logger.info('Message Received: ' + MESSAGE_RECEIVED,
-            extra={'timegap': time_gap(TEST_START_TIME)})
-
         if (MESSAGE_RECEIVED == MESSAGE):
 
             # Close setup
-            e.cancel()
+            close()
 
-            pi.bsc_i2c(0) # Disable BSC peripheral
+            logger.info('Expected Message: ' + MESSAGE,
+                extra={'timegap': time_gap(TEST_START_TIME)})
 
-            pi.stop()
+            logger.info('Message Received: ' + MESSAGE_RECEIVED,
+                extra={'timegap': time_gap(TEST_START_TIME)})
 
             reset()      # Reset application to stop sending messages
 
@@ -179,11 +180,13 @@ class I2CMasterTxTest(unittest.TestCase):
         else:
             
             # Close setup
-            e.cancel()
+            close()
 
-            pi.bsc_i2c(0) # Disable BSC peripheral
+            logger.info('Expected Message: ' + MESSAGE,
+                extra={'timegap': time_gap(TEST_START_TIME)})
 
-            pi.stop()
+            logger.info('Message Received: ' + MESSAGE_RECEIVED,
+                extra={'timegap': time_gap(TEST_START_TIME)})
 
             reset()      # Reset application to stop sending messages
 
@@ -211,8 +214,10 @@ class I2CMasterTxTest(unittest.TestCase):
 
 class Nrf52840Test(I2CMasterTxTest):
     def setUp(self):
-        
+
+        time.sleep(1)
         reset()                 # Used to activate the reset button on board
+        time.sleep(1)
 
         logger.info('Setting up for nrf52840dk I2C Master Tx test...',
             extra={'timegap': time_gap(TEST_START_TIME)})
