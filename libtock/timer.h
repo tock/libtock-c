@@ -51,8 +51,9 @@ typedef struct tock_timer {
  * \param callback a callback to be invoked when the alarm expires.
  * \param userdata passed to the callback.
  * \param A handle to the alarm that was created.
+ * \return An error code. Either RETURNCODE_SUCCESS or RETURNCODE_FAIL.
  */
-void timer_in(uint32_t ms, subscribe_upcall, void*, tock_timer_t* timer);
+int timer_in(uint32_t ms, subscribe_upcall, void*, tock_timer_t* timer);
 
 /** \brief Create a new repeating alarm to fire every `ms` milliseconds.
  *
@@ -79,8 +80,9 @@ void timer_cancel(tock_timer_t*);
  * specified callback, it blocks the current call-stack.
  *
  * \param ms the number of milliseconds to delay for.
+ * \return An error code. Either RETURNCODE_SUCCESS or RETURNCODE_FAIL.
  */
-void delay_ms(uint32_t ms);
+int delay_ms(uint32_t ms);
 
 /** \brief Functions as yield_for with a timeout.
  *

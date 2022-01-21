@@ -57,8 +57,9 @@ typedef struct alarm {
  * \param userdata passed to the callback.
  * \param a pointer to a new alarm_t to be used by the implementation to keep
  *        track of the alarm.
+ * \return An error code. Either RETURNCODE_SUCCESS or RETURNCODE_FAIL.
  */
-void alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall, void*, alarm_t *alarm);
+int alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall, void*, alarm_t *alarm);
 
 /** \brief Cancels an existing alarm.
  *
