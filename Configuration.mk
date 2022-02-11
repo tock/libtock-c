@@ -87,7 +87,7 @@ TOCK_ARCHS := $(sort $(foreach target, $(TOCK_TARGETS), $(firstword $(subst |, ,
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
-ELF2TAB_REQUIRED_VERSION := 0.7.0
+ELF2TAB_REQUIRED_VERSION := 0.9.0
 ELF2TAB_EXISTS := $(shell $(SHELL) -c "command -v $(ELF2TAB)")
 ELF2TAB_VERSION := $(shell $(SHELL) -c "$(ELF2TAB) --version | cut -d ' ' -f 2")
 
@@ -111,6 +111,8 @@ endif
 
 ELF2TAB_ARGS += -n $(PACKAGE_NAME)
 ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE) --kernel-major $(KERNEL_MAJOR_VERSION) --kernel-minor $(KERNEL_MINOR_VERSION)
+ELF2TAB_ARGS += --program --app-version 33
+
 
 # Setup the correct toolchain for each architecture.
 TOOLCHAIN_cortex-m0 := arm-none-eabi
