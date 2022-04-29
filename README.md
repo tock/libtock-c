@@ -52,7 +52,12 @@ Prerequisites
    $ sudo pacman -Syu arm-none-eabi-gcc
    ```
 
-1. Optional: libtock-c also includes support for building for RISC-V targets.
+   **Fedora**:
+   ```
+   $ sudo dnf install arm-none-eabi-newlib arm-none-eabi-gcc-cs
+   ```
+
+2. Optional: libtock-c also includes support for building for ***RISC-V targets***.
    These are not included by default since obtaining the toolchain can be
    difficult (as of June 2020). You will need a `riscv64-unknown-elf` GCC
    toolchain that supports rv32 targets as well (i.e. is compiled with multilib
@@ -112,6 +117,28 @@ Prerequisites
    ```
    $ sudo pacman -Syu riscv64-elf-gcc riscv32-elf-newlib arm-none-eabi-newlib riscv64-elf-newlib
    ```
+   **Fedora**:
+
+   **dnf** does not contain the `riscv-gnu-toolchain`, an alternative is to compile from source. Start with some of the tools we need to compile the source.
+   ```
+   $ sudo dnf install make automake gcc gcc-c++ kernel-devel  texinfo expat expat-devel
+   $ sudo dnf group install "Development Tools" "C Development Tools and Libraries"
+   ```
+   Get `riscv-gnu-toolchain`,  [summarised instructions as stated here](https://github.com/riscv-collab/riscv-gnu-toolchain/blob/master/README.md)
+   ```
+   $ git clone https://github.com/riscv/riscv-gnu-toolchain
+   $ cd riscv-gnu-toolchain/
+   ```
+   **Note: add /opt/riscv/bin to your PATH**, then,
+   ```
+   $ ./configure --prefix=/opt/riscv --enable-multilib
+   ```
+   `--enable-multilib` ensures that "the multilib compiler will have the prefix riscv64-unknown-elf- or riscv64-unknown-linux-gnu- but will be able to target both 32-bit and 64-bit systems."
+   ```
+   $ sudo make linux         [might need elevated privileges writing to `/opt/`]
+   ```
+    After the the source has been compiled and copied to `/opt/riscv` and `/opt/riscv/bin`has appended to the PATH, the toolchain is ready to be used.
+
 
    **newlib-nano**:
 
@@ -135,7 +162,7 @@ Prerequisites
           --enable-newlib-global-atexit \
           --enable-newlib-nano-formatted-io
         ```
-1. Optional: libtock-c also includes support for building RISC-V targets with
+3. Optional: libtock-c also includes support for building RISC-V targets with
    the LLVM clang compiler. If you have a compatible clang toolchain, you can
    add `CLANG=1` to the make command to use clang instead of the default GCC.
 
@@ -144,14 +171,14 @@ Prerequisites
    This support is only included for RISC-V targets as Cortex-M targets require
    the FDPIC support only present in GCC.
 
-1. You will also need an up-to-date version of
+4. You will also need an up-to-date version of
    [elf2tab](https://crates.io/crates/elf2tab). The build system will install
    and update this automatically for you, but you'll need Rust's
    [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html)
    installed. If you have followed the getting started guide, everything should
    be in place.
 
-1. You will also likely need [Tockloader](https://github.com/tock/tockloader), a
+5. You will also likely need [Tockloader](https://github.com/tock/tockloader), a
    tool for programming apps onto boards. If you haven't installed it
    during the TockOS getting started guide:
 
