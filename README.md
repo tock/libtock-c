@@ -135,8 +135,14 @@ Prerequisites
    ```
    `--enable-multilib` ensures that "the multilib compiler will have the prefix riscv64-unknown-elf- or riscv64-unknown-linux-gnu- but will be able to target both 32-bit and 64-bit systems."
    ```
-   $ sudo make linux         [might need elevated privileges writing to `/opt/`]
+   $ sudo make         [might need elevated privileges writing to `/opt/`]
    ```
+    additionally, with
+   ```
+   $ sudo make linux
+   ```
+   you can also build `riscv64-unknown-linux-gnu`, which can be useful with tock where `riscv64-unknown-linux-gnu-objcopy` is used.
+
     After the the source has been compiled and copied to `/opt/riscv` and `/opt/riscv/bin`has appended to the PATH, the toolchain is ready to be used.
 
 
