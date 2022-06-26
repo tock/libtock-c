@@ -111,7 +111,7 @@ endif
 
 ELF2TAB_ARGS += -n $(PACKAGE_NAME)
 ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE) --kernel-major $(KERNEL_MAJOR_VERSION) --kernel-minor $(KERNEL_MINOR_VERSION)
-ELF2TAB_ARGS += --program --app-version 33
+ELF2TAB_ARGS += --program --app-version 33 --sha256
 
 
 # Setup the correct toolchain for each architecture.
