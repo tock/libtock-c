@@ -7,6 +7,10 @@ extern "C" {
 #endif
 
 #define DRIVER_NUM_BUTTON 0x3
+#define BUTTON_A 0
+#define BUTTON_B 1
+#define BUTTON_DEPRESSED 0
+#define BUTTON_PRESSED   1 
 
 int button_subscribe(subscribe_upcall callback, void *ud);
 int button_enable_interrupt(int button_num);
