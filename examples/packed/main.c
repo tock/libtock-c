@@ -60,13 +60,16 @@ int main(void) {
     }
     syscall_return_t res = packed(25, data, true);
 
+    int executed_syscalls = 25;
+
     if (res.type == TOCK_SYSCALL_FAILURE_U32) {
       printf ("Executed %ld syscalls\n", 25 - res.data[0]); 
+      executed_syscalls = 25 - res.data[0];
     }
 
     light = !light;
 
-    for (int i = 0; i < 25; i++) {
+    for (int i = 0; i < executed_syscalls; i++) {
       printf ("syscall %d res %ld\n", i, data[1 + 5*i]);
     }
 
