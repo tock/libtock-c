@@ -54,7 +54,7 @@ static int test_all(void) {
   if ((r = test(readbuf, writebuf, 512, num_bytes - 512, 500)) != 0) return r;
   
   printf("Write beyond end region, should fail (offset %d)\n", num_bytes);
-  if ((r = test(readbuf, writebuf, 512, num_bytes, 501)) == 0) return r;
+  if ((r = test(readbuf, writebuf, 512, num_bytes, 501)) == 0) return -1;
 
   return 0;
 }
