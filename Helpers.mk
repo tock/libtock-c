@@ -1,7 +1,11 @@
-# Various helper functions and definitions for use by Tock makefiles. Included
-# by AppMakefile.mk and libtock's Makefile
+################################################################################
+##
+## libtock-c helper functions and definitions for use by Tock makefiles.
+##  Included by AppMakefile.mk and libtock's Makefile
+##
+################################################################################
 
-# ensure that this file is only included once
+# Ensure that this file is only included once.
 ifndef HELPERS_MAKEFILE
 HELPERS_MAKEFILE = 1
 
@@ -56,7 +60,7 @@ _format_check_unstaged:
 #########################################################################################
 ## Pretty-printing rules
 
-# If environment variable V is non-empty, be verbose
+# If environment variable V is non-empty, be verbose.
 ifneq ($(V),)
 Q=
 TRACE_DIR =
@@ -83,4 +87,3 @@ TRACE_LST = @echo " LST       " $<
 endif
 
 endif
-
