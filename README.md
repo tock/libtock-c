@@ -59,9 +59,15 @@ Prerequisites
 
 2. Optional: libtock-c also includes support for building for ***RISC-V
    targets***. These are not included by default since obtaining the toolchain
-   can be difficult (as of July 2022). You will need a `riscv64-unknown-elf` GCC
-   toolchain that supports rv32 targets as well (i.e. is compiled with multilib
-   support).
+   can be difficult (as of July 2022). You will need a RISC-V toolchain that
+   supports rv32 targets (64 bit toolchains support rv32 if compiled with
+   multilib support). Some toolchains that can work:
+
+   - riscv64-none-elf
+   - riscv32-none-elf
+   - riscv64-elf
+   - riscv64-unknown-elf
+   - riscv32-unknown-elf
 
    To actually build for the RISC-V targets, add `RISCV=1` to the make command:
 
