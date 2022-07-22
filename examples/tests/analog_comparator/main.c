@@ -24,10 +24,10 @@ static void analog_comparator_comparison_polling(uint8_t channel) {
 
 // Callback for AC interrupts. Channel on which the interrupt is generated is
 // passed through here.
-static void analog_comparator_callback (__attribute__ ((unused)) int arg0,
+static void analog_comparator_callback (int arg0,
                                         __attribute__ ((unused)) int arg1,
                                         __attribute__ ((unused)) int arg2,
-                                        __attribute__ ((unused)) void* userdata) {
+                                        void* userdata) {
   callback_channel   = arg0;
   *((bool*)userdata) = 1;
 }
