@@ -78,14 +78,16 @@ Prerequisites
    $ brew tap riscv/riscv && brew update && brew install riscv-gnu-toolchain
    ```
 
-   **Ubuntu (19.10 or later)**:
+   **Ubuntu (21.10 or later)**:
    ```
-   $ sudo apt install gcc-riscv64-unknown-elf
+   $ sudo apt install gcc-riscv64-unknown-elf picolibc-riscv64-unknown-elf
    ```
 
-   Unfortunately, Ubuntu does not currently (June 2022) provide a package for
-   RISC-V libc. We have created a .deb file you can use to install a suitable
-   libc based on newlib:
+   **Ubuntu (21.04 or earlier)**:
+
+   Unfortunately, older Ubuntu does not provide a package for RISC-V libc. We
+   have created a .deb file you can use to install a suitable libc based on
+   newlib:
    ```
    $ wget http://cs.virginia.edu/~bjc8c/archive/newlib_3.3.0-1_amd64.deb
    $ sudo dpkg -i newlib_3.3.0-1_amd64.deb
