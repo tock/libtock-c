@@ -89,10 +89,45 @@ int ota_get_process_index(uint32_t *processes_index)
   return tock_command_return_u32_to_returncode(res, (uint32_t *)processes_index);
 }
 
-// Commnad to let the kernel calculate CRC32-POSIX and to return the result
-int ota_calculate_crc32(uint32_t *crc32_result)
+// Commnad to get the number of process supported by platform
+int ota_get_supported_process_num(uint32_t *supported_processes_num)
 {
-  syscall_return_t res = command(DRIVER_NUM_PROCLOADER_KERNEL, COMMAND_PROC_CAL_GET_CRC32, 0, 0);
+  syscall_return_t res = command(DRIVER_NUM_PROCLOADER_KERNEL, COMMAND_PROC_GET_SUPPORTED_PROCESS_NUM, 0, 0);
+  return tock_command_return_u32_to_returncode(res, (uint32_t *)supported_processes_num);
+}
+
+// Commnad to get the start address of a process
+int ota_get_process_start_address(uint32_t *process_start_address, uint32_t index)
+{
+  syscall_return_t res = command(DRIVER_NUM_PROCLOADER_KERNEL, COMMAND_PROC_GET_PROCESS_START_ADDRESS, index, 0);
+  return tock_command_return_u32_to_returncode(res, (uint32_t *)process_start_address);
+}
+
+// Commnad to get the start address of a process
+int ota_get_process_size(uint32_t *process_size, uint32_t index)
+{
+  syscall_return_t res = command(DRIVER_NUM_PROCLOADER_KERNEL, COMMAND_PROC_GET_PROCESS_SIZE, index, 0);
+  return tock_command_return_u32_to_returncode(res, (uint32_t *)process_size);
+}
+
+// Commnad to get the kernel version
+int ota_get_kernel_version(uint32_t *kernel_version)
+{
+  syscall_return_t res = command(DRIVER_NUM_PROCLOADER_KERNEL, COMMAND_PROC_GET_KERNEL_VERSION, 0, 0);
+  return tock_command_return_u32_to_returncode(res, (uint32_t *)kernel_version);
+}
+
+// Commnad to get the length of padding app header
+int ota_get_padding_app_header_length(uint32_t *padding_app_header_len)
+{
+  syscall_return_t res = command(DRIVER_NUM_PROCLOADER_KERNEL, COMMAND_PROC_GET_PADDING_APP_HEADER_LEN, 0, 0);
+  return tock_command_return_u32_to_returncode(res, (uint32_t *)padding_app_header_len);
+}
+
+// Commnad to let the kernel calculate CRC32-POSIX and to return the result
+int ota_calculate_crc32(uint32_t *crc32_result, uint32_t start_address, uint32_t mode)
+{
+  syscall_return_t res = command(DRIVER_NUM_PROCLOADER_KERNEL, COMMAND_PROC_CAL_GET_CRC32, start_address, mode);
   return tock_command_return_u32_to_returncode(res, (uint32_t *)crc32_result);
 }
 
