@@ -69,7 +69,7 @@ int ota_app_loading_request(void)
 }
 
 // Commnad to let the kernel set the dynamically changed writable flash start address
-int ota_set_dynamic_start_address_of_writable_flash(uint32_t appsize)
+int ota_find_dynamic_start_address_of_writable_flash(uint32_t appsize)
 {
   syscall_return_t res = command(DRIVER_NUM_PROCLOADER_KERNEL, COMMAND_PROC_SET_DYNAMIC_START_ADDRESS, appsize, 0);
   return tock_command_return_novalue_to_returncode(res);
@@ -143,6 +143,13 @@ int ota_get_flash_start_address(uint32_t *rom_start_address)
 {
   syscall_return_t res = command(DRIVER_NUM_PROCLOADER_KERNEL, COMMAND_PROC_GET_FLASH_START_ADDRESS, 0, 0);
   return tock_command_return_u32_to_returncode(res, (uint32_t *)rom_start_address);
+}
+
+// Commnad to get the end address of flash memory region containing app images
+int ota_get_flash_end_address(uint32_t *rom_end_address)
+{
+  syscall_return_t res = command(DRIVER_NUM_PROCLOADER_KERNEL, COMMAND_PROC_GET_FLASH_END_ADDRESS, 0, 0);
+  return tock_command_return_u32_to_returncode(res, (uint32_t *)rom_end_address);
 }
 
 /***************************** Interface of uart console.rs (capsule) *****************************/

@@ -25,13 +25,18 @@
 /* Command set from the tool to OTA app*/
 #define COMMAND_FIND_STADDR 0x5A
 #define COMMAND_WRITE_BINARY_DATA 0x5B
-#define COMMAND_WRITE_PADDING_APP 0x5C
-#define COMMAND_SEND_CRC 0x5D
-#define COMMAND_APP_LOAD 0x5E
-#define COMMAND_APP_ERASE 0x5F
+#define COMMAND_WRITE_PADDING_BOUNDARY 0x5C
+#define COMMAND_WRITE_PADDING_APP 0x5D
+#define COMMAND_SEND_CRC 0x5E
+#define COMMAND_APP_LOAD 0x5F
+#define COMMAND_APP_ERASE 0x60
+
+/* Others */
+#define MIN_TBF_HEADER_LENGTH 16
+#define INVALID_TBF_HEADER -10
 
 #if (OTA_DEBUG == Yes)
-#define COMMAND_DEBUG 0x60
+#define COMMAND_DEBUG 0x61
 #endif
 
 /* Data structure to control OTA update */
@@ -46,6 +51,7 @@ typedef struct OtaDataPkt
   uint32_t ota_u32supported_process_num;
   uint32_t ota_u32flash_start_address_dyn;
   uint32_t ota_u32rom_start_address_const;
+  uint32_t ota_u32rom_end_address_const;
   uint32_t ota_u32crc;
   uint32_t ota_u32Crc32_kernel;
   uint32_t ota_u32recv_app_size;
@@ -68,16 +74,17 @@ const char rsp_find_staddr_ok[RESPONSE_BUFFER_SIZE] = "find staddr ok     \n";
 const char rsp_find_staddr_fail[RESPONSE_BUFFER_SIZE] = "find staddr fail   \n";
 const char rsp_write_binary_ok[RESPONSE_BUFFER_SIZE] = "write binary ok    \n";
 const char rsp_write_binary_fail[RESPONSE_BUFFER_SIZE] = "write binary fail  \n";
-const char rsp_write_padding_ok[RESPONSE_BUFFER_SIZE] = "write padding ok   \n";
-const char rsp_write_padding_fail[RESPONSE_BUFFER_SIZE] = "write padding fail \n";
+const char rsp_write_pad_bndry_ok[RESPONSE_BUFFER_SIZE] = "write pad 01 ok    \n";
+const char rsp_write_pad_bndry_fail[RESPONSE_BUFFER_SIZE] = "write pad 01 fail  \n";
 const char rsp_crc_ok[RESPONSE_BUFFER_SIZE] = "checksum ok        \n";
 const char rsp_crc_fail[RESPONSE_BUFFER_SIZE] = "checksum fail      \n";
 const char rsp_appload_ok[RESPONSE_BUFFER_SIZE] = "app load ok        \n";
 const char rsp_appload_fail[RESPONSE_BUFFER_SIZE] = "app load fail      \n";
 const char rsp_erase_ok[RESPONSE_BUFFER_SIZE] = "erase ok           \n";
 const char rsp_erase_fail[RESPONSE_BUFFER_SIZE] = "erase fail         \n";
-const char rsp_write_padding_apps_ok[RESPONSE_BUFFER_SIZE] = "write pad apps ok  \n";
-const char rsp_write_padding_apps_fail[RESPONSE_BUFFER_SIZE] = "write pad apps fail\n";
+const char rsp_write_pad_apps_ok[RESPONSE_BUFFER_SIZE] = "write pad app ok   \n";
+const char rsp_write_pad_apps_fail[RESPONSE_BUFFER_SIZE] = "write pad app fail \n";
+const char rsp_invalid_tbf_header[RESPONSE_BUFFER_SIZE] = "invalid tbf header \n";
 
 const uint32_t crc32_posix_lookup_table[256] = {0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b, 0x1a864db2, 0x1e475005,
                                                 0x2608edb8, 0x22c9f00f, 0x2f8ad6d6, 0x2b4bcb61, 0x350c9b64, 0x31cd86d3, 0x3c8ea00a, 0x384fbdbd,
@@ -119,17 +126,18 @@ int ota_get_const_value_init(stOtaDataPkt *pDataPacket);
 int ota_get_dynamic_value_init(stOtaDataPkt *pDataPacket);
 
 /* OTA update main functions */
-bool ota_write_data_into_flash(stOtaDataPkt *pDataPacket);
-bool ota_write_padding_data_into_flash(stOtaDataPkt *pDataPacket);
+int ota_write_data_into_flash(stOtaDataPkt *pDataPacket);
+bool ota_write_padding_boundary(stOtaDataPkt *pDataPacket, stProcRegion *pRegionData);
 bool ota_write_padding_apps(stOtaDataPkt *pDataPacket, stProcRegion *pRegionData);
 bool ota_crc_consistency_check(stOtaDataPkt *pDataPacket);
+bool ota_tbf_validation_check(stOtaDataPkt *pDataPacket);
 bool ota_erase_loaded_app(stOtaDataPkt *pDataPacket);
 void ota_flash_state_machine(void);
 
 /* OTA response functions via UART */
 void ota_get_dynamic_value_init_response(void);
 void ota_write_data_into_flash_response(void);
-void ota_write_padding_data_into_flash_response(void);
+void ota_write_padding_boundary_response(void);
 void ota_write_padding_apps_response(void);
 void ota_crc_consistency_check_response(void);
 void ota_app_loading_request_response(void);
@@ -4399,10 +4407,10 @@ void ota_blink_binary_write(void)
   // To do..
 
   // 1. Find the start address of writable flash to install an application
-  ret = ota_set_dynamic_start_address_of_writable_flash(u32appsize);
+  ret = ota_find_dynamic_start_address_of_writable_flash(u32appsize);
   if (ret != 0)
   {
-    printf("\tERROR calling read\n");
+    printf("\tERROR Finding StAddr: %d \n", ret);
     // return ret;
   }
 
@@ -4416,6 +4424,7 @@ void ota_blink_binary_write(void)
 
   // 3. Get the start address of writable flash
   ret2 = ota_get_dynamic_start_address_of_writable_flash(&u32start_address);
+
   if (ret2 < 0)
   {
     printf("\tError getting dynamic start address of writable flash\n");
@@ -4448,7 +4457,7 @@ void ota_blink_binary_write(void)
       {
         if (boBle_Passive == true)
         {
-          memcpy(writebuf, &bleapp_bin[FLASH_BUFFER_SIZE * u32offset], FLASH_BUFFER_SIZE);
+          // memcpy(writebuf, &bleapp_bin[FLASH_BUFFER_SIZE * u32offset], FLASH_BUFFER_SIZE);
         }
         else if (boBlink == true)
         {
@@ -4482,7 +4491,7 @@ void ota_blink_binary_write(void)
     u32crc ^= 0xffffffff;
 
     // 6. request to calculate crc32 and return the resulting value
-    ret = ota_calculate_crc32(&u32Crc32_kernel, pDataPacket->ota_u32flash_start_address_dyn, CRC_MODE_FOR_LOAD_APP);
+    ret = ota_calculate_crc32(&u32Crc32_kernel, u32start_address, CRC_MODE_FOR_LOAD_APP);
     if (ret < 0)
     {
       printf("CRC32 calculation error\n");
@@ -4665,28 +4674,35 @@ int ota_get_const_value_init(stOtaDataPkt *pDataPacket)
     return ret;
   }
 
-  // 3. Get the number of supported process by platform (e.g., 4 in case of microbit_v2)
+  // 3. Get the end of the Flash region containing app images (e.g., 0x80000)
+  ret = ota_get_flash_end_address(&pDataPacket->ota_u32rom_end_address_const);
+  if (ret < 0)
+  {
+    return ret;
+  }
+
+  // 4. Get the number of supported process by platform (e.g., 4 in case of microbit_v2)
   ret = ota_get_supported_process_num(&pDataPacket->ota_u32supported_process_num);
   if (ret < 0)
   {
     return ret;
   }
 
-  // 4. Initialize dymaic_unused_sram_start_address and index at kernel
+  // 5. Initialize dymaic_unused_sram_start_address and index at kernel
   ret = ota_init_sram_start_addr_and_index();
   if (ret < 0)
   {
     return ret;
   }
 
-  // 5. Get kernel version
+  // 6. Get kernel version
   ret = ota_get_kernel_version(&pDataPacket->ota_u32kernel_version);
   if (ret < 0)
   {
     return ret;
   }
 
-  // 6. Get the header length of an padding app
+  // 7. Get the header length of an padding app
   ret = ota_get_padding_app_header_length(&pDataPacket->ota_u32padding_app_header_len);
   if (ret < 0)
   {
@@ -4704,7 +4720,7 @@ int ota_get_dynamic_value_init(stOtaDataPkt *pDataPacket)
   pDataPacket->ota_u32recv_app_size |= (uint32_t)pDataPacket->ota_u8uart_read_buf[1];
 
   // 1. Find the start address of writable flash to install an application
-  volatile int ret = ota_set_dynamic_start_address_of_writable_flash(pDataPacket->ota_u32recv_app_size);
+  volatile int ret = ota_find_dynamic_start_address_of_writable_flash(pDataPacket->ota_u32recv_app_size);
   if (ret != 0)
   {
     return ret;
@@ -4717,24 +4733,23 @@ int ota_get_dynamic_value_init(stOtaDataPkt *pDataPacket)
     return ret;
   }
 
-#if (OTA_DEBUG == Yes)
   // 3. Get process index to write entry point of an app
   ret = ota_get_process_index(&pDataPacket->ota_u32process_index);
   if (ret < 0)
   {
     return ret;
   }
-#endif
 
   return 0;
 }
 
 // Internal functions
-bool ota_write_data_into_flash(stOtaDataPkt *pDataPacket)
+int ota_write_data_into_flash(stOtaDataPkt *pDataPacket)
 {
   volatile uint32_t u32PageCnt = 0;
   volatile uint32_t u32FlashOffset = 0;
-  volatile bool boErr = false;
+  volatile int i32err = false;
+  int ret = 0;
 
   // 1. parse page count
   u32PageCnt = (pDataPacket->ota_u8uart_read_buf[1] << 24);
@@ -4745,7 +4760,19 @@ bool ota_write_data_into_flash(stOtaDataPkt *pDataPacket)
   // 2. copy binary data from uart buffer to internal buffer
   memcpy(&pDataPacket->ota_u8flash_write_buf[0], &pDataPacket->ota_u8uart_read_buf[5], FLASH_BUFFER_SIZE);
 
-  // 5.1 CRC32-POXIS (init: 0x00000000, poly: 0x04c11db7)
+  // 3. Init and TBF base header validation check
+  if (u32PageCnt == 0)
+  {
+    pDataPacket->ota_u32crc = 0; // Init to 0x00000000
+    ret = ota_tbf_validation_check(pDataPacket);
+    if (ret != 0)
+    {
+      // If we found invalid tbf header, we return immediately before writing binaray data into flash memory
+      return INVALID_TBF_HEADER; // -10
+    }
+  }
+
+  // 4. CRC32-POXIS (init: 0x00000000, poly: 0x04c11db7)
   for (uint16_t i = 0; i < FLASH_BUFFER_SIZE; i++)
   {
     pDataPacket->ota_u32crc = (pDataPacket->ota_u32crc << 8) ^ crc32_posix_lookup_table[((pDataPacket->ota_u32crc >> 24) ^ pDataPacket->ota_u8flash_write_buf[i]) & 0xFF];
@@ -4756,22 +4783,27 @@ bool ota_write_data_into_flash(stOtaDataPkt *pDataPacket)
   u32FlashOffset = (pDataPacket->ota_u32flash_start_address_dyn - pDataPacket->ota_u32rom_start_address_const); // 44000 - 40000
   u32FlashOffset += (u32PageCnt * FLASH_BUFFER_SIZE);
 
-  int ret = ota_data_write_execution(u32FlashOffset, FLASH_BUFFER_SIZE); // 0 -> 512 -> 1024 -> 1536 -> end
-
+  ret = ota_data_write_execution(u32FlashOffset, FLASH_BUFFER_SIZE); // 0 -> 512 -> 1024 -> 1536 -> end
   if (ret != 0)
   {
-    boErr = true;
+    i32err = true;
   }
   yield_for(&pDataPacket->ota_boDone);
 
-  return boErr;
+  return i32err; // 1 or 0
 }
 
-bool ota_write_padding_data_into_flash(stOtaDataPkt *pDataPacket)
+bool ota_write_padding_boundary(stOtaDataPkt *pDataPacket, stProcRegion *pRegionData)
 {
   volatile uint32_t u32PageCnt = 0;
   volatile uint32_t u32FlashOffset = 0;
   volatile bool boErr = false;
+  int ret = 0;
+
+  uint32_t u32region_start_addr = 0;
+  uint32_t u32region_end_addr = 0;
+  uint32_t u32boundary_start_addr = 0;
+  bool boProhibit = false;
 
   // 1. parse page count
   u32PageCnt = (pDataPacket->ota_u8uart_read_buf[1] << 24);
@@ -4787,13 +4819,52 @@ bool ota_write_padding_data_into_flash(stOtaDataPkt *pDataPacket)
   u32FlashOffset = (pDataPacket->ota_u32flash_start_address_dyn - pDataPacket->ota_u32rom_start_address_const); // 44000 - 44000
   u32FlashOffset += (u32PageCnt * FLASH_BUFFER_SIZE);
 
-  int ret = ota_data_write_execution(u32FlashOffset, FLASH_BUFFER_SIZE); // 0 -> 512 -> 1024 -> 1536 -> end
-
-  if (ret != 0)
+  // 3. Get the start address and size of all of the process
+  for (uint32_t i = 0; i < pDataPacket->ota_u32supported_process_num; i++)
   {
-    boErr = true;
+    ret = ota_get_process_start_address(&pRegionData[i].ota_u32start_address, i);
+    if (ret != 0)
+    {
+      return ret;
+    }
+
+    ret = ota_get_process_size(&pRegionData[i].ota_u32size, i);
+    if (ret != 0)
+    {
+      return ret;
+    }
   }
-  yield_for(&pDataPacket->ota_boDone);
+
+  u32boundary_start_addr = u32FlashOffset + pDataPacket->ota_u32rom_start_address_const;
+  // 4. Check whether or not the offset for 512 bytes 01 padding is in the existing apps (Actually loaded into PROCESS array)
+
+  for (uint32_t i = 0; i < pDataPacket->ota_u32supported_process_num; i++)
+  {
+    u32region_start_addr = pRegionData[i].ota_u32start_address;
+    u32region_end_addr = pRegionData[i].ota_u32start_address - 1;
+
+    if ((u32boundary_start_addr >= u32region_start_addr) && (u32boundary_start_addr <= u32region_end_addr))
+    {
+      boProhibit = true;
+      break;
+    }
+  }
+
+  // 4. Check whether or not the offset for 512 bytes 01 padding the boundary is at the end of rom
+  if (u32FlashOffset + pDataPacket->ota_u32rom_start_address_const < pDataPacket->ota_u32rom_end_address_const)
+  {
+    boProhibit = true;
+  }
+
+  if (boProhibit == false)
+  {
+    ret = ota_data_write_execution(u32FlashOffset, FLASH_BUFFER_SIZE); // 0 -> 512 -> 1024 -> 1536 -> end
+    if (ret != 0)
+    {
+      boErr = true;
+    }
+    yield_for(&pDataPacket->ota_boDone);
+  }
 
   return boErr;
 }
@@ -4813,13 +4884,13 @@ bool ota_write_padding_apps(stOtaDataPkt *pDataPacket, stProcRegion *pRegionData
     ret = ota_get_process_start_address(&pRegionData[i].ota_u32start_address, i);
     if (ret != 0)
     {
-      boErr = true;
+      return ret;
     }
 
     ret = ota_get_process_size(&pRegionData[i].ota_u32size, i);
     if (ret != 0)
     {
-      boErr = true;
+      return ret;
     }
   }
 
@@ -4943,7 +5014,6 @@ bool ota_crc_consistency_check(stOtaDataPkt *pDataPacket)
   //  4. crc consistency check
   if ((u32crc_ota_final == u32crc_from_tool) && (u32crc_ota_final == pDataPacket->ota_u32Crc32_kernel))
   {
-    pDataPacket->ota_u32crc = 0; // Initialization for calculation of next update
     boErr = false;
   }
   else
@@ -4980,6 +5050,51 @@ bool ota_erase_loaded_app(stOtaDataPkt *pDataPacket)
   return boErr;
 }
 
+bool ota_tbf_validation_check(stOtaDataPkt *pDataPacket)
+{
+  uint16_t u16kernel_version = 0;
+  uint16_t u16header_len = 0;
+  uint32_t u32appsize = 0;
+  volatile bool boErr = false;
+
+  // 3.1 check kernel version consistency
+  u16kernel_version = (uint16_t)pDataPacket->ota_u8flash_write_buf[0];
+  u16kernel_version |= (uint16_t)pDataPacket->ota_u8flash_write_buf[1] << 8;
+  if (u16kernel_version != pDataPacket->ota_u32kernel_version)
+  {
+    boErr = true;
+  }
+
+  // 3.2 TBF base header validity check
+  u16header_len = (uint16_t)pDataPacket->ota_u8flash_write_buf[2];
+  u16header_len |= (uint16_t)pDataPacket->ota_u8flash_write_buf[3] << 8;
+
+  u32appsize = ((uint32_t)pDataPacket->ota_u8flash_write_buf[7] << 24); // Little endian -> Big
+  u32appsize |= ((uint32_t)pDataPacket->ota_u8flash_write_buf[6] << 16);
+  u32appsize |= ((uint32_t)pDataPacket->ota_u8flash_write_buf[5] << 8);
+  u32appsize |= (uint32_t)pDataPacket->ota_u8flash_write_buf[4];
+
+  // 1) The header length isn't greater than the entire app
+  if (u16header_len < MIN_TBF_HEADER_LENGTH)
+  {
+    boErr = true;
+  }
+
+  // 2) The header length is at least as large as the v2 required header (which is 16 bytes)
+  if (u16header_len > u32appsize)
+  {
+    boErr = true;
+  }
+
+  // 3) Check consistency between the requested app size and the actual app size in TBF header
+  if (u32appsize != pDataPacket->ota_u32recv_app_size)
+  {
+    boErr = true;
+  }
+
+  return boErr;
+}
+
 void ota_get_dynamic_value_init_response(void)
 {
   int ret = ota_get_dynamic_value_init(&Ota_Dtat_Packet);
@@ -4995,12 +5110,16 @@ void ota_get_dynamic_value_init_response(void)
 
 void ota_write_data_into_flash_response(void)
 {
-  bool boErr = false;
+  int i32Err = false;
 
-  boErr = ota_write_data_into_flash(&Ota_Dtat_Packet);
-  if (boErr == true)
+  i32Err = ota_write_data_into_flash(&Ota_Dtat_Packet);
+  if (i32Err == true)
   {
     ota_putnstr_async(rsp_write_binary_fail, RESPONSE_BUFFER_SIZE, nop_callback, NULL);
+  }
+  else if (i32Err == INVALID_TBF_HEADER)
+  {
+    ota_putnstr_async(rsp_invalid_tbf_header, RESPONSE_BUFFER_SIZE, nop_callback, NULL);
   }
   else
   {
@@ -5008,18 +5127,18 @@ void ota_write_data_into_flash_response(void)
   }
 }
 
-void ota_write_padding_data_into_flash_response(void)
+void ota_write_padding_boundary_response(void)
 {
   bool boErr = false;
 
-  boErr = ota_write_padding_data_into_flash(&Ota_Dtat_Packet);
+  boErr = ota_write_padding_boundary(&Ota_Dtat_Packet, Ota_Proc_Region);
   if (boErr == true)
   {
-    ota_putnstr_async(rsp_write_padding_fail, RESPONSE_BUFFER_SIZE, nop_callback, NULL);
+    ota_putnstr_async(rsp_write_pad_bndry_fail, RESPONSE_BUFFER_SIZE, nop_callback, NULL);
   }
   else
   {
-    ota_putnstr_async(rsp_write_padding_ok, RESPONSE_BUFFER_SIZE, nop_callback, NULL);
+    ota_putnstr_async(rsp_write_pad_bndry_ok, RESPONSE_BUFFER_SIZE, nop_callback, NULL);
   }
 }
 
@@ -5030,11 +5149,11 @@ void ota_write_padding_apps_response(void)
   boErr = ota_write_padding_apps(&Ota_Dtat_Packet, Ota_Proc_Region);
   if (boErr == true)
   {
-    ota_putnstr_async(rsp_write_padding_apps_fail, RESPONSE_BUFFER_SIZE, nop_callback, NULL);
+    ota_putnstr_async(rsp_write_pad_apps_fail, RESPONSE_BUFFER_SIZE, nop_callback, NULL);
   }
   else
   {
-    ota_putnstr_async(rsp_write_padding_apps_ok, RESPONSE_BUFFER_SIZE, nop_callback, NULL);
+    ota_putnstr_async(rsp_write_pad_apps_ok, RESPONSE_BUFFER_SIZE, nop_callback, NULL);
   }
 }
 
@@ -5097,6 +5216,9 @@ void ota_flash_state_machine(void)
     ota_write_data_into_flash_response();
     break;
 
+  case COMMAND_WRITE_PADDING_BOUNDARY:
+    ota_write_padding_boundary_response();
+    break;
   case COMMAND_SEND_CRC:
     ota_crc_consistency_check_response();
     break;

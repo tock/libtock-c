@@ -31,11 +31,12 @@ extern "C"
 #define COMMAND_PROC_CAL_GET_CRC32 5
 #define COMMAND_PROC_GET_PROCESS_INDEX 6
 #define COMMAND_PROC_GET_FLASH_START_ADDRESS 7
-#define COMMAND_PROC_GET_SUPPORTED_PROCESS_NUM 8
-#define COMMAND_PROC_GET_PROCESS_START_ADDRESS 9
-#define COMMAND_PROC_GET_PROCESS_SIZE 10
-#define COMMAND_PROC_GET_KERNEL_VERSION 11
-#define COMMAND_PROC_GET_PADDING_APP_HEADER_LEN 12
+#define COMMAND_PROC_GET_FLASH_END_ADDRESS 8
+#define COMMAND_PROC_GET_SUPPORTED_PROCESS_NUM 9
+#define COMMAND_PROC_GET_PROCESS_START_ADDRESS 10
+#define COMMAND_PROC_GET_PROCESS_SIZE 11
+#define COMMAND_PROC_GET_KERNEL_VERSION 12
+#define COMMAND_PROC_GET_PADDING_APP_HEADER_LEN 13
 
 #define CRC_MODE_FOR_LOAD_APP 1
 #define CRC_MODE_FOR_PADDING_APP 2
@@ -56,13 +57,14 @@ extern "C"
     int ota_data_write_execution(uint32_t offset, uint32_t length);
 
     int ota_app_loading_request(void);
-    int ota_set_dynamic_start_address_of_writable_flash(uint32_t appsize);
+    int ota_find_dynamic_start_address_of_writable_flash(uint32_t appsize);
     int ota_get_dynamic_start_address_of_writable_flash(uint32_t *startaddress);
     int ota_get_process_index(uint32_t *processes_num);
     int ota_get_supported_process_num(uint32_t *supported_processes_num);
     int ota_calculate_crc32(uint32_t *crc32_result, uint32_t start_address, uint32_t mode);
     int ota_init_sram_start_addr_and_index(void);
     int ota_get_flash_start_address(uint32_t *rom_start_address);
+    int ota_get_flash_end_address(uint32_t *rom_end_address);
     int ota_get_process_start_address(uint32_t *process_start_address, uint32_t index);
     int ota_get_process_size(uint32_t *process_size, uint32_t index);
     int ota_get_kernel_version(uint32_t *kernel_version);
