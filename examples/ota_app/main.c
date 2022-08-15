@@ -34,6 +34,8 @@
 /* Others */
 #define MIN_TBF_HEADER_LENGTH 16
 #define INVALID_TBF_HEADER -10
+#define TBF_BASE_HEADER_CHECKSUM_INDEX 12
+#define TBF_BASE_HEADER_CHECK_OFFSET 4
 
 #if (OTA_DEBUG == Yes)
 #define COMMAND_DEBUG 0x61
@@ -5055,6 +5057,9 @@ bool ota_tbf_validation_check(stOtaDataPkt *pDataPacket)
   uint16_t u16kernel_version = 0;
   uint16_t u16header_len = 0;
   uint32_t u32appsize = 0;
+  uint32_t u32Header_Checksum = 0;
+  uint32_t u32Header_Checksum_Cal = 0;
+  uint32_t u32temp = 0;
   volatile bool boErr = false;
 
   // 3.1 check kernel version consistency
@@ -5074,19 +5079,43 @@ bool ota_tbf_validation_check(stOtaDataPkt *pDataPacket)
   u32appsize |= ((uint32_t)pDataPacket->ota_u8flash_write_buf[5] << 8);
   u32appsize |= (uint32_t)pDataPacket->ota_u8flash_write_buf[4];
 
-  // 1) The header length isn't greater than the entire app
-  if (u16header_len < MIN_TBF_HEADER_LENGTH)
-  {
-    boErr = true;
-  }
+  u32Header_Checksum = ((uint32_t)pDataPacket->ota_u8flash_write_buf[12] << 24); // Little endian -> Big
+  u32Header_Checksum |= ((uint32_t)pDataPacket->ota_u8flash_write_buf[13] << 16);
+  u32Header_Checksum |= ((uint32_t)pDataPacket->ota_u8flash_write_buf[14] << 8);
+  u32Header_Checksum |= (uint32_t)pDataPacket->ota_u8flash_write_buf[15];
 
-  // 2) The header length is at least as large as the v2 required header (which is 16 bytes)
+  // 1) The header length isn't greater than the entire app
   if (u16header_len > u32appsize)
   {
     boErr = true;
   }
 
-  // 3) Check consistency between the requested app size and the actual app size in TBF header
+  // 2) The header length is at least as large as the v2 required header (which is 16 bytes)
+  if (u16header_len < MIN_TBF_HEADER_LENGTH)
+  {
+    boErr = true;
+  }
+
+  // 3) Check Base Header Checksum consistency
+  for (uint16_t i = 0; i < u16header_len; i += TBF_BASE_HEADER_CHECK_OFFSET)
+  {
+    if (i != TBF_BASE_HEADER_CHECKSUM_INDEX)
+    {
+      u32temp = ((uint32_t)pDataPacket->ota_u8flash_write_buf[i] << 24); // Little endian -> Big
+      u32temp |= ((uint32_t)pDataPacket->ota_u8flash_write_buf[i + 1] << 16);
+      u32temp |= ((uint32_t)pDataPacket->ota_u8flash_write_buf[i + 2] << 8);
+      u32temp |= (uint32_t)pDataPacket->ota_u8flash_write_buf[i + 3];
+
+      u32Header_Checksum_Cal ^= u32temp;
+    }
+  }
+
+  if (u32Header_Checksum_Cal != u32Header_Checksum)
+  {
+    boErr = true;
+  }
+
+  // 4) Check consistency between the requested app size and the actual app size in TBF header
   if (u32appsize != pDataPacket->ota_u32recv_app_size)
   {
     boErr = true;
