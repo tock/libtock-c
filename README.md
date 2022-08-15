@@ -49,7 +49,7 @@ Prerequisites
 
    **Arch**:
    ```
-   $ sudo pacman -Syu arm-none-eabi-gcc
+   $ sudo pacman -Syu arm-none-eabi-gcc arm-none-eabi-newlib
    ```
 
    **Fedora**:
