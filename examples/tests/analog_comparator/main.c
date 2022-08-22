@@ -50,7 +50,7 @@ static void analog_comparator_comparison_interrupt(uint8_t channel) {
 
 int main(void) {
   printf("\nAnalog Comparator test application\n");
-
+exit(10);
   if (!analog_comparator_exists()) {
     printf("Analog Comparator driver does not exist\n");
     exit(1);
