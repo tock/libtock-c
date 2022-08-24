@@ -69,7 +69,7 @@ ARTY_E21_TOCK_TARGETS := rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80
 #  rv32imac|rv32imac.0x20040060.0x80002800 # RISC-V for HiFive1b
 #  rv32imac|rv32imac.0x403B0060.0x3FCC0000 # RISC-V for ESP32-C3
 #  rv32imc|rv32imc.0x41000060.0x42008000   # RISC-V for LiteX Arty-A7
-#  rv32i|rv32i.0x00080060.0x40008000       # RISC-V for LiteX Simulator
+#  rv32imc|rv32imc.0x00080060.0x40008000   # RISC-V for LiteX Simulator
 TOCK_TARGETS ?= cortex-m0\
                 cortex-m3\
                 cortex-m4\
@@ -77,7 +77,7 @@ TOCK_TARGETS ?= cortex-m0\
                 rv32imac|rv32imac.0x20040060.0x80002800|0x20040060|0x80002800\
                 rv32imac|rv32imac.0x403B0060.0x3FCC0000|0x403B0060|0x3FCC0000\
                 rv32imc|rv32imc.0x41000060.0x42008000|0x41000060|0x42008000\
-                rv32i|rv32i.0x00080060.0x40008000|0x00080060|0x40008000\
+                rv32imc|rv32imc.0x00080060.0x40008000|0x00080060|0x40008000\
                 $(OPENTITAN_TOCK_TARGETS) \
                 $(ARTY_E21_TOCK_TARGETS)
 endif
