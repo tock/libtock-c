@@ -21,7 +21,7 @@ static void test_single_samples(uint8_t channel) {
   } else {
     // 12 bit, reference = VCC/2, gain = 0.5
     // millivolts = ((sample * 2) / (2^12 - 1)) * (3.3 V / 2) * 1000
-    int millivolts = (sample * 3300) / 4095;
+    int millivolts = (sample * 3300) / ((1 << 16) - 1);
     printf("ADC Reading: %d mV (raw: 0x%04x)\n", millivolts, sample);
   }
 }
