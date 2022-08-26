@@ -25,12 +25,12 @@ const int COMMAND_GET_PAN       = 10;
 const int COMMAND_GET_CHANNEL   = 11;
 const int COMMAND_GET_POWER     = 12;
 
-const int COMMAND_MAX_NEIGHBORS = 13;
-const int COMMAND_NUM_NEIGHBORS = 14;
+const int COMMAND_MAX_NEIGHBORS          = 13;
+const int COMMAND_NUM_NEIGHBORS          = 14;
 const int COMMAND_GET_NEIGHBOR_ADDR      = 15;
 const int COMMAND_GET_NEIGHBOR_ADDR_LONG = 16;
-const int COMMAND_ADD_NEIGHBOR           = 17;
-const int COMMAND_REMOVE_NEIGHBOR        = 18;
+const int COMMAND_ADD_NEIGHBOR    = 17;
+const int COMMAND_REMOVE_NEIGHBOR = 18;
 
 const int COMMAND_MAX_KEYS      = 19;
 const int COMMAND_NUM_KEYS      = 20;

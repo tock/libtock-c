@@ -20,10 +20,10 @@ int main(void) {
 
   // declarations of variables to be used in this BLE example application
   uint16_t advertising_interval_ms = 300;
-  uint8_t device_name[]            = "TockOS";
-  uint16_t uuids[]                 = {0x1800, 0x1809};
-  uint8_t manufacturer_data[]      = {0x13, 0x37};
-  uint8_t fake_temperature_data[]  = {0x00, 0x00};
+  uint8_t device_name[]           = "TockOS";
+  uint16_t uuids[]                = {0x1800, 0x1809};
+  uint8_t manufacturer_data[]     = {0x13, 0x37};
+  uint8_t fake_temperature_data[] = {0x00, 0x00};
 
   static uint8_t adv_data_buf[ADV_DATA_MAX_SIZE];
 

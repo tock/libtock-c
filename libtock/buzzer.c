@@ -13,7 +13,7 @@ static void callback(__attribute__ ((unused)) int unused,
                      __attribute__ ((unused)) int unused1,
                      __attribute__ ((unused)) int unused2,
                      void* ud) {
-  ((void (*)(void))ud)();
+  ((void (*)(void)) ud)();
 }
 
 int buzzer_exists (void) {
