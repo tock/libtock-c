@@ -38,8 +38,7 @@ int screen_get_supported_resolutions (int* resolutions) {
   if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
     *resolutions = com.data[0];
     return RETURNCODE_SUCCESS;
-  } else if (com.type == TOCK_SYSCALL_FAILURE)
-  {
+  } else if (com.type == TOCK_SYSCALL_FAILURE) {
     return tock_status_to_returncode(com.data[0]);
   } else {
     return RETURNCODE_EINVAL;
@@ -49,7 +48,7 @@ int screen_get_supported_resolutions (int* resolutions) {
 int screen_get_supported_resolution (size_t index, size_t *width, size_t *height) {
   syscall_return_t com = command(DRIVER_NUM_SCREEN, 12, index, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS_U32_U32) {
-    *width = com.data[0];
+    *width  = com.data[0];
     *height = com.data[1];
     return RETURNCODE_SUCCESS;
   } else if (com.type == TOCK_SYSCALL_FAILURE) {
@@ -161,7 +160,7 @@ uint8_t * screen_buffer (void)
 int screen_get_resolution (size_t *width, size_t *height) {
   syscall_return_t com = command(DRIVER_NUM_SCREEN, 23, 0, 0);
   if (com.type == TOCK_SYSCALL_SUCCESS_U32_U32) {
-    *width = com.data[0];
+    *width  = com.data[0];
     *height = com.data[1];
     return RETURNCODE_SUCCESS;
   } else if (com.type == TOCK_SYSCALL_FAILURE) {
