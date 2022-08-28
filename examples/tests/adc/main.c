@@ -8,6 +8,8 @@
 #include <timer.h>
 #include <tock.h>
 
+int reference_voltage;
+
 // List of frequencies to sample at
 const uint32_t FREQS[10] = {25, 100, 500, 1000, 5000, 10000, 44100, 100000, 150000, 175000};
 
@@ -21,7 +23,7 @@ static void test_single_samples(uint8_t channel) {
   } else {
     // 12 bit, reference = VCC/2, gain = 0.5
     // millivolts = ((sample * 2) / (2^12 - 1)) * (3.3 V / 2) * 1000
-    int millivolts = (sample * 3300) / ((1 << 16) - 1);
+    int millivolts = (sample * reference_voltage) / ((1 << 16) - 1);
     printf("ADC Reading: %d mV (raw: 0x%04x)\n", millivolts, sample);
   }
 }
@@ -40,7 +42,7 @@ static void test_sampling_buffer(uint8_t channel, int index) {
     printf("\t[ ");
     for (uint32_t i = 0; i < length; i++) {
       // convert to millivolts
-      printf("%u ", (buf[i] * 3300) / 4095);
+      printf("%u ", (buf[i] * reference_voltage) / ((1 << 16) - 1));
     }
     printf("]\n");
   }
@@ -58,6 +60,20 @@ int main(void) {
   adc_channel_count(&count);
   printf("ADC driver exists with %d channels\n", count);
 
+  reference_voltage = adc_get_reference_voltage();
+  if (reference_voltage > 0)
+  {
+    printf("ADC reference voltage %d.%dV\n", reference_voltage/1000, reference_voltage % 1000);
+  }
+  else
+  {
+    reference_voltage = 3300;
+    printf("ADC no reference voltage, assuming 3.3V\n");
+  }
+
+  int resolution = adc_get_resolution_bits();
+  printf("ADC resolution %d bits\n", resolution);
+  
   while (1) {
     // iterate through the channels
     for (uint8_t channel = 0; channel < count; channel++) {
