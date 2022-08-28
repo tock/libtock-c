@@ -61,19 +61,16 @@ int main(void) {
   printf("ADC driver exists with %d channels\n", count);
 
   reference_voltage = adc_get_reference_voltage();
-  if (reference_voltage > 0)
-  {
-    printf("ADC reference voltage %d.%dV\n", reference_voltage/1000, reference_voltage % 1000);
-  }
-  else
-  {
+  if (reference_voltage > 0) {
+    printf("ADC reference voltage %d.%dV\n", reference_voltage / 1000, reference_voltage % 1000);
+  } else {
     reference_voltage = 3300;
     printf("ADC no reference voltage, assuming 3.3V\n");
   }
 
   int resolution = adc_get_resolution_bits();
   printf("ADC resolution %d bits\n", resolution);
-  
+
   while (1) {
     // iterate through the channels
     for (uint8_t channel = 0; channel < count; channel++) {
