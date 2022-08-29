@@ -31,7 +31,7 @@ typedef enum {
   TOCK_SYSCALL_SUCCESS_U32_U32     = 130,
   TOCK_SYSCALL_SUCCESS_U64         = 131,
   TOCK_SYSCALL_SUCCESS_U32_U32_U32 = 132,
-  TOCK_SYSCALL_SUCCESS_U64_U32     = 133
+  TOCK_SYSCALL_SUCCESS_U32_U64     = 133
 } syscall_rtype_t;
 
 // ReturnCode type in libtock-c.
