@@ -283,3 +283,20 @@ int adc_sample_buffer_sync(uint8_t channel, uint32_t frequency, uint16_t* buffer
   return result.error;
 }
 
+int adc_get_reference_voltage (void) {
+  syscall_return_t res = command(DRIVER_NUM_ADC, 102, 0, 0);
+  if (res.type == TOCK_SYSCALL_SUCCESS_U32) {
+    return res.data[0];
+  } else {
+    return tock_command_return_novalue_to_returncode(res);
+  }
+}
+
+int adc_get_resolution_bits (void) {
+  syscall_return_t res = command(DRIVER_NUM_ADC, 101, 0, 0);
+  if (res.type == TOCK_SYSCALL_SUCCESS_U32) {
+    return res.data[0];
+  } else {
+    return tock_command_return_novalue_to_returncode(res);
+  }
+}
