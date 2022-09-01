@@ -113,6 +113,14 @@ class HailTest(UartTest):
         logger.info('Setting up for hail Uart Rx/Tx test...',
             extra={'timegap': time_gap(TEST_START_TIME)})
 
+class Nrf52dkTest(UartTest):
+    def setUp(self):
+        global sp
+
+        sp = serial.Serial(port="/dev/ttyACM0", baudrate=115200, bytesize=8, timeout=2)
+        logger.info('Setting up for nrf52dk Uart Rx/Tx test...',
+            extra={'timegap': time_gap(TEST_START_TIME)})
+
 # END
 
 ################################################################################

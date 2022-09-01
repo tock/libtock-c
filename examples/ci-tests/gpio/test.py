@@ -185,7 +185,16 @@ class HailTest(GpioTest):
         self.P2 = Pin(13)
         self.P3 = Pin(19)
 
+class Nrf52dkTest(GpioTest):
+    def setUp(self):
+        logger.info('Setting up for nrf52dk GPIO test...',
+            extra={'timegap': time_gap(TEST_START_TIME)})
 
+        # Assign input pins
+        self.P0 = Pin(5)
+        self.P1 = Pin(6)
+        self.P2 = Pin(13)
+        self.P3 = Pin(19)
 # END
 
 ################################################################################
