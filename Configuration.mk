@@ -314,10 +314,11 @@ override LEGACY_LIBS_rv32imac += \
 
 # Setup the correct toolchain for each architecture. ARM has a standard
 # toolchain we can use for every variant.
-TOOLCHAIN_cortex-m0 := arm-none-eabi
-TOOLCHAIN_cortex-m3 := arm-none-eabi
-TOOLCHAIN_cortex-m4 := arm-none-eabi
-TOOLCHAIN_cortex-m7 := arm-none-eabi
+TOOLCHAIN_cortex-m  := arm-none-eabi
+TOOLCHAIN_cortex-m0 := $(TOOLCHAIN_cortex-m)
+TOOLCHAIN_cortex-m3 := $(TOOLCHAIN_cortex-m)
+TOOLCHAIN_cortex-m4 := $(TOOLCHAIN_cortex-m)
+TOOLCHAIN_cortex-m7 := $(TOOLCHAIN_cortex-m)
 
 # Setup the correct compiler. For cortex-m we only support GCC as it is the only
 # toolchain with the PIC support we need for Tock userspace apps.
