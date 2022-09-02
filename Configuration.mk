@@ -66,6 +66,7 @@ PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 # targets build by default as well.
 ifeq ($(RISCV),)
 TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4 cortex-m7
+TOCK_ARCH_FAMILIES ?= cortex-m
 else
 # Specific addresses useful for the OpenTitan hardware memory map.
 OPENTITAN_TOCK_TARGETS := rv32imc|rv32imc.0x20030080.0x10005000|0x20030080|0x10005000\
@@ -92,6 +93,7 @@ TOCK_TARGETS ?= cortex-m0\
                 rv32imc|rv32imc.0x00080060.0x40008000|0x00080060|0x40008000\
                 $(OPENTITAN_TOCK_TARGETS) \
                 $(ARTY_E21_TOCK_TARGETS)
+TOCK_ARCH_FAMILIES ?= cortex-m rv32i
 endif
 
 # Generate `TOCK_ARCHS`, the set of architectures listed in `TOCK_TARGETS`.
@@ -314,10 +316,11 @@ override LEGACY_LIBS_rv32imac += \
 
 # Setup the correct toolchain for each architecture. ARM has a standard
 # toolchain we can use for every variant.
-TOOLCHAIN_cortex-m0 := arm-none-eabi
-TOOLCHAIN_cortex-m3 := arm-none-eabi
-TOOLCHAIN_cortex-m4 := arm-none-eabi
-TOOLCHAIN_cortex-m7 := arm-none-eabi
+TOOLCHAIN_cortex-m  := arm-none-eabi
+TOOLCHAIN_cortex-m0 := $(TOOLCHAIN_cortex-m)
+TOOLCHAIN_cortex-m3 := $(TOOLCHAIN_cortex-m)
+TOOLCHAIN_cortex-m4 := $(TOOLCHAIN_cortex-m)
+TOOLCHAIN_cortex-m7 := $(TOOLCHAIN_cortex-m)
 
 # Setup the correct compiler. For cortex-m we only support GCC as it is the only
 # toolchain with the PIC support we need for Tock userspace apps.

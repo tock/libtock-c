@@ -266,6 +266,31 @@ $$(BUILDDIR)/$(1)/$(2).userland_debug.lst: $$(BUILDDIR)/$(1)/$(2).userland_debug
 ############################################################################################
 endef
 
+
+# Rules that apply to an entire architecture family (e.g. cortex-m).
+#
+# - Argument $(1) is the architecture family (e.g. cortex-m).
+# - Argument $(2) is the list of architectures in that family.
+# - Argument $(3) is the list of output names for the .elf of each arch.
+#
+# Note: all variables, other than $(1), used within this block must be double
+# dollar-signed so that their values will be evaluated when run, not when
+# generated.
+define ARCH_FAMILY_RULES
+
+$(1)_DIRECTORY_NAMES := $$(addsuffix /,$(2))
+$(1)_DIRECTORY_FILES := $$(join $$($(1)_DIRECTORY_NAMES),$(3))
+$(1)_DIRECTORY_FILES_EXT := $$(addsuffix .elf,$$($(1)_DIRECTORY_FILES))
+$(1)_ELF_FILES := $$(addprefix $$(BUILDDIR)/,$$($(1)_DIRECTORY_FILES_EXT))
+
+# Rule to print the size of the built binaries from an architecture family.
+.PHONY: size-$(1)
+size-$(1): $$($(1)_ELF_FILES)
+	@echo Application size report for arch family $(1):
+	$$(Q)$$(TOOLCHAIN_$(1))$$(SIZE) -t $$^
+
+endef
+
 # Functions to parse the `TOCK_TARGETS` array. Entries 3 and 4 default to the
 # PIC addresses if they are not specified.
 ARCH_FN = $(firstword $(subst |, ,$1))
@@ -279,6 +304,7 @@ RAM_ADDRESS_FN = $(if $(word 4,$(subst |, ,$1)),$(word 4,$(subst |, ,$1)),0x0000
 # Actually generate the rules for each architecture
 $(foreach platform, $(TOCK_ARCHS), $(eval $(call BUILD_RULES_PER_ARCH,$(platform))))
 $(foreach platform, $(TOCK_TARGETS), $(eval $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call OUTPUT_NAME_FN,$(platform)),$(call FLASH_ADDRESS_FN,$(platform)),$(call RAM_ADDRESS_FN,$(platform)))))
+$(foreach family, $(TOCK_ARCH_FAMILIES), $(eval $(call ARCH_FAMILY_RULES,$(family),$(foreach target, $(filter $(family)%,$(TOCK_TARGETS)), $(call ARCH_FN, $(target))),$(foreach target, $(filter $(family)%,$(TOCK_TARGETS)), $(call OUTPUT_NAME_FN, $(target))))))
 
 
 
@@ -290,8 +316,9 @@ $(BUILDDIR)/$(PACKAGE_NAME).tab: $(foreach platform, $(TOCK_TARGETS), $(BUILDDIR
 
 
 # Rules for building apps
+SIZE_RULES = $(addprefix size-,$(TOCK_ARCH_FAMILIES))
 .PHONY:	all
-all:	$(BUILDDIR)/$(PACKAGE_NAME).tab size
+all:	$(BUILDDIR)/$(PACKAGE_NAME).tab $(SIZE_RULES)
 
 # The size target accumulates dependencies in the platform build rule creation
 .PHONY: size
