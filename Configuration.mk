@@ -142,13 +142,13 @@ ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap 
 ELF2TAB_ARGS += --kernel-major $(KERNEL_MAJOR_VERSION) --kernel-minor $(KERNEL_MINOR_VERSION)
 
 # Flags for building app Assembly, C, and C++ files used by all architectures.
-# n.b. CPPFLAGS are shared for C and C++ sources (it's short for C Preprocessor,
+# n.b. CPPFLAGS are shared for C and C++ sources (it's short for C PreProcessor,
 # and C++ uses the C preprocessor). To specify flags for only C or C++, use
-# CFLAGS for C only and CXXFLAGS for C++ only [while we're on the trivia lesson,
-# CXX is shorthand for C++ where folks on the unix/gnu side of history needed a
-# valid letter rather than a symbol (an X is a rotated +). Confusingly, the dos/microsoft
-# lineage chose `.cpp` to address this same issue, leading to confusion nowadays
-# about the meaning of 'cpp'.
+# CFLAGS for C only and CXXFLAGS for C++ only. [While we're on the trivia
+# lesson, CXX is shorthand for C++ because folks on the unix/gnu side of history
+# needed a valid letter rather than a symbol (an X is a rotated +). Confusingly,
+# the dos/microsoft lineage chose `.cpp` to address this same issue, leading to
+# confusion nowadays about the meaning of 'cpp'.]
 override ASFLAGS += -mthumb
 override CFLAGS  += -std=gnu11
 override CPPFLAGS += \
