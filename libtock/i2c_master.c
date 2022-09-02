@@ -16,20 +16,19 @@ int i2c_master_set_buffer(uint8_t* buffer, uint32_t len) {
   return tock_allow_rw_return_to_returncode(aval);
 }
 
-int i2c_master_write(uint8_t address, uint8_t len) {
-  uint32_t a = (((uint32_t) len) << 16) | address;
-  syscall_return_t cval = command(DRIVER_NUM_I2CMASTER, 1, a, len);
+int i2c_master_write(uint8_t address, uint16_t len) {
+  syscall_return_t cval = command(DRIVER_NUM_I2CMASTER, 1, address, len);
   return tock_command_return_novalue_to_returncode(cval);
 }
 
-int i2c_master_read(uint8_t address, uint8_t len) {
-  uint32_t a = (((uint32_t) len) << 16) | address;
-  syscall_return_t cval = command(DRIVER_NUM_I2CMASTER, 2, a, len);
+int i2c_master_read(uint8_t address, uint16_t len) {
+  syscall_return_t cval = command(DRIVER_NUM_I2CMASTER, 2, address, len);
   return tock_command_return_novalue_to_returncode(cval);
 }
-int i2c_master_write_read(uint8_t address, uint8_t len) {
-  uint32_t a = (((uint32_t) len) << 16) | address;
-  syscall_return_t cval = command(DRIVER_NUM_I2CMASTER, 3, a, len);
+
+int i2c_master_write_read(uint8_t address, uint16_t write_len, uint16_t read_len) {
+  uint32_t a = (((uint32_t) write_len) << 8) | address;
+  syscall_return_t cval = command(DRIVER_NUM_I2CMASTER, 3, a, read_len);
   return tock_command_return_novalue_to_returncode(cval);
 }
 
@@ -70,15 +69,21 @@ int i2c_master_read_sync(uint16_t address, uint8_t* buffer, uint16_t len) {
   return RETURNCODE_SUCCESS;
 }
 
-int i2c_master_write_read_sync(uint16_t address, uint8_t* buffer, uint16_t len) {
+int i2c_master_write_read_sync(uint16_t address, uint8_t* buffer, uint16_t write_len, uint16_t read_len) {
   bool ready = 0;
+
+  uint16_t len = write_len;
+  if (read_len > write_len) {
+    len = read_len;
+  }
+
   int rval   = i2c_master_set_buffer(buffer, len);
   if (rval < 0) return rval;
 
   rval = i2c_master_set_callback(i2c_callback, &ready);
   if (rval < 0) return rval;
 
-  rval = i2c_master_write_read(address, len);
+  rval = i2c_master_write_read(address, write_len, read_len);
   if (rval < 0) return rval;
 
   yield_for(&ready);
