@@ -243,6 +243,107 @@ void _start(void* app_start __attribute__((unused)),
     "jal  _c_start_nopic\n"
     );
 
+#elif defined(__i386)
+
+  __asm__ volatile (
+    // Compute the stack top.
+    //
+    // struct hdr* myhdr = (struct hdr*) app_start;
+    // uint32_t stacktop = (((uint32_t) mem_start + myhdr->stack_size + 0xf) & 0xfffffff0);
+    "movl  4(%esp), %edx\n"     // edx = myhdr
+    "movl  36(%edx), %ebx\n"    // ebx = myhdr->stack_size
+    "addl  $0xf, %ebx\n"        // ebx = myhdr->stack_size + 0xf
+    "addl  8(%esp), %ebx\n"     // ebx = mem_start + myhdr->stack_size + 0xf
+    "movl  $0xf, %eax\n"        // eax = 0xf
+    "notl  %eax\n"              // eax = ~0xf
+    "andl  %eax, %ebx\n"        // ebx = (mem_start + myhdr->stack_size + 0xf) & ~0xf
+    //
+    // Compute the app data size and where initial app brk should go.
+    // This includes the GOT, data, and BSS sections. However, we can't be sure
+    // the linker puts them back-to-back, but we do assume that BSS is last
+    // (i.e. myhdr->got_start < myhdr->bss_start && myhdr->data_start <
+    // myhdr->bss_start). With all of that true, then the size is equivalent
+    // to the end of the BSS section.
+    //
+    // uint32_t app_brk = mem_start + myhdr->bss_start + myhdr->bss_size;
+    "movl  8(%esp), %ecx\n"     // ecx = mem_start
+    "addl  24(%edx), %ecx\n"    // ecx = mem_start + myhdr->bss_start
+    "addl  28(%edx), %ecx\n"    // ecx = mem_start + myhdr->bss_start + myhdr->bss_size
+    "addl  $0xf, %ecx\n"        // ecx = (mem_start + bss_start + bss_size + 0xf)
+    "andl  %eax, %ecx\n"        // ecx = (mem_start + bss_start + bss_size + 0xf) & ~0xf
+    //
+    // Move arguments we need to keep over to callee-saved locations.
+    "movl  4(%esp), %esi\n"     // app_start
+    "movl  8(%esp), %edi\n"     // mem_start
+    //
+    // Now we may want to move the stack pointer. If the kernel set the
+    // `app_heap_break` larger than we need (and we are going to call `brk()`
+    // to reduce it) then our stack pointer will fit and we can move it now.
+    // Otherwise after the first syscall (the memop to set the brk), the return
+    // will use a stack that is outside of the process accessible memory.
+    //
+    "cmpl  16(%esp), %ecx\n"    // Compare `app_heap_break` with new brk.
+    "jg    skip_set_sp\n"       // If our current `app_heap_break` is larger
+                                // then we need to move the stack pointer
+                                // before we call the `brk` syscall.
+    "movl  %ebx, %esp\n"        // Update the stack pointer.
+    //
+    "skip_set_sp:\n"            // Back to regularly scheduled programming.
+    //
+    // Call `brk` to set to requested memory
+    //
+    // memop(0, app_brk);
+    "pushl $0\n"
+    "pushl $0\n"
+    "pushl %ecx\n"
+    "pushl $0\n"
+    "movl  $5, %eax\n"          // memop
+    "int   $0x40\n"
+    //
+    // Setup initial stack pointer for normal execution. If we did this before
+    // then this is redundant and just a no-op. If not then no harm in
+    // re-setting it.
+    "movl  %ebx, %esp\n"
+    //
+    // Debug support, tell the kernel the stack location
+    //
+    // memop(10, stacktop);
+    "pushl $0\n"
+    "pushl $0\n"
+    "pushl %ebx\n"
+    "pushl $10\n"
+    "movl  $5, %eax\n"          // memop
+    "int   $0x40\n"
+    "addl  $16, %esp\n"
+    //
+    // Debug support, tell the kernel the heap location
+    //
+    // memop(11, app_brk);
+    "pushl $0\n"
+    "pushl $0\n"
+    "pushl %ecx\n"
+    "pushl $11\n"
+    "movl  $5, %eax\n"          // memop
+    "int   $0x40\n"
+    "addl  $16, %esp\n"
+    //
+    // Call into the rest of startup.
+    // This should never return, if it does, trigger a breakpoint (which will
+    // promote to a HardFault in the absence of a debugger)
+    //
+    // Extra push instructions are to ensure the stack is aligned to 16 bytes
+    // before jumping to C. This is required when using GCC on x86 due to the
+    // following bug:
+    //
+    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=38496
+    "pushl $0\n"                // stack alignment
+    "pushl $0\n"                // stack alignment
+    "pushl %edi\n"              // second arg is mem_start
+    "pushl %esi\n"              // first arg is app_start
+    "call  _c_start_nopic\n"
+    "int   $0x03\n"
+  );
+
 #else
 #error Missing initial stack setup trampoline for current arch.
 #endif

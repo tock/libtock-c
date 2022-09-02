@@ -643,6 +643,258 @@ memop_return_t memop(uint32_t op_type, int arg1) {
   }
 }
 
+#elif defined(__i386)
+
+// Implementation of syscalls for 32-bit x86 platforms.
+//
+// For x86, arguments are passed on the stack following cdecl convention,
+// and syscall number is passed in EAX. The stack space used for arguments
+// is also reused by the kernel for return values.
+
+void yield(void) {
+  if (yield_check_tasks()) {
+    return;
+  } else {
+    __asm__ volatile (
+      "pushl $0\n"
+      "pushl $0\n"
+      "pushl $0\n"
+      "pushl $1\n"
+      "movl  $0, %%eax\n"
+      "int   $0x40\n"
+      "addl  $16, %%esp\n"
+      :
+      :
+      : "memory", "eax", "ecx", "edx"
+    );
+  }
+}
+
+int yield_no_wait(void) {
+  if (yield_check_tasks()) {
+    return 1;
+  } else {
+    uint8_t result;
+    __asm__ volatile (
+      "pushl $0\n"
+      "pushl $0\n"
+      "pushl %0\n"
+      "pushl $0\n"
+      "movl  $0, %%eax\n"
+      "int   $0x40\n"
+      "addl  $16, %%esp\n"
+      :
+      : "rm" (&result)
+      : "memory", "eax", "ecx", "edx"
+    );
+    return (int)result;
+  }
+}
+
+void tock_restart(uint32_t completion_code) {
+    __asm__ volatile (
+      "pushl $0\n"
+      "pushl $0\n"
+      "pushl %0\n"
+      "pushl $1\n"
+      "movl  $6, %%eax\n"
+      "int   $0x40\n"
+      :
+      : "rm" (completion_code)
+      : "memory", "eax"
+    );
+  __builtin_unreachable();
+}
+
+void tock_exit(uint32_t completion_code) {
+    __asm__ volatile (
+      "pushl $0\n"
+      "pushl $0\n"
+      "pushl %0\n"
+      "pushl $0\n"
+      "movl  $6, %%eax\n"
+      "int   $0x40\n"
+      :
+      : "rm" (completion_code)
+      : "memory", "eax"
+    );
+  __builtin_unreachable();
+}
+
+subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
+                             subscribe_upcall uc, void* userdata) {
+  uint32_t rtype, rv1, rv2, rv3;
+  __asm__ volatile(
+    "pushl %7\n"
+    "pushl %6\n"
+    "pushl %5\n"
+    "pushl %4\n"
+    "movl  $1, %%eax\n"
+    "int   $0x40\n"
+    "popl  %0\n"
+    "popl  %1\n"
+    "popl  %2\n"
+    "popl  %3\n"
+    : "=rm" (rtype), "=rm" (rv1), "=rm" (rv2), "=rm" (rv3)
+    : "rm" (driver), "rm" (subscribe), "rm" (uc), "rm" (userdata)
+    : "memory", "eax"
+  );
+  if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    subscribe_return_t rval = {true, (subscribe_upcall*)rv1, (void*)rv2, 0};
+    return rval;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
+    subscribe_return_t rval = {false, (subscribe_upcall*)rv2, (void*)rv3, (statuscode_t)rv1};
+    return rval;
+  } else {
+    exit(1);
+  }
+}
+
+syscall_return_t command(uint32_t driver, uint32_t command,
+                         int arg1, int arg2) {
+  uint32_t rtype, rv1, rv2, rv3;
+  __asm__ volatile(
+    "pushl %7\n"
+    "pushl %6\n"
+    "pushl %5\n"
+    "pushl %4\n"
+    "movl  $2, %%eax\n"
+    "int   $0x40\n"
+    "popl  %0\n"
+    "popl  %1\n"
+    "popl  %2\n"
+    "popl  %3\n"
+    : "=rm" (rtype), "=rm" (rv1), "=rm" (rv2), "=rm" (rv3)
+    : "rm" (driver), "rm" (command), "rm" (arg1), "rm" (arg2)
+    : "memory", "eax"
+  );
+  syscall_return_t rval = {rtype, {rv1, rv2, rv3}};
+  return rval;
+}
+
+allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
+                                  void* ptr, size_t size) {
+  uint32_t rtype, rv1, rv2, rv3;
+  __asm__ volatile(
+    "pushl %7\n"
+    "pushl %6\n"
+    "pushl %5\n"
+    "pushl %4\n"
+    "movl  $3, %%eax\n"
+    "int   $0x40\n"
+    "popl  %0\n"
+    "popl  %1\n"
+    "popl  %2\n"
+    "popl  %3\n"
+    : "=rm" (rtype), "=rm" (rv1), "=rm" (rv2), "=rm" (rv3)
+    : "rm" (driver), "rm" (allow), "rm" (ptr), "rm" (size)
+    : "memory", "eax"
+  );
+  if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    allow_rw_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
+    return rv;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
+    allow_rw_return_t rv = {false, (void*)rv2, (size_t)rv3, (statuscode_t)rv1};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(1);
+  }
+}
+
+allow_userspace_r_return_t allow_userspace_read(uint32_t driver,
+                                                uint32_t allow, void* ptr,
+                                                size_t size) {
+  uint32_t rtype, rv1, rv2, rv3;
+  __asm__ volatile(
+    "pushl %7\n"
+    "pushl %6\n"
+    "pushl %5\n"
+    "pushl %4\n"
+    "movl  $7, %%eax\n"
+    "int   $0x40\n"
+    "popl  %0\n"
+    "popl  %1\n"
+    "popl  %2\n"
+    "popl  %3\n"
+    : "=rm" (rtype), "=rm" (rv1), "=rm" (rv2), "=rm" (rv3)
+    : "rm" (driver), "rm" (allow), "rm" (ptr), "rm" (size)
+    : "memory", "eax"
+  );
+  if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    allow_userspace_r_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
+    return rv;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
+    allow_userspace_r_return_t rv = {false, (void*)rv2, (size_t)rv3, (statuscode_t)rv1};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(-1);
+  }
+}
+
+allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
+                                 const void *ptr, size_t size) {
+  uint32_t rtype, rv1, rv2, rv3;
+  __asm__ volatile(
+    "pushl %7\n"
+    "pushl %6\n"
+    "pushl %5\n"
+    "pushl %4\n"
+    "movl  $4, %%eax\n"
+    "int   $0x40\n"
+    "popl  %0\n"
+    "popl  %1\n"
+    "popl  %2\n"
+    "popl  %3\n"
+    : "=rm" (rtype), "=rm" (rv1), "=rm" (rv2), "=rm" (rv3)
+    : "rm" (driver), "rm" (allow), "rm" (ptr), "rm" (size)
+    : "memory", "eax"
+  );
+  if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    allow_ro_return_t rv = {true, (const void*)rv1, (size_t)rv2, 0};
+    return rv;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_U32_U32) {
+    allow_ro_return_t rv = {false, (const void*)rv2, (size_t)rv3, (statuscode_t)rv1};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(1);
+  }
+}
+
+memop_return_t memop(uint32_t op_type, int arg1) {
+  uint32_t code;
+  uint32_t val;
+  __asm__ volatile(
+    "pushl $0\n"
+    "pushl $0\n"
+    "pushl %3\n"
+    "pushl %2\n"
+    "movl  $5, %%eax\n"
+    "int   $0x40\n"
+    "popl  %0\n"
+    "popl  %1\n"
+    "addl  $8, %%esp"
+    : "=rm" (code), "=rm" (val)
+    : "rm" (op_type), "rm" (arg1)
+    : "memory", "eax"
+  );
+  if (code == TOCK_SYSCALL_SUCCESS) {
+    memop_return_t rv = {TOCK_STATUSCODE_SUCCESS, 0};
+    return rv;
+  } else if (code == TOCK_SYSCALL_SUCCESS_U32) {
+    memop_return_t rv = {TOCK_STATUSCODE_SUCCESS, val};
+    return rv;
+  } else if (code == TOCK_SYSCALL_FAILURE) {
+    memop_return_t rv = {(statuscode_t) val, 0};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(1);
+  }
+}
+
 #endif
 
 // Returns the address where the process's RAM region starts.

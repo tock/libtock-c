@@ -528,6 +528,56 @@ override OBJDUMP_FLAGS_cortex-m4 += $(OBJDUMP_FLAGS_cortex-m)
 override OBJDUMP_FLAGS_cortex-m3 += $(OBJDUMP_FLAGS_cortex-m)
 override OBJDUMP_FLAGS_cortex-m0 += $(OBJDUMP_FLAGS_cortex-m)
 
+################################################################################
+##
+## i386 compiler/linker flags
+##
+################################################################################
+
+TOOLCHAIN_i386 := i386-elf
+
+CC_i386 := -gcc
+
+ifeq ($(NEWLIB_BASE_DIR_i386),)
+  $(error "NEWLIB_BASE_DIR_i386 is not set. Please set it to the path of the newlib library for i386."))
+endif
+
+ifeq ($(LIBCPP_VERSION_i386),)
+  $(error "LIBCPP_VERSION_i386 is not set. Please set it to the version of the libc++ library for i386."))
+endif
+
+ifeq ($(LIBCPP_BASE_DIR_i386),)
+  $(error "LIBCPP_BASE_DIR_i386 is not set. Please set it to the path of the libc++ library for i386."))
+endif
+
+# Set the toolchain specific flags.
+#
+# Note: There are no non-gcc, clang-specific flags currently in use, so there is
+# no equivalent CPPFLAGS_clang currently. If there are clang-only flags in the
+# future, one can/should be added.
+ifeq ($(findstring -gcc,$(CC_i386)),-gcc)
+  override CPPFLAGS_toolchain_i386 += $(CPPFLAGS_gcc)
+  override CFLAGS_toolchain_i386 += $(CFLAGS_gcc)
+endif
+
+# Set the flags `CFLAGS` for i386
+override CFLAGS_i386 += $(CFLAGS_toolchain_i386)
+
+# Set the flags `CPPFLAGS` for i386
+override CPPFLAGS_i386 += \
+      $(CPPFLAGS_toolchain_i386) \
+      -isystem $(NEWLIB_BASE_DIR_i386)/i386-elf/include \
+      -isystem $(LIBCPP_BASE_DIR_i386)/i386-elf/include/c++/$(LIBCPP_VERSION_i386) \
+      -isystem $(LIBCPP_BASE_DIR_i386)/i386-elf/include/c++/$(LIBCPP_VERSION_i386)/i386-elf
+
+override SYSTEM_LIBS_i386 += \
+      $(NEWLIB_BASE_DIR_i386)/i386-elf/lib/libc.a \
+      $(NEWLIB_BASE_DIR_i386)/i386-elf/lib/libm.a
+
+override SYSTEM_LIBS_CXX_i386 += \
+      $(LIBCPP_BASE_DIR_i386)/i386-elf/lib/libstdc++.a \
+      $(LIBCPP_BASE_DIR_i386)/i386-elf/lib/libsupc++.a \
+      $(LIBCPP_BASE_DIR_i386)/lib/gcc/i386-elf/$(LIBCPP_VERSION_i386)/libgcc.a
 
 ################################################################################
 # Extra warning flags not enabled by Wall or Wextra.
@@ -696,6 +746,7 @@ endif
 ifneq ($(findstring rv32i,$(TOCK_ARCH_FAMILIES)),)
   $(info $(TOOLCHAIN_rv32i)$(CC_rv32i) --version: $(shell $(TOOLCHAIN_rv32i)$(CC_rv32i) --version))
 endif
+  $(info $(TOOLCHAIN_i386)$(CC_i386) --version: $(shell $(TOOLCHAIN_i386)$(CC_i386) --version))
   $(info LAYOUT=$(LAYOUT))
   $(info MAKEFLAGS=$(MAKEFLAGS))
   $(info PACKAGE_NAME=$(PACKAGE_NAME))
