@@ -1,5 +1,5 @@
 ![Build Status](https://github.com/tock/libtock-c/workflows/ci/badge.svg)
-[![irc](https://img.shields.io/badge/irc-%23tock-lightgrey.svg)](https://kiwiirc.com/client/irc.freenode.net/tock)
+[![slack](https://img.shields.io/badge/slack-tockos-informational)][slack]
 
 Tock Userland
 =============
@@ -263,6 +263,8 @@ The next step is to read the [overview](doc/overview.md) that describes how
 applications in TockOS are structured and then look at some of the examples in
 detail. The description of the [compilation environment](doc/compilation.md) may
 also be of interest.
+
+[slack]: https://join.slack.com/t/tockos/shared_invite/enQtNDE5ODQyNDU4NTE1LWVjNTgzMTMwYzA1NDI1MjExZjljMjFmOTMxMGIwOGJlMjk0ZTI4YzY0NTYzNWM0ZmJmZGFjYmY5MTJiMDBlOTk
 
 License
 -------
