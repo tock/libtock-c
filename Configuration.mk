@@ -66,6 +66,7 @@ PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 # targets build by default as well.
 ifeq ($(RISCV),)
 TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4 cortex-m7
+TOCK_ARCH_FAMILIES ?= cortex-m
 else
 # Specific addresses useful for the OpenTitan hardware memory map.
 OPENTITAN_TOCK_TARGETS := rv32imc|rv32imc.0x20030080.0x10005000|0x20030080|0x10005000\
@@ -92,6 +93,7 @@ TOCK_TARGETS ?= cortex-m0\
                 rv32imc|rv32imc.0x00080060.0x40008000|0x00080060|0x40008000\
                 $(OPENTITAN_TOCK_TARGETS) \
                 $(ARTY_E21_TOCK_TARGETS)
+TOCK_ARCH_FAMILIES ?= cortex-m rv32i
 endif
 
 # Generate `TOCK_ARCHS`, the set of architectures listed in `TOCK_TARGETS`.
