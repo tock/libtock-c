@@ -1,13 +1,18 @@
-# userland library master makefile. Included by library makefiles
+################################################################################
+##
+## libtock-c library shared makefile. Included by library makefiles to build
+##  libraries for use with libtock-c apps.
+##
+################################################################################
 
 # The first target Make finds is its default. So this line needs to be first to
-# specify `all` as our default rule
+# specify `all` as our default rule.
 all:
 
-# Build settings
+# Build settings.
 include $(TOCK_USERLAND_BASE_DIR)/Configuration.mk
 
-# Helper functions
+# Helper functions.
 include $(TOCK_USERLAND_BASE_DIR)/Helpers.mk
 
 $(call check_defined, LIBNAME)
@@ -21,7 +26,7 @@ endif
 # directory for built output
 $(LIBNAME)_BUILDDIR ?= $($(LIBNAME)_DIR)/build
 
-# Handle complex paths
+# Handle complex paths.
 #
 # Okay, so this merits some explanation:
 #

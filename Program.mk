@@ -1,4 +1,8 @@
-# Makefile for loading applications onto a Tockloader compatible board
+################################################################################
+##
+## Makefile for loading applications onto a Tockloader compatible board.
+##
+################################################################################
 
 $(call check_defined, BUILDDIR)
 $(call check_defined, PACKAGE_NAME)
@@ -6,14 +10,12 @@ $(call check_defined, PACKAGE_NAME)
 TOCKLOADER ?= tockloader
 OPENOCD ?= openocd
 
-# Upload programs over UART with tockloader
+# Upload programs over UART with tockloader.
 ifdef PORT
   TOCKLOADER_GENERAL_FLAGS += --port $(PORT)
 endif
 
-#
 # Setup specific commands for each board.
-#
 ifeq ("$(TOCK_BOARD)","hail")
 PROGRAM = $(TOCKLOADER) $(TOCKLOADER_GENERAL_FLAGS) install $<
 FLASH = $(TOCKLOADER) $(TOCKLOADER_GENERAL_FLAGS) install --jlink $<

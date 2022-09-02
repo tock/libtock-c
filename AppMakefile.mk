@@ -1,19 +1,32 @@
-# userland master makefile. Included by application makefiles
+################################################################################
+##
+## libtock-c main build system Makefile.
+##
+## Individual applications use this Makefile to invoke the compiler and create
+## Tock apps.
+##
+## This Makefile works by generating at runtime the rules necessary to build the
+## libtock-c app for all desired architectures, then running each of those rules
+## to create the compiled output. Each architecture-specific compiled binary is
+## then combined into a single Tock TAB file.
+##
+################################################################################
 
 # The first target Make finds is its default. So this line needs to be first to
 # specify `all` as our default rule
 all:
 
-# directory for built output
+# Directory for built output.
 BUILDDIR ?= build
 
-# Build settings
+# Build settings.
 include $(TOCK_USERLAND_BASE_DIR)/Configuration.mk
 
-# Helper functions
+# Helper functions.
 include $(TOCK_USERLAND_BASE_DIR)/Helpers.mk
 
-# Include the libtock makefile. Adds rules that will rebuild library when needed
+# Include the libtock makefile. Adds rules that will rebuild the core libtock
+# library when needed.
 include $(TOCK_USERLAND_BASE_DIR)/libtock/Makefile
 
 # Connection to the Tock kernel. Apps need the ability to be loaded onto a
@@ -54,8 +67,8 @@ $(foreach lib, $(EXTERN_LIBS), $(eval $(call EXTERN_LIB_RULES,$(lib))))
 # Some sanity checks for variables before they are used
 
 # Warn users about LDFLAGS currently being ignored. We currently use the WLFLAGS
-# and WLFLAGS_$(march) variables to pass linker options through the compiler,
-# by encoding them as `-Wl,...` options.
+# and WLFLAGS_$(arch) variables to pass linker options through the compiler, by
+# encoding them as `-Wl,...` options.
 ifdef LDFLAGS
   $(warning *******************************************************)
   $(warning LDFLAGS are currently ignored!!)
@@ -69,15 +82,15 @@ ifdef LDFLAGS
   $(warning *******************************************************)
 endif
 
-# Warn users about improperly defined HEAP_SIZE
+# Warn users about improperly defined `HEAP_SIZE`.
 ifdef HEAP_SIZE
     $(warning The variable HEAP_SIZE is set but will not be used.)
-    $(warning Tock has two heaps, the application heap which is memory your program)
-    $(warning uses and the kernel heap or grant regions, which is memory dynamically)
-    $(warning allocated by drivers on behalf of your program.)
+    $(warning Tock has two heaps, the application heap which is memory your)
+    $(warning program uses and the kernel heap or grant regions, which is memory)
+    $(warning dynamically allocated by drivers on behalf of your program.)
     $(warning )
-    $(warning These regions are controlled by the APP_HEAP_SIZE and KERNEL_HEAP_SIZE)
-    $(warning variables respectively.)
+    $(warning These regions are controlled by the APP_HEAP_SIZE and)
+    $(warning KERNEL_HEAP_SIZE variables respectively.)
 endif
 
 
@@ -253,8 +266,8 @@ $$(BUILDDIR)/$(1)/$(2).userland_debug.lst: $$(BUILDDIR)/$(1)/$(2).userland_debug
 ############################################################################################
 endef
 
-# Functions to parse the `TOCK_TARGETS` array. Entries 3 and 4 default to the PIC
-# addresses if they are not specified.
+# Functions to parse the `TOCK_TARGETS` array. Entries 3 and 4 default to the
+# PIC addresses if they are not specified.
 ARCH_FN = $(firstword $(subst |, ,$1))
 OUTPUT_NAME_FN = $(if $(word 2,$(subst |, ,$1)),$(word 2,$(subst |, ,$1)),$(firstword $(subst |, ,$1)))
 FLASH_ADDRESS_FN = $(if $(word 3,$(subst |, ,$1)),$(word 3,$(subst |, ,$1)),0x80000000)
