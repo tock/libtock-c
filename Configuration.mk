@@ -168,7 +168,7 @@ override WLFLAGS += \
 # cause problems. See the included header for more details.
 override CPPFLAGS += -include $(TOCK_USERLAND_BASE_DIR)/support/warning_header.h
 
-# Flags for creating application Object files.
+# Flags to improve the quality and information in listings (debug target)
 OBJDUMP_FLAGS += --disassemble-all --source -C --section-headers
 
 # Use a generic linker script for all libtock-c apps.
