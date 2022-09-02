@@ -34,75 +34,52 @@ static int screen_allow (const void* ptr, size_t size) {
 }
 
 int screen_get_supported_resolutions (int* resolutions) {
-  ScreenReturn fbr;
-  fbr.data1 = 0;
-  fbr.done  = false;
-
-  int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS) {
-    syscall_return_t com = command(DRIVER_NUM_SCREEN, 11, 0, 0);
-    ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS) {
-      yield_for (&fbr.done);
-      *resolutions = fbr.data1;
-      ret = fbr.error;
-    }
+  syscall_return_t com = command(DRIVER_NUM_SCREEN, 11, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
+    *resolutions = com.data[0];
+    return RETURNCODE_SUCCESS;
+  } else if (com.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(com.data[0]);
+  } else {
+    return RETURNCODE_EINVAL;
   }
-  return ret;
 }
 
 int screen_get_supported_resolution (size_t index, size_t *width, size_t *height) {
-  ScreenReturn fbr;
-  fbr.done = false;
-
-  int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS) {
-    syscall_return_t com = command(DRIVER_NUM_SCREEN, 12, index, 0);
-    ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS) {
-      yield_for (&fbr.done);
-      *width  = fbr.data1;
-      *height = fbr.data2;
-      ret     = fbr.error;
-    }
+  syscall_return_t com = command(DRIVER_NUM_SCREEN, 12, index, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    *width  = com.data[0];
+    *height = com.data[1];
+    return RETURNCODE_SUCCESS;
+  } else if (com.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(com.data[0]);
+  } else {
+    return RETURNCODE_EINVAL;
   }
-  return ret;
 }
 
 int screen_get_supported_pixel_formats (int* formats) {
-  ScreenReturn fbr;
-  fbr.data1 = 0;
-  fbr.done  = false;
-
-  int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS) {
-    syscall_return_t com = command(DRIVER_NUM_SCREEN, 13, 0, 0);
-    ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS) {
-      yield_for (&fbr.done);
-      *formats = fbr.data1;
-      ret      = fbr.error;
-    }
+  syscall_return_t com = command(DRIVER_NUM_SCREEN, 13, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
+    *formats = com.data[0];
+    return RETURNCODE_SUCCESS;
+  } else if (com.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(com.data[0]);
+  } else {
+    return RETURNCODE_EINVAL;
   }
-  return ret;
 }
 
 int screen_get_supported_pixel_format (size_t index, int* format) {
-  ScreenReturn fbr;
-  fbr.data1 = SCREEN_PIXEL_FORMAT_ERROR;
-  fbr.done  = false;
-
-  int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS) {
-    syscall_return_t com = command(DRIVER_NUM_SCREEN, 14, index, 0);
-    ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS) {
-      yield_for (&fbr.done);
-      *format = fbr.data1;
-      ret     = fbr.error;
-    }
+  syscall_return_t com = command(DRIVER_NUM_SCREEN, 14, index, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32) {
+    *format = com.data[0];
+    return RETURNCODE_SUCCESS;
+  } else if (com.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(com.data[0]);
+  } else {
+    return RETURNCODE_EINVAL;
   }
-  return ret;
 }
 
 bool screen_setup_enabled (void) {
@@ -181,21 +158,16 @@ uint8_t * screen_buffer (void)
 }
 
 int screen_get_resolution (size_t *width, size_t *height) {
-  ScreenReturn fbr;
-  fbr.done = false;
-
-  int ret = screen_subscribe(screen_callback, &fbr);
-  if (ret == RETURNCODE_SUCCESS) {
-    syscall_return_t com = command(DRIVER_NUM_SCREEN, 23, 0, 0);
-    ret = tock_command_return_novalue_to_returncode(com);
-    if (ret == RETURNCODE_SUCCESS) {
-      yield_for (&fbr.done);
-      *width  = fbr.data1;
-      *height = fbr.data2;
-      ret     = fbr.error;
-    }
+  syscall_return_t com = command(DRIVER_NUM_SCREEN, 23, 0, 0);
+  if (com.type == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    *width  = com.data[0];
+    *height = com.data[1];
+    return RETURNCODE_SUCCESS;
+  } else if (com.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(com.data[0]);
+  } else {
+    return RETURNCODE_EINVAL;
   }
-  return ret;
 }
 
 int screen_set_resolution (size_t width, size_t height) {
