@@ -96,7 +96,7 @@ endif
 
 # Generate `TOCK_ARCHS`, the set of architectures listed in `TOCK_TARGETS`.
 #
-# The architecture name is used extensive to create the correct build commands
+# The architecture name is used extensively to create the correct build commands
 # for each architecture. Make targets are automatically generated in
 # `AppMakefile.mk` based on the list of `TOCK_TARGETS`. The remainder of this
 # file uses the architecture name to pull the correct flags for each stage in
