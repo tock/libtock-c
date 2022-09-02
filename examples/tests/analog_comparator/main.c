@@ -24,10 +24,10 @@ static void analog_comparator_comparison_polling(uint8_t channel) {
 
 // Callback for AC interrupts. Channel on which the interrupt is generated is
 // passed through here.
-static void analog_comparator_callback (int arg0,
+static void analog_comparator_callback (int                          arg0,
                                         __attribute__ ((unused)) int arg1,
                                         __attribute__ ((unused)) int arg2,
-                                        void* userdata) {
+                                        void*                        userdata) {
   callback_channel   = arg0;
   *((bool*)userdata) = 1;
 }
@@ -77,12 +77,13 @@ int main(void) {
 
   switch (mode) {
     // Poll for a normal comparison every second and print the result
-    case 0: analog_comparator_comparison_polling(channel); break;
+    case 0: analog_comparator_comparison_polling(channel);
+      break;
 
     // Print for every interrupt received
-    case 1: analog_comparator_comparison_interrupt(channel); break;
+    case 1: analog_comparator_comparison_interrupt(channel);
+      break;
   }
   printf("\n");
   return 0;
 }
-

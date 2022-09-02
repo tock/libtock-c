@@ -43,9 +43,9 @@ typedef struct {
 //      arg1 - channel in lower 8 bits,
 //             number of samples collected in upper 24 bits
 //      arg2 - pointer to buffer filled with samples
-static void adc_upcall(int callback_type,
-                       int arg1,
-                       int arg2,
+static void adc_upcall(int   callback_type,
+                       int   arg1,
+                       int   arg2,
                        void* callback_args) {
 
   adc_data_t* result = (adc_data_t*)callback_args;
@@ -81,7 +81,6 @@ static void adc_upcall(int callback_type,
       result->error = RETURNCODE_FAIL;
       break;
   }
-
   result->fired = true;
 }
 
@@ -110,9 +109,9 @@ static void (*continuous_buffered_sample_callback)(uint8_t, uint32_t, uint16_t*,
 //      arg1 - channel in lower 8 bits,
 //             number of samples collected in upper 24 bits
 //      arg2 - pointer to buffer filled with samples
-static void adc_routing_upcall(int callback_type,
-                               int arg1,
-                               int arg2,
+static void adc_routing_upcall(int   callback_type,
+                               int   arg1,
+                               int   arg2,
                                void* callback_args) {
 
   switch (callback_type) {
