@@ -609,7 +609,7 @@ void* tock_app_memory_begins_at(void) {
   memop_return_t ret = memop(2, 0);
   if (ret.status == TOCK_STATUSCODE_SUCCESS) {
     return (void*) ret.data;
-  } else{
+  } else {
     return NULL;
   }
 }
@@ -619,7 +619,7 @@ void* tock_app_memory_ends_at(void) {
   memop_return_t ret = memop(3, 0);
   if (ret.status == TOCK_STATUSCODE_SUCCESS) {
     return (void*) ret.data;
-  } else{
+  } else {
     return NULL;
   }
 }
@@ -629,7 +629,7 @@ void* tock_app_flash_begins_at(void) {
   memop_return_t ret = memop(4, 0);
   if (ret.status == TOCK_STATUSCODE_SUCCESS) {
     return (void*) ret.data;
-  } else{
+  } else {
     return NULL;
   }
 }
@@ -639,7 +639,7 @@ void* tock_app_flash_ends_at(void) {
   memop_return_t ret = memop(5, 0);
   if (ret.status == TOCK_STATUSCODE_SUCCESS) {
     return (void*) ret.data;
-  } else{
+  } else {
     return NULL;
   }
 }
@@ -650,7 +650,7 @@ void* tock_app_grant_begins_at(void) {
   memop_return_t ret = memop(6, 0);
   if (ret.status == TOCK_STATUSCODE_SUCCESS) {
     return (void*) ret.data;
-  } else{
+  } else {
     return NULL;
   }
 }
@@ -661,7 +661,7 @@ int tock_app_number_writeable_flash_regions(void) {
   memop_return_t ret = memop(7, 0);
   if (ret.status == TOCK_STATUSCODE_SUCCESS) {
     return (int) ret.data;
-  } else{
+  } else {
     return 0;
   }
 }
@@ -673,7 +673,7 @@ void* tock_app_writeable_flash_region_begins_at(int region_index) {
   memop_return_t ret = memop(8, region_index);
   if (ret.status == TOCK_STATUSCODE_SUCCESS) {
     return (void*) ret.data;
-  } else{
+  } else {
     return NULL;
   }
 }
@@ -685,7 +685,7 @@ void* tock_app_writeable_flash_region_ends_at(int region_index) {
   memop_return_t ret = memop(9, region_index);
   if (ret.status == TOCK_STATUSCODE_SUCCESS) {
     return (void*) ret.data;
-  } else{
+  } else {
     return NULL;
   }
 }

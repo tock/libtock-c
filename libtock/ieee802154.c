@@ -205,9 +205,9 @@ int ieee802154_get_neighbor_address_long(unsigned index, unsigned char *addr_lon
   return tock_command_return_novalue_to_returncode(com);
 }
 
-int ieee802154_get_neighbor(unsigned index,
+int ieee802154_get_neighbor(unsigned        index,
                             unsigned short *addr,
-                            unsigned char *addr_long) {
+                            unsigned char * addr_long) {
   int err = ieee802154_get_neighbor_address(index, addr);
   if (err < 0) return err;
   return ieee802154_get_neighbor_address_long(index, addr_long);
@@ -283,7 +283,7 @@ int ieee802154_key_id_bytes(key_id_mode_t key_id_mode) {
   }
 }
 
-int ieee802154_get_key_id(unsigned index,
+int ieee802154_get_key_id(unsigned       index,
                           key_id_mode_t *key_id_mode,
                           unsigned char *key_id) {
   if (!key_id_mode || !key_id) return RETURNCODE_EINVAL;
@@ -311,11 +311,11 @@ int ieee802154_get_key(unsigned index, unsigned char *key) {
   return tock_command_return_novalue_to_returncode(com);
 }
 
-int ieee802154_get_key_desc(unsigned index,
+int ieee802154_get_key_desc(unsigned          index,
                             security_level_t *level,
-                            key_id_mode_t *key_id_mode,
-                            unsigned char *key_id,
-                            unsigned char *key) {
+                            key_id_mode_t *   key_id_mode,
+                            unsigned char *   key_id,
+                            unsigned char *   key) {
   int err = ieee802154_get_key_security_level(index, level);
   if (err < 0) return err;
   err = ieee802154_get_key_id(index, key_id_mode, key_id);
@@ -324,10 +324,10 @@ int ieee802154_get_key_desc(unsigned index,
 }
 
 int ieee802154_add_key(security_level_t level,
-                       key_id_mode_t key_id_mode,
-                       unsigned char *key_id,
-                       unsigned char *key,
-                       unsigned *index) {
+                       key_id_mode_t    key_id_mode,
+                       unsigned char *  key_id,
+                       unsigned char *  key,
+                       unsigned *       index) {
   if (!key) return RETURNCODE_EINVAL;
 
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) BUF_CFG, 27);
@@ -358,21 +358,21 @@ int ieee802154_remove_key(unsigned index) {
 // Internal callback for transmission
 static int tx_result;
 static int tx_acked;
-static void tx_done_callback(int status,
-                             int acked,
+static void tx_done_callback(int                          status,
+                             int                          acked,
                              __attribute__ ((unused)) int arg3,
-                             void* ud) {
+                             void*                        ud) {
   tx_result     = tock_status_to_returncode(status);
   tx_acked      = acked;
   *((bool*) ud) = true;
 }
 
-int ieee802154_send(unsigned short addr,
+int ieee802154_send(unsigned short   addr,
                     security_level_t level,
-                    key_id_mode_t key_id_mode,
-                    unsigned char *key_id,
-                    const char *payload,
-                    unsigned char len) {
+                    key_id_mode_t    key_id_mode,
+                    unsigned char *  key_id,
+                    const char *     payload,
+                    unsigned char    len) {
   // Setup parameters in ALLOW_CFG and ALLOW_RO_TX
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) BUF_CFG, 11);
   if (!rw.success) return tock_status_to_returncode(rw.status);
@@ -411,7 +411,7 @@ int ieee802154_send(unsigned short addr,
 static void rx_done_callback(__attribute__ ((unused)) int pans,
                              __attribute__ ((unused)) int dst_addr,
                              __attribute__ ((unused)) int src_addr,
-                             void* ud) {
+                             void*                        ud) {
   ieee802154_unallow_rx_buf();
   *((bool*) ud) = true;
 }
@@ -438,8 +438,8 @@ bool ieee802154_unallow_rx_buf(void) {
 }
 
 int ieee802154_receive(subscribe_upcall callback,
-                       const char *frame,
-                       unsigned char len) {
+                       const char *     frame,
+                       unsigned char    len) {
   // Provide the buffer to the kernel
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, len);
   if (!rw.success) return tock_status_to_returncode(rw.status);
@@ -473,11 +473,11 @@ int ieee802154_frame_get_payload_length(const char *frame) {
 //
 // If the source pan is dropped, that means that it is the same as the
 // destination pan, which must be present.
-static bool ieee802154_get_addressing(uint16_t frame_control,
-                                      bool *dst_pan_present,
+static bool ieee802154_get_addressing(uint16_t     frame_control,
+                                      bool *       dst_pan_present,
                                       addr_mode_t *dst_mode,
-                                      bool *src_pan_present,
-                                      bool *src_pan_dropped,
+                                      bool *       src_pan_present,
+                                      bool *       src_pan_dropped,
                                       addr_mode_t *src_mode) {
   if (!dst_pan_present || !dst_mode || !src_pan_present || !src_pan_dropped ||
       !src_mode) {
@@ -538,9 +538,9 @@ static bool ieee802154_get_addressing(uint16_t frame_control,
   return true;
 }
 
-addr_mode_t ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const char *frame,
+addr_mode_t ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const char *    frame,
                                           __attribute__ ((unused)) unsigned short *short_addr,
-                                          __attribute__ ((unused)) unsigned char *long_addr) {
+                                          __attribute__ ((unused)) unsigned char * long_addr) {
   if (!frame) return ADDR_NONE;
   uint16_t frame_control = ((uint16_t) frame[2]) | (((uint16_t) frame[3]) << 8);
   bool dst_pan_present, src_pan_present, src_pan_dropped;
@@ -569,9 +569,9 @@ addr_mode_t ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const char *f
   return dst_mode;
 }
 
-addr_mode_t ieee802154_frame_get_src_addr(__attribute__ ((unused)) const char *frame,
+addr_mode_t ieee802154_frame_get_src_addr(__attribute__ ((unused)) const char *    frame,
                                           __attribute__ ((unused)) unsigned short *short_addr,
-                                          __attribute__ ((unused)) unsigned char *long_addr) {
+                                          __attribute__ ((unused)) unsigned char * long_addr) {
   if (!frame) return ADDR_NONE;
   uint16_t frame_control = ((uint16_t) frame[2]) | (((uint16_t) frame[3]) << 8);
   bool dst_pan_present, src_pan_present, src_pan_dropped;
@@ -585,8 +585,11 @@ addr_mode_t ieee802154_frame_get_src_addr(__attribute__ ((unused)) const char *f
   const uint16_t SEQ_SUPPRESSED = 0x0100;
   int addr_offset = (frame_control & SEQ_SUPPRESSED) ? 4 : 5;
   if (dst_pan_present) addr_offset += 2;
-  if (dst_mode == ADDR_SHORT) addr_offset += 2;
-  else if (dst_mode == ADDR_LONG) addr_offset += 8;
+  if (dst_mode == ADDR_SHORT) {
+    addr_offset += 2;
+  } else if (dst_mode == ADDR_LONG) {
+    addr_offset += 8;
+  }
   if (src_pan_present) addr_offset += 2;
 
   if (src_mode == ADDR_SHORT && short_addr) {
@@ -603,7 +606,7 @@ addr_mode_t ieee802154_frame_get_src_addr(__attribute__ ((unused)) const char *f
   return src_mode;
 }
 
-bool ieee802154_frame_get_dst_pan(__attribute__ ((unused)) const char *frame,
+bool ieee802154_frame_get_dst_pan(__attribute__ ((unused)) const char *    frame,
                                   __attribute__ ((unused)) unsigned short *pan) {
   if (!frame) return false;
   uint16_t frame_control = ((uint16_t) frame[2]) | (((uint16_t) frame[3]) << 8);
@@ -626,7 +629,7 @@ bool ieee802154_frame_get_dst_pan(__attribute__ ((unused)) const char *frame,
   return dst_pan_present;
 }
 
-bool ieee802154_frame_get_src_pan(__attribute__ ((unused)) const char *frame,
+bool ieee802154_frame_get_src_pan(__attribute__ ((unused)) const char *    frame,
                                   __attribute__ ((unused)) unsigned short *pan) {
   if (!frame) return false;
   uint16_t frame_control = ((uint16_t) frame[2]) | (((uint16_t) frame[3]) << 8);
@@ -649,8 +652,11 @@ bool ieee802154_frame_get_src_pan(__attribute__ ((unused)) const char *frame,
     }
   } else {
     if (dst_pan_present) addr_offset += 2;
-    if (dst_mode == ADDR_SHORT) addr_offset += 2;
-    else if (dst_mode == ADDR_LONG) addr_offset += 8;
+    if (dst_mode == ADDR_SHORT) {
+      addr_offset += 2;
+    } else if (dst_mode == ADDR_LONG) {
+      addr_offset += 8;
+    }
 
     if (src_pan_present && pan) {
       *pan = ((unsigned short) frame[addr_offset]) |

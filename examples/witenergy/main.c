@@ -46,7 +46,7 @@ simple_ble_config_t _ble_config = {
 
 
 #define OORT_BASE_UUID {0x00, 0x00, 0x48, 0x43, 0x45, 0x54, 0x43, 0x49, \
-                        0x47, 0x4f, 0x4c, 0x49, 0xe0, 0xfe, 0x00, 0x00}
+    0x47, 0x4f, 0x4c, 0x49, 0xe0, 0xfe, 0x00, 0x00}
 #define BLE_UUID_OORT_SERVICE_SENSOR  0xfee0
 #define BLE_UUID_OORT_CHAR_SENSOR     0xfee1
 #define BLE_UUID_OORT_CHAR_CLOCK      0xfee3
@@ -355,7 +355,6 @@ static void __next (void) {
       break;
     }
   }
-
 }
 
 // Convert a u8 buffer like so:
@@ -578,9 +577,9 @@ void toggle_relay (void) {
   }
 }
 
-static void button_callback(__attribute__ ((unused)) int btn_num,
-                            int val,
-                            __attribute__ ((unused)) int arg2,
+static void button_callback(__attribute__ ((unused)) int   btn_num,
+                            int                            val,
+                            __attribute__ ((unused)) int   arg2,
                             __attribute__ ((unused)) void *ud) {
   if (val == 1 && _state == OORT_STATE_NONE) {
     printf("Button press! Toggle the relay!\n");

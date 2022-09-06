@@ -15,7 +15,7 @@ static void analog_comparator_comparison_polling(uint8_t channel) {
     printf("Try %d. Result = %d.\n", count, result);
     if (result == 1) {
       printf("This means Vinp > Vinn!\n\n");
-    }else {
+    } else {
       printf("This means Vinp < Vinn!\n\n");
     }
     delay_ms(1000);

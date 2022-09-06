@@ -140,12 +140,12 @@ int screen_init (size_t len)
   int r = TOCK_STATUSCODE_SUCCESS;
   if (buffer != NULL) {
     r = TOCK_STATUSCODE_ALREADY;
-  }else {
+  } else {
     buffer = (uint8_t*)calloc(1, len);
     if (buffer != NULL) {
       buffer_len = len;
       r = TOCK_STATUSCODE_SUCCESS;
-    }else {
+    } else {
       r = TOCK_STATUSCODE_FAIL;
     }
   }
@@ -283,7 +283,7 @@ int screen_set_color (size_t position, size_t color) {
   if (position < buffer_len - 2) {
     buffer[position * 2]     = (color >> 8) & 0xFF;
     buffer[position * 2 + 1] = color & 0xFF;
-  }else {
+  } else {
     r = RETURNCODE_ESIZE;
   }
   return r;

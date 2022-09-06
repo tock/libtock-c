@@ -24,9 +24,9 @@ static bool ninedof_mag    = false;
 static bool ninedof_gyro   = false;
 static bool proximity      = false;
 static bool sound_pressure = false;
-static void timer_fired(__attribute__ ((unused)) int arg0,
-                        __attribute__ ((unused)) int arg1,
-                        __attribute__ ((unused)) int arg2,
+static void timer_fired(__attribute__ ((unused)) int   arg0,
+                        __attribute__ ((unused)) int   arg1,
+                        __attribute__ ((unused)) int   arg2,
                         __attribute__ ((unused)) void* ud) {
   int lite = 0;
   int tsl2561_lux = 0;

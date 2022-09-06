@@ -35,7 +35,7 @@ int i2c_master_write_read(uint8_t address, uint16_t write_len, uint16_t read_len
 static void i2c_callback(__attribute__ ((unused)) int a1,
                          __attribute__ ((unused)) int a2,
                          __attribute__ ((unused)) int unused,
-                         void* ud) {
+                         void*                        ud) {
   (*(bool*)ud) = true;
 }
 
@@ -89,4 +89,3 @@ int i2c_master_write_read_sync(uint16_t address, uint8_t* buffer, uint16_t write
   yield_for(&ready);
   return RETURNCODE_SUCCESS;
 }
-
