@@ -127,7 +127,7 @@ static const char* state_str(uint8_t state) {
 static void calibrate_filters(void) {
   PRINTF("RF233: Calibrating filters.\n");
   trx_reg_write(RF233_REG_FTN_CTRL, 0x80);
-  while (trx_reg_read(RF233_REG_FTN_CTRL) & 0x80) ;
+  while (trx_reg_read(RF233_REG_FTN_CTRL) & 0x80);
 }
 
 uint8_t recv_data[PACKETBUF_SIZE];
