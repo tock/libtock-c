@@ -72,6 +72,7 @@ TRACE_LD  =
 TRACE_AR  =
 TRACE_AS  =
 TRACE_LST =
+TRACE_E2T =
 ELF2TAB_ARGS += -v
 else
 Q=@
@@ -84,6 +85,7 @@ TRACE_LD  = @echo "  LD       " $@
 TRACE_AR  = @echo "  AR       " $@
 TRACE_AS  = @echo "  AS       " $<
 TRACE_LST = @echo " LST       " $<
+TRACE_E2T = @echo " E2T       " $@
 endif
 
 endif

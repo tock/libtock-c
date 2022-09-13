@@ -311,6 +311,7 @@ $(foreach family, $(TOCK_ARCH_FAMILIES), $(eval $(call ARCH_FAMILY_RULES,$(famil
 
 # TAB file generation. Used for Tockloader
 $(BUILDDIR)/$(PACKAGE_NAME).tab: $(foreach platform, $(TOCK_TARGETS), $(BUILDDIR)/$(call ARCH_FN,$(platform))/$(call OUTPUT_NAME_FN,$(platform)).elf)
+	$(TRACE_E2T)
 	$(Q)$(ELF2TAB) $(ELF2TAB_ARGS) -o $@ $^
 
 
