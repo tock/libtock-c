@@ -77,7 +77,7 @@ int i2c_master_write_read_sync(uint16_t address, uint8_t* buffer, uint16_t write
     len = read_len;
   }
 
-  int rval   = i2c_master_set_buffer(buffer, len);
+  int rval = i2c_master_set_buffer(buffer, len);
   if (rval < 0) return rval;
 
   rval = i2c_master_set_callback(i2c_callback, &ready);
