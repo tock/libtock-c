@@ -78,6 +78,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include <stdint.h>
 
 /** \brief Unit test function signature.
  *

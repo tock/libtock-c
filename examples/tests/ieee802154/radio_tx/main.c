@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "gpio.h"
 #include "ieee802154.h"

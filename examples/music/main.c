@@ -1,5 +1,7 @@
-#include <buzzer.h>
+#include <stdio.h>
 #include <stdlib.h>
+
+#include <buzzer.h>
 #include <timer.h>
 
 // Adapted from https://github.com/robsoncouto/arduino-songs

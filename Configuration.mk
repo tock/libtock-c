@@ -163,16 +163,13 @@ override CPPFLAGS += \
       -Os\
       -fdata-sections -ffunction-sections\
       -fstack-usage\
+      -D_FORTIFY_SOURCE=2\
       -Wall\
       -Wextra
 override WLFLAGS += \
       -Wl,--warn-common\
       -Wl,--gc-sections\
       -Wl,--build-id=none
-
-# This allows Tock to add additional warnings for functions that frequently
-# cause problems. See the included header for more details.
-override CPPFLAGS += -include $(TOCK_USERLAND_BASE_DIR)/support/warning_header.h
 
 # Flags to improve the quality and information in listings (debug target)
 OBJDUMP_FLAGS += --disassemble-all --source -C --section-headers

@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "lsm303dlhc.h"
 
 // struct to hold values send with the callback

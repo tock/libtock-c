@@ -1,4 +1,5 @@
 #include <screen.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <timer.h>
 #include <touch.h>
