@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "ieee802154.h"
 #include "timer.h"
 

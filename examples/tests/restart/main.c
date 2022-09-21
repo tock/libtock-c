@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include <timer.h>
 #include <tock.h>
 

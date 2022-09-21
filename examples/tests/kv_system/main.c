@@ -1,6 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <console.h>
 #include <kv_system.h>
-#include <stdlib.h>
 
 #define KEY_LEN  16
 #define DATA_LEN 32

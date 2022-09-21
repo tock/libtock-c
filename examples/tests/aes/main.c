@@ -1,6 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <aes.h>
 #include <console.h>
-#include <stdlib.h>
 
 #define KEY_LEN  16
 #define IV_LEN  16

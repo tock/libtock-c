@@ -1,3 +1,5 @@
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 void use_buffer(uint8_t* buffer, int len);

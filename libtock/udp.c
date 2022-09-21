@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "tock.h"
 #include "udp.h"
 
