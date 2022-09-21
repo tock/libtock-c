@@ -16,9 +16,9 @@ uint8_t master_write_buf[BUF_SIZE];
 // A button press indicates that this device should start the ping-pong
 // exchange. First, change the address to the BUTTON_ADDRESS to avoid
 // conflict with the other node, then send a message.
-static void button_cb(__attribute__((unused)) int btn_num,
-                      __attribute__ ((unused)) int arg1,
-                      __attribute__ ((unused)) int arg2,
+static void button_cb(__attribute__((unused)) int    btn_num,
+                      __attribute__ ((unused)) int   arg1,
+                      __attribute__ ((unused)) int   arg2,
                       __attribute__ ((unused)) void* userdata) {
   // Only the first press is meaningfull
   static bool pressed = false;

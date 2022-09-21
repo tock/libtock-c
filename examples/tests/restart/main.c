@@ -14,4 +14,3 @@ int main(void) {
   tock_restart(0);
   return 0;
 }
-

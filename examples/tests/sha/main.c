@@ -9,9 +9,9 @@
 uint8_t data_buf[DATA_LEN] = "A language empowering everyone to build reliable and efficient software.";
 uint8_t dest_buf[DEST_LEN];
 
-static void sha_cb(__attribute__((unused)) int result,
-                   __attribute__ ((unused)) int digest,
-                   __attribute__ ((unused)) int unused,
+static void sha_cb(__attribute__((unused)) int    result,
+                   __attribute__ ((unused)) int   digest,
+                   __attribute__ ((unused)) int   unused,
                    __attribute__ ((unused)) void* userdata) {
   int i;
 

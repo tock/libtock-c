@@ -22,9 +22,21 @@ int main(void) {
     if (y > largest) largest = y;
     if (z > largest) largest = z;
 
-    if (x == largest) led_on(0); else led_off(0);
-    if (y == largest) led_on(1); else led_off(1);
-    if (z == largest) led_on(2); else led_off(2);
+    if (x == largest) {
+      led_on(0);
+    } else {
+      led_off(0);
+    }
+    if (y == largest) {
+      led_on(1);
+    } else {
+      led_off(1);
+    }
+    if (z == largest) {
+      led_on(2);
+    } else {
+      led_off(2);
+    }
   }
 
   return 0;

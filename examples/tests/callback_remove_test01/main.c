@@ -9,9 +9,9 @@ int b = 0;
 bool callback_fired = false;
 
 
-static void cb(__attribute__ ((unused)) int now,
-               __attribute__ ((unused)) int expiration,
-               __attribute__ ((unused)) int unused,
+static void cb(__attribute__ ((unused)) int   now,
+               __attribute__ ((unused)) int   expiration,
+               __attribute__ ((unused)) int   unused,
                __attribute__ ((unused)) void* ud) {
   if (b == 1) {
     printf("[ERROR] Timer still fired yet we disabled the callback!!\n");

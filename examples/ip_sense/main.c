@@ -83,7 +83,6 @@ int main(void) {
       default:
         printf("Error sending packet %d\n\n", result);
     }
-
     delay_ms(4000);
   }
 }

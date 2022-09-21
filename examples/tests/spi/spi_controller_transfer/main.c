@@ -30,17 +30,17 @@ static void buffer_eq (char *buf1, char *buf2) {
 // This callback occurs when a read_write call completed.
 // Note that we do not start another transfer here, and
 // we simply check for buffer equality.
-static void write_cb(__attribute__ ((unused)) int arg0,
-                     __attribute__ ((unused)) int arg2,
-                     __attribute__ ((unused)) int arg3,
+static void write_cb(__attribute__ ((unused)) int   arg0,
+                     __attribute__ ((unused)) int   arg2,
+                     __attribute__ ((unused)) int   arg3,
                      __attribute__ ((unused)) void* userdata) {
   led_toggle(0);
   if (toggle) {
     printf("Check wbuf against ibuf.\n");
-    buffer_eq (wbuf, ibuf);
+    buffer_eq(wbuf, ibuf);
   } else {
     printf("Check rbuf against zbuf.\n");
-    buffer_eq (rbuf, zbuf);
+    buffer_eq(rbuf, zbuf);
   }
   printf("Transfer complete.\n");
 }
@@ -49,9 +49,9 @@ static void write_cb(__attribute__ ((unused)) int arg0,
 // Each button press represents a transfer, and
 // we do not start transfering until the button
 // has been pressed.
-static void button_cb(__attribute__((unused)) int btn_num,
-                      __attribute__ ((unused)) int val,
-                      __attribute__ ((unused)) int arg2,
+static void button_cb(__attribute__((unused)) int    btn_num,
+                      __attribute__ ((unused)) int   val,
+                      __attribute__ ((unused)) int   arg2,
                       __attribute__ ((unused)) void* userdata) {
   if (val == 1) {
     if (toggle) {

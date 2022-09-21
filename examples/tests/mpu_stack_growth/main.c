@@ -56,4 +56,3 @@ int main(void) {
 
   grow_stack();
 }
-

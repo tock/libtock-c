@@ -185,9 +185,9 @@ void test_teardown(void) {}
  * IPC callback which sets the `done` condition variable, allowing the test
  * runner to pause execution and await supervisor approval to continue running.
  */
-static void continue_callback(__attribute__ ((unused)) int pid,
-                              __attribute__ ((unused)) int arg2,
-                              __attribute__ ((unused)) int arg3,
+static void continue_callback(__attribute__ ((unused)) int   pid,
+                              __attribute__ ((unused)) int   arg2,
+                              __attribute__ ((unused)) int   arg3,
                               __attribute__ ((unused)) void *ud) {
   done = true;
 }
@@ -342,9 +342,9 @@ static void timeout_callback(__attribute__ ((unused)) int now,
  * supervisor (service) side. See unit_test_runner for details about the test runner
  * (client) side.
  */
-static void unit_test_service_callback(int pid,
-                                       __attribute__ ((unused)) int len,
-                                       int buf,
+static void unit_test_service_callback(int                            pid,
+                                       __attribute__ ((unused)) int   len,
+                                       int                            buf,
                                        __attribute__ ((unused)) void *ud) {
   if (buf == 0) {
     return;

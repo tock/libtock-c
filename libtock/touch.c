@@ -18,12 +18,12 @@ static touch_callback *single_touch_upcall = NULL;
 static gesture_callback *gesture_upcall    = NULL;
 
 static void touch_single_touch_callback (int status, int xy, int data2 __attribute__((unused)), void *ud) {
-  if (single_touch_upcall) single_touch_upcall (status, ((unsigned int)xy >> 16), (unsigned int)xy & 0xFFFF, ud);
+  if (single_touch_upcall) single_touch_upcall(status, ((unsigned int)xy >> 16), (unsigned int)xy & 0xFFFF, ud);
 }
 
 static void touch_gesture_callback (int gesture, int data1 __attribute__((unused)), int data2 __attribute__(
                                       (unused)), void *ud) {
-  if (gesture_upcall) gesture_upcall (gesture, ud);
+  if (gesture_upcall) gesture_upcall(gesture, ud);
 }
 
 int get_number_of_touches (int* touches) {
@@ -43,7 +43,7 @@ int disable_single_touch(void) {
 
 int single_touch_set_callback (touch_callback cb, void* ud) {
   single_touch_upcall = cb;
-  return touch_subscribe (0, cb != NULL ? touch_single_touch_callback : NULL, ud);
+  return touch_subscribe(0, cb != NULL ? touch_single_touch_callback : NULL, ud);
 }
 
 int enable_multi_touch(void) {
@@ -60,15 +60,15 @@ int multi_touch_set_callback (touch_callback cb, void* ud, int max_touches) {
   int err = RETURNCODE_SUCCESS;
   if (cb != NULL) {
     if (multi_touch_buffer == NULL) {
-      multi_touch_buffer = (touch_t*)malloc (max_touches * sizeof(touch_t));
+      multi_touch_buffer = (touch_t*)malloc(max_touches * sizeof(touch_t));
       if (multi_touch_buffer) {
         num_touches = max_touches;
-        err         = touch_allow (2, multi_touch_buffer, max_touches * sizeof(touch_t));
+        err         = touch_allow(2, multi_touch_buffer, max_touches * sizeof(touch_t));
         if (err == RETURNCODE_SUCCESS) {
-          err = touch_subscribe (2, cb, ud);
+          err = touch_subscribe(2, cb, ud);
         }
         if (err != RETURNCODE_SUCCESS) {
-          free (multi_touch_buffer);
+          free(multi_touch_buffer);
           multi_touch_buffer = NULL;
         }
       } else {
@@ -80,9 +80,9 @@ int multi_touch_set_callback (touch_callback cb, void* ud, int max_touches) {
   } else {
     if (multi_touch_buffer != NULL) {
       num_touches = 0;
-      touch_allow (2, NULL, 0);
-      err = touch_subscribe (2, cb, ud);
-      free (multi_touch_buffer);
+      touch_allow(2, NULL, 0);
+      err = touch_subscribe(2, cb, ud);
+      free(multi_touch_buffer);
       multi_touch_buffer = NULL;
     }
   }
@@ -91,7 +91,7 @@ int multi_touch_set_callback (touch_callback cb, void* ud, int max_touches) {
 
 int gesture_set_callback (gesture_callback cb, void* ud) {
   gesture_upcall = cb;
-  return touch_subscribe (1, cb != NULL ? touch_gesture_callback : NULL, ud);
+  return touch_subscribe(1, cb != NULL ? touch_gesture_callback : NULL, ud);
 }
 
 // get multi touch
@@ -115,7 +115,7 @@ int read_touch (int index, unsigned char *id, unsigned char *status, unsigned sh
 int read_touch_full (int index, unsigned char *id, unsigned char *status, unsigned short *x, unsigned short *y,
                      unsigned char *size, unsigned char *pressure) {
   if (multi_touch_buffer != NULL) {
-    int err = read_touch (index, id, status, x, y);
+    int err = read_touch(index, id, status, x, y);
     if (err == RETURNCODE_SUCCESS) {
       *size     = multi_touch_buffer[index].size;
       *pressure = multi_touch_buffer[index].pressure;

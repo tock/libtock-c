@@ -25,8 +25,8 @@
 static uint16_t sample_buffer1[BUF_SIZE] = {0};
 static uint16_t sample_buffer2[BUF_SIZE] = {0};
 
-static void continuous_sample_cb(uint8_t channel,
-                                 uint16_t sample,
+static void continuous_sample_cb(uint8_t                        channel,
+                                 uint16_t                       sample,
                                  __attribute__ ((unused)) void* callback_args) {
 
   // single ADC sample is ready
@@ -59,9 +59,9 @@ static void continuous_sample_cb(uint8_t channel,
   }
 }
 
-static void continuous_buffered_sample_cb(uint8_t channel,
-                                          uint32_t length,
-                                          uint16_t* buf_ptr,
+static void continuous_buffered_sample_cb(uint8_t                        channel,
+                                          uint32_t                       length,
+                                          uint16_t*                      buf_ptr,
                                           __attribute__ ((unused)) void* callback_args) {
   // buffer of ADC samples is ready
   static uint8_t counter = 0;

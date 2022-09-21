@@ -18,9 +18,9 @@
 
 char packet_rx[IEEE802154_FRAME_LEN];
 
-static void callback(__attribute__ ((unused)) int pans,
-                     __attribute__ ((unused)) int dst_addr,
-                     __attribute__ ((unused)) int src_addr,
+static void callback(__attribute__ ((unused)) int   pans,
+                     __attribute__ ((unused)) int   dst_addr,
+                     __attribute__ ((unused)) int   src_addr,
                      __attribute__ ((unused)) void* ud) {
   led_toggle(0);
   // Before accessing an "allowed" buffer, we must request it back:

@@ -21,7 +21,7 @@
 #define BLE_NUS_MAX_TX_CHAR_LEN        BLE_NUS_MAX_DATA_LEN        /**< Maximum length of the TX Characteristic (in bytes). */
 
 #define NUS_BASE_UUID                  {{0x9E, 0xCA, 0xDC, 0x24, 0x0E, 0xE5, 0xA9, 0xE0, 0x93, 0xF3, 0xA3, 0xB5, 0x00, \
-                                         0x00, 0x40, 0x6E}}                                                                               /**< Used vendor specific UUID. */
+      0x00, 0x40, 0x6E}}                                                                                                                  /**< Used vendor specific UUID. */
 
 /**@brief Function for handling the @ref BLE_GAP_EVT_CONNECTED event from the S110 SoftDevice.
  *
@@ -58,20 +58,18 @@ static void on_write(ble_nus_t * p_nus, ble_evt_t * p_ble_evt)
   if (
     (p_evt_write->handle == p_nus->rx_handles.cccd_handle)
     &&
-    (p_evt_write->len == 2)
-    ) {
+    (p_evt_write->len == 2)) {
     if (ble_srv_is_notification_enabled(p_evt_write->data)) {
       p_nus->is_notification_enabled = true;
-    }else{
+    } else {
       p_nus->is_notification_enabled = false;
     }
-  }else if (
+  } else if (
     (p_evt_write->handle == p_nus->tx_handles.value_handle)
     &&
-    (p_nus->data_handler != NULL)
-    ) {
+    (p_nus->data_handler != NULL)) {
     p_nus->data_handler(p_nus, p_evt_write->data, p_evt_write->len);
-  }else{
+  } else {
     // Do Nothing. This event is not relevant for this service.
   }
 }
@@ -198,8 +196,7 @@ void ble_nus_on_ble_evt(ble_nus_t * p_nus, ble_evt_t * p_ble_evt)
     return;
   }
 
-  switch (p_ble_evt->header.evt_id)
-  {
+  switch (p_ble_evt->header.evt_id) {
     case BLE_GAP_EVT_CONNECTED:
       on_connect(p_nus, p_ble_evt);
       break;
@@ -283,5 +280,3 @@ uint32_t ble_nus_string_send(ble_nus_t * p_nus, uint8_t * p_string, uint16_t len
 
   return sd_ble_gatts_hvx(p_nus->conn_handle, &hvx_params);
 }
-
-
