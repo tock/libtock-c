@@ -11,17 +11,17 @@
 
 int main(void) {
   int ret         = text_screen_init(15);
-  uint8_t *buffer = text_screen_buffer ();
+  uint8_t *buffer = text_screen_buffer();
   ret = text_screen_display_on();
   if (ret == RETURNCODE_SUCCESS) {
     ret = text_screen_set_cursor(0, 0);
-    memcpy (buffer, "Hello!", 6);
+    memcpy(buffer, "Hello!", 6);
     ret = text_screen_write(6);
 
     delay_ms(5000);
 
     ret = text_screen_set_cursor(0, 1);
-    memcpy (buffer, "Goodbyee!", 9);
+    memcpy(buffer, "Goodbyee!", 9);
     ret = text_screen_write(9);
 
     delay_ms(2000);

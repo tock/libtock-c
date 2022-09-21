@@ -75,7 +75,7 @@ bool lsm303dlhc_is_present (void) {
   ret = tock_command_return_novalue_to_returncode(com);
   if (ret < 0) return false;
 
-  yield_for (&(response.done));
+  yield_for(&(response.done));
 
   return response.data1 ? true : false;
 }
@@ -92,7 +92,7 @@ bool lsm303dlhc_set_power_mode (unsigned char power_mode, bool low_power) {
   ret = tock_command_return_novalue_to_returncode(com);
   if (ret < 0) return false;
 
-  yield_for (&(response.done));
+  yield_for(&(response.done));
 
   return response.data1 ? true : false;
 }
@@ -110,7 +110,7 @@ bool lsm303dlhc_set_accelerometer_scale_and_resolution (unsigned char scale, boo
   ret = tock_command_return_novalue_to_returncode(com);
   if (ret < 0) return false;
 
-  yield_for (&(response.done));
+  yield_for(&(response.done));
   if (response.data1 == 1) {
     scale_factor = scale;
   }
@@ -130,7 +130,7 @@ bool lsm303dlhc_set_temperature_and_magnetometer_rate (bool temperature, unsigne
   ret = tock_command_return_novalue_to_returncode(com);
   if (ret < 0) return false;
 
-  yield_for (&(response.done));
+  yield_for(&(response.done));
 
   return response.data1 ? true : false;
 }
@@ -148,7 +148,7 @@ bool lsm303dlhc_set_magnetometer_range (unsigned char range) {
   ret = tock_command_return_novalue_to_returncode(com);
   if (ret < 0) return false;
 
-  yield_for (&(response.done));
+  yield_for(&(response.done));
   if (response.data1 == 1) {
     range_factor = range;
   }
@@ -167,7 +167,7 @@ int lsm303dlhc_read_acceleration_xyz (LSM303DLHCXYZ *xyz) {
   ret = tock_command_return_novalue_to_returncode(com);
   if (ret < 0) return ret;
 
-  yield_for (&(response.done));
+  yield_for(&(response.done));
   if (xyz != NULL) {
     xyz->x = (float)response.data1 * SCALE_FACTOR[scale_factor];
     xyz->y = (float)response.data2 * SCALE_FACTOR[scale_factor];
@@ -188,7 +188,7 @@ int lsm303dlhc_read_temperature (float *temperature) {
   ret = tock_command_return_novalue_to_returncode(com);
   if (ret < 0) return ret;
 
-  yield_for (&(response.done));
+  yield_for(&(response.done));
   if (temperature != NULL) {
     *temperature = (float)response.data1 / 8 + temp_offset;
   }
@@ -207,9 +207,9 @@ int lsm303dlhc_read_magnetometer_xyz (LSM303DLHCXYZ *xyz) {
   ret = tock_command_return_novalue_to_returncode(com);
   if (ret < 0) return ret;
 
-  yield_for (&(response.done));
+  yield_for(&(response.done));
   if (xyz != NULL) {
-    printf ("x %d range %d z %d\r\n", response.data1, RANGE_FACTOR_X_Y[range_factor], response.data3);
+    printf("x %d range %d z %d\r\n", response.data1, RANGE_FACTOR_X_Y[range_factor], response.data3);
     xyz->x = (float)response.data1 / RANGE_FACTOR_X_Y[range_factor];
     xyz->y = (float)response.data2 / RANGE_FACTOR_X_Y[range_factor];
     xyz->z = (float)response.data3 / RANGE_FACTOR_Z[range_factor];

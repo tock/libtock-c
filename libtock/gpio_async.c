@@ -16,7 +16,7 @@ static struct gpio_async_data result = { .fired = false };
 static void gpio_async_upcall(__attribute__ ((unused)) int callback_type,
                               __attribute__ ((unused)) int value,
                               __attribute__ ((unused)) int unused,
-                              void* ud) {
+                              void*                        ud) {
   struct gpio_async_data* myresult = (struct gpio_async_data*) ud;
   myresult->callback_type = callback_type;
   myresult->value         = value;

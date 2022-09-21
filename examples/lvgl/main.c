@@ -19,8 +19,8 @@ int main (void)
 {
   unsigned int seconds = 0;
 
-  screen_set_brightness (100);
-  int status = lvgl_driver_init (5);
+  screen_set_brightness(100);
+  int status = lvgl_driver_init(5);
   if (status == RETURNCODE_SUCCESS) {
     /* LittlevGL's Hello World tutorial example */
 
@@ -46,20 +46,18 @@ int main (void)
     lv_obj_center(label);
 
     /* main loop */
-    while (1)
-    {
+    while (1) {
       seconds++;
       if (seconds % 200 == 0) {
         char buffer[100];
-        snprintf (buffer, 99, "Seconds: %d", seconds / 200);
+        snprintf(buffer, 99, "Seconds: %d", seconds / 200);
         lv_label_set_text(label1, buffer);
       }
-      delay_ms (5);
-      lvgl_driver_event (5);
+      delay_ms(5);
+      lvgl_driver_event(5);
     }
   } else {
-    printf ("lvgl init error: %s\n", tock_strrcode(status));
+    printf("lvgl init error: %s\n", tock_strrcode(status));
   }
   return 0;
 }
-

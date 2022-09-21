@@ -30,7 +30,7 @@ int main(void){
   uint8_t frequency = 255;
   int period        = 1000;
 
-  proximity_set_interrupt_thresholds(0,175);
+  proximity_set_interrupt_thresholds(0, 175);
   proximity_read_on_interrupt_sync(&frequency);
 
   while (true) {

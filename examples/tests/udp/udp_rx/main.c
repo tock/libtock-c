@@ -30,9 +30,9 @@ void print_ipv6(ipv6_addr_t *ipv6_addr) {
   printf("%02x%02x", ipv6_addr->addr[14], ipv6_addr->addr[15]);
 }
 
-static void callback(int payload_len,
-                     __attribute__ ((unused)) int arg2,
-                     __attribute__ ((unused)) int arg3,
+static void callback(int                            payload_len,
+                     __attribute__ ((unused)) int   arg2,
+                     __attribute__ ((unused)) int   arg3,
                      __attribute__ ((unused)) void* ud) {
   led_toggle(0);
 
@@ -100,7 +100,6 @@ int main(void) {
       printf("Failed to bind to socket %d\n", result);
       break;
   }
-
   /* Tock keeps the app alive waiting for callbacks after
    * returning from main, so no need to busy wait
    * However, this app tests receiving for 10 seconds

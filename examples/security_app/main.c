@@ -20,9 +20,9 @@ static SensorData_t sensor_data = {
 };
 
 // callback for gpio interrupts
-static void gpio_cb (int pin_num,
-                     int pin_val,
-                     __attribute__ ((unused)) int unused,
+static void gpio_cb (int                            pin_num,
+                     int                            pin_val,
+                     __attribute__ ((unused)) int   unused,
                      __attribute__ ((unused)) void* userdata) {
 
   // save sensor data
@@ -68,4 +68,3 @@ int main(void) {
 
   return 0;
 }
-

@@ -12,9 +12,9 @@ static struct max17205_data result   = { .fired = false, .rc = 0, .value0 = 0, .
 static subscribe_upcall* user_upcall = NULL;
 
 // Internal callback for faking synchronous reads
-static void internal_user_upcall(int status,
-                                 int value0,
-                                 int value1,
+static void internal_user_upcall(int   status,
+                                 int   value0,
+                                 int   value1,
                                  void* ud) {
 
   struct max17205_data* data = (struct max17205_data*) ud;
@@ -25,9 +25,9 @@ static void internal_user_upcall(int status,
 }
 
 // Lower level CB that allows us to stop more commands while busy
-static void max17205_upcall(int return_code,
-                            int value0,
-                            int value1,
+static void max17205_upcall(int   return_code,
+                            int   value0,
+                            int   value1,
                             void* ud) {
   if (user_upcall) {
     user_upcall(return_code, value0, value1, ud);

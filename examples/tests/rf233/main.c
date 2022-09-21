@@ -39,8 +39,8 @@ int main(void) {
   }
 }
 
-int callback(void* buffer,
-             int buffer_len,
+int callback(void*                             buffer,
+             int                               buffer_len,
              __attribute__ ((unused)) uint16_t src,
              __attribute__ ((unused)) uint16_t dest,
              __attribute__ ((unused)) uint16_t pan_id) {

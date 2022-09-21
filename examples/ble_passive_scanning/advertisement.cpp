@@ -103,4 +103,3 @@ bool Advertisement::checkScanResult(const unsigned char* buf, int len)
   }
   return true;
 }
-

@@ -19,9 +19,9 @@ typedef struct {
   int value; // sensor reading
 } sensor_update_t;
 
-static void ipc_callback(__attribute__ ((unused)) int pid,
-                         __attribute__ ((unused)) int len,
-                         __attribute__ ((unused)) int arg2,
+static void ipc_callback(__attribute__ ((unused)) int   pid,
+                         __attribute__ ((unused)) int   len,
+                         __attribute__ ((unused)) int   arg2,
                          __attribute__ ((unused)) void* ud) {
   printf("Updated BLE characteristic.\n");
 }

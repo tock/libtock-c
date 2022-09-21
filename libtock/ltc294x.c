@@ -13,7 +13,7 @@ static struct ltc294x_data result = { .fired = false, .charge = 0 };
 static void ltc294x_upcall(__attribute__ ((unused)) int callback_type,
                            __attribute__ ((unused)) int value,
                            __attribute__ ((unused)) int chip,
-                           void* ud) {
+                           void*                        ud) {
   struct ltc294x_data* data = (struct ltc294x_data*) ud;
   data->charge = value;
   data->fired  = true;
@@ -29,9 +29,9 @@ int ltc294x_read_status(void) {
   return tock_command_return_novalue_to_returncode(com);
 }
 
-int ltc294x_configure(ltc294x_model_e model,
-                      interrupt_pin_conf_e int_pin,
-                      uint16_t prescaler,
+int ltc294x_configure(ltc294x_model_e       model,
+                      interrupt_pin_conf_e  int_pin,
+                      uint16_t              prescaler,
                       vbat_alert_adc_mode_e vbat) {
   uint8_t M = 0;
   if (model == LTC2941 || model == LTC2942) {
@@ -44,14 +44,22 @@ int ltc294x_configure(ltc294x_model_e model,
   } else if (model == LTC2943) {
     // See Table 3 in the datasheet.
     switch (prescaler) {
-      case 1:    M = 0; break;
-      case 4:    M = 1; break;
-      case 16:   M = 2; break;
-      case 64:   M = 3; break;
-      case 256:  M = 4; break;
-      case 1024: M = 5; break;
-      case 4096: M = 7; break;
-      default:   M = 4; break;
+      case 1:    M = 0;
+        break;
+      case 4:    M = 1;
+        break;
+      case 16:   M = 2;
+        break;
+      case 64:   M = 3;
+        break;
+      case 256:  M = 4;
+        break;
+      case 1024: M = 5;
+        break;
+      case 4096: M = 7;
+        break;
+      default:   M = 4;
+        break;
     }
   }
 
@@ -120,9 +128,9 @@ int ltc294x_read_status_sync(void) {
   return RETURNCODE_SUCCESS;
 }
 
-int ltc294x_configure_sync(ltc294x_model_e model,
-                           interrupt_pin_conf_e int_pin,
-                           uint16_t prescaler,
+int ltc294x_configure_sync(ltc294x_model_e       model,
+                           interrupt_pin_conf_e  int_pin,
+                           uint16_t              prescaler,
                            vbat_alert_adc_mode_e vbat) {
   int err;
   result.fired = false;

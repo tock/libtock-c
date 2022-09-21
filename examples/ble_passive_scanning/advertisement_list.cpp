@@ -47,5 +47,3 @@ void AdvertisementList::printList() const
   }
   printf("--------------------------END---------------------------\r\n\r\n");
 }
-
-

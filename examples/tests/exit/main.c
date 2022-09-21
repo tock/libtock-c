@@ -9,4 +9,3 @@ int main(void) {
   printf("SHOULD NOT BE PRINTED.\n");
   return 0;
 }
-
