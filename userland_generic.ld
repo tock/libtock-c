@@ -161,6 +161,7 @@ SECTIONS {
         KEEP(*(.sbss*)) /* for RISC-V */
         *(COMMON)
         . = ALIGN(4);
+        __heap_start = .;
     } > SRAM
 
     /* End of flash. */
