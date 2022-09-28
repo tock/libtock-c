@@ -162,6 +162,8 @@ SECTIONS {
         *(COMMON)
         . = ALIGN(4);
         __heap_start = .;
+        . = __heap_start + APP_HEAP_SIZE;
+        __heap_end = .;
     } > SRAM
 
     /* End of flash. */
