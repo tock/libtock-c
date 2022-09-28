@@ -33,161 +33,158 @@ Prerequisites
     $ cd libtock-c
     ```
 
-1. The main requirement to build the C applications in this repository is having
-   cross compilers for embedded targets. You will need an `arm-none-eabi`
-   toolchain for Cortex-M targets.
+1. There are two requirements for building libtock-c applications.
 
-   **MacOS**:
-   ```
-   $ brew tap ARMmbed/homebrew-formulae && brew update && brew install arm-none-eabi-gcc
-   ```
+    1. Cross compiler for embedded targets
 
-   **Ubuntu (18.04LTS or later)**:
-   ```
-   $ sudo apt install gcc-arm-none-eabi
-   ```
+        *ARM*
 
-   **Arch**:
-   ```
-   $ sudo pacman -Syu arm-none-eabi-gcc arm-none-eabi-newlib
-   ```
+        You will need an `arm-none-eabi` toolchain for Cortex-M targets.
 
-   **Fedora**:
-   ```
-   $ sudo dnf install arm-none-eabi-newlib arm-none-eabi-gcc-cs
-   ```
-
-2. Optional: libtock-c also includes support for building for ***RISC-V
-   targets***. These are not included by default since obtaining the toolchain
-   can be difficult (as of July 2022). You will need a RISC-V toolchain that
-   supports rv32 targets (64 bit toolchains support rv32 if compiled with
-   multilib support). Some toolchains that can work:
-
-   - riscv64-none-elf
-   - riscv32-none-elf
-   - riscv64-elf
-   - riscv64-unknown-elf
-   - riscv32-unknown-elf
-
-   To actually build for the RISC-V targets, add `RISCV=1` to the make command:
-
-       $ make RISCV=1
-
-   **MacOS**:
-   ```
-   $ brew tap riscv/riscv && brew update && brew install riscv-gnu-toolchain
-   ```
-
-   **Ubuntu (21.10 or later)**:
-   ```
-   $ sudo apt install gcc-riscv64-unknown-elf picolibc-riscv64-unknown-elf
-   ```
-
-   **Ubuntu (21.04 or earlier)**:
-
-   Unfortunately, older Ubuntu does not provide a package for RISC-V libc. We
-   have created a .deb file you can use to install a suitable libc based on
-   newlib:
-   ```
-   $ wget http://cs.virginia.edu/~bjc8c/archive/newlib_3.3.0-1_amd64.deb
-   $ sudo dpkg -i newlib_3.3.0-1_amd64.deb
-   ```
-
-   If you would rather compile your own newlib-based libc, follow the steps
-   below. Section [newlib-nano](newlib-nano) describes some extra config options
-   to build a size optimised newlib.
-   ```
-   # Download newlib 3.3 from https://sourceware.org/newlib/
-   $ wget ftp://sourceware.org/pub/newlib/newlib-3.3.0.tar.gz
-   $ tar -xvf newlib-3.3.0.tar.gz
-   $ cd newlib-3.3.0
-   # Disable stdlib for building
-   $ export CFLAGS=-nostdlib
-   # Run configure
-   $ ./configure --disable-newlib-supplied-syscalls --with-gnu-ld --with-newlib --enable-languages=c --target=riscv64-unknown-elf --host=x86 --disable-multi-lib --prefix /usr
-   # Build and then install
-   $ make -j8
-   $ sudo make install
-   ```
-
-   Alternatively, you may use a pre-compiled toolchain that we created with
-   Crosstool-NG.
-   ```
-   $ wget http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
-   $ unzip gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
-   # add gcc-riscv64-unknown-elf-8.3.0-ubuntu/bin to your `$PATH` variable.
-   ```
-
-   **Arch**:
-   ```
-   $ sudo pacman -Syu riscv64-elf-gcc riscv32-elf-newlib arm-none-eabi-newlib riscv64-elf-newlib
-   ```
-
-   **Fedora**:
-
-   **dnf** does not contain the `riscv-gnu-toolchain`, an alternative is to
-   compile from source. Start with some of the tools we need to compile the
-   source.
-   ```
-   $ sudo dnf install make automake gcc gcc-c++ kernel-devel  texinfo expat expat-devel
-   $ sudo dnf group install "Development Tools" "C Development Tools and Libraries"
-   ```
-   Get `riscv-gnu-toolchain`,  [summarised instructions as stated
-   here](https://github.com/riscv-collab/riscv-gnu-toolchain/blob/master/README.md)
-   ```
-   $ git clone https://github.com/riscv/riscv-gnu-toolchain
-   $ cd riscv-gnu-toolchain/
-   ```
-   **Note: add /opt/riscv/bin to your PATH**, then,
-   ```
-   $ ./configure --prefix=/opt/riscv --enable-multilib
-   ```
-   `--enable-multilib` ensures that "the multilib compiler will have the prefix
-   riscv64-unknown-elf- or riscv64-unknown-linux-gnu- but will be able to target
-   both 32-bit and 64-bit systems."
-   ```
-   $ sudo make         [might need elevated privileges writing to `/opt/`]
-   ```
-   additionally, with
-   ```
-   $ sudo make linux
-   ```
-   you can also build `riscv64-unknown-linux-gnu`, which can be useful with tock
-   where `riscv64-unknown-linux-gnu-objcopy` is used.
-
-   After the the source has been compiled and copied to `/opt/riscv` and
-   `/opt/riscv/bin`has appended to the PATH, the toolchain is ready to be used.
-
-
-   **newlib-nano**:
-
-   newlib can require a large amount of memory, especially for printing.
-   If this is a concern you can instead use a more size optimised version.
-   As of August 2020 there are a few options for this.
-
-   - See if the version of newlib from your distro already has the flags below
-     enabled. If it does it's already size optimsed.
-   - See if your distro pacakges a newlib-nano (Debian does this) that will
-     already include the flags below.
-   - See if your distro packages picolibc, which is a optimised fork of newlib.
-   - You can compile newlib with these extra flags:
+        **MacOS**:
         ```
-          --enable-newlib-reent-small \
-          --disable-newlib-fvwrite-in-streamio \
-          --disable-newlib-fseek-optimization \
-          --disable-newlib-wide-orient \
-          --enable-newlib-nano-malloc \
-          --disable-newlib-unbuf-stream-opt \
-          --enable-lite-exit \
-          --enable-newlib-global-atexit \
-          --enable-newlib-nano-formatted-io
+        $ brew tap ARMmbed/homebrew-formulae && brew update && brew install arm-none-eabi-gcc
         ```
 
-3. Optional: libtock-c also includes support for building RISC-V targets with
+        **Ubuntu (18.04LTS or later)**:
+        ```
+        $ sudo apt install gcc-arm-none-eabi
+        ```
+
+        **Arch**:
+        ```
+        $ sudo pacman -Syu arm-none-eabi-gcc
+        ```
+
+        **Fedora**:
+        ```
+        $ sudo dnf install arm-none-eabi-gcc-cs
+        ```
+
+        *RISC-V*
+
+        You will need a RISC-V toolchain that supports rv32 targets (64 bit
+        toolchains support rv32 if compiled with multilib support).
+        Some toolchains that can work:
+        - riscv64-none-elf
+        - riscv32-none-elf
+        - riscv64-elf
+        - riscv64-unknown-elf
+        - riscv32-unknown-elf
+
+        **MacOS**:
+
+        ```shell
+        $ brew tap riscv/riscv && brew update && brew install riscv-gnu-toolchain
+        ```
+
+        **Ubuntu (21.10 or later) or Debian (11 or later)**:
+
+        ```shell
+        $ sudo apt install gcc-riscv64-unknown-elf
+        ```
+
+        **Arch**:
+        ```shell
+        $ sudo pacman -Syu riscv64-elf-gcc
+        ```
+
+        **Other distros**:
+
+        If your distro doesn't provide a RISC-V toolchain you can build one yourself
+        or just disable RISC-V support by running
+
+        ```shell
+        NORISCV=1 make
+        ```
+
+    1. libc for embedded targets
+
+        *ARM*
+
+        **Ubuntu (21.10 or later) or Debian (11 or later)**:
+
+        ```shell
+        $ sudo apt install libnewlib-arm-none-eabi
+        ```
+
+        **Arch**:
+        ```
+        $ sudo pacman -Syu arm-none-eabi-newlib
+        ```
+
+        **Fedora**:
+        ```
+        $ sudo dnf install arm-none-eabi-newlib
+        ```
+
+        *RISC-V*
+
+        **Ubuntu (21.10 or later) or Debian (11 or later)**:
+
+        Use picolibc instead of newlib
+
+        ```shell
+        $ sudo apt install picolibc-riscv64-unknown-elf
+        ```
+        **Arch**:
+        ```shell
+        $ sudo pacman -Syu riscv32-elf-newlib
+        ```
+
+        *newlib-nano*
+
+        newlib can require a large amount of memory, especially for printing.
+        If this is a concern you can instead use a more size optimised version.
+        As of August 2020 there are a few options for this.
+
+        - See if the version of newlib from your distro already has the flags below
+         enabled. If it does it's already size optimsed.
+        - See if your distro packages picolibc, which is a optimised fork of newlib.
+        - You can compile newlib with these extra flags:
+            ```shell
+              --enable-newlib-reent-small \
+              --disable-newlib-fvwrite-in-streamio \
+              --disable-newlib-fseek-optimization \
+              --disable-newlib-wide-orient \
+              --enable-newlib-nano-malloc \
+              --disable-newlib-unbuf-stream-opt \
+              --enable-lite-exit \
+              --enable-newlib-global-atexit \
+              --enable-newlib-nano-formatted-io
+            ```
+
+        If you would rather compile your own newlib-based libc, follow the steps
+        below.
+
+        ```shell
+        # Download newlib 4.1 from https://sourceware.org/newlib/
+        $ wget ftp://sourceware.org/pub/newlib/newlib-4.1.0.tar.gz
+        $ tar -xvf newlib-4.1.0.tar.gz
+        $ cd newlib-4.1.0
+        # Disable stdlib for building
+        $ export CFLAGS=-nostdlib
+        # Run configure
+        $ ./configure --disable-newlib-supplied-syscalls --with-gnu-ld --with-newlib --enable-languages=c --target=riscv64-unknown-elf --host=x86 --disable-multi-lib --prefix /usr
+        # Build and then install
+        $ make -j8
+        $ sudo make install
+        ```
+
+1. Optional: If using picolibc (Debian can do this) then specify the `PICOLIBC`
+   variable. picolibc is an optimised version of newlib
+
+    ```shell
+    $ make PICOLIBC=1
+    ```
+
+1. Optional: libtock-c also includes support for building RISC-V targets with
    the LLVM clang compiler. If you have a compatible clang toolchain, you can
    add `CLANG=1` to the make command to use clang instead of the default GCC.
 
-       $ make RISCV=1 CLANG=1
+    ```shell
+    $ make CLANG=1
+    ```
 
    This support is only included for RISC-V targets as Cortex-M targets require
    the FDPIC support only present in GCC.

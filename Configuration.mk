@@ -55,16 +55,7 @@ PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 # 2. (Optional) The name to use when creating the output file.
 # 3. (Optional) The address to use as the fixed start of flash.
 # 4. (Optional) The address to use as the fixed start of RAM.
-#
-# By default we currently only build the Cortex-M targets. To enable the RISC-V
-# targets, set the RISCV variable like so:
-#
-#     $ make RISCV=1
-#
-# Once the RV32 toolchain distribution stabilizes (as of June 2020 the toolchain
-# isn't as easily obtained as we would like), we intend to make the RISC-V
-# targets build by default as well.
-ifeq ($(RISCV),)
+ifneq ($(NORISCV),)
 TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4 cortex-m7
 else
 # Specific addresses useful for the OpenTitan hardware memory map.
@@ -286,28 +277,35 @@ override WLFLAGS_rv32imac += $(WLFLAGS_rv32)
 
 # Set the system libraries we link against for RISC-V. We support C++ apps by
 # default.
-override LINK_LIBS_rv32 += \
-      -lgcc -lstdc++ -lsupc++
+ifeq ($(PICOLIBC),)
+  override LINK_LIBS_rv32 += -lgcc -lstdc++ -lsupc++
+
+  # Use precompiled libaries we provide to link against.
+  override LEGACY_LIBS_rv32i += \
+        $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libc.a\
+        $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libm.a
+
+  override LEGACY_LIBS_rv32im += \
+        $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libc.a\
+        $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libm.a
+
+  override LEGACY_LIBS_rv32imc += $(LEGACY_LIBS_rv32im)
+
+  override LEGACY_LIBS_rv32imac += \
+        $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libc.a\
+        $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libm.a
+else
+  override CFLAGS_rv32i    += --specs=picolibc.specs
+  override CFLAGS_rv32im   += --specs=picolibc.specs
+  override CFLAGS_rv32imc  += --specs=picolibc.specs
+  override CFLAGS_rv32imac += --specs=picolibc.specs
+
+  override LINK_LIBS_rv32 += -lgcc -lc -lm
+endif
 
 override LINK_LIBS_rv32i    += $(LINK_LIBS_rv32)
 override LINK_LIBS_rv32imc  += $(LINK_LIBS_rv32)
 override LINK_LIBS_rv32imac += $(LINK_LIBS_rv32)
-
-# Use precompiled libaries we provide to link against.
-override LEGACY_LIBS_rv32i += \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libm.a
-
-override LEGACY_LIBS_rv32im += \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libm.a
-
-override LEGACY_LIBS_rv32imc += $(LEGACY_LIBS_rv32im)
-
-override LEGACY_LIBS_rv32imac += \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libm.a
-
 
 ################################################################################
 ##
@@ -441,6 +439,8 @@ override CPPFLAGS += -Wwrite-strings #            # { char* c = "foo"; c[0] = 'b
 
 override CPPFLAGS_gcc += -Wlogical-op #           # "suspicious use of logical operators in expressions" (a lint)
 override CPPFLAGS_gcc += -Wtrampolines #          # attempt to generate a trampoline on the NX stack
+
+override CPPFLAGS_gcc += -Wno-error=sign-compare  # Triggers an error inside picolibc
 
 #CPPFLAGS += -Wabi -Wabi-tag              # inter-compiler abi issues
 #CPPFLAGS += -Waggregate-return           # warn if things return struct's
