@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -150,3 +151,34 @@ int getnstr_abort(void) {
   syscall_return_t com = command(DRIVER_NUM_CONSOLE, 3, 0, 0);
   return tock_command_return_novalue_to_returncode(com);
 }
+
+/*
+ * If running with picolibc let's deine the `__iob` array.
+ * This is used for stdin/stdout/stderr
+ * https://github.com/picolibc/picolibc/blob/main/doc/os.md#stdinstdoutstderr
+ */
+#ifdef _FDEV_SETUP_RW
+
+static int picolibc_putc(char c, FILE *file)
+{
+  (void) file;    /* Not used in this function */
+  putnstr(&c, 1);   /* Defined by underlying system */
+  return c;
+}
+
+static int picolibc_getc(FILE *file)
+{
+  unsigned char c;
+  (void) file;    /* Not used in this function */
+  c = getch();  /* Defined by underlying system */
+  return c;
+}
+
+static FILE __stdio = FDEV_SETUP_STREAM(picolibc_putc,
+          picolibc_getc,
+          NULL,
+          _FDEV_SETUP_RW);
+
+FILE *const __iob[3] = { &__stdio, &__stdio, &__stdio };
+
+#endif
