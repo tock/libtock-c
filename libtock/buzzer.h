@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+
 #define BUZZER_DRIVER   0x90000
 
 #define NOTE_B0  31

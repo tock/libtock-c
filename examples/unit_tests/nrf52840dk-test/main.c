@@ -108,29 +108,35 @@ void test_teardown(void) {
 
 static bool test_basic_gpio0(void) {
   int val;
-  CHECK(gpio_read(GPIO0_IN, &val) == 0); CHECK(val == 0);
+  CHECK(gpio_read(GPIO0_IN, &val) == 0);
+  CHECK(val == 0);
   CHECK(gpio_set(GPIO0_OUT) == 0);
-  CHECK(gpio_read(GPIO0_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(GPIO0_IN, &val) == 0);
+  CHECK(val == 1);
   CHECK(gpio_clear(GPIO0_OUT) == 0);
-  CHECK(gpio_read(GPIO0_IN, &val) == 0); CHECK(val == 0);
+  CHECK(gpio_read(GPIO0_IN, &val) == 0);
+  CHECK(val == 0);
   return true;
 }
 
 static bool test_basic_gpio1(void) {
   int val;
-  CHECK(gpio_read(GPIO1_IN, &val) == 0); CHECK(val == 0);
+  CHECK(gpio_read(GPIO1_IN, &val) == 0);
+  CHECK(val == 0);
   CHECK(gpio_set(GPIO1_OUT) == 0);
-  CHECK(gpio_read(GPIO1_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(GPIO1_IN, &val) == 0);
+  CHECK(val == 1);
   CHECK(gpio_clear(GPIO1_OUT) == 0);
-  CHECK(gpio_read(GPIO1_IN, &val) == 0); CHECK(val == 0);
+  CHECK(gpio_read(GPIO1_IN, &val) == 0);
+  CHECK(val == 0);
   return true;
 }
 
 
-static void test_callback (int pin_num,
+static void test_callback (int                          pin_num,
                            __attribute__ ((unused)) int arg2,
                            __attribute__ ((unused)) int arg3,
-                           void* userdata) {
+                           void*                        userdata) {
   int_nr   = pin_num;
   int_data = userdata;
   int_ctr += 1;
@@ -142,9 +148,11 @@ static bool test_gpio0_int_raising(void) {
   CHECK(gpio_interrupt_callback(test_callback, data) == 0);
   CHECK(gpio_enable_interrupt(GPIO0_IN, RisingEdge) == 0);
   CHECK(gpio_set(GPIO0_OUT) == 0);
-  CHECK(gpio_read(GPIO0_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(GPIO0_IN, &val) == 0);
+  CHECK(val == 1);
   CHECK(gpio_clear(GPIO0_OUT) == 0);
-  CHECK(gpio_read(GPIO0_IN, &val) == 0); CHECK(val == 0);
+  CHECK(gpio_read(GPIO0_IN, &val) == 0);
+  CHECK(val == 0);
   delay_ms(2);
   CHECK(int_ctr == 1);
   CHECK(int_nr == GPIO0_IN);
@@ -183,9 +191,11 @@ static bool test_gpio1_int_raising(void) {
   CHECK(gpio_interrupt_callback(test_callback, data) == 0);
   CHECK(gpio_enable_interrupt(GPIO1_IN, RisingEdge) == 0);
   CHECK(gpio_set(GPIO1_OUT) == 0);
-  CHECK(gpio_read(GPIO1_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(GPIO1_IN, &val) == 0);
+  CHECK(val == 1);
   CHECK(gpio_clear(GPIO1_OUT) == 0);
-  CHECK(gpio_read(GPIO1_IN, &val) == 0); CHECK(val == 0);
+  CHECK(gpio_read(GPIO1_IN, &val) == 0);
+  CHECK(val == 0);
   delay_ms(2);
   CHECK(int_ctr == 1);
   CHECK(int_nr == GPIO1_IN);
@@ -220,189 +230,295 @@ static bool test_gpio1_int_both(void) {
 static bool test_leds_start_off(void) {
   int count, val;
   /* LED outputs are low active */
-  CHECK(led_count(&count) == 0); CHECK(count == 4);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(led_count(&count) == 0);
+  CHECK(count == 4);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   return true;
 }
 static bool test_switch_led1(void) {
   int val;
   CHECK(led_on(0) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 0);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 0);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   CHECK(led_off(0) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   return true;
 }
 static bool test_switch_led2(void) {
   int val;
   CHECK(led_on(1) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 0);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 0);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   CHECK(led_off(1) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   return true;
 }
 static bool test_switch_led3(void) {
   int val;
   CHECK(led_on(2) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 0);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 0);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   CHECK(led_off(2) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   return true;
 }
 static bool test_switch_led4(void) {
   int val;
   CHECK(led_on(3) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 0);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 0);
   CHECK(led_off(3) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   return true;
 }
 static bool test_toggle_led1(void) {
   int val;
   CHECK(led_toggle(0) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 0);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 0);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   CHECK(led_toggle(0) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   return true;
 }
 static bool test_toggle_led2(void) {
   int val;
   CHECK(led_toggle(1) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 0);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 0);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   CHECK(led_toggle(1) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   return true;
 }
 static bool test_toggle_led3(void) {
   int val;
   CHECK(led_toggle(2) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 0);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 0);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   CHECK(led_toggle(2) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   return true;
 }
 static bool test_toggle_led4(void) {
   int val;
   CHECK(led_toggle(3) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 0);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 0);
   CHECK(led_toggle(3) == 0);
-  CHECK(gpio_read(LED1_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED2_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED3_IN, &val) == 0); CHECK(val == 1);
-  CHECK(gpio_read(LED4_IN, &val) == 0); CHECK(val == 1);
+  CHECK(gpio_read(LED1_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED2_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED3_IN, &val) == 0);
+  CHECK(val == 1);
+  CHECK(gpio_read(LED4_IN, &val) == 0);
+  CHECK(val == 1);
   return true;
 }
 
 static bool test_buttons_start_off(void) {
   int count, val;
-  CHECK(button_count(&count) == 0); CHECK(count == 4);
-  CHECK(button_read(0, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(1, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(2, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(3, &val) == 0); CHECK(val == 0);
+  CHECK(button_count(&count) == 0);
+  CHECK(count == 4);
+  CHECK(button_read(0, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(1, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(2, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(3, &val) == 0);
+  CHECK(val == 0);
   return true;
 }
 static bool test_push_button1(void) {
   int val;
   CHECK(gpio_clear(BUTTON1_OUT) == 0);
-  CHECK(button_read(0, &val) == 0); CHECK(val == 1);
-  CHECK(button_read(1, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(2, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(3, &val) == 0); CHECK(val == 0);
+  CHECK(button_read(0, &val) == 0);
+  CHECK(val == 1);
+  CHECK(button_read(1, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(2, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(3, &val) == 0);
+  CHECK(val == 0);
   CHECK(gpio_set(BUTTON1_OUT) == 0);
-  CHECK(button_read(0, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(1, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(2, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(3, &val) == 0); CHECK(val == 0);
+  CHECK(button_read(0, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(1, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(2, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(3, &val) == 0);
+  CHECK(val == 0);
   return true;
 }
 static bool test_push_button2(void) {
   int val;
   CHECK(gpio_clear(BUTTON2_OUT) == 0);
-  CHECK(button_read(0, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(1, &val) == 0); CHECK(val == 1);
-  CHECK(button_read(2, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(3, &val) == 0); CHECK(val == 0);
+  CHECK(button_read(0, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(1, &val) == 0);
+  CHECK(val == 1);
+  CHECK(button_read(2, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(3, &val) == 0);
+  CHECK(val == 0);
   CHECK(gpio_set(BUTTON2_OUT) == 0);
-  CHECK(button_read(0, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(1, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(2, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(3, &val) == 0); CHECK(val == 0);
+  CHECK(button_read(0, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(1, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(2, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(3, &val) == 0);
+  CHECK(val == 0);
   return true;
 }
 static bool test_push_button3(void) {
   int val;
   CHECK(gpio_clear(BUTTON3_OUT) == 0);
-  CHECK(button_read(0, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(1, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(2, &val) == 0); CHECK(val == 1);
-  CHECK(button_read(3, &val) == 0); CHECK(val == 0);
+  CHECK(button_read(0, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(1, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(2, &val) == 0);
+  CHECK(val == 1);
+  CHECK(button_read(3, &val) == 0);
+  CHECK(val == 0);
   CHECK(gpio_set(BUTTON3_OUT) == 0);
-  CHECK(button_read(0, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(1, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(2, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(3, &val) == 0); CHECK(val == 0);
+  CHECK(button_read(0, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(1, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(2, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(3, &val) == 0);
+  CHECK(val == 0);
   return true;
 }
 static bool test_push_button4(void) {
   int val;
   CHECK(gpio_clear(BUTTON4_OUT) == 0);
-  CHECK(button_read(0, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(1, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(2, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(3, &val) == 0); CHECK(val == 1);
+  CHECK(button_read(0, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(1, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(2, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(3, &val) == 0);
+  CHECK(val == 1);
   CHECK(gpio_set(BUTTON4_OUT) == 0);
-  CHECK(button_read(0, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(1, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(2, &val) == 0); CHECK(val == 0);
-  CHECK(button_read(3, &val) == 0); CHECK(val == 0);
+  CHECK(button_read(0, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(1, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(2, &val) == 0);
+  CHECK(val == 0);
+  CHECK(button_read(3, &val) == 0);
+  CHECK(val == 0);
   return true;
 }
 static bool test_button1_int(void) {

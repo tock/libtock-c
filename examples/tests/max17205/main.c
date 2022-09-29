@@ -36,7 +36,7 @@ int main (void) {
   uint16_t percent, soc_mah, soc_mah_full;
   rc = max17205_read_soc_sync(&percent, &soc_mah, &soc_mah_full);
   if (rc == RETURNCODE_SUCCESS) {
-    printf("Percent (.001%%): %ld\n",lrint(max17205_get_percentage_mP(percent)));
+    printf("Percent (.001%%): %ld\n", lrint(max17205_get_percentage_mP(percent)));
     printf("State of charge in uAh: %ld\n", lrint(max17205_get_capacity_uAh(soc_mah)));
     printf("Full charge in uAh: %ld\n", lrint(max17205_get_capacity_uAh(soc_mah_full)));
   } else {

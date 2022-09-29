@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include <timer.h>
 #include <tock.h>
 
@@ -7,4 +9,3 @@ int main(void) {
   int* x = (int*)(0xffffff00);
   *x = 1;
 }
-

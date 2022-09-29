@@ -1,5 +1,7 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <button.h>
 #include <i2c_master_slave.h>
@@ -17,9 +19,9 @@ bool is_leader = false;
 
 
 // In response to a
-static void i2c_callback(int callback_type,
-                         __attribute__ ((unused)) int length,
-                         __attribute__ ((unused)) int arg2,
+static void i2c_callback(int                            callback_type,
+                         __attribute__ ((unused)) int   length,
+                         __attribute__ ((unused)) int   arg2,
                          __attribute__ ((unused)) void* userdata) {
   // Watching for GPIO interrupts holds us in a higher power state, so stop
   // doing that once we don't care about button presses any more (the first
@@ -52,9 +54,9 @@ static void i2c_callback(int callback_type,
 // A button press indicates that this device should start the ping-pong
 // exchange. First, change the address to the BUTTON_ADDRESS to avoid
 // conflict with the other node, then send a message.
-static void button_cb(__attribute__((unused)) int btn_num,
-                      __attribute__ ((unused)) int arg1,
-                      __attribute__ ((unused)) int arg2,
+static void button_cb(__attribute__((unused)) int    btn_num,
+                      __attribute__ ((unused)) int   arg1,
+                      __attribute__ ((unused)) int   arg2,
                       __attribute__ ((unused)) void* userdata) {
   // Only the first press is meaningfull
   static bool pressed = false;

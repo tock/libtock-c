@@ -9,9 +9,9 @@ typedef struct {
   bool done;
 } TextScreenReturn;
 
-static void text_screen_callback(int status,
-                                 int data1,
-                                 int data2,
+static void text_screen_callback(int   status,
+                                 int   data1,
+                                 int   data2,
                                  void* ud) {
   TextScreenReturn *ret = (TextScreenReturn*) ud;
   ret->error = tock_status_to_returncode(status);
@@ -44,10 +44,10 @@ int text_screen_init (size_t len)
   if (buffer != NULL) {
     r = RETURNCODE_EALREADY;
   } else {
-    buffer = (uint8_t*) calloc (1, len);
+    buffer = (uint8_t*) calloc(1, len);
     if (buffer != NULL) {
       buffer_len = len;
-      r = text_screen_allow (buffer, len);
+      r = text_screen_allow(buffer, len);
     } else {
       r = RETURNCODE_FAIL;
     }
@@ -65,10 +65,10 @@ int text_screen_display_on (void)
   TextScreenReturn ret;
   ret.done = false;
 
-  int err = text_screen_subscribe (text_screen_callback, &ret);
+  int err = text_screen_subscribe(text_screen_callback, &ret);
   if (err < 0) return err;
 
-  err = text_screen_command (2, 0, 0);
+  err = text_screen_command(2, 0, 0);
   if (err < 0) return err;
 
   yield_for(&ret.done);
@@ -81,10 +81,10 @@ int text_screen_display_off (void)
   TextScreenReturn ret;
   ret.done = false;
 
-  int err = text_screen_subscribe (text_screen_callback, &ret);
+  int err = text_screen_subscribe(text_screen_callback, &ret);
   if (err < 0) return err;
 
-  err = text_screen_command (3, 0, 0);
+  err = text_screen_command(3, 0, 0);
   if (err < 0) return err;
 
   yield_for(&ret.done);
@@ -97,10 +97,10 @@ int text_screen_blink_on (void)
   TextScreenReturn ret;
   ret.done = false;
 
-  int err = text_screen_subscribe (text_screen_callback, &ret);
+  int err = text_screen_subscribe(text_screen_callback, &ret);
   if (err < 0) return err;
 
-  err = text_screen_command (4, 0, 0);
+  err = text_screen_command(4, 0, 0);
   if (err < 0) return err;
 
   yield_for(&ret.done);
@@ -113,10 +113,10 @@ int text_screen_blink_off (void)
   TextScreenReturn ret;
   ret.done = false;
 
-  int err = text_screen_subscribe (text_screen_callback, &ret);
+  int err = text_screen_subscribe(text_screen_callback, &ret);
   if (err < 0) return err;
 
-  err = text_screen_command (5, 0, 0);
+  err = text_screen_command(5, 0, 0);
 
   yield_for(&ret.done);
 
@@ -128,10 +128,10 @@ int text_screen_show_cursor (void)
   TextScreenReturn ret;
   ret.done = false;
 
-  int err = text_screen_subscribe (text_screen_callback, &ret);
+  int err = text_screen_subscribe(text_screen_callback, &ret);
   if (err < 0) return err;
 
-  err = text_screen_command (6, 0, 0);
+  err = text_screen_command(6, 0, 0);
   if (err < 0) return err;
 
   yield_for(&ret.done);
@@ -144,10 +144,10 @@ int text_screen_hide_cursor (void)
   TextScreenReturn ret;
   ret.done = false;
 
-  int err = text_screen_subscribe (text_screen_callback, &ret);
+  int err = text_screen_subscribe(text_screen_callback, &ret);
   if (err < 0) return err;
 
-  err = text_screen_command (7, 0, 0);
+  err = text_screen_command(7, 0, 0);
   if (err < 0) return err;
 
   yield_for(&ret.done);
@@ -160,10 +160,10 @@ int text_screen_clear (void)
   TextScreenReturn ret;
   ret.done = false;
 
-  int err = text_screen_subscribe (text_screen_callback, &ret);
+  int err = text_screen_subscribe(text_screen_callback, &ret);
   if (err < 0) return err;
 
-  err = text_screen_command (9, 0, 0);
+  err = text_screen_command(9, 0, 0);
   if (err < 0) return err;
 
   yield_for(&ret.done);
@@ -176,10 +176,10 @@ int text_screen_home (void)
   TextScreenReturn ret;
   ret.done = false;
 
-  int err = text_screen_subscribe (text_screen_callback, &ret);
+  int err = text_screen_subscribe(text_screen_callback, &ret);
   if (err < 0) return err;
 
-  err = text_screen_command (10, 0, 0);
+  err = text_screen_command(10, 0, 0);
   if (err < 0) return err;
 
   yield_for(&ret.done);
@@ -192,10 +192,10 @@ int text_screen_set_cursor (uint8_t col, uint8_t row)
   TextScreenReturn ret;
   ret.done = false;
 
-  int err = text_screen_subscribe (text_screen_callback, &ret);
+  int err = text_screen_subscribe(text_screen_callback, &ret);
   if (err < 0) return err;
 
-  err = text_screen_command (11, col, row);
+  err = text_screen_command(11, col, row);
   if (err < 0) return err;
 
   yield_for(&ret.done);
@@ -208,10 +208,10 @@ int text_screen_write (size_t len)
   TextScreenReturn ret;
   ret.done = false;
 
-  int err = text_screen_subscribe (text_screen_callback, &ret);
+  int err = text_screen_subscribe(text_screen_callback, &ret);
   if (err < 0) return err;
 
-  err = text_screen_command (8, len, 0);
+  err = text_screen_command(8, len, 0);
   if (err < 0) return err;
 
   yield_for(&ret.done);
@@ -226,10 +226,10 @@ int text_screen_get_size (size_t* width, size_t* height)
   ret.data1 = 0;
   ret.data2 = 0;
 
-  int err = text_screen_subscribe (text_screen_callback, &ret);
+  int err = text_screen_subscribe(text_screen_callback, &ret);
   if (err < 0) return err;
 
-  err = text_screen_command (1, 0, 0);
+  err = text_screen_command(1, 0, 0);
   if (err < 0) return err;
 
   yield_for(&ret.done);

@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "tock.h"
 #include "udp.h"
 
@@ -65,10 +67,10 @@ int udp_close(__attribute__ ((unused)) sock_handle_t *handle) {
 }
 
 static int tx_result;
-static void tx_done_callback(int status,
+static void tx_done_callback(int                          status,
                              __attribute__ ((unused)) int arg2,
                              __attribute__ ((unused)) int arg3,
-                             void *ud) {
+                             void *                       ud) {
   tx_result      = tock_status_to_returncode(status);
   *((bool *) ud) = true;
 }
@@ -108,10 +110,10 @@ ssize_t udp_send_to(void *buf, size_t len,
 }
 
 static int rx_result;
-static void rx_done_callback(int result,
+static void rx_done_callback(int                          result,
                              __attribute__ ((unused)) int arg2,
                              __attribute__ ((unused)) int arg3,
-                             void *ud) {
+                             void *                       ud) {
   rx_result      = result;
   *((bool *) ud) = true;
 }

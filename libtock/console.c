@@ -14,9 +14,9 @@ typedef struct putstr_data {
 static putstr_data_t *putstr_head = NULL;
 static putstr_data_t *putstr_tail = NULL;
 
-static void putstr_upcall(int _x __attribute__ ((unused)),
-                          int _y __attribute__ ((unused)),
-                          int _z __attribute__ ((unused)),
+static void putstr_upcall(int   _x __attribute__ ((unused)),
+                          int   _y __attribute__ ((unused)),
+                          int   _z __attribute__ ((unused)),
                           void* ud __attribute__ ((unused))) {
   putstr_data_t* data = putstr_head;
   data->called = true;
@@ -111,9 +111,9 @@ typedef struct getnstr_data {
 
 static getnstr_data_t getnstr_data = { true, 0 };
 
-static void getnstr_upcall(int result,
-                           int _y __attribute__ ((unused)),
-                           int _z __attribute__ ((unused)),
+static void getnstr_upcall(int   result,
+                           int   _y __attribute__ ((unused)),
+                           int   _z __attribute__ ((unused)),
                            void* ud __attribute__ ((unused))) {
   getnstr_data.result = result;
   getnstr_data.called = true;

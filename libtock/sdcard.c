@@ -67,7 +67,6 @@ static void sdcard_upcall (int callback_type, int arg1, int arg2, void* callback
       result->error = arg1;
       break;
   }
-
   result->fired = true;
 }
 

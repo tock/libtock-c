@@ -12,7 +12,7 @@ static struct pca9544a_data result = { .fired = false };
 static void pca9544a_upcall(__attribute__ ((unused)) int value,
                             __attribute__ ((unused)) int unused1,
                             __attribute__ ((unused)) int unused2,
-                            void* ud) {
+                            void*                        ud) {
   struct pca9544a_data* data = (struct pca9544a_data*) ud;
   data->value = value;
   data->fired = true;

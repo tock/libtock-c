@@ -8,17 +8,17 @@ static int test(uint8_t *readbuf, uint8_t *writebuf, size_t size, size_t offset,
 
 static bool done = false;
 
-static void read_done(int length,
-                      __attribute__ ((unused)) int arg1,
-                      __attribute__ ((unused)) int arg2,
+static void read_done(int                            length,
+                      __attribute__ ((unused)) int   arg1,
+                      __attribute__ ((unused)) int   arg2,
                       __attribute__ ((unused)) void* ud) {
   printf("\tFinished read! %i\n", length);
   done = true;
 }
 
-static void write_done(int length,
-                       __attribute__ ((unused)) int arg1,
-                       __attribute__ ((unused)) int arg2,
+static void write_done(int                            length,
+                       __attribute__ ((unused)) int   arg1,
+                       __attribute__ ((unused)) int   arg2,
                        __attribute__ ((unused)) void* ud) {
   printf("\tFinished write! %i\n", length);
   done = true;
@@ -49,6 +49,12 @@ static int test_all(void) {
   if ((r = test(readbuf, writebuf, 256, 0,  14)) != 0) return r;
   if ((r = test(readbuf, writebuf, 256, 20, 14)) != 0) return r;
   if ((r = test(readbuf, writebuf, 512, 0, 512)) != 0) return r;
+
+  printf("Write to end of region (offset %d)\n", num_bytes - 512);
+  if ((r = test(readbuf, writebuf, 512, num_bytes - 512, 500)) != 0) return r;
+
+  printf("Write beyond end region, should fail (offset %d)\n", num_bytes);
+  if ((r = test(readbuf, writebuf, 512, num_bytes, 501)) == 0) return -1;
 
   return 0;
 }

@@ -10,9 +10,9 @@
 char hello[] = "Hello World!\r\n";
 
 static void nop(
-  int a __attribute__((unused)),
-  int b __attribute__((unused)),
-  int c __attribute__((unused)),
+  int   a __attribute__((unused)),
+  int   b __attribute__((unused)),
+  int   c __attribute__((unused)),
   void* d __attribute__((unused))) {}
 
 int main(void) {

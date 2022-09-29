@@ -19,10 +19,10 @@ struct data {
   int rcode;
 };
 
-static void callback(int status,
+static void callback(int                         status,
                      __attribute__((unused)) int v1,
                      __attribute__((unused)) int v2,
-                     void *data)
+                     void *                      data)
 {
   struct data *d = data;
   d->fired = true;

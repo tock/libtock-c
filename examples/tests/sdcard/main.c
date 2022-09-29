@@ -66,7 +66,7 @@ int main (void) {
     write_buf[1] = 0xB1;
     write_buf[2] = 0x10;
     write_buf[3] = i;
-    err          = sdcard_write_block_sync(0);
+    err = sdcard_write_block_sync(0);
     if (err < 0) {
       printf("Write error: %d\n", err);
       return -1;

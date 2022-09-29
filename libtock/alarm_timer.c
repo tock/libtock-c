@@ -61,9 +61,9 @@ static alarm_t* root_peek(void) {
   return root;
 }
 
-static void callback( __attribute__ ((unused)) int unused0,
-                      __attribute__ ((unused)) int unused1,
-                      __attribute__ ((unused)) int unused2,
+static void callback( __attribute__ ((unused)) int   unused0,
+                      __attribute__ ((unused)) int   unused1,
+                      __attribute__ ((unused)) int   unused2,
                       __attribute__ ((unused)) void* ud) {
   for (alarm_t* alarm = root_peek(); alarm != NULL; alarm = root_peek()) {
     uint32_t now;
@@ -137,10 +137,10 @@ int timer_in(uint32_t ms, subscribe_upcall cb, void* ud, tock_timer_t *timer) {
   return alarm_at(now, interval, cb, ud, &timer->alarm);
 }
 
-static void repeating_upcall( uint32_t now,
+static void repeating_upcall( uint32_t                     now,
                               __attribute__ ((unused)) int unused1,
                               __attribute__ ((unused)) int unused2,
-                              void* ud) {
+                              void*                        ud) {
   tock_timer_t* repeating = (tock_timer_t*)ud;
   uint32_t interval       = repeating->interval;
   uint32_t cur_exp        = repeating->alarm.reference + interval;
@@ -171,7 +171,7 @@ void timer_cancel(tock_timer_t* timer) {
 static void delay_upcall(__attribute__ ((unused)) int unused0,
                          __attribute__ ((unused)) int unused1,
                          __attribute__ ((unused)) int unused2,
-                         void* ud) {
+                         void*                        ud) {
   *((bool*)ud) = true;
 }
 
@@ -191,7 +191,7 @@ int delay_ms(uint32_t ms) {
 static void yield_for_timeout_upcall(__attribute__ ((unused)) int unused0,
                                      __attribute__ ((unused)) int unused1,
                                      __attribute__ ((unused)) int unused2,
-                                     void* ud) {
+                                     void*                        ud) {
   *((bool*)ud) = true;
 }
 

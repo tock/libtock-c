@@ -6,9 +6,9 @@
 
 int interrupt_count = 0;
 
-static void gpio_async_cb(__attribute__ ((unused)) int callback_type,
-                          __attribute__ ((unused)) int value,
-                          __attribute__ ((unused)) int unused,
+static void gpio_async_cb(__attribute__ ((unused)) int   callback_type,
+                          __attribute__ ((unused)) int   value,
+                          __attribute__ ((unused)) int   unused,
                           __attribute__ ((unused)) void* ud) {
   printf("INTERRUPT\n");
   interrupt_count++;

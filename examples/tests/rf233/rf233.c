@@ -127,7 +127,7 @@ static const char* state_str(uint8_t state) {
 static void calibrate_filters(void) {
   PRINTF("RF233: Calibrating filters.\n");
   trx_reg_write(RF233_REG_FTN_CTRL, 0x80);
-  while (trx_reg_read(RF233_REG_FTN_CTRL) & 0x80) ;
+  while (trx_reg_read(RF233_REG_FTN_CTRL) & 0x80);
 }
 
 uint8_t recv_data[PACKETBUF_SIZE];
@@ -284,11 +284,10 @@ static bool radio_pll;
 static bool radio_tx;
 static bool radio_rx;
 
-static void interrupt_callback(int _a __attribute__((unused)),
-                               int _b __attribute__((unused)),
-                               int _c __attribute__((unused)),
-                               void* _ud __attribute__((unused))
-                               ) {
+static void interrupt_callback(int   _a __attribute__((unused)),
+                               int   _b __attribute__((unused)),
+                               int   _c __attribute__((unused)),
+                               void* _ud __attribute__((unused))) {
   volatile uint8_t irq_source;
   PRINTF("RF233: interrupt handler.\n");
   /* handle IRQ source (for what IRQs are enabled, see rf233-config.h) */
@@ -580,7 +579,8 @@ static int rf233_transmit(void) {
       status_now == STATE_BUSY_TX_ARET) {
     PRINTF("RF233: collision, was in state %s\n", state_str(status_now));
     /* NOTE: to avoid loops */
-    return RADIO_TX_ERR;;
+    return RADIO_TX_ERR;
+    ;
   }
 
   if (status_now != STATE_PLL_ON) {
