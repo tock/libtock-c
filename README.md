@@ -37,56 +37,33 @@ Prerequisites
 
     1. Cross compiler for embedded targets
 
-        *ARM*
-
-        You will need an `arm-none-eabi` toolchain for Cortex-M targets.
-
-        **MacOS**:
-        ```
-        $ brew tap ARMmbed/homebrew-formulae && brew update && brew install arm-none-eabi-gcc
-        ```
-
-        **Ubuntu (18.04LTS or later)**:
-        ```
-        $ sudo apt install gcc-arm-none-eabi
-        ```
-
-        **Arch**:
-        ```
-        $ sudo pacman -Syu arm-none-eabi-gcc
-        ```
-
-        **Fedora**:
-        ```
-        $ sudo dnf install arm-none-eabi-gcc-cs
-        ```
-
-        *RISC-V*
-
-        You will need a RISC-V toolchain that supports rv32 targets (64 bit
-        toolchains support rv32 if compiled with multilib support).
-        Some toolchains that can work:
-        - riscv64-none-elf
-        - riscv32-none-elf
-        - riscv64-elf
-        - riscv64-unknown-elf
-        - riscv32-unknown-elf
-
         **MacOS**:
 
         ```shell
+        $ brew tap ARMmbed/homebrew-formulae && brew update && brew install arm-none-eabi-gcc
         $ brew tap riscv/riscv && brew update && brew install riscv-gnu-toolchain
         ```
 
         **Ubuntu (21.10 or later) or Debian (11 or later)**:
 
         ```shell
+        $ sudo apt install gcc-arm-none-eabi
         $ sudo apt install gcc-riscv64-unknown-elf
         ```
 
         **Arch**:
+
         ```shell
+        $ sudo pacman -Syu arm-none-eabi-gcc
         $ sudo pacman -Syu riscv64-elf-gcc
+        ```
+
+        **Fedora**:
+
+        NOTE: Fedora currently doesn't have RISC-V support
+
+        ```shell
+        $ sudo dnf install arm-none-eabi-gcc-cs
         ```
 
         **Other distros**:
@@ -100,26 +77,6 @@ Prerequisites
 
     1. libc for embedded targets
 
-        *ARM*
-
-        **Ubuntu (21.10 or later) or Debian (11 or later)**:
-
-        ```shell
-        $ sudo apt install libnewlib-arm-none-eabi
-        ```
-
-        **Arch**:
-        ```
-        $ sudo pacman -Syu arm-none-eabi-newlib
-        ```
-
-        **Fedora**:
-        ```
-        $ sudo dnf install arm-none-eabi-newlib
-        ```
-
-        *RISC-V*
-
         **Ubuntu (21.10 or later) or Debian (11 or later)**:
 
         Use picolibc instead of newlib
@@ -127,9 +84,17 @@ Prerequisites
         ```shell
         $ sudo apt install picolibc-riscv64-unknown-elf
         ```
+
         **Arch**:
+
         ```shell
         $ sudo pacman -Syu riscv32-elf-newlib
+        ```
+
+        **Fedora**:
+
+        ```shell
+        $ sudo dnf install arm-none-eabi-newlib
         ```
 
         *newlib-nano*
@@ -171,8 +136,18 @@ Prerequisites
         $ sudo make install
         ```
 
-1. Optional: If using picolibc (Debian can do this) then specify the `PICOLIBC`
-   variable. picolibc is an optimised version of newlib
+1. Optional: Newlib is a commonly used embedded libc. Although it does have a
+   few limitations. Mostly in that the print implementation can be
+   (too large)[https://keithp.com/picolibc/picolibc-2021-notes.pdf] and the
+   license can be (too restrictive)[https://github.com/tock/libtock-c/issues/309].
+   Newlib for RISC-V also isn't pre-packaged for Debian systems.
+
+   If you would prefer to use picolibc instead of newlib for RISC-V you can
+   follow this step. If you are happy using newlib or aren't building for
+   RISC-V you can skip this step. picolibc isn't support on ARM platforms
+   at the moment.
+
+   If using picolibc then specify the `PICOLIBC` variable.
 
     ```shell
     $ make PICOLIBC=1
