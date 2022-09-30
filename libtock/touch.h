@@ -19,8 +19,9 @@
 #define GESTURE_ZOOM_IN 5
 #define GESTURE_ZOOM_OUT 6
 
-typedef void (touch_callback)(int, int, int, void*);
-typedef void (gesture_callback)(int, void*);
+typedef void (touch_single_touch_callback)(int, int, int, void*);
+typedef void (touch_multi_touch_callback)(int, int, void*);
+typedef void (touch_gesture_callback)(int, void*);
 
 typedef struct __attribute__((__packed__)) {
     unsigned char id;
@@ -42,15 +43,12 @@ int get_number_of_touches (int* touches);
 
 int enable_single_touch(void);
 int disable_single_touch(void);
-int single_touch_set_callback (touch_callback cb, void* ud);
+int single_touch_set_callback (touch_single_touch_callback cb, void* ud);
 
 int enable_multi_touch(void);
 int disable_multi_touch(void);
-int multi_touch_set_callback (touch_callback cb, void* ud, int max_touches);
-int gesture_set_callback (gesture_callback cb, void* ud);
+int multi_touch_set_callback (touch_multi_touch_callback cb, void* ud, int max_touches);
+int gesture_set_callback (touch_gesture_callback cb, void* ud);
 
 int read_touch (int index, unsigned char *id, unsigned char *status, unsigned short *x, unsigned short *y);
 int read_touch_full (int index, unsigned char *id, unsigned char *status, unsigned short *x, unsigned short *y, unsigned char *size, unsigned char *pressure);
-
-// Every multi touch event needs to be acked
-int multi_touch_next (void);
