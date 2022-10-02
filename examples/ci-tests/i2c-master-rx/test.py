@@ -113,7 +113,7 @@ def dummy_transaction():
     time.sleep(1)
     reset()
     time.sleep(1)
-
+    close()
 
 def close():
    time.sleep(5)
@@ -153,8 +153,17 @@ class I2CMasterRxTest(unittest.TestCase):
         global MESSAGE_CONFIRMATION
         global dummy
 
+
         dummy_transaction() # Initiate the dummy transaction to update buffer in proper time
         dummy = True # Update to initiate the dummy transaction properly on the i2c function
+
+        # Set up pi gpio daemon again to clear buffer and reset transaction
+        time.sleep(1)
+        os.system('sudo pigpiod')
+        time.sleep(1)
+
+        pi = pigpio.pi()
+        ###################################################################
 
         print()
         logger.info('Sending Messages As Slave... ',
