@@ -26,9 +26,10 @@ reset_button = OutputDevice(RESET)
 
 # Set up PiGPIO properly by configuring it on pi then importing library
 os.system('sudo pigpiod')
-time.sleep(1)
+time.sleep(2)
 
 import pigpio
+time.sleep(1)
 
 pi = pigpio.pi() # Configure the Raspberry Pi as slave
 # PiGPIO configured.
