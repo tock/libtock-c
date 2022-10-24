@@ -3,12 +3,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <ble_advdata.h>
-#include <nordic_common.h>
-#include <nrf_error.h>
-
-#include <simple_adv.h>
-
 #include <adc.h>
 #include <alarm.h>
 #include <ble.h>
@@ -46,9 +40,9 @@ static void light_leds(int leds[], int len) {
   }
 }
 
-static void button_callback(int btn_num,
-                            int val,
-                            __attribute__ ((unused)) int arg2,
+static void button_callback(int                            btn_num,
+                            int                            val,
+                            __attribute__ ((unused)) int   arg2,
                             __attribute__ ((unused)) void *ud) {
   if (!val) { // button was released, not pressed
     return;
@@ -56,16 +50,16 @@ static void button_callback(int btn_num,
   int note0 = NOTE_C4;
   int note1 = NOTE_E4;
   int note2 = NOTE_G4;
-  if (btn_num == 0){
-    check_err(tone(note0*3, 500, tone_callback), "tone");
+  if (btn_num == 0) {
+    check_err(tone(note0 * 3, 500, tone_callback), "tone");
     int leds[10] = {2, 6, 8, 11, 12, 13, 16, 18, 21, 23};
     light_leds(leds, 10);
   } else if (btn_num == 1) {
-    tone(note1*3, 250, tone_callback);
+    tone(note1 * 3, 250, tone_callback);
     int leds[11] = {1, 2, 6, 8, 11, 12, 13, 16, 18, 21, 22};
     light_leds(leds, 11);
   } else if (btn_num == 2) {
-    tone(note2*3, 250, tone_callback);
+    tone(note2 * 3, 250, tone_callback);
     int leds[9] = {0, 1, 2, 3, 4, 7, 12, 17, 22};
     light_leds(leds, 9);
   }
@@ -108,7 +102,7 @@ static void sample_sensors(void) {
   // print results
   printf("[Micro:bit Sensor Reading]\n");
   // Temp is given in hundredths of a degree C, in format XX00
-  printf("  Temperature: reading: %d.0 degrees C\n", temp/100);
+  printf("  Temperature: reading: %d.0 degrees C\n", temp / 100);
   printf("  Acceleration: %lu\n", accel_mag);
   printf("  Magnetometer: X: %d, Y: %d, Z: %d\n", x, y, z);
   printf("  Ambient Sound: %i\n", sound_pres);
@@ -134,9 +128,9 @@ int main(void) {
   AdvData_t adv_data = gap_adv_data_new(adv_data_buf, sizeof(adv_data_buf));
   uint16_t advertising_interval_ms = 1000;
   uint8_t device_name[] = "Micro_bit:v2";
-  check_err(gap_add_device_name(&adv_data, device_name, sizeof(device_name)-1), "gap_add_device_name");
+  check_err(gap_add_device_name(&adv_data, device_name, sizeof(device_name) - 1), "gap_add_device_name");
   check_err(ble_start_advertising(ADV_NON_CONN_IND, adv_data.buf, adv_data.offset, advertising_interval_ms),
-	 "ble_start_advertising");
+   "ble_start_advertising");
   printf("Now advertising every %d ms as '%s'\n", advertising_interval_ms, device_name);
 
   // Enable button callbacks
@@ -146,7 +140,7 @@ int main(void) {
   check_err(button_enable_interrupt(2), "button_enable_interrupt");
   printf("Set up button callbacks!\n");
 
-  // Enable sound pressure sensor 
+  // Enable sound pressure sensor
   check_err(sound_pressure_enable(), "sound_pressure_enable");
   printf("Enabled sound pressure!\n");
 
@@ -163,4 +157,3 @@ int main(void) {
     delay_ms(1000);
   }
 }
-
