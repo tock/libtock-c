@@ -5,11 +5,6 @@ TOCK_USERLAND_BASE_DIR = ../../..
 
 # Which files to compile
 C_SRCS := $(wildcard *.c)
-
-#APP_HEAP_SIZE := 2048
-
-# External libraries used
-EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/simple-ble
 # Include userland master makefile. Contains rules and flags for actually
 # building the application
 include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
