@@ -1,4 +1,4 @@
-# Makefile for user application - copied from bradjc's Hail test app
+# Makefile for user application
 
 # Specify this directory relative to the current application
 TOCK_USERLAND_BASE_DIR = ../../..
