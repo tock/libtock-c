@@ -19,8 +19,6 @@
 #include <timer.h>
 #include <tock.h>
 
-//          temperature works, but can't print floats
-//          buttons work -- in callback, including a call to tone_sync prevents code from resuming execution after callback
 
 // This app is modeled after the Hail test app by bradjc.
 
