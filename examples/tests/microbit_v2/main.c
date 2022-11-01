@@ -1,19 +1,14 @@
-#include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
 #include <adc.h>
 #include <alarm.h>
 #include <ble.h>
 #include <button.h>
 #include <buzzer.h>
-#include <crc.h>
 #include <gap.h>
 #include <gpio.h>
 #include <led.h>
 #include <ninedof.h>
-#include <nrf51_serialization.h>
 #include <sound_pressure.h>
 #include <temperature.h>
 #include <timer.h>
