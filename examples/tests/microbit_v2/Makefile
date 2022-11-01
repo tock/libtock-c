@@ -13,4 +13,3 @@ EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/simple-ble
 # Include userland master makefile. Contains rules and flags for actually
 # building the application
 include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
-include $(TOCK_USERLAND_BASE_DIR)/simple-ble/Makefile
