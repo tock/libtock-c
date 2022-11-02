@@ -103,6 +103,14 @@ define BUILD_RULES_PER_ARCH
 $$(BUILDDIR)/$(1):
 	$$(TRACE_DIR)
 	$$(Q)mkdir -p $$@
+	$$(Q)mkdir -p $$@/nimble/host/src
+	$$(Q)mkdir -p $$@/nimble/host/util/src
+	$$(Q)mkdir -p $$@/nimble/host/services/gap/src
+	$$(Q)mkdir -p $$@/nimble/host/services/src
+	$$(Q)mkdir -p $$@/porting/nimble/src
+	$$(Q)mkdir -p $$@/porting/npl/tock/src
+	$$(Q)mkdir -p $$@/nimble/transport/src
+	$$(Q)mkdir -p $$@/nimble/transport/tock/src
 
 # First step doesn't actually compile, just generate header dependency information
 # More info on our approach here: http://stackoverflow.com/questions/97338

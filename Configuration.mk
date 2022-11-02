@@ -433,7 +433,7 @@ override CPPFLAGS += -Wmissing-format-attribute # # something looks printf-like 
 override CPPFLAGS += -Wmissing-noreturn #         # __attribute__((noreturn)) like -> ! in Rust, should use it
 override CPPFLAGS += -Wmultichar #                # use of 'foo' instead of "foo" (surpised not on by default?)
 override CPPFLAGS += -Wpointer-arith #            # sizeof things not define'd (i.e. sizeof(void))
-override CPPFLAGS += -Wredundant-decls #          # { int i; int i; } (a lint)
+# override CPPFLAGS += -Wredundant-decls #          # { int i; int i; } (a lint)
 override CPPFLAGS += -Wshadow #                   # int foo(int a) { int a = 1; } inner a shadows outer a
 override CPPFLAGS += -Wunused-macros #            # macro defined in this file not used
 override CPPFLAGS += -Wunused-parameter #         # function parameter is unused aside from its declaration
