@@ -1,3 +1,6 @@
+// Micro:bit v2 testing application.
+// This app is modeled after the Hail test app by bradjc.
+
 #include <stdio.h>
 
 #include <adc.h>
@@ -15,16 +18,19 @@
 #include <tock.h>
 
 
-// This app is modeled after the Hail test app by bradjc.
-
-static void tone_callback(void) {} // Replacing empty callback with NULL causes an error
-
 static int check_err(int retval, const char* func_name) {
   if (retval < RETURNCODE_SUCCESS) {
     printf("Function: %s returned error: %s\n", func_name, tock_strrcode(retval));
     tock_exit(1);
   }
   return retval;
+}
+
+
+static bool tone_complete = true;
+static void tone_callback(void) {
+  // allow additional notes to be played
+  tone_complete = true;
 }
 
 static void light_leds(int leds[], int len) {
@@ -34,25 +40,27 @@ static void light_leds(int leds[], int len) {
 }
 
 static void button_callback(int                            btn_num,
-                            int                            val,
+                            int                            button_pressed,
                             __attribute__ ((unused)) int   arg2,
                             __attribute__ ((unused)) void *ud) {
-  if (!val) { // button was released, not pressed
+
+  // Do not run if this was a button release or if tone is not finished
+  if (!button_pressed || !tone_complete) {
     return;
   }
-  int note0 = NOTE_C4;
-  int note1 = NOTE_E4;
-  int note2 = NOTE_G4;
+
+  // Play a note and make an LED pattern appear
+  tone_complete = false;
   if (btn_num == 0) {
-    check_err(tone(note0 * 3, 500, tone_callback), "tone");
+    check_err(tone(NOTE_C4 * 3, 500, tone_callback), "tone");
     int leds[10] = {2, 6, 8, 11, 12, 13, 16, 18, 21, 23};
     light_leds(leds, 10);
   } else if (btn_num == 1) {
-    tone(note1 * 3, 250, tone_callback);
+    check_err(tone(NOTE_E4 * 3, 500, tone_callback), "tone");
     int leds[11] = {1, 2, 6, 8, 11, 12, 13, 16, 18, 21, 22};
     light_leds(leds, 11);
   } else if (btn_num == 2) {
-    tone(note2 * 3, 250, tone_callback);
+    check_err(tone(NOTE_G4 * 3, 500, tone_callback), "tone");
     int leds[9] = {0, 1, 2, 3, 4, 7, 12, 17, 22};
     light_leds(leds, 9);
   }
@@ -65,16 +73,18 @@ static void sample_sensors(void) {
   }
 
   // Sensors: temperature, acceleration, sound pressure
-  int temp;
+  int temp = 0;
   check_err(temperature_read_sync(&temp), "temperature_read_sync");
   uint32_t accel_mag = check_err(ninedof_read_accel_mag(), "ninedof_read_accel_mag");
-  int x, y, z;
+  int x = 0;
+  int y = 0;
+  int z = 0;
   check_err(ninedof_read_magnetometer_sync(&x, &y, &z), "ninedof_read_magnetometer_sync");
   unsigned char sound_pres;
   check_err(sound_pressure_read_sync(&sound_pres), "sound_pressure_read_sync");
 
   // Analog inputs: P0-P2
-  uint16_t val;
+  uint16_t val = 0;
   check_err(adc_sample_sync(0, &val), "adc_sample_sync");
   int p0 = (val * 3300) / (4095 << 4);
   check_err(adc_sample_sync(1, &val), "adc_sample_sync");
@@ -84,12 +94,13 @@ static void sample_sensors(void) {
   if (p0 < 10 || p1 < 10 || p2 < 10) { // pin is connected to gnd
     check_err(led_on(20), "led_on");
   }
+
   // Digital inputs: P8, P9, P16
-  int p8;
+  int p8 = 0;
   check_err(gpio_read(8, &p8), "gpio_read");
-  int p9;
+  int p9 = 0;
   check_err(gpio_read(9, &p9), "gpio_read");
-  int p16;
+  int p16 = 0;
   check_err(gpio_read(16, &p16), "gpio_read");
 
   // print results
@@ -150,3 +161,4 @@ int main(void) {
     delay_ms(1000);
   }
 }
+
