@@ -7,8 +7,8 @@ On startup
 ----------
 
 When this app starts, the top left LED should start blinking. When you
-press the A button, the LEDs should display an A, and a note should play. The B button
-and touch button behave similarly, but each plays a different note. 
+press the A button, the LEDs should display an A, and a note should play. The 
+B button behaves similarly, but plays a different note. 
 
 ### More data printed to console
 
@@ -55,5 +55,5 @@ see a printout like this:
   * Connecting P0, P1, or P2 with the GND pin should drop the corresponding pin's mV
     to zero or almost zero. Additionally, the bottom-left LED should turn on.
   
-  * Pressing the A button, B button, and touch logo should make the Micro:bit play a
-    different note for each button and display a letter (A, B, or T).
+  * Pressing the A button and B button should make the Micro:bit play a
+    different note for each button and display a letter (A or B).
