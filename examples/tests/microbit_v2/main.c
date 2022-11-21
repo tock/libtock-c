@@ -46,9 +46,10 @@ static void button_callback(int                            btn_num,
 
   // Do not run if this was a button release or if tone is not finished
   if (!button_pressed || !tone_complete) {
-    if (!tone_complete) printf("Please wait for the tone to stop\n");
+    if (!tone_complete) {
+      printf("Please wait for the tone to stop\n");
+    }
     return;
-
   }
 
   // Play a note and make an LED pattern appear
