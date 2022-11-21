@@ -61,10 +61,6 @@ static void button_callback(int                            btn_num,
     check_err(tone(NOTE_E4 * 3, 500, tone_callback), "tone");
     int leds[11] = {1, 2, 6, 8, 11, 12, 13, 16, 18, 21, 22};
     light_leds(leds, 11);
-  } else if (btn_num == 2) {
-    check_err(tone(NOTE_G4 * 3, 500, tone_callback), "tone");
-    int leds[9] = {0, 1, 2, 3, 4, 7, 12, 17, 22};
-    light_leds(leds, 9);
   }
 }
 
@@ -143,7 +139,6 @@ int main(void) {
   check_err(button_subscribe(button_callback, NULL), "button_subscribe");
   check_err(button_enable_interrupt(0), "button_enable_interrupt");
   check_err(button_enable_interrupt(1), "button_enable_interrupt");
-  check_err(button_enable_interrupt(2), "button_enable_interrupt");
   printf("Set up button callbacks!\n");
 
   // Enable sound pressure sensor
