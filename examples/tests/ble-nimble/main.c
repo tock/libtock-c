@@ -119,6 +119,7 @@ main(int argc, char **argv)
     int rc;
 
     nimble_port_init();
+    ble_transport_tock_init();
 
     ble_hs_cfg.sync_cb = on_sync;
     ble_hs_cfg.reset_cb = on_reset;

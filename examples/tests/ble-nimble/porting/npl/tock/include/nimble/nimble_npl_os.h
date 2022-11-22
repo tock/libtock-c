@@ -239,10 +239,31 @@ ble_npl_mutex_release(__attribute__ ((unused)) struct ble_npl_mutex *mu)
 /// Only used for receiving HCI acks.
 ////////////////////////////////////////////////////////////////////////////////
 
+#define DRIVER_NUM_BLE_HCI 0x876
+#define TOCK_SUBSCRIBE_BLE_HCI_ACK 1
+
+static void tock_hci_upcall_ack(__attribute__ ((unused)) int   callback_type,
+                       __attribute__ ((unused)) int   arg1,
+                       __attribute__ ((unused)) int   arg2,
+                       void* callback_args) {
+    // All we have to do in this call to recognize an acknowledgement from the
+    // controller is set our condition variable to true.
+    struct ble_npl_sem* sem = (struct ble_npl_sem*) callback_args;
+    sem->cond = true;
+}
+
 static inline ble_npl_error_t
 ble_npl_sem_init(struct ble_npl_sem *sem, __attribute__ ((unused)) uint16_t tokens)
 {
+    // Set our condition variable to false to start with.
     sem->cond = false;
+
+    // Setup a callback for the controller to notify us of ACKs.
+    subscribe_return_t subval = subscribe(DRIVER_NUM_BLE_HCI, TOCK_SUBSCRIBE_BLE_HCI_ACK, tock_hci_upcall_ack, (void*) sem);
+    if (!subval.success) {
+        return -1;
+    }
+
     return BLE_NPL_OK;
 }
 
