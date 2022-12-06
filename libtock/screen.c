@@ -1,6 +1,6 @@
 #include "screen.h"
+#include "tock.h"
 #include <stdlib.h>
-#include <tock.h>
 
 typedef struct {
   int error;

@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-#include <tock.h>
+#include "tock.h"
 
 /** \brief Opaque handle to a single-shot alarm.
  *
