@@ -66,7 +66,7 @@ static void callback( __attribute__ ((unused)) int   unused0,
                       __attribute__ ((unused)) int   unused2,
                       __attribute__ ((unused)) void* ud) {
   for (alarm_t* alarm = root_peek(); alarm != NULL; alarm = root_peek()) {
-    uint32_t now;
+    uint64_t now;
     alarm_internal_read(&now);
     // has the alarm not expired yet? (distance from `now` has to be larger or
     // equal to distance from current clock value.
@@ -132,7 +132,7 @@ int timer_in(uint32_t ms, subscribe_upcall cb, void* ud, tock_timer_t *timer) {
   uint32_t frequency;
   alarm_internal_frequency(&frequency);
   uint32_t interval = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
-  uint32_t now;
+  uint64_t now;
   alarm_internal_read(&now);
   return alarm_at(now, interval, cb, ud, &timer->alarm);
 }
@@ -158,7 +158,7 @@ void timer_every(uint32_t ms, subscribe_upcall cb, void* ud, tock_timer_t* repea
   repeating->cb       = cb;
   repeating->ud       = ud;
 
-  uint32_t now;
+  uint64_t now;
   alarm_internal_read(&now);
   alarm_at(now, interval, (subscribe_upcall*)repeating_upcall,
            (void*)repeating, &repeating->alarm);
