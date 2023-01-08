@@ -60,7 +60,26 @@ in
       gcc-arm-embedded
       python3Full
       pythonPackages.tockloader
-    ] ++ (lib.optional (!disableRiscvToolchain) pkgsCross.riscv32-embedded.buildPackages.gcc);
+    ] ++ (lib.optional (!disableRiscvToolchain) (
+      pkgsCross.riscv32-embedded.buildPackages.gcc.override (oldCc: {
+        cc = (pkgsCross.riscv32-embedded.buildPackages.gcc.cc.override (oldCcArgs: {
+          libcCross = oldCcArgs.libcCross.overrideAttrs (oldNewlibAttrs: {
+            configureFlags = oldNewlibAttrs.configureFlags ++ [
+              "--enable-libssp"
+            ];
+          });
+        })).overrideAttrs (oldCcAttrs: {
+          configureFlags = oldCcAttrs.configureFlags ++ [
+            "--without-headers"
+            "--disable-shared"
+            "--disable-libssp"
+            "--disable-multilib"
+            "--with-newlib"
+          ];
+          gcc_cv_libc_provides_ssp = "yes";
+        });
+      })
+    ));
 
     shellHook = ''
       ${if (!disableRiscvToolchain) then ''
