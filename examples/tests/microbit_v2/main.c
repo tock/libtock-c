@@ -55,11 +55,12 @@ static void button_callback(int                            btn_num,
   // Play a note and make an LED pattern appear
   tone_complete = false;
   if (btn_num == 0) {
-    check_err(tone(NOTE_C4 * 3, 500, tone_callback), "tone");
+  // When playing notes, note that the minimum frequency the Microbit can play is 489 Hz.
+    check_err(tone(NOTE_C5, 500, tone_callback), "tone");
     int leds[10] = {2, 6, 8, 11, 12, 13, 16, 18, 21, 23};
     light_leds(leds, 10);
   } else if (btn_num == 1) {
-    check_err(tone(NOTE_E4 * 3, 500, tone_callback), "tone");
+    check_err(tone(NOTE_E5, 500, tone_callback), "tone");
     int leds[11] = {1, 2, 6, 8, 11, 12, 13, 16, 18, 21, 22};
     light_leds(leds, 11);
   }
