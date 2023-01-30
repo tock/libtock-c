@@ -55,7 +55,7 @@ static void button_callback(int                            btn_num,
   // Play a note and make an LED pattern appear
   tone_complete = false;
   if (btn_num == 0) {
-  // When playing notes, note that the minimum frequency the Microbit can play is 489 Hz.
+    // When playing notes, note that the minimum frequency the Microbit can play is 489 Hz.
     check_err(tone(NOTE_C5, 500, tone_callback), "tone");
     int leds[10] = {2, 6, 8, 11, 12, 13, 16, 18, 21, 23};
     light_leds(leds, 10);
