@@ -184,7 +184,7 @@ SECTIONS {
      * through off our calculations of the header.
      */
     PROVIDE_HIDDEN (__exidx_start = .);
-    .ARM.exidx :
+    .ARM.exidx (NOLOAD) :
     {
       /* (C++) Index entries for section unwinding */
       *(.ARM.exidx* .gnu.linkonce.armexidx.*)
