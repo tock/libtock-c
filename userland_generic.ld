@@ -183,8 +183,7 @@ SECTIONS {
      * it to the binary in elf2tab. If it was before the RAM sections, it would
      * through off our calculations of the header.
      *
-     * The section is marked as NOLOAD, as the new version of elf2tab (>0.9.x) 
-     * does not ignore it otherwise.
+     * The section is marked as NOLOAD, to ensure elf2tab does not serialize it
      * https://github.com/tock/elf2tab/pull/66
      */
     PROVIDE_HIDDEN (__exidx_start = .);
