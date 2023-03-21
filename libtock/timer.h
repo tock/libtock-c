@@ -28,8 +28,7 @@
 extern "C" {
 #endif
 
-#include <tock.h>
-
+#include "tock.h"
 #include "alarm.h"
 
 /** \brief Opaque handle to a repeating alarm.
