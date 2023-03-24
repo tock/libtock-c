@@ -18,10 +18,10 @@ struct data {
 static struct data result = {.fired = false};
 
 // Internal callback for faking synchronous reads
-static void cb(int proximity,
+static void cb(int                         proximity,
                __attribute__((unused)) int unused,
                __attribute__((unused)) int unused1,
-               void *ud) {
+               void *                      ud) {
   struct data *data = (struct data *)ud;
   data->proximity = proximity;
   data->fired     = true;

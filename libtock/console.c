@@ -7,6 +7,7 @@
 typedef struct putstr_data {
   char* buf;
   int len;
+  int written;
   bool called;
   struct putstr_data* next;
 } putstr_data_t;
@@ -14,23 +15,31 @@ typedef struct putstr_data {
 static putstr_data_t *putstr_head = NULL;
 static putstr_data_t *putstr_tail = NULL;
 
-static void putstr_upcall(int _x __attribute__ ((unused)),
-                          int _y __attribute__ ((unused)),
-                          int _z __attribute__ ((unused)),
+static void putstr_upcall(int len,
+                          int   _y __attribute__ ((unused)),
+                          int   _z __attribute__ ((unused)),
                           void* ud __attribute__ ((unused))) {
   putstr_data_t* data = putstr_head;
-  data->called = true;
-  putstr_head  = data->next;
+  data->written += len;
 
-  if (putstr_head == NULL) {
-    putstr_tail = NULL;
-  } else {
-    int ret;
-    ret = putnstr_async(putstr_head->buf, putstr_head->len, putstr_upcall, NULL);
-    if (ret < 0) {
-      // XXX There's no path to report errors currently, so just drop it
-      putstr_upcall(0, 0, 0, NULL);
+  // We have finished this particular write; try to process the next one.
+  if (data->written == data->len) {
+    data->called = true;
+    putstr_head  = data->next;
+    if (putstr_head == NULL) {
+      putstr_tail = NULL;
+    } else {
+      int ret;
+      ret = putnstr_async(putstr_head->buf, putstr_head->len, putstr_upcall, NULL);
+      if (ret < 0) {
+	// XXX There's no path to report errors currently, so just drop it
+	//putstr_upcall(0, 0, 0, NULL);
+      }
     }
+  } else { // More to do on this write
+      char* write_ptr = putstr_head->buf + putstr_head->written;
+      int to_write = putstr_head->len - putstr_head->written;
+      putnstr_async(write_ptr, to_write, putstr_upcall, NULL);
   }
 }
 
@@ -41,8 +50,10 @@ int putnstr(const char *str, size_t len) {
   if (data == NULL) return RETURNCODE_ENOMEM;
 
   data->len    = len;
+  data->written = 0;
   data->called = false;
   data->buf    = (char*)malloc(len * sizeof(char));
+
   if (data->buf == NULL) {
     ret = RETURNCODE_ENOMEM;
     goto putnstr_fail_buf_alloc;
@@ -111,9 +122,9 @@ typedef struct getnstr_data {
 
 static getnstr_data_t getnstr_data = { true, 0 };
 
-static void getnstr_upcall(int result,
-                           int _y __attribute__ ((unused)),
-                           int _z __attribute__ ((unused)),
+static void getnstr_upcall(int   result,
+                           int   _y __attribute__ ((unused)),
+                           int   _z __attribute__ ((unused)),
                            void* ud __attribute__ ((unused))) {
   getnstr_data.result = result;
   getnstr_data.called = true;

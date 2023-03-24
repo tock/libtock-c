@@ -7,9 +7,9 @@
 
 char buf[100];
 
-static void getnstr_cb(int result __attribute__ ((unused)),
-                       int len,
-                       int _z __attribute__ ((unused)),
+static void getnstr_cb(int   result __attribute__ ((unused)),
+                       int   len,
+                       int   _z __attribute__ ((unused)),
                        void* ud __attribute__ ((unused))) {
   printf("\n\nconsole_recv_long: ");
   for (int i = 0; i < len; i++) {

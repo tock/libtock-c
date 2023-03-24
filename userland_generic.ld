@@ -182,9 +182,12 @@ SECTIONS {
      * __NOTE__: It's at the end because we currently don't actually serialize
      * it to the binary in elf2tab. If it was before the RAM sections, it would
      * through off our calculations of the header.
+     *
+     * The section is marked as NOLOAD, to ensure elf2tab does not serialize it
+     * https://github.com/tock/elf2tab/pull/66
      */
     PROVIDE_HIDDEN (__exidx_start = .);
-    .ARM.exidx :
+    .ARM.exidx (NOLOAD) :
     {
       /* (C++) Index entries for section unwinding */
       *(.ARM.exidx* .gnu.linkonce.armexidx.*)

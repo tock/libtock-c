@@ -57,10 +57,11 @@ int main(void) {
       printf("[%8lx] Case %2d: ", procid, test_index);
       if (r == RETURNCODE_SUCCESS) {
         printf("result=%08lx ", result);
-        if (result == t->output)
+        if (result == t->output) {
           printf("(OK)");
-        else
+        } else {
           printf("(Expected %08lx)", t->output);
+        }
       } else {
         printf("failed with status %d\n", r);
       }

@@ -26,16 +26,16 @@ typedef struct {
 bool _ipc_done = false;
 tock_timer_t _timer;
 
-static void ipc_callback(__attribute__ ((unused)) int pid,
-                         __attribute__ ((unused)) int len,
-                         __attribute__ ((unused)) int arg2,
+static void ipc_callback(__attribute__ ((unused)) int   pid,
+                         __attribute__ ((unused)) int   len,
+                         __attribute__ ((unused)) int   arg2,
                          __attribute__ ((unused)) void* ud) {
   _ipc_done = true;
 }
 
-static void do_sensing_cb(__attribute__ ((unused)) int now,
-                          __attribute__ ((unused)) int expiration,
-                          __attribute__ ((unused)) int unused,
+static void do_sensing_cb(__attribute__ ((unused)) int   now,
+                          __attribute__ ((unused)) int   expiration,
+                          __attribute__ ((unused)) int   unused,
                           __attribute__ ((unused)) void* ud) {
 
   printf("[BLE ESS Test] Sampling Sensors\n");

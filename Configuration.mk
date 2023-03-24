@@ -1,7 +1,15 @@
-# Configuration parameters for building Tock applications
-# Included by AppMakefile.mk and TockLibrary.mk
+################################################################################
+##
+## libtock-c build system configuration.
+##
+## This sets all of the parameters and flags required to build libtock-c
+## applications for the architectures Tock supports.
+##
+## Included by AppMakefile.mk and TockLibrary.mk.
+##
+################################################################################
 
-# ensure that this file is only included once
+# Ensure that this file is only included once.
 ifndef CONFIGURATION_MAKEFILE
 CONFIGURATION_MAKEFILE = 1
 
@@ -10,7 +18,7 @@ CONFIGURATION_MAKEFILE = 1
 MAKEFLAGS += -r
 MAKEFLAGS += -R
 
-# Toolchain programs
+# Toolchain programs.
 AR := -ar
 AS := -as
 CXX := -g++
@@ -19,16 +27,18 @@ RANLIB := -ranlib
 READELF := -readelf
 SIZE := -size
 
-# Set default region sizes
+# Set default region sizes for process memory requirements.
 STACK_SIZE       ?= 2048
 APP_HEAP_SIZE    ?= 1024
 KERNEL_HEAP_SIZE ?= 1024
 
-# Set default required kernel version
+# Set default required kernel version.
 KERNEL_MAJOR_VERSION     ?= 2
 KERNEL_MINOR_VERSION     ?= 0
 
-# PACKAGE_NAME is used to identify the application for IPC and for error reporting
+# PACKAGE_NAME is used to identify the application for IPC and for error
+# reporting. This can be overwritten per-app to customize the name, otherwise we
+# default to the name of the directory the app is in.
 PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 
 # Tock app targets.
@@ -57,11 +67,13 @@ PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 ifeq ($(RISCV),)
 TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4 cortex-m7
 else
+# Specific addresses useful for the OpenTitan hardware memory map.
 OPENTITAN_TOCK_TARGETS := rv32imc|rv32imc.0x20030080.0x10005000|0x20030080|0x10005000\
                           rv32imc|rv32imc.0x20030880.0x10008000|0x20030880|0x10008000\
                           rv32imc|rv32imc.0x20032080.0x10008000|0x20032080|0x10008000\
                           rv32imc|rv32imc.0x20034080.0x10008000|0x20034080|0x10008000
 
+# Specific addresses useful for the ARTY-E21 FPGA softcore hardware memory map.
 ARTY_E21_TOCK_TARGETS := rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000\
                          rv32imac|rv32imac.0x40440060.0x80007000|0x40440060|0x80007000
 
@@ -82,7 +94,19 @@ TOCK_TARGETS ?= cortex-m0\
                 $(ARTY_E21_TOCK_TARGETS)
 endif
 
-# Generate TOCK_ARCHS, the set of architectures listed in TOCK_TARGETS
+# Generate `TOCK_ARCH_FAMILIES`, the set of architecture families which will be
+# used to determine toolchains to use in the build process.
+TOCK_ARCH_FAMILIES := $(sort $(foreach target, $(TOCK_TARGETS), $(strip \
+  $(findstring rv32i,$(target)) \
+  $(findstring cortex-m,$(target)))))
+
+# Generate `TOCK_ARCHS`, the set of architectures listed in `TOCK_TARGETS`.
+#
+# The architecture name is used extensively to create the correct build commands
+# for each architecture. Make targets are automatically generated in
+# `AppMakefile.mk` based on the list of `TOCK_TARGETS`. The remainder of this
+# file uses the architecture name to pull the correct flags for each stage in
+# the build process.
 TOCK_ARCHS := $(sort $(foreach target, $(TOCK_TARGETS), $(firstword $(subst |, ,$(target)))))
 
 # Check if elf2tab exists, if not, install it using cargo.
@@ -91,7 +115,7 @@ ELF2TAB_REQUIRED_VERSION := 0.9.0
 ELF2TAB_EXISTS := $(shell $(SHELL) -c "command -v $(ELF2TAB)")
 ELF2TAB_VERSION := $(shell $(SHELL) -c "$(ELF2TAB) --version | cut -d ' ' -f 2")
 
-# Check elf2tab version
+# Check elf2tab version.
 UPGRADE_ELF2TAB := $(shell $(SHELL) -c "printf '%s\n%s\n' '$(ELF2TAB_REQUIRED_VERSION)' '$(ELF2TAB_VERSION)' | sort --check=quiet --version-sort || echo yes")
 
 ifeq ($(UPGRADE_ELF2TAB),yes)
@@ -109,16 +133,72 @@ ifndef ELF2TAB_EXISTS
   endif
 endif
 
+################################################################################
+##
+## Shared build flags for all architectures in libtock-c.
+##
+################################################################################
+
+# elf2tab flags.
+#
+# Provide the name, memory sizes, and required kernel version as arguments to
+# elf2tab so it can include the parameters in the TBF header.
 ELF2TAB_ARGS += -n $(PACKAGE_NAME)
-ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE) --kernel-major $(KERNEL_MAJOR_VERSION) --kernel-minor $(KERNEL_MINOR_VERSION)
-ELF2TAB_ARGS += --program --app-version 33
+ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE)
+ELF2TAB_ARGS += --kernel-major $(KERNEL_MAJOR_VERSION) --kernel-minor $(KERNEL_MINOR_VERSION)
+ELF2TAB_ARGS += --sha256
 
+# Flags for building app Assembly, C, and C++ files used by all architectures.
+# n.b. CPPFLAGS are shared for C and C++ sources (it's short for C PreProcessor,
+# and C++ uses the C preprocessor). To specify flags for only C or C++, use
+# CFLAGS for C only and CXXFLAGS for C++ only. [While we're on the trivia
+# lesson, CXX is shorthand for C++ because folks on the unix/gnu side of history
+# needed a valid letter rather than a symbol (an X is a rotated +). Confusingly,
+# the dos/microsoft lineage chose `.cpp` to address this same issue, leading to
+# confusion nowadays about the meaning of 'cpp'.]
+override ASFLAGS += -mthumb
+override CFLAGS  += -std=gnu11
+override CPPFLAGS += \
+      -frecord-gcc-switches\
+      -gdwarf-2\
+      -Os\
+      -fdata-sections -ffunction-sections\
+      -fstack-usage\
+      -D_FORTIFY_SOURCE=2\
+      -Wall\
+      -Wextra
+override WLFLAGS += \
+      -Wl,--warn-common\
+      -Wl,--gc-sections\
+      -Wl,--build-id=none
 
-# Setup the correct toolchain for each architecture.
-TOOLCHAIN_cortex-m0 := arm-none-eabi
-TOOLCHAIN_cortex-m3 := arm-none-eabi
-TOOLCHAIN_cortex-m4 := arm-none-eabi
-TOOLCHAIN_cortex-m7 := arm-none-eabi
+# Flags to improve the quality and information in listings (debug target)
+OBJDUMP_FLAGS += --disassemble-all --source -C --section-headers
+
+# Use a generic linker script for all libtock-c apps.
+LAYOUT ?= $(TOCK_USERLAND_BASE_DIR)/userland_generic.ld
+
+# Various flags for a specific toolchain. Different compilers may have different
+# supported features. For GCC we warn if the compiler estimates the stack usage
+# will be greater than the allocated stack size.
+override CPPFLAGS_gcc += -Wstack-usage=$(STACK_SIZE)
+
+# Generic PIC flags for architectures with compiler support for FDPIC. Note!
+# These flags are not sufficient for full PIC support as Tock requires. The
+# `-fPIC` flag generally only allows the .text and .data sections to be at
+# different relative addresses. However, the .text and RAM sections are not
+# fully relocatable. Therefore, just including these flags is not sufficient to
+# build a full PIC app for Tock. So, we split these out, and only include them
+# for architectures where we have full PIC support.
+override CPPFLAGS_PIC += \
+      -Wl,--emit-relocs\
+      -fPIC
+
+################################################################################
+##
+## RISC-V compiler/linker flags
+##
+################################################################################
 
 # RISC-V toolchains, irrespective of their name-tuple, can compile for
 # essentially any target. Thus, try a few known names and choose the one for
@@ -142,14 +222,6 @@ endif
 TOOLCHAIN_rv32imac := $(TOOLCHAIN_rv32i)
 TOOLCHAIN_rv32imc := $(TOOLCHAIN_rv32i)
 
-# Setup the correct compiler. For cortex-m we only support GCC as it is the only
-# toolchain with the PIC support we need for Tock userspace apps.
-CC_cortex-m  := -gcc
-CC_cortex-m0 := $(CC_cortex-m)
-CC_cortex-m3 := $(CC_cortex-m)
-CC_cortex-m4 := $(CC_cortex-m)
-CC_cortex-m7 := $(CC_cortex-m)
-
 # For RISC-V we default to GCC, but can support clang as well. Eventually, one
 # or both toolchains might support the PIC we need, at which point we would
 # default to that.
@@ -157,63 +229,25 @@ ifeq ($(CLANG),)
   # Default to GCC
   CC_rv32     := -gcc
 else
-  # If `CLANG=1` on command line, use -clang
+  # If `CLANG=1` on command line, use -clang.
   CC_rv32     := -clang
 endif
 CC_rv32i    := $(CC_rv32)
 CC_rv32imc  := $(CC_rv32)
 CC_rv32imac := $(CC_rv32)
 
-# Flags for building app Assembly, C, C++ files
-# n.b. make convention is that CPPFLAGS are shared for C and C++ sources
-# [CFLAGS is C only, CXXFLAGS is C++ only]
-override ASFLAGS += -mthumb
-override CFLAGS  += -std=gnu11
-override CPPFLAGS += \
-      -frecord-gcc-switches\
-      -gdwarf-2\
-      -Os\
-      -fdata-sections -ffunction-sections\
-      -fstack-usage\
-      -Wall\
-      -Wextra
-override WLFLAGS += \
-      -Wl,--warn-common\
-      -Wl,--gc-sections\
-      -Wl,--build-id=none
-
-# Various flags for a specific toolchain. Different compilers may have different
-# supported features. For GCC we warn if the compiler estimates the stack usage
-# will be greater than the allocated stack size.
-override CPPFLAGS_gcc += -Wstack-usage=$(STACK_SIZE)
-
-# Based on the toolchain used by each architecture, add in toolchain-specific
-# flags. We assume that each architecture family uses the same toolchain.
-ifeq ($(findstring -gcc,$(CC_cortex-m)),-gcc)
-  override CPPFLAGS_toolchain_cortex-m += $(CPPFLAGS_gcc)
-  override CFLAGS_toolchain_cortex-m += $(CFLAGS_gcc)
-endif
-
+# Set the toolchain specific flags.
+#
+# Note: There are no non-gcc, clang-specific flags currently in use, so there is
+# no equivalent CPPFLAGS_clang currently. If there are clang-only flags in the
+# future, one can/should be added.
 ifeq ($(findstring -gcc,$(CC_rv32)),-gcc)
   override CPPFLAGS_toolchain_rv32 += $(CPPFLAGS_gcc)
   override CFLAGS_toolchain_rv32 += $(CFLAGS_gcc)
 endif
 
-# note: There are no non-gcc, clang-specific flags currently in use, so there is no
-# equivalent CPPFLAGS_clang currently. If there are clang-only flags in the future,
-# one can/should be added.
-
-# Generic PIC flags for architectures with compiler support for FDPIC. Note!
-# These flags are not sufficient for full PIC support as Tock requires. The
-# `-fPIC` flag generally only allows the .text and .data sections to be at
-# different relative addresses. However, the .text and RAM sections are not
-# fully relocatable. Therefore, just including these flags is not sufficient to
-# build a full PIC app for Tock. So, we split these out, and only include them
-# for architectures where we have full PIC support.
-override CPPFLAGS_PIC += \
-      -Wl,--emit-relocs\
-      -fPIC
-
+# Set the toolchain specific `CFLAGS` for RISC-V. We use the same generic
+# toolchain flags for each RISC-V variant.
 override CFLAGS_rv32 += \
       $(CFLAGS_toolchain_rv32)
 
@@ -221,34 +255,38 @@ override CFLAGS_rv32i    += $(CFLAGS_rv32)
 override CFLAGS_rv32imc  += $(CFLAGS_rv32)
 override CFLAGS_rv32imac += $(CFLAGS_rv32)
 
+# Set the base `CPPFLAGS` for all RISC-V variants based on the toolchain family.
 override CPPFLAGS_rv32 += \
       $(CPPFLAGS_toolchain_rv32)
 
-# Add different flags for different architectures
+# Set the `CPPFLAGS` for RISC-V. Here we need different flags for different
+# variants.
 override CPPFLAGS_rv32i += $(CPPFLAGS_rv32) \
       -march=rv32i\
       -mabi=ilp32\
       -mcmodel=medlow
-
-override WLFLAGS_rv32i += \
-      -Wl,--no-relax   # Prevent use of global_pointer for riscv
 
 override CPPFLAGS_rv32imc += $(CPPFLAGS_rv32) \
       -march=rv32imc\
       -mabi=ilp32\
       -mcmodel=medlow
 
-override WLFLAGS_rv32imc += \
-      -Wl,--no-relax   # Prevent use of global_pointer for riscv
-
 override CPPFLAGS_rv32imac += $(CPPFLAGS_rv32) \
       -march=rv32imac\
       -mabi=ilp32\
       -mcmodel=medlow
 
-override WLFLAGS_rv32imac += \
-      -Wl,--no-relax   # Prevent use of global_pointer for riscv
+# Set the base `WLFLAGS` linker flags for all RISC-V variants.
+override WLFLAGS_rv32 += \
+      -Wl,--no-relax   # Prevent use of global_pointer for RISC-V.
 
+# Use the base linker flags for each RISC-V variant.
+override WLFLAGS_rv32i    += $(WLFLAGS_rv32)
+override WLFLAGS_rv32imc  += $(WLFLAGS_rv32)
+override WLFLAGS_rv32imac += $(WLFLAGS_rv32)
+
+# Set the system libraries we link against for RISC-V. We support C++ apps by
+# default.
 override LINK_LIBS_rv32 += \
       -lgcc -lstdc++ -lsupc++
 
@@ -256,6 +294,7 @@ override LINK_LIBS_rv32i    += $(LINK_LIBS_rv32)
 override LINK_LIBS_rv32imc  += $(LINK_LIBS_rv32)
 override LINK_LIBS_rv32imac += $(LINK_LIBS_rv32)
 
+# Use precompiled libaries we provide to link against.
 override LEGACY_LIBS_rv32i += \
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libm.a
@@ -269,6 +308,36 @@ override LEGACY_LIBS_rv32imc += $(LEGACY_LIBS_rv32im)
 override LEGACY_LIBS_rv32imac += \
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libm.a
+
+
+################################################################################
+##
+## Cortex-M compiler/linker flags
+##
+################################################################################
+
+# Setup the correct toolchain for each architecture. ARM has a standard
+# toolchain we can use for every variant.
+TOOLCHAIN_cortex-m  := arm-none-eabi
+TOOLCHAIN_cortex-m0 := $(TOOLCHAIN_cortex-m)
+TOOLCHAIN_cortex-m3 := $(TOOLCHAIN_cortex-m)
+TOOLCHAIN_cortex-m4 := $(TOOLCHAIN_cortex-m)
+TOOLCHAIN_cortex-m7 := $(TOOLCHAIN_cortex-m)
+
+# Setup the correct compiler. For cortex-m we only support GCC as it is the only
+# toolchain with the PIC support we need for Tock userspace apps.
+CC_cortex-m  := -gcc
+CC_cortex-m0 := $(CC_cortex-m)
+CC_cortex-m3 := $(CC_cortex-m)
+CC_cortex-m4 := $(CC_cortex-m)
+CC_cortex-m7 := $(CC_cortex-m)
+
+# Based on the toolchain used by each architecture, add in toolchain-specific
+# flags. We assume that each architecture family uses the same toolchain.
+ifeq ($(findstring -gcc,$(CC_cortex-m)),-gcc)
+  override CPPFLAGS_toolchain_cortex-m += $(CPPFLAGS_gcc)
+  override CFLAGS_toolchain_cortex-m += $(CFLAGS_gcc)
+endif
 
 override CFLAGS_cortex-m += \
       $(CFLAGS_toolchain_cortex-m)
@@ -287,19 +356,19 @@ override CPPFLAGS_cortex-m += \
       -mpic-register=r9\
       -mno-pic-data-is-text-relative
 
-override CPPFLAGS_cortex-m7 += $(CPPFLAGS_cortex-m) \
-      -mcpu=cortex-m7
-
-override CPPFLAGS_cortex-m4 += $(CPPFLAGS_cortex-m) \
-      -mcpu=cortex-m4
-
-override CPPFLAGS_cortex-m3 += $(CPPFLAGS_cortex-m) \
-      -mcpu=cortex-m3
-
 # Work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85606
 override CPPFLAGS_cortex-m0 += $(CPPFLAGS_cortex-m) \
       -mcpu=cortex-m0\
       -march=armv6s-m
+
+override CPPFLAGS_cortex-m3 += $(CPPFLAGS_cortex-m) \
+      -mcpu=cortex-m3
+
+override CPPFLAGS_cortex-m4 += $(CPPFLAGS_cortex-m) \
+      -mcpu=cortex-m4
+
+override CPPFLAGS_cortex-m7 += $(CPPFLAGS_cortex-m) \
+      -mcpu=cortex-m7
 
 # Single-arch libraries, to be phased out
 override LEGACY_LIBS_cortex-m += \
@@ -307,7 +376,11 @@ override LEGACY_LIBS_cortex-m += \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libsupc++.a\
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libgcc.a
 
-override LEGACY_LIBS_cortex-m7 += $(LEGACY_LIBS_cortex-m) \
+override LEGACY_LIBS_cortex-m0 += $(LEGACY_LIBS_cortex-m) \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v6-m/libc.a\
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v6-m/libm.a
+
+override LEGACY_LIBS_cortex-m3 += $(LEGACY_LIBS_cortex-m) \
       $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
 
@@ -315,46 +388,33 @@ override LEGACY_LIBS_cortex-m4 += $(LEGACY_LIBS_cortex-m) \
       $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
 
-override LEGACY_LIBS_cortex-m3 += $(LEGACY_LIBS_cortex-m) \
+override LEGACY_LIBS_cortex-m7 += $(LEGACY_LIBS_cortex-m) \
       $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
 
-override LEGACY_LIBS_cortex-m0 += $(LEGACY_LIBS_cortex-m) \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v6-m/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v6-m/libm.a
-
-
-# This allows Tock to add additional warnings for functions that frequently cause problems.
-# See the included header for more details.
-override CPPFLAGS += -include $(TOCK_USERLAND_BASE_DIR)/support/warning_header.h
-
-# Flags for creating application Object files
-OBJDUMP_FLAGS += --disassemble-all --source -C --section-headers
-
+# Cortex-M needs an additional OBJDUMP flag.
 override OBJDUMP_FLAGS_cortex-m  += --disassembler-options=force-thumb
 override OBJDUMP_FLAGS_cortex-m7 += $(OBJDUMP_FLAGS_cortex-m)
 override OBJDUMP_FLAGS_cortex-m4 += $(OBJDUMP_FLAGS_cortex-m)
 override OBJDUMP_FLAGS_cortex-m3 += $(OBJDUMP_FLAGS_cortex-m)
 override OBJDUMP_FLAGS_cortex-m0 += $(OBJDUMP_FLAGS_cortex-m)
 
-# Use a generic linker script that over provisions.
-LAYOUT ?= $(TOCK_USERLAND_BASE_DIR)/userland_generic.ld
 
-##################################################################################################
+################################################################################
 # Extra warning flags not enabled by Wall or Wextra.
 #
 # I read through the gcc manual and grabbed the ones that I thought might be
 # interesting / useful. Then I grabbed that snippet below to find other things
 # that were left out of the manual that may be worth adding. Below are all
 # warnings and a short description supported by (arm-none-eabi)-gcc as of
-# v6.2.1
-
+# v6.2.1.
+#
 # http://stackoverflow.com/questions/11714827/
 # List all supported warnings and their status:
 #   gcc -Wall -Wextra -Q --help=warning
 # Below are all warnings produced in an un-merged set of sorted lists
 # broken into C/C++, C only, C++ only, other languages
-
+#
 # TODO(Pat) libnrfserialization noise with these, but I think they're useful
 # and I want them back when I get a chance to clean that up.
 #CPPFLAGS += -Wcast-qual #                # const char* -> char*
@@ -362,7 +422,7 @@ LAYOUT ?= $(TOCK_USERLAND_BASE_DIR)/userland_generic.ld
 #CFLAGS += -Wstrict-prototypes #          # function defined w/out specifying argument types
 
 override CPPFLAGS += -Wdate-time #                # warn if __TIME__, __DATE__, or __TIMESTAMP__ used
-                                         # ^on b/c flashing assumes same code => no flash, these enforce
+                                                  # ^on b/c flashing assumes same code => no flash, these enforce
 override CPPFLAGS += -Wfloat-equal #              # floats used with '=' operator, likely imprecise
 override CPPFLAGS += -Wformat-nonliteral #        # can't check format string (maybe disable if annoying)
 override CPPFLAGS += -Wformat-security #          # using untrusted format strings (maybe disable)
@@ -486,7 +546,7 @@ override CXXFLAGS += -Wzero-as-null-pointer-constant # use of 0 as NULL
 # -Wundeclared-selector
 
 # END WARNINGS
-##################################################################################################
+################################################################################
 
 
 # C/C++ Linter configuration

@@ -4,9 +4,9 @@
 #include <gpio.h>
 #include <tock.h>
 
-static void gpio_cb (__attribute__ ((unused)) int pin_num,
-                     __attribute__ ((unused)) int arg2,
-                     __attribute__ ((unused)) int arg3,
+static void gpio_cb (__attribute__ ((unused)) int   pin_num,
+                     __attribute__ ((unused)) int   arg2,
+                     __attribute__ ((unused)) int   arg3,
                      __attribute__ ((unused)) void* userdata) {}
 
 int main(void) {

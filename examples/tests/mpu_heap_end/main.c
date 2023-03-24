@@ -1,4 +1,6 @@
-#include <console.h>
+#include <stdio.h>
+
+#include <tock.h>
 
 int main(void) {
   printf("[TEST] MPU test end of readable RAM\n");

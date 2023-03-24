@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include <timer.h>
 #include <tock.h>
 
@@ -9,4 +11,3 @@ int main(void) {
   printf("SHOULD NOT BE PRINTED.\n");
   return 0;
 }
-

@@ -23,9 +23,9 @@
 
 int callback_count = 0;
 // callback for timers
-static void timer_cb (__attribute__ ((unused)) int arg0,
-                      __attribute__ ((unused)) int arg1,
-                      __attribute__ ((unused)) int arg2,
+static void timer_cb (__attribute__ ((unused)) int   arg0,
+                      __attribute__ ((unused)) int   arg1,
+                      __attribute__ ((unused)) int   arg2,
                       __attribute__ ((unused)) void* userdata) {
   callback_count     = callback_count + 1;
   *((bool*)userdata) = 1;
@@ -80,7 +80,7 @@ static void gpio_input(void) {
 static void gpio_cb (__attribute__ ((unused)) int pin_num,
                      __attribute__ ((unused)) int arg2,
                      __attribute__ ((unused)) int arg3,
-                     void* userdata) {
+                     void*                        userdata) {
   *((bool*) userdata) = true;
 }
 
@@ -112,10 +112,12 @@ int main(void) {
   uint8_t mode = 1;
 
   switch (mode) {
-    case 0: gpio_interrupt(); break;
-    case 1: gpio_output(); break;
-    case 2: gpio_input(); break;
+    case 0: gpio_interrupt();
+      break;
+    case 1: gpio_output();
+      break;
+    case 2: gpio_input();
+      break;
   }
-
   return 0;
 }

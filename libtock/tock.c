@@ -607,45 +607,63 @@ memop_return_t memop(uint32_t op_type, int arg1) {
 // Returns the address where the process's RAM region starts.
 void* tock_app_memory_begins_at(void) {
   memop_return_t ret = memop(2, 0);
-  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
-  else return NULL;
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) {
+    return (void*) ret.data;
+  } else {
+    return NULL;
+  }
 }
 
 // Returns the address immediately after the end of the process's RAM region.
 void* tock_app_memory_ends_at(void) {
   memop_return_t ret = memop(3, 0);
-  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
-  else return NULL;
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) {
+    return (void*) ret.data;
+  } else {
+    return NULL;
+  }
 }
 
 // Returns the address where the process's flash region starts.
 void* tock_app_flash_begins_at(void) {
   memop_return_t ret = memop(4, 0);
-  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
-  else return NULL;
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) {
+    return (void*) ret.data;
+  } else {
+    return NULL;
+  }
 }
 
 // Returns the address immediately after the end of the process's flash region.
 void* tock_app_flash_ends_at(void) {
   memop_return_t ret = memop(5, 0);
-  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
-  else return NULL;
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) {
+    return (void*) ret.data;
+  } else {
+    return NULL;
+  }
 }
 
 // Returns the address where the process's grant region (which is memory owned
 // by the kernel) begins.
 void* tock_app_grant_begins_at(void) {
   memop_return_t ret = memop(6, 0);
-  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
-  else return NULL;
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) {
+    return (void*) ret.data;
+  } else {
+    return NULL;
+  }
 }
 
 // Returns the number of writeable flash regions defined in the process's
 // header.
 int tock_app_number_writeable_flash_regions(void) {
   memop_return_t ret = memop(7, 0);
-  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (int) ret.data;
-  else return 0;
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) {
+    return (int) ret.data;
+  } else {
+    return 0;
+  }
 }
 
 // Returns the address where the writeable flash region specified by
@@ -653,8 +671,11 @@ int tock_app_number_writeable_flash_regions(void) {
 // does not exist.
 void* tock_app_writeable_flash_region_begins_at(int region_index) {
   memop_return_t ret = memop(8, region_index);
-  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
-  else return NULL;
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) {
+    return (void*) ret.data;
+  } else {
+    return NULL;
+  }
 }
 
 // Returns the address immediately after the writeable flash region specified by
@@ -662,8 +683,11 @@ void* tock_app_writeable_flash_region_begins_at(int region_index) {
 // does not exist.
 void* tock_app_writeable_flash_region_ends_at(int region_index) {
   memop_return_t ret = memop(9, region_index);
-  if (ret.status == TOCK_STATUSCODE_SUCCESS) return (void*) ret.data;
-  else return NULL;
+  if (ret.status == TOCK_STATUSCODE_SUCCESS) {
+    return (void*) ret.data;
+  } else {
+    return NULL;
+  }
 }
 
 bool driver_exists(uint32_t driver) {

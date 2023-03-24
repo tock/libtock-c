@@ -62,9 +62,9 @@ void ble_address_set (void) {
 // Callback for button presses.
 //   btn_num: The index of the button associated with the callback
 //   val: 1 if pressed, 0 if depressed
-static void button_callback(__attribute__ ((unused)) int btn_num,
-                            int val,
-                            __attribute__ ((unused)) int arg2,
+static void button_callback(__attribute__ ((unused)) int   btn_num,
+                            int                            val,
+                            __attribute__ ((unused)) int   arg2,
                             __attribute__ ((unused)) void *ud) {
   if (val == 1) {
     led_on(1); // green
@@ -76,9 +76,9 @@ static void button_callback(__attribute__ ((unused)) int btn_num,
 // Callback for gpio interrupts.
 //   - pin_num: The index of the pin associated with the callback.
 //   - pin_state: 1 if high, 0 if low.
-static void gpio_callback(  int pin_num,
-                            int pin_state,
-                            __attribute__ ((unused)) int arg2,
+static void gpio_callback(  int                            pin_num,
+                            int                            pin_state,
+                            __attribute__ ((unused)) int   arg2,
                             __attribute__ ((unused)) void *ud) {
   printf("GPIO Interrupt: pin: %i, state: %i\n", pin_num, pin_state);
 }

@@ -8,17 +8,17 @@ static int test(uint8_t *readbuf, uint8_t *writebuf, size_t size, size_t offset,
 
 static bool done = false;
 
-static void read_done(int length,
-                      __attribute__ ((unused)) int arg1,
-                      __attribute__ ((unused)) int arg2,
+static void read_done(int                            length,
+                      __attribute__ ((unused)) int   arg1,
+                      __attribute__ ((unused)) int   arg2,
                       __attribute__ ((unused)) void* ud) {
   printf("\tFinished read! %i\n", length);
   done = true;
 }
 
-static void write_done(int length,
-                       __attribute__ ((unused)) int arg1,
-                       __attribute__ ((unused)) int arg2,
+static void write_done(int                            length,
+                       __attribute__ ((unused)) int   arg1,
+                       __attribute__ ((unused)) int   arg2,
                        __attribute__ ((unused)) void* ud) {
   printf("\tFinished write! %i\n", length);
   done = true;

@@ -30,30 +30,30 @@ static void buffer_eq (char *buf1, char *buf2) {
 // a buffer with increasing i values, and on the next operation, will
 // pass us back the buffer we sent it. This is implemented in the
 // spi_controller_transfer example.
-static void write_cb(__attribute__ ((unused)) int arg0,
-                     __attribute__ ((unused)) int arg2,
-                     __attribute__ ((unused)) int arg3,
+static void write_cb(__attribute__ ((unused)) int   arg0,
+                     __attribute__ ((unused)) int   arg2,
+                     __attribute__ ((unused)) int   arg3,
                      __attribute__ ((unused)) void* userdata) {
   printf("In write callback\n");
   if (toggle) {
     // The transfer before the one that just completed (either the
     // first transfer or a subsequent transfer), the controller sent us
     // the buffer with increasing numbers.
-    buffer_eq (rbuf, ibuf);
+    buffer_eq(rbuf, ibuf);
     spi_peripheral_read_write(rbuf, wbuf, BUF_SIZE, write_cb, NULL);
   } else {
     // The transfer before this one, we should have passed the controller
     // the zero buffer back.
-    buffer_eq (wbuf, zbuf);
+    buffer_eq(wbuf, zbuf);
     spi_peripheral_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
   }
   toggle = !toggle;
   printf("In write callback, before return\n");
 }
 
-static void selected_cb(__attribute__ ((unused)) int arg0,
-                        __attribute__ ((unused)) int arg2,
-                        __attribute__ ((unused)) int arg3,
+static void selected_cb(__attribute__ ((unused)) int   arg0,
+                        __attribute__ ((unused)) int   arg2,
+                        __attribute__ ((unused)) int   arg3,
                         __attribute__ ((unused)) void* userdata) {
   printf("In subscribe callback\n");
 }

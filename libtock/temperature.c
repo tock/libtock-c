@@ -9,10 +9,10 @@ struct data {
 static struct data result = { .fired = false };
 
 // Internal upcall  for faking synchronous reads
-static void temp_upcall(int temp,
+static void temp_upcall(int                          temp,
                         __attribute__ ((unused)) int unused,
                         __attribute__ ((unused)) int unused1,
-                        void* ud) {
+                        void*                        ud) {
   struct data* data = (struct data*) ud;
   data->temp  = temp;
   data->fired = true;

@@ -5,9 +5,9 @@
 // Callback for button presses.
 //   btn_num: The index of the button associated with the callback
 //   val: 1 if pressed, 0 if depressed
-static void button_callback(__attribute__ ((unused)) int btn_num,
-                            int val,
-                            __attribute__ ((unused)) int arg2,
+static void button_callback(__attribute__ ((unused)) int   btn_num,
+                            int                            val,
+                            __attribute__ ((unused)) int   arg2,
                             __attribute__ ((unused)) void *ud) {
   // Only print on the down press.
   if (val == 1) {

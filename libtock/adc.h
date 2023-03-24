@@ -145,6 +145,13 @@ int adc_sample_sync(uint8_t channel, uint16_t* sample);
 //          length
 int adc_sample_buffer_sync(uint8_t channel, uint32_t frequency, uint16_t* buffer, uint32_t length);
 
+// returns the reference voltage in mV or an error ( < 0)
+// it this is not available
+int adc_get_reference_voltage (void);
+
+// returns the adc resolution bits
+int adc_get_resolution_bits (void);
+
 #ifdef __cplusplus
 }
 #endif

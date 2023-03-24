@@ -16,9 +16,9 @@ uint8_t _number_of_leds = 0;
 bool _done = false;
 
 // For this simple example, the callback only need set the yield variable.
-static void ipc_callback(__attribute__ ((unused)) int pid,
-                         __attribute__ ((unused)) int len,
-                         __attribute__ ((unused)) int arg2,
+static void ipc_callback(__attribute__ ((unused)) int   pid,
+                         __attribute__ ((unused)) int   len,
+                         __attribute__ ((unused)) int   arg2,
                          __attribute__ ((unused)) void* ud) {
   _done = true;
 }

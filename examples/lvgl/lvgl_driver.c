@@ -19,8 +19,8 @@ static void screen_lvgl_driver(lv_disp_drv_t * disp, const lv_area_t * area,
   y = area->y1;
   int w = area->x2 - area->x1 + 1;
   int h = area->y2 - area->y1 + 1;
-  screen_set_frame (x, y, w, h);
-  screen_write ((w * h) * sizeof(lv_color_t));
+  screen_set_frame(x, y, w, h);
+  screen_write((w * h) * sizeof(lv_color_t));
 
   lv_disp_flush_ready(disp);           /* Indicate you are ready with the flushing*/
 }
@@ -45,15 +45,15 @@ static void my_input_read(__attribute__((unused)) lv_indev_drv_t * drv, lv_indev
 int lvgl_driver_init (int buffer_lines)
 {
   size_t width, height;
-  int error = screen_get_resolution (&width, &height);
+  int error = screen_get_resolution(&width, &height);
   if (error == RETURNCODE_SUCCESS) {
-    error = screen_init (width * buffer_lines * sizeof(lv_color_t));
+    error = screen_init(width * buffer_lines * sizeof(lv_color_t));
     if (error == RETURNCODE_SUCCESS) {
       /* share the frame buffer with littlevgl */
-      lv_color_t *buf = (lv_color_t*)screen_buffer ();
+      lv_color_t *buf = (lv_color_t*)screen_buffer();
 
       /* initialize littlevgl */
-      lv_init ();
+      lv_init();
       lv_disp_drv_init(&disp_drv);
       disp_drv.flush_cb = screen_lvgl_driver;
       disp_drv.hor_res  = width;
@@ -65,7 +65,7 @@ int lvgl_driver_init (int buffer_lines)
       int touches;
       if (get_number_of_touches(&touches) == RETURNCODE_SUCCESS && touches >= 1) {
         enable_single_touch();
-        single_touch_set_callback (touch_event, NULL);
+        single_touch_set_callback(touch_event, NULL);
         lv_indev_drv_init(&indev_drv);
         indev_drv.type     = LV_INDEV_TYPE_POINTER;
         indev_drv.read_cb  = my_input_read;

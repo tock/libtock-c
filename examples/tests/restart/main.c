@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include <timer.h>
 #include <tock.h>
 
@@ -12,4 +14,3 @@ int main(void) {
   tock_restart(0);
   return 0;
 }
-

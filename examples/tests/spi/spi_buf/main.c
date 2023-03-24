@@ -8,9 +8,9 @@ char rbuf[BUF_SIZE];
 char wbuf[BUF_SIZE];
 bool toggle = true;
 
-static void write_cb(__attribute__ ((unused)) int arg0,
-                     __attribute__ ((unused)) int arg2,
-                     __attribute__ ((unused)) int arg3,
+static void write_cb(__attribute__ ((unused)) int   arg0,
+                     __attribute__ ((unused)) int   arg2,
+                     __attribute__ ((unused)) int   arg3,
                      __attribute__ ((unused)) void* userdata) {
   led_toggle(0);
   if (toggle) {

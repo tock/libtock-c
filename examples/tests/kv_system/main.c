@@ -1,6 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <console.h>
 #include <kv_system.h>
-#include <stdlib.h>
 
 #define KEY_LEN  16
 #define DATA_LEN 32
@@ -10,10 +12,10 @@ uint8_t data_buf[DATA_LEN] = \
   "My secret key, that no one knows";
 uint8_t out_buf[DATA_LEN] = "Just junk";
 
-static void kv_system_cb(int result,
+static void kv_system_cb(int                          result,
                          __attribute__ ((unused)) int length,
                          __attribute__ ((unused)) int verified,
-                         void* con) {
+                         void*                        con) {
   if (result != 0) {
     printf("Failure %d\n", result);
     exit(-1);

@@ -90,11 +90,13 @@ int main(void) {
   printf("> Place a jumper between GPIO pin 0 and GPIO pin 1 on the board.\n");
   printf("\n");
 
-  printf("Checking loopback test pin 0 -> pin 1..."); fflush(stdout);
+  printf("Checking loopback test pin 0 -> pin 1...");
+  fflush(stdout);
   ret = loopback(0, 1);
   if (ret < 0) return -1;
 
-  printf("Checking loopback test pin 1 -> pin 0..."); fflush(stdout);
+  printf("Checking loopback test pin 1 -> pin 0...");
+  fflush(stdout);
   ret = loopback(1, 0);
   if (ret < 0) return -1;
 

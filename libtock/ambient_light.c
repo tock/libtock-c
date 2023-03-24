@@ -46,4 +46,3 @@ int ambient_light_start_intensity_reading(void) {
   syscall_return_t ret = command(DRIVER_NUM_AMBIENT_LIGHT, 1, 0, 0);
   return tock_command_return_novalue_to_returncode(ret);
 }
-

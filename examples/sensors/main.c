@@ -13,7 +13,7 @@
 #include <tsl2561.h>
 
 static tock_timer_t timer;
-static bool light = false;
+static bool light          = false;
 static bool tsl2561        = false;
 static bool lps25hb        = false;
 static bool temperature    = false;
@@ -24,12 +24,12 @@ static bool ninedof_mag    = false;
 static bool ninedof_gyro   = false;
 static bool proximity      = false;
 static bool sound_pressure = false;
-static void timer_fired(__attribute__ ((unused)) int arg0,
-                        __attribute__ ((unused)) int arg1,
-                        __attribute__ ((unused)) int arg2,
+static void timer_fired(__attribute__ ((unused)) int   arg0,
+                        __attribute__ ((unused)) int   arg1,
+                        __attribute__ ((unused)) int   arg2,
                         __attribute__ ((unused)) void* ud) {
   int lite = 0;
-  int tsl2561_lux      = 0;
+  int tsl2561_lux = 0;
   int lps25hb_pressure = 0;
   int temp = 0;
   unsigned humi = 0;
