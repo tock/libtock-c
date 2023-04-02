@@ -113,7 +113,7 @@ class HailTest(UartTest):
         logger.info('Setting up for hail Uart Rx/Tx test...',
             extra={'timegap': time_gap(TEST_START_TIME)})
 
-class Nrf52dkTest(UartTest):
+class Nrf52Test(UartTest):
     def setUp(self):
         global sp
 
