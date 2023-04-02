@@ -34,7 +34,7 @@
  * --> mytest/main.c:
  *
  *    #include <unit_test.h>
- *    #include <tock.h>
+ *    #include "tock.h"
  *    #include <stdbool.h>
  *
  *    static bool test_pass(void) {
@@ -122,7 +122,7 @@ void test_teardown(void);
  * Example:
  *
  *    #include <unit_test.h>
- *    #include <tock.h>
+ *    #include "tock.h"
  *    #include <stdbool.h>
  *
  *    static bool test_pass(void) {

@@ -1,6 +1,6 @@
+#include "tock.h"
 #include <rng.h>
 #include <stdlib.h>
-#include <tock.h>
 
 struct rng_data {
   bool fired;
