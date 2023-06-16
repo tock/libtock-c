@@ -52,3 +52,113 @@ int kv_system_delete(void) {
   syscall_return_t cval = command(DRIVER_NUM_KV_SYSTEM, TOCK_KV_SYSTEM_DELETE, 0, 0);
   return tock_command_return_novalue_to_returncode(cval);
 }
+
+struct kv_system_data {
+  bool fired;
+  int err;
+};
+
+static struct kv_system_data result = { .fired = false };
+
+// Internal callback for faking synchronous reads
+static void kv_system_upcall( int                          err,
+                              __attribute__ ((unused)) int unused1,
+                              __attribute__ ((unused)) int unused2,
+                              void*                        ud) {
+  struct kv_system_data* data = (struct kv_system_data*) ud;
+  data->fired = true;
+  data->err   = tock_status_to_returncode(err);
+}
+
+int kv_system_get_sync(const uint8_t* key_buffer, uint32_t key_len, uint8_t* ret_buffer, uint32_t ret_len) {
+  int err;
+  result.fired = false;
+
+  err = kv_system_set_callback(kv_system_upcall, (void*) &result);
+  if (err < 0) return err;
+
+  err = kv_system_set_key_buffer(key_buffer, key_len);
+  if (err < 0) return err;
+
+  err = kv_system_set_output_buffer(ret_buffer, ret_len);
+  if (err < 0) return err;
+
+  err = kv_system_get();
+  if (err < 0) return err;
+
+  // Wait for the callback.
+  yield_for(&result.fired);
+
+  // Retrieve the buffers.
+  err = kv_system_set_output_buffer(NULL, 0);
+  if (err < 0) return err;
+
+  err = kv_system_set_key_buffer(NULL, 0);
+  if (err < 0) return err;
+
+  if (result.err < 0) {
+    return result.err;
+  }
+
+  return RETURNCODE_SUCCESS;
+}
+
+int kv_system_set_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len) {
+  int err;
+  result.fired = false;
+
+  err = kv_system_set_callback(kv_system_upcall, (void*) &result);
+  if (err < 0) return err;
+
+  err = kv_system_set_key_buffer(key_buffer, key_len);
+  if (err < 0) return err;
+
+  err = kv_system_set_input_buffer(val_buffer, val_len);
+  if (err < 0) return err;
+
+  err = kv_system_set();
+  if (err < 0) return err;
+
+  // Wait for the callback.
+  yield_for(&result.fired);
+
+  // Retrieve the buffers.
+  err = kv_system_set_output_buffer(NULL, 0);
+  if (err < 0) return err;
+
+  err = kv_system_set_key_buffer(NULL, 0);
+  if (err < 0) return err;
+
+  if (result.err < 0) {
+    return result.err;
+  }
+
+  return RETURNCODE_SUCCESS;
+}
+
+int kv_system_delete_sync(const uint8_t* key_buffer, uint32_t key_len) {
+  int err;
+  result.fired = false;
+
+  err = kv_system_set_callback(kv_system_upcall, (void*) &result);
+  if (err < 0) return err;
+
+  err = kv_system_set_key_buffer(key_buffer, key_len);
+  if (err < 0) return err;
+
+  err = kv_system_delete();
+  if (err < 0) return err;
+
+  // Wait for the callback.
+  yield_for(&result.fired);
+
+  // Retrieve the buffers.
+  err = kv_system_set_key_buffer(NULL, 0);
+  if (err < 0) return err;
+
+  if (result.err < 0) {
+    return result.err;
+  }
+
+  return RETURNCODE_SUCCESS;
+}
