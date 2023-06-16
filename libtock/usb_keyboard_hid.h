@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-#define DRIVER_NUM_USBKEYBOARDHID 0x40004
+#define DRIVER_NUM_USBKEYBOARDHID 0x90005
 
 int usb_keyboard_hid_set_callback(subscribe_upcall callback, void* callback_args);
 int usb_keyboard_hid_set_receive_buffer(uint8_t* buffer, uint32_t len);

@@ -35,7 +35,7 @@ int usb_keyboard_hid_set_send_buffer(uint8_t* buffer, uint32_t len) {
 }
 
 int usb_keyboard_hid_send() {
-  syscall_return_t cval = command(DRIVER_NUM_USBKEYBOARDHID, 0, 0, 0);
+  syscall_return_t cval = command(DRIVER_NUM_USBKEYBOARDHID, 1, 0, 0);
   return tock_command_return_novalue_to_returncode(cval);
 }
 
