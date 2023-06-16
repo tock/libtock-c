@@ -143,9 +143,13 @@ endif
 #
 # Provide the name, memory sizes, and required kernel version as arguments to
 # elf2tab so it can include the parameters in the TBF header.
+#
+# Add by default space in the footer that can be used for credentials. This
+# simplifies allowing tockloader to add credentials after a tbf is compiled.
 ELF2TAB_ARGS += -n $(PACKAGE_NAME)
 ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE)
 ELF2TAB_ARGS += --kernel-major $(KERNEL_MAJOR_VERSION) --kernel-minor $(KERNEL_MINOR_VERSION)
+ELF2TAB_ARGS += --minimum-footer-size 3000
 
 # Flags for building app Assembly, C, and C++ files used by all architectures.
 # n.b. CPPFLAGS are shared for C and C++ sources (it's short for C PreProcessor,
