@@ -14,7 +14,7 @@
   },
   "main": "./stream.js",
   "dependencies": {
-    "serialport": "7.0.*",
+    "serialport": "11.0.*",
     "express": "4.17.*",
     "serve-static": "1.13.*"
   }
