@@ -69,11 +69,6 @@ int alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall, void*, alarm_t *
  */
 void alarm_cancel(alarm_t*);
 
-/** \brief Get the current counter value of the timer.
- * \return The current value of the underlying clock.
- */
-uint32_t alarm_read(void);
-
 
 #ifdef __cplusplus
 }
