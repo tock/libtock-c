@@ -1,3 +1,6 @@
+#include <ctype.h>
+#include <stdio.h>
+
 #include "tock.h"
 #include "usb_keyboard_hid.h"
 
@@ -34,7 +37,7 @@ int usb_keyboard_hid_set_send_buffer(uint8_t* buffer, uint32_t len) {
   return tock_allow_rw_return_to_returncode(aval);
 }
 
-int usb_keyboard_hid_send() {
+int usb_keyboard_hid_send(void) {
   syscall_return_t cval = command(DRIVER_NUM_USBKEYBOARDHID, 1, 0, 0);
   return tock_command_return_novalue_to_returncode(cval);
 }
@@ -63,7 +66,7 @@ int usb_keyboard_hid_send_sync(uint8_t* buffer, uint32_t len) {
 
 
 
-int to_hid_keycode(char c, uint8_t* modifier, uint8_t* key)
+static int to_hid_keycode(char c, uint8_t* modifier, uint8_t* key)
 {
   uint8_t shift = 2;  // KB_MODIFIER_LEFT_SHIFT = 2
 
@@ -187,7 +190,7 @@ int usb_keyboard_hid_send_letter_sync(uint8_t* buffer, char letter) {
   int err;
 
   uint8_t modifier;
-  uint8_t key;
+  uint8_t key = 0;
 
   to_hid_keycode(letter, &modifier, &key);
 
