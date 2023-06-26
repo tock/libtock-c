@@ -56,21 +56,24 @@ int kv_system_delete(void) {
 struct kv_system_data {
   bool fired;
   int err;
+  int length;
 };
 
 static struct kv_system_data result = { .fired = false };
 
 // Internal callback for faking synchronous reads
 static void kv_system_upcall( int                          err,
-                              __attribute__ ((unused)) int unused1,
+                              int                          length,
                               __attribute__ ((unused)) int unused2,
                               void*                        ud) {
   struct kv_system_data* data = (struct kv_system_data*) ud;
-  data->fired = true;
-  data->err   = tock_status_to_returncode(err);
+  data->fired  = true;
+  data->err    = tock_status_to_returncode(err);
+  data->length = length;
 }
 
-int kv_system_get_sync(const uint8_t* key_buffer, uint32_t key_len, uint8_t* ret_buffer, uint32_t ret_len) {
+int kv_system_get_sync(const uint8_t* key_buffer, uint32_t key_len, uint8_t* ret_buffer, uint32_t ret_len,
+                       uint32_t* value_len) {
   int err;
   result.fired = false;
 
@@ -99,6 +102,9 @@ int kv_system_get_sync(const uint8_t* key_buffer, uint32_t key_len, uint8_t* ret
   if (result.err < 0) {
     return result.err;
   }
+
+  // Return the length of the retrieved value.
+  *value_len = result.length;
 
   return RETURNCODE_SUCCESS;
 }
