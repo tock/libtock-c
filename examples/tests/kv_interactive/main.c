@@ -79,18 +79,19 @@ int main(void) {
       int key_start = 4;
       int key_end   = find_end(key_start);
       int key_len   = key_end - key_start;
+      uint32_t value_len;
 
       memcpy(key_buf, read_buf + key_start, key_len);
       key_buf[key_len] = '\0';
 
       printf("Getting %s\n", key_buf);
 
-      ret = kv_system_get_sync(key_buf, key_len, data_buf, DATA_LEN);
+      ret = kv_system_get_sync(key_buf, key_len, data_buf, DATA_LEN, &value_len);
       if (ret < 0) {
         printf("Could not get key: %i\n", ret);
       } else {
         printf("Got value: ");
-        for (int i = 0; i < DATA_LEN; i++) {
+        for (int i = 0; i < (int) value_len; i++) {
           printf("%c", data_buf[i]);
         }
         printf("\n");
