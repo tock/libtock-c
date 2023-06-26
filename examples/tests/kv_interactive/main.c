@@ -14,8 +14,7 @@ uint8_t value_buf[DATA_LEN];
 
 char read_buf[64];
 
-int get_command(void);
-int get_command(void) {
+static int get_command(void) {
   int idx = 0;
   memset(read_buf, 0, 64);
 
@@ -47,8 +46,7 @@ int get_command(void) {
   }
 }
 
-int find_end(int start);
-int find_end(int start) {
+static int find_end(int start) {
   for (int i = start; i < 64; i++) {
     if (read_buf[i] == ' ' || read_buf[i] == '\n' || read_buf[i] == '\0') {
       return i;
