@@ -15,7 +15,12 @@ static void button_callback(__attribute__ ((unused)) int   btn_num,
                             __attribute__ ((unused)) void *ud) {
 
   char message[] = "Hi from Tock!";
-  usb_keyboard_hid_send_string_sync(keyboard_buffer, message, strlen(message));
+  int ret;
+
+  ret = usb_keyboard_hid_send_string_sync(keyboard_buffer, message, strlen(message));
+  if (ret < 0) {
+    printf("ERROR sending string with USB keyboard HID: %i\n", ret);
+  }
 }
 
 int main(void) {
