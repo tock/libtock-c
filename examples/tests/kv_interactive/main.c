@@ -29,7 +29,7 @@ static int get_command(void) {
     } else {
       char in = c;
 
-      if (in == 10 || in == 13) {
+      if (in == '\n' || in == '\r') {
         return 0;
 
       } else {
@@ -47,12 +47,12 @@ static int get_command(void) {
 }
 
 static int find_end(int start) {
-  for (int i = start; i < 64; i++) {
+  for (int i = start; i < DATA_LEN; i++) {
     if (read_buf[i] == ' ' || read_buf[i] == '\n' || read_buf[i] == '\0') {
       return i;
     }
   }
-  return 64;
+  return DATA_LEN;
 }
 
 int main(void) {
