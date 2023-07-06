@@ -16,11 +16,12 @@ int main(void){
   };
 
   set_date(date);
-  printf("Date: {year: %d, month: %d, day: %d, day_of_week: %d, hour: %d, minute: %d, seconds: %d}\n", date.year, date.month, date.day, date.day_of_week, date.hour, date.minute, date.seconds);
+  // Clock has a small delay before starting to count seconds
+  delay_ms(2000);
 
   while(1){
     get_date(&date);
-    printf("Date: {year: %d, month: %d, day: %d, day_of_week: %d, hour: %d, minute: %d, seconds: %d}\n", date.year, date.month, date.day, date.day_of_week, date.hour, date.minute, date.seconds);
+    printf("Date: {year: %d, month: %d, day: %d, day_of_week: %d, hour: %d, minute: %d, seconds: %d}\n\n", date.year, date.month, date.day, date.day_of_week, date.hour, date.minute, date.seconds);
 
 	  // This delay uses an underlying timer in the kernel
 	  delay_ms(1000);

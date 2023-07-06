@@ -1,10 +1,27 @@
 #include "rtc.h"
 #include <stdio.h>
+#include <stdlib.h>
 
-int get_date(struct Date *get_date){
+int date, time;
+
+static void rtc_cb(int status __attribute__ ((unused)), 
+                   int upcall1, 
+                   int upcall2, 
+                   void* ud __attribute__ ((unused))){
+  date = upcall1;
+  time = upcall2;
+}
+
+int get_date(struct Date *put_date){
+  subscribe_return_t sub = subscribe(DRIVER_NUM_RTC, 0, rtc_cb, malloc(sizeof(struct DateTime)));
+  if (!sub.success) {
+    return tock_status_to_returncode(sub.status);
+  }
+
   syscall_return_t rval = command(DRIVER_NUM_RTC, 1, 0, 0);
-  int date = rval.data[1];
-  int time = rval.data[2];
+  if(!(rval.type == 128)){
+    printf("%d", rval.type);
+  }
 
   struct Date date_result = {
     .year = date % (1 << 21) / (1 << 9),
@@ -17,16 +34,13 @@ int get_date(struct Date *get_date){
     .seconds = time % (1 << 6)
   };
 
-  printf("%d - %d\n", date, time);
-
-  *get_date = date_result;
+  *put_date = date_result;
   return tock_command_return_novalue_to_returncode(rval);
 }
 
 int set_date(struct Date set_date){
-  printf("Setting Date\n");
-  int date = set_date.year * (1 << 9) + set_date.month * (1 << 5) + set_date.day;
-  int time = set_date.day_of_week * (1 << 17) + set_date.hour * (1 << 12) + set_date.minute * (1 << 6) + set_date.seconds;
+  date = set_date.year * (1 << 9) + set_date.month * (1 << 5) + set_date.day;
+  time = set_date.day_of_week * (1 << 17) + set_date.hour * (1 << 12) + set_date.minute * (1 << 6) + set_date.seconds;
 
   syscall_return_t rval = command(DRIVER_NUM_RTC, 2, date, time);
   return tock_command_return_novalue_to_returncode(rval);

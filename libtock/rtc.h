@@ -29,6 +29,7 @@ extern "C" {
 #define FRIDAY 5
 #define SATURDAY 6
 
+// Date structure to store date and time
 struct Date{
   int year;
   int month;
@@ -39,7 +40,25 @@ struct Date{
   int seconds;
 };
 
+// DateTime codifies Date structure into two u32 (int) numbers
+//     date: first number (year, month, day_of_the_month):
+//            - last 5 bits store the day_of_the_month
+//            - previous 4 bits store the month
+//            - previous 12 bits store the year
+//     time: second number (day_of_the_week, hour, minute, seconds):
+//            - last 6 bits store the seconds
+//            - previous 6 store the minute
+//            - previous 5 store the hour
+//            - previous 3 store the day_of_the_week
+struct DateTime{
+  int date;
+  int time;
+};
+
+// Fetches current date from registers and writes it to get_date
 int get_date(struct Date *get_date);
+
+// Writes set_date into the registers
 int set_date(struct Date set_date);
 
 #ifdef __cplusplus
