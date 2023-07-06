@@ -1,4 +1,4 @@
-NEWLIB_VERSION ?= 4.1.0
+NEWLIB_VERSION ?= 4.3.0.20230120
 
 all: rebuild-newlib
 
