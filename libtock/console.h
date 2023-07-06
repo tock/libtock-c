@@ -8,7 +8,6 @@ extern "C" {
 
 #define DRIVER_NUM_CONSOLE 0x1
 
-int putstr(const char* str);
 int putnstr(const char* str, size_t len);
 int putnstr_async(const char* str, size_t len, subscribe_upcall cb, void* userdata);
 
