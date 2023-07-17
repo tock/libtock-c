@@ -100,6 +100,10 @@ int main(void) {
       int key_end     = find_end(key_start);
       int key_len     = key_end - key_start;
       int value_start = key_end + 1;
+      if (value_start >= DATA_LEN) {
+        printf("Error parsing key and value, key too long.\n");
+        continue;
+      }
       int value_end   = find_end(value_start);
       int value_len   = value_end - value_start;
 
