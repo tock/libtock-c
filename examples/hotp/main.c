@@ -33,7 +33,9 @@ int hmac(const char* key, int keylen, int counter, uint8_t* output_buffer, int o
 }
 
 int decrypt(const char* cipher, int cipherlen, char* plaintext, int plaintext_capacity) {
-  return snprintf(plaintext, plaintext_capacity, "DEC %s %d", cipher, cipherlen);
+  int copylen = plaintext_capacity < cipherlen ? plaintext_capacity : cipherlen;
+  memcpy(plaintext, cipher, copylen);
+  return copylen;
 }
 
 // Callback for button presses.
