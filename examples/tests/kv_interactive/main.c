@@ -104,8 +104,8 @@ int main(void) {
         printf("Error parsing key and value, key too long.\n");
         continue;
       }
-      int value_end   = find_end(value_start);
-      int value_len   = value_end - value_start;
+      int value_end = find_end(value_start);
+      int value_len = value_end - value_start;
 
       memcpy(key_buf, read_buf + key_start, key_len);
       key_buf[key_len] = '\0';
