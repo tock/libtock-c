@@ -12,7 +12,7 @@ uint8_t key_buf[KEY_LEN];
 uint8_t data_buf[DATA_LEN];
 uint8_t value_buf[DATA_LEN];
 
-char read_buf[64];
+char read_buf[DATA_LEN];
 
 static int get_command(void) {
   int idx = 0;
