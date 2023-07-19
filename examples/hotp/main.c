@@ -11,6 +11,8 @@
 #include <led.h>
 #include <hmac.h>
 
+#include "base32.h"
+
 int decrypt(const uint8_t*, int, uint8_t*, int);
 int hmac(const uint8_t*, int, const uint8_t*, int, uint8_t*, int);
 
@@ -21,7 +23,7 @@ typedef uint64_t counter_t;
 
 struct hotp_key {
     uint8_t len;
-    uint8_t key[8];
+    uint8_t key[64];
     counter_t counter;
 };
 
@@ -41,7 +43,7 @@ char hotp_format_buffer[16];
 uint8_t keyboard_buffer[64];
 
 // Base32-encoded key:
-// O775VWOS5TBT6VZ4VNDMB4SOMGKNC2BXOVKCRNDFYJ4WSDLPTELUG24QJCNIT53CDACYE6CDKDQKOXSINABRA5UFOPOU5WIDZJLFBNQ
+// O775VWOS5TBT6VZ4VNDMB4SOMGKNC2BXOVKCRNDFYJ4WSDLPTELUG24QJCNIT53CDACYE6CDKDQKOXSINABRA5UFOPOU5WIDZJLFBNQ=
 //
 // To generate HOTP values in Python, use:
 // >>> import pyotp, hashlib
@@ -59,7 +61,6 @@ uint8_t keyboard_buffer[64];
     0xdd, 0x4e, 0xd9, 0x03, 0xca, 0x56, 0x50, 0xb6
 };*/
 
-counter_t counters[NUM_KEYS] = { 0, 0, 0, 0 };
 int key_digits[NUM_KEYS] = { 6, 6, 6, 6 };
 
 //struct hotp_key keys[NUM_KEYS];
@@ -162,8 +163,8 @@ int main(void) {
   delay_ms(1000);
   int ret;
   ret = app_state_load_sync();
-  if (ret != 0) printf("ERROR(%i): Could not read the flash region.\n", ret);
-  else printf("Flash read\n");
+  if (ret != 0) printf("ERROR(%i): Could not read the flash region.\r\n", ret);
+  else printf("Flash read\r\n");
   // Check that the magic value is as expected.
   if (keystore.magic != 0xdeadbeef) {
     keystore.magic = 0xdeadbeef;
@@ -171,8 +172,8 @@ int main(void) {
       keystore.keys[i].len = 0;
     }
     ret = app_state_save_sync();
-    if (ret != 0) printf("ERROR(%i): Could not write back to flash.\n", ret);
-    else printf("Initialized state\n");
+    if (ret != 0) printf("ERROR(%i): Could not write back to flash.\r\n", ret);
+    else printf("Initialized state\r\n");
   }
 
   int err;
@@ -201,28 +202,29 @@ int main(void) {
     if (new_val) {
         tock_timer_t repeating;
         timer_every(500, blink_timer_upcall, (void*)btn_num, &repeating);
-        printf("Program a new key in slot %d\n", btn_num);
-        printf("(\"c\" to cancel) >\n");
-        char newkey[256];
+        printf("Program a new key in slot %d\r\n", btn_num);
+        printf("(\"c\" to cancel) >\r\n");
+        uint8_t newkey[128];
         int i = 0;
         char c;
         do {
           c = getch();
           newkey[i] = c;
           i++;
-        } while (c != '\n' && c != '\r' && i < 256);
+        } while (c != '\n' && c != '\r' && i < 128);
         newkey[i - 1] = 0;
         timer_cancel(&repeating);
         led_off(btn_num);
         if (newkey[0] == 'c' && i == 2) {
             continue;
         }
-        printf("%s\n", newkey);
-        keystore.keys[btn_num].len = i - 1;
-        memcpy(keystore.keys[btn_num].key, newkey, i - 1);
+        printf("%s\r\n", newkey);
+        keystore.keys[btn_num].len = base32_decode(newkey, keystore.keys[btn_num].key, 64);
+        printf("%d\r\n", keystore.keys[btn_num].len);
+        keystore.keys[btn_num].counter = 0;
         ret = app_state_save_sync();
-        if (ret != 0) printf("ERROR(%i): Could not write back to flash.\n", ret);
-        printf("Programmed %s to slot %d\n", newkey, btn_num);
+        if (ret != 0) printf("ERROR(%i): Could not write back to flash.\r\n", ret);
+        printf("Programmed %s to slot %d\r\n", newkey, btn_num);
         continue;
     }
 
@@ -239,13 +241,15 @@ int main(void) {
       size_t i;
       for (i = 0; i < sizeof (counter_t); i++)
         moving_factor[i] =
-    	(counters[btn_num] >> ((sizeof (counter_t) - i - 1) * 8)) & 0xFF;
+    	(keystore.keys[btn_num].counter >> ((sizeof (counter_t) - i - 1) * 8)) & 0xFF;
 
       // Perform the HMAC operation. TODO! error check, this works exactly once...
       hmac(&key[0], keylen, &moving_factor[0], sizeof (counter_t), hmac_output_buf, HMAC_OUTPUT_BUF_LEN);
 
       // Finally, increment the counter:
-      counters[btn_num]++;
+      keystore.keys[btn_num].counter++;
+      ret = app_state_save_sync();
+      if (ret != 0) printf("ERROR(%i): Could not write back to flash.\r\n", ret);
 
       uint8_t offset = hmac_output_buf[HMAC_OUTPUT_BUF_LEN - 1] & 0x0f;
       uint32_t S = (((hmac_output_buf[offset] & 0x7f) << 24)
@@ -275,7 +279,7 @@ int main(void) {
       //value_buf[value_len] = '\0';
       ret = usb_keyboard_hid_send_string_sync(keyboard_buffer, &hotp_format_buffer[0], 16);
       if (ret < 0) {
-          printf("ERROR sending string with USB keyboard HID: %i\n", ret);
+          printf("ERROR sending string with USB keyboard HID: %i\r\n", ret);
       } else {
           printf("Typed \"%s\" on the USB HID the keyboard\r\n", hotp_format_buffer);
       }
