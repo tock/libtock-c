@@ -227,4 +227,3 @@ int usb_keyboard_hid_send_string_sync(char* str, int length) {
 
   return RETURNCODE_SUCCESS;
 }
-
