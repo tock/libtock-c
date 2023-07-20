@@ -20,19 +20,19 @@
 // '571577'
 
 
+#include <app_state.h>
+#include <button.h>
+#include <console.h>
 #include <ctype.h>
+#include <hmac.h>
+#include <led.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <app_state.h>
-#include <console.h>
-#include <usb_keyboard_hid.h>
 #include <timer.h>
-#include <button.h>
-#include <led.h>
-#include <hmac.h>
+#include <usb_keyboard_hid.h>
 
 #include "base32.h"
 
@@ -51,9 +51,9 @@ int key_digits[NUM_KEYS] = {6, 6, 7, 8};
 typedef uint64_t counter_t;
 
 struct hotp_key {
-    uint8_t len;
-    uint8_t key[64];
-    counter_t counter;
+  uint8_t len;
+  uint8_t key[64];
+  counter_t counter;
 };
 
 
@@ -65,13 +65,13 @@ int pressed_btn_num;
 // Callback for button presses.
 //   num: The index of the button associated with the callback
 //   val: 1 if pressed, 0 if depressed
-static void button_upcall(int num,
-                          int val,
+static void button_upcall(int                          num,
+                          int                          val,
                           __attribute__ ((unused)) int arg2,
-                         void *ud) {
+                          void *                       ud) {
   if (val == 1) {
     pressed_btn_num = num;
-    *((bool*)ud) = true;
+    *((bool*)ud)    = true;
   }
 }
 
@@ -101,8 +101,8 @@ static int initialize_buttons(bool* flag_pointer) {
 // --- App State Handling ---
 
 struct key_storage {
-    uint32_t magic;
-    struct hotp_key keys[NUM_KEYS];
+  uint32_t magic;
+  struct hotp_key keys[NUM_KEYS];
 };
 
 APP_STATE_DECLARE(struct key_storage, keystore);
@@ -138,65 +138,66 @@ static int initialize_app_state(void) {
 
 // --- HMAC Handling ---
 
-static void hmac_upcall(__attribute__ ((unused)) int   arg0,
-                        __attribute__ ((unused)) int   arg1,
-			__attribute__ ((unused)) int   arg2,
-			                         void* done_flag) {
-    *((bool *) done_flag) = true;
+static void hmac_upcall(__attribute__ ((unused)) int arg0,
+                        __attribute__ ((unused)) int arg1,
+                        __attribute__ ((unused)) int arg2,
+                        void*                        done_flag) {
+  *((bool *) done_flag) = true;
 }
 
-static int hmac(const uint8_t* key, int key_len, const uint8_t* data, int data_len, uint8_t* output_buffer, int output_buffer_len) {
-    int ret;
-    bool hmac_done = false;
+static int hmac(const uint8_t* key, int key_len, const uint8_t* data, int data_len, uint8_t* output_buffer,
+                int output_buffer_len) {
+  int ret;
+  bool hmac_done = false;
 
-    ret = hmac_set_callback(hmac_upcall, &hmac_done);
-    if (ret < 0) {
-	goto done;
-    }
+  ret = hmac_set_callback(hmac_upcall, &hmac_done);
+  if (ret < 0) {
+    goto done;
+  }
 
-    ret = hmac_set_key_buffer(key, key_len);
-    if (ret < 0) {
-	goto deregister_upcall;
-    }
+  ret = hmac_set_key_buffer(key, key_len);
+  if (ret < 0) {
+    goto deregister_upcall;
+  }
 
-    ret = hmac_set_dest_buffer(output_buffer, output_buffer_len);
-    if (ret < 0) {
-	goto unallow_key_buffer;
-    }
+  ret = hmac_set_dest_buffer(output_buffer, output_buffer_len);
+  if (ret < 0) {
+    goto unallow_key_buffer;
+  }
 
-    ret = hmac_set_data_buffer(data, data_len);
-    if (ret < 0) {
-	goto unallow_dest_buffer;
-    }
+  ret = hmac_set_data_buffer(data, data_len);
+  if (ret < 0) {
+    goto unallow_dest_buffer;
+  }
 
-    ret = hmac_set_algorithm(TOCK_HMAC_ALG_SHA256);
-    if (ret < 0) {
-	goto unallow_data_buffer;
-    }
+  ret = hmac_set_algorithm(TOCK_HMAC_ALG_SHA256);
+  if (ret < 0) {
+    goto unallow_data_buffer;
+  }
 
-    ret = hmac_run();
-    if (ret < 0) {
-        printf("HMAC failure: %d\r\n", ret);
-        goto unallow_data_buffer;
-    }
+  ret = hmac_run();
+  if (ret < 0) {
+    printf("HMAC failure: %d\r\n", ret);
+    goto unallow_data_buffer;
+  }
 
-    yield_for(&hmac_done);
+  yield_for(&hmac_done);
 
-    //TODO: OMG THIS NONSENSE NEEDS TO BE FIXED
- unallow_data_buffer:
-    hmac_set_data_buffer(NULL, 0);
+  // TODO: OMG THIS NONSENSE NEEDS TO BE FIXED
+unallow_data_buffer:
+  hmac_set_data_buffer(NULL, 0);
 
- unallow_dest_buffer:
-    hmac_set_dest_buffer(NULL, 0);
+unallow_dest_buffer:
+  hmac_set_dest_buffer(NULL, 0);
 
- unallow_key_buffer:
-    hmac_set_key_buffer(NULL, 0);
+unallow_key_buffer:
+  hmac_set_key_buffer(NULL, 0);
 
- deregister_upcall:
-    hmac_set_callback(NULL, NULL);
+deregister_upcall:
+  hmac_set_callback(NULL, NULL);
 
- done:
-    return ret;
+done:
+  return ret;
 }
 
 static int decrypt(const uint8_t* cipher, int cipherlen, uint8_t* plaintext, int plaintext_capacity) {
@@ -252,7 +253,7 @@ static void program_new_secret(int slot_num) {
   }
 
   // Decode and save secret to flash
-  keystore.keys[slot_num].len = base32_decode(newkey, keystore.keys[slot_num].key, 64);
+  keystore.keys[slot_num].len     = base32_decode(newkey, keystore.keys[slot_num].key, 64);
   keystore.keys[slot_num].counter = 0;
   int ret = app_state_save_sync();
   if (ret != 0) {
@@ -292,10 +293,10 @@ static void get_next_code(int slot_num) {
 
   // Get output value
   uint8_t offset = hmac_output_buf[HMAC_OUTPUT_BUF_LEN - 1] & 0x0f;
-  uint32_t S = (((hmac_output_buf[offset] & 0x7f) << 24)
-      | ((hmac_output_buf[offset + 1] & 0xff) << 16)
-      | ((hmac_output_buf[offset + 2] & 0xff) << 8)
-      | ((hmac_output_buf[offset + 3] & 0xff)));
+  uint32_t S     = (((hmac_output_buf[offset] & 0x7f) << 24)
+                    | ((hmac_output_buf[offset + 1] & 0xff) << 16)
+                    | ((hmac_output_buf[offset + 2] & 0xff) << 8)
+                    | ((hmac_output_buf[offset + 3] & 0xff)));
 
   // Limit output to correct number of digits
   switch (key_digits[slot_num]) {
@@ -313,7 +314,6 @@ static void get_next_code(int slot_num) {
       S = 0;
       break;
   }
-
   // Record value as a string
   char hotp_format_buffer[16];
   int len = snprintf(hotp_format_buffer, 16, "%.*ld", key_digits[slot_num], S);
@@ -329,7 +329,8 @@ static void get_next_code(int slot_num) {
   if (ret < 0) {
     printf("ERROR sending string with USB keyboard HID: %i\r\n", ret);
   } else {
-    printf("Counter: %u. Typed \"%s\" on the USB HID the keyboard\r\n", (size_t)keystore.keys[slot_num].counter-1, hotp_format_buffer);
+    printf("Counter: %u. Typed \"%s\" on the USB HID the keyboard\r\n", (size_t)keystore.keys[slot_num].counter - 1,
+           hotp_format_buffer);
   }
 
   // Complete
@@ -375,11 +376,11 @@ int main(void) {
     if (new_val) {
       program_new_secret(btn_num);
 
-    // Handle short presses on already configured keys (output next code)
+      // Handle short presses on already configured keys (output next code)
     } else if (btn_num < NUM_KEYS && keystore.keys[btn_num].len > 0) {
       get_next_code(btn_num);
 
-    // Error for short press on a non-configured key
+      // Error for short press on a non-configured key
     } else if (keystore.keys[btn_num].len == 0) {
       printf("HOTP / TOTP slot %d not yet configured.\r\n", btn_num);
     }
@@ -387,4 +388,3 @@ int main(void) {
 
   return 0;
 }
-
