@@ -1,4 +1,24 @@
 // TODO: description here
+// probably should be a license too, right?
+
+
+// Test with: https://www.verifyr.com/en/otp/check#hotp
+// Use the "Generate HOTP Code" window with whatever secret you want
+// Counter should be the current counter value
+// MUST use algorithm "sha256"
+// Digits should be "6" first the first two slots, "7" for the third, and "8" for the last
+
+// --- Python3 example code ---
+//
+// Base32-encoded key:
+// O775VWOS5TBT6VZ4VNDMB4SOMGKNC2BXOVKCRNDFYJ4WSDLPTELUG24QJCNIT53CDACYE6CDKDQKOXSINABRA5UFOPOU5WIDZJLFBNQ=
+//
+// To generate HOTP values in Python, use:
+// >>> import pyotp, hashlib
+// >>> otp = pyotp.HOTP("$THE_ABOVE_BASE32_KEY", digest=hashlib.sha256)
+// >>> otp.at(1)
+// '571577'
+
 
 #include <ctype.h>
 #include <stdbool.h>
@@ -16,11 +36,18 @@
 
 #include "base32.h"
 
-int decrypt(const uint8_t*, int, uint8_t*, int);
-int hmac(const uint8_t*, int, const uint8_t*, int, uint8_t*, int);
 
+// --- Definitions for HOTP App ---
 
 #define NUM_KEYS 4
+
+// Select how many digits each key is
+// Slot 0: 6 digits
+// Slot 1: 6 digits
+// Slot 2: 7 digits
+// Slot 3: 8 digits
+int key_digits[NUM_KEYS] = {6, 6, 7, 8};
+
 typedef uint64_t counter_t;
 
 struct hotp_key {
@@ -29,6 +56,50 @@ struct hotp_key {
     counter_t counter;
 };
 
+
+// --- Button Handling ---
+
+// Global to keep track of most recently pressed button
+int pressed_btn_num;
+
+// Callback for button presses.
+//   num: The index of the button associated with the callback
+//   val: 1 if pressed, 0 if depressed
+static void button_upcall(int num,
+                          int val,
+                          __attribute__ ((unused)) int arg2,
+                         void *ud) {
+  if (val == 1) {
+    pressed_btn_num = num;
+    *((bool*)ud) = true;
+  }
+}
+
+// Initializes interrupts for all buttons on the board
+static int initialize_buttons(bool* flag_pointer) {
+  // Enable button interrupts
+  int err = button_subscribe(button_upcall, (void*)flag_pointer);
+  if (err != RETURNCODE_SUCCESS) {
+    return err;
+  }
+
+  // Enable interrupts on each button.
+  int count = 0;
+  err = button_count(&count);
+  if (err != RETURNCODE_SUCCESS) {
+    return err;
+  }
+
+  for (int i = 0; i < count; i++) {
+    button_enable_interrupt(i);
+  }
+
+  return RETURNCODE_SUCCESS;
+}
+
+
+// --- App State Handling ---
+
 struct key_storage {
     uint32_t magic;
     struct hotp_key keys[NUM_KEYS];
@@ -36,32 +107,36 @@ struct key_storage {
 
 APP_STATE_DECLARE(struct key_storage, keystore);
 
+static int initialize_app_state(void) {
+  // Recover state from flash if it exists
+  int ret = app_state_load_sync();
+  if (ret != 0) {
+    printf("ERROR(%i): Could not read the flash region.\r\n", ret);
+    return ret;
+  } else {
+    printf("Flash read\r\n");
+  }
+
+  // Initialize default values if nothing previously existed
+  if (keystore.magic != 0xdeadbeef) {
+    keystore.magic = 0xdeadbeef;
+    for (int i = 0; i < NUM_KEYS; i++) {
+      keystore.keys[i].len = 0;
+    }
+    ret = app_state_save_sync();
+    if (ret != 0) {
+      printf("ERROR(%i): Could not write back to flash.\r\n", ret);
+      return ret;
+    } else {
+      printf("Initialized state\r\n");
+    }
+  }
+
+  return RETURNCODE_SUCCESS;
+}
 
 
-
-// Base32-encoded key:
-// O775VWOS5TBT6VZ4VNDMB4SOMGKNC2BXOVKCRNDFYJ4WSDLPTELUG24QJCNIT53CDACYE6CDKDQKOXSINABRA5UFOPOU5WIDZJLFBNQ=
-//
-// To generate HOTP values in Python, use:
-// >>> import pyotp, hashlib
-// >>> otp = pyotp.HOTP("$THE_ABOVE_BASE32_KEY", digest=hashlib.sha256)
-// >>> otp.at(1)
-// '571577'
-/*const uint8_t key0[64] = {
-    0x77, 0xff, 0xda, 0xd9, 0xd2, 0xec, 0xc3, 0x3f,
-    0x57, 0x3c, 0xab, 0x46, 0xc0, 0xf2, 0x4e, 0x61,
-    0x94, 0xd1, 0x68, 0x37, 0x75, 0x54, 0x28, 0xb4,
-    0x65, 0xc2, 0x79, 0x69, 0x0d, 0x6f, 0x99, 0x17,
-    0x43, 0x6b, 0x90, 0x48, 0x9a, 0x89, 0xf7, 0x62,
-    0x18, 0x05, 0x82, 0x78, 0x43, 0x50, 0xe0, 0xa7,
-    0x5e, 0x48, 0x68, 0x03, 0x10, 0x76, 0x85, 0x73,
-    0xdd, 0x4e, 0xd9, 0x03, 0xca, 0x56, 0x50, 0xb6
-};*/
-
-// Select how many digits the key is
-int key_digits[NUM_KEYS] = { 6, 6, 6, 6 };
-
-
+// --- HMAC Handling ---
 
 static void hmac_upcall(__attribute__ ((unused)) int   arg0,
                         __attribute__ ((unused)) int   arg1,
@@ -70,7 +145,7 @@ static void hmac_upcall(__attribute__ ((unused)) int   arg0,
     *((bool *) done_flag) = true;
 }
 
-int hmac(const uint8_t* key, int key_len, const uint8_t* data, int data_len, uint8_t* output_buffer, int output_buffer_len) {
+static int hmac(const uint8_t* key, int key_len, const uint8_t* data, int data_len, uint8_t* output_buffer, int output_buffer_len) {
     int ret;
     bool hmac_done = false;
 
@@ -107,6 +182,7 @@ int hmac(const uint8_t* key, int key_len, const uint8_t* data, int data_len, uin
 
     yield_for(&hmac_done);
 
+    //TODO: OMG THIS NONSENSE NEEDS TO BE FIXED
  unallow_data_buffer:
     hmac_set_data_buffer(NULL, 0);
 
@@ -123,7 +199,7 @@ int hmac(const uint8_t* key, int key_len, const uint8_t* data, int data_len, uin
     return ret;
 }
 
-int decrypt(const uint8_t* cipher, int cipherlen, uint8_t* plaintext, int plaintext_capacity) {
+static int decrypt(const uint8_t* cipher, int cipherlen, uint8_t* plaintext, int plaintext_capacity) {
   int copylen = cipherlen;
   if (plaintext_capacity < cipherlen) {
     copylen = plaintext_capacity;
@@ -133,50 +209,132 @@ int decrypt(const uint8_t* cipher, int cipherlen, uint8_t* plaintext, int plaint
 }
 
 
+// --- HOTP Actions ---
 
-// --- Button Handling ---
+static void program_new_secret(int slot_num) {
+  // Request user input
+  led_on(slot_num);
+  printf("Program a new key in slot %d\r\n", slot_num);
+  printf("(hit enter without typing to cancel)\r\n");
 
-// Global to keep track of most recently pressed button
-int pressed_btn_num;
+  // Read key values from user
+  // TODO: sure would be nice to clear all previous input before starting this
+  uint8_t newkey[128];
+  int i = 0;
+  while (i < 127) {
+    // read next character
+    char c = getch();
 
-// Callback for button presses.
-//   num: The index of the button associated with the callback
-//   val: 1 if pressed, 0 if depressed
-static void button_upcall(int num,
-                          int val,
-                          __attribute__ ((unused)) int arg2,
-                         void *ud) {
-  if (val == 1) {
-    pressed_btn_num = num;
-    *((bool*)ud) = true;
+    // break on enter
+    if (c == '\n') {
+      break;
+    }
+
+    // only record alphanumeric characters
+    if (isalnum(c)) {
+      newkey[i] = c;
+      i++;
+
+      // echo input to user
+      putnstr(&c, 1);
+    }
   }
+
+  // Finished. Append null terminator and echo newline
+  newkey[i] = '\0';
+  putnstr("\r\n", 2);
+
+  // Handle early exits
+  if (newkey[0] == '\0') {
+    printf("Aborted\r\n");
+    led_off(slot_num);
+    return;
+  }
+
+  // Decode and save secret to flash
+  keystore.keys[slot_num].len = base32_decode(newkey, keystore.keys[slot_num].key, 64);
+  keystore.keys[slot_num].counter = 0;
+  int ret = app_state_save_sync();
+  if (ret != 0) {
+    printf("ERROR(%i): Could not write back to flash.\r\n", ret);
+  }
+
+  // Completed!
+  printf("Programmed \"%s\" to slot %d\r\n", newkey, slot_num);
+  led_off(slot_num);
 }
 
-// Initializes interrupts for all buttons on the board
-static int initialize_buttons(bool* flag_pointer) {
-  // Enable button interrupts
-  int err = button_subscribe(button_upcall, (void*)flag_pointer);
-  if (err != RETURNCODE_SUCCESS) {
-    return err;
+static void get_next_code(int slot_num) {
+  led_on(slot_num);
+
+  // Decrypt the key:
+  uint8_t key[64];
+  int keylen = decrypt(keystore.keys[slot_num].key, keystore.keys[slot_num].len, key, 64);
+
+  // Generate the HMAC'ed data from the "moving factor" (timestamp in TOTP,
+  // counter in HOTP), shuffled in a specific way:
+  uint8_t moving_factor[sizeof(counter_t)];
+  for (size_t i = 0; i < sizeof(counter_t); i++) {
+    moving_factor[i] = (keystore.keys[slot_num].counter >> ((sizeof(counter_t) - i - 1) * 8)) & 0xFF;
   }
 
-  // Enable interrupts on each button.
-  int count = 0;
-  err = button_count(&count);
-  if (err != RETURNCODE_SUCCESS) {
-    return err;
+  // Perform the HMAC operation
+  const uint8_t HMAC_OUTPUT_BUF_LEN = 32;
+  uint8_t hmac_output_buf[HMAC_OUTPUT_BUF_LEN];
+  hmac(key, keylen, moving_factor, sizeof(counter_t), hmac_output_buf, HMAC_OUTPUT_BUF_LEN);
+
+  // Increment the counter and save to flash
+  keystore.keys[slot_num].counter++;
+  int ret = app_state_save_sync();
+  if (ret != 0) {
+    printf("ERROR(%i): Could not write back to flash.\r\n", ret);
   }
 
-  for (int i=0; i < count; i++) {
-    button_enable_interrupt(i);
+  // Get output value
+  uint8_t offset = hmac_output_buf[HMAC_OUTPUT_BUF_LEN - 1] & 0x0f;
+  uint32_t S = (((hmac_output_buf[offset] & 0x7f) << 24)
+      | ((hmac_output_buf[offset + 1] & 0xff) << 16)
+      | ((hmac_output_buf[offset + 2] & 0xff) << 8)
+      | ((hmac_output_buf[offset + 3] & 0xff)));
+
+  // Limit output to correct number of digits
+  switch (key_digits[slot_num]) {
+    case 6:
+      S %= 1000000;
+      break;
+    case 7:
+      S %= 10000000;
+      break;
+    case 8:
+      S %= 100000000;
+      break;
+    default:
+      printf("ERROR: invalid HMAC key digits\r\n");
+      S = 0;
+      break;
   }
 
-  return RETURNCODE_SUCCESS;
+  // Record value as a string
+  char hotp_format_buffer[16];
+  int len = snprintf(hotp_format_buffer, 16, "%.*ld", key_digits[slot_num], S);
+  if (len < 0) {
+    len = 0;
+  } else if (len > 16) {
+    len = 16;
+  }
+
+  // Write the value to the USB keyboard.
+  uint8_t keyboard_buffer[64]; // TODO: grab PR #333 once merged to remove this unnecessary buffer
+  ret = usb_keyboard_hid_send_string_sync(keyboard_buffer, hotp_format_buffer, len);
+  if (ret < 0) {
+    printf("ERROR sending string with USB keyboard HID: %i\r\n", ret);
+  } else {
+    printf("Counter: %u. Typed \"%s\" on the USB HID the keyboard\r\n", (size_t)keystore.keys[slot_num].counter-1, hotp_format_buffer);
+  }
+
+  // Complete
+  led_off(slot_num);
 }
-
-
-// --- App State Handling ---
-
 
 
 // --- Main Loop ---
@@ -188,26 +346,16 @@ int main(void) {
       "* Press a button to get the next HOTP code for that slot.\r\n"
       "* Hold a button to enter a new HOTP secret for that slot.\r\n");
 
-  // Recover state from flash if it exists
-  int ret;
-  ret = app_state_load_sync();
-  if (ret != 0) printf("ERROR(%i): Could not read the flash region.\r\n", ret);
-  else printf("Flash read\r\n");
-  // Check that the magic value is as expected.
-  if (keystore.magic != 0xdeadbeef) {
-    keystore.magic = 0xdeadbeef;
-    for (int i = 0; i < NUM_KEYS; i++) {
-      keystore.keys[i].len = 0;
-    }
-    ret = app_state_save_sync();
-    if (ret != 0) printf("ERROR(%i): Could not write back to flash.\r\n", ret);
-    else printf("Initialized state\r\n");
+  // Initialize app state
+  if (initialize_app_state() != RETURNCODE_SUCCESS) {
+    printf("ERROR initializing app store\r\n");
+    return 1;
   }
 
   // Initialize buttons
   bool button_pressed = false;
   if (initialize_buttons(&button_pressed) != RETURNCODE_SUCCESS) {
-    printf("ERROR initializing buttons: \r\n");
+    printf("ERROR initializing buttons\r\n");
     return 1;
   }
 
@@ -225,124 +373,13 @@ int main(void) {
 
     // Handle long presses (program new secret)
     if (new_val) {
+      program_new_secret(btn_num);
 
-      // Request user input
-      led_on(btn_num);
-      printf("Program a new key in slot %d\r\n", btn_num);
-      printf("(hit enter without typing to cancel) >  ");
-
-      // Read key values from user
-      // TODO: sure would be nice to clear all previous input before starting this
-      uint8_t newkey[128];
-      int i = 0;
-      while (i < 127) {
-        // read next character
-        char c = getch();
-
-        // break on enter
-        if (c == '\n') {
-          break;
-        }
-
-        // only record alphanumeric characters
-        if (isalnum(c)) {
-          newkey[i] = c;
-          i++;
-
-          // echo input to user
-          putnstr(&c, 1);
-        }
-      }
-
-      // Finished. Append null terminator and echo newline
-      newkey[i] = '\0';
-      putnstr("\r\n", 1);
-
-      // Handle early exits
-      if (newkey[0] == '\0') {
-        printf("Aborted\r\n");
-        led_off(btn_num);
-        continue;
-      }
-
-      // Decode and save secret to flash
-      keystore.keys[btn_num].len = base32_decode(newkey, keystore.keys[btn_num].key, 64);
-      keystore.keys[btn_num].counter = 0;
-      ret = app_state_save_sync();
-      if (ret != 0) {
-        printf("ERROR(%i): Could not write back to flash.\r\n", ret);
-      }
-
-      // Completed!
-      printf("Programmed \"%s\" to slot %d\r\n", newkey, btn_num);
-      led_off(btn_num);
-
-      // Handle short presses on already configured keys (output next code)
+    // Handle short presses on already configured keys (output next code)
     } else if (btn_num < NUM_KEYS && keystore.keys[btn_num].len > 0) {
-      led_on(btn_num);
+      get_next_code(btn_num);
 
-      // Decrypt the key:
-      uint8_t key[64];
-      int keylen = decrypt(keystore.keys[btn_num].key, keystore.keys[btn_num].len, key, 64);
-
-      // Generate the HMAC'ed data from the "moving factor" (timestamp in TOTP,
-      // counter in HOTP), shuffled in a specific way:
-      uint8_t moving_factor[sizeof(counter_t)];
-      for (size_t i = 0; i < sizeof(counter_t); i++) {
-        moving_factor[i] = (keystore.keys[btn_num].counter >> ((sizeof(counter_t) - i - 1) * 8)) & 0xFF;
-      }
-
-      // Perform the HMAC operation
-      const uint8_t HMAC_OUTPUT_BUF_LEN = 32;
-      uint8_t hmac_output_buf[HMAC_OUTPUT_BUF_LEN];
-      hmac(key, keylen, moving_factor, sizeof(counter_t), hmac_output_buf, HMAC_OUTPUT_BUF_LEN);
-
-      // Increment the counter and save to flash
-      keystore.keys[btn_num].counter++;
-      ret = app_state_save_sync();
-      if (ret != 0) {
-        printf("ERROR(%i): Could not write back to flash.\r\n", ret);
-      }
-
-      // Get output value
-      uint8_t offset = hmac_output_buf[HMAC_OUTPUT_BUF_LEN - 1] & 0x0f;
-      uint32_t S = (((hmac_output_buf[offset] & 0x7f) << 24)
-          | ((hmac_output_buf[offset + 1] & 0xff) << 16)
-          | ((hmac_output_buf[offset + 2] & 0xff) << 8)
-          | ((hmac_output_buf[offset + 3] & 0xff)));
-
-      // Limit output to correct number of digits
-      switch (key_digits[btn_num]) {
-        case 6:
-          S = S % 1000000;
-          break;
-        case 7:
-          S = S % 10000000;
-          break;
-        case 8:
-          S = S % 100000000;
-          break;
-        default:
-          printf("ERROR: invalid HMAC output\r\n");
-          S = 0;
-          break;
-      }
-
-      // Write the value to the USB keyboard.
-      char hotp_format_buffer[16];
-      snprintf(hotp_format_buffer, 16, "%.*ld", key_digits[btn_num], S);
-      uint8_t keyboard_buffer[64];
-      ret = usb_keyboard_hid_send_string_sync(keyboard_buffer, hotp_format_buffer, 16);
-      if (ret < 0) {
-        printf("ERROR sending string with USB keyboard HID: %i\r\n", ret);
-      } else {
-        printf("Typed \"%s\" on the USB HID the keyboard\r\n", hotp_format_buffer);
-      }
-
-      // Complete
-      led_off(btn_num);
-
-      // Error for short press on a non-configured key
+    // Error for short press on a non-configured key
     } else if (keystore.keys[btn_num].len == 0) {
       printf("HOTP / TOTP slot %d not yet configured.\r\n", btn_num);
     }
