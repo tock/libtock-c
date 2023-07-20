@@ -52,7 +52,7 @@ int usb_keyboard_hid_send_sync(uint8_t* buffer, uint32_t len) {
   err = usb_keyboard_hid_set_send_buffer(buffer, len);
   if (err < 0) return err;
 
-  err = usb_keyboard_hid_send();
+  err = usb_keyboard_hid_send(); // Sometimes returns ERESERVE (but everything keeps working??)
   if (err < 0) return err;
 
   // Wait for the callback.
@@ -189,14 +189,13 @@ static int to_hid_keycode(char c, uint8_t* modifier, uint8_t* key)
 
 
 
-int usb_keyboard_hid_send_letter_sync(uint8_t* buffer, char letter) {
-  int err;
+int usb_keyboard_hid_send_letter_sync(char letter) {
 
   uint8_t modifier;
   uint8_t key = 0;
-
   to_hid_keycode(letter, &modifier, &key);
 
+  uint8_t buffer[64];
   buffer[0] = modifier;
   buffer[1] = 0;
   buffer[2] = key;
@@ -207,7 +206,7 @@ int usb_keyboard_hid_send_letter_sync(uint8_t* buffer, char letter) {
   buffer[7] = 0;
 
   // Send key press.
-  err = usb_keyboard_hid_send_sync(buffer, 64);
+  int err = usb_keyboard_hid_send_sync(buffer, 64);
   if (err < 0) return err;
 
   buffer[0] = 0;
@@ -218,18 +217,14 @@ int usb_keyboard_hid_send_letter_sync(uint8_t* buffer, char letter) {
   if (err < 0) return err;
 
   return RETURNCODE_SUCCESS;
-
 }
 
-int usb_keyboard_hid_send_string_sync(uint8_t* buffer, char* str, int length) {
-  int i = 0;
-  int err;
-
-  for (i = 0; i < length; i++) {
-    err = usb_keyboard_hid_send_letter_sync(buffer, str[i]);
+int usb_keyboard_hid_send_string_sync(char* str, int length) {
+  for (int i = 0; i < length; i++) {
+    int err = usb_keyboard_hid_send_letter_sync(str[i]);
     if (err < 0) return err;
-
   }
-  return RETURNCODE_SUCCESS;
 
+  return RETURNCODE_SUCCESS;
 }
+

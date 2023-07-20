@@ -16,11 +16,11 @@ int usb_keyboard_hid_send(void);
 // Send a raw keyboard HID packet. `buffer` must be at least 64 bytes.
 int usb_keyboard_hid_send_sync(uint8_t* buffer, uint32_t len);
 
-// Send one ASCII character. `buffer` must be at least 64 bytes.
-int usb_keyboard_hid_send_letter_sync(uint8_t* buffer, char letter);
+// Send one ASCII character
+int usb_keyboard_hid_send_letter_sync(char letter);
 
-// Send an array of ASCII characters. `buffer` must be at least 64 bytes.
-int usb_keyboard_hid_send_string_sync(uint8_t* buffer, char* str, int length);
+// Send an array of ASCII characters
+int usb_keyboard_hid_send_string_sync(char* str, int length);
 
 
 #ifdef __cplusplus
