@@ -54,7 +54,7 @@ typedef struct {
   counter_t counter;
 } hotp_key_t;
 
-//hotp_key_t hotp_key = {0};
+// hotp_key_t hotp_key = {0};
 
 
 // --- Button Handling ---
@@ -120,7 +120,7 @@ static int initialize_app_state(void) {
 
   // Initialize default values if nothing previously existed
   if (keystore.magic != 0xdeadbeef) {
-    keystore.magic = 0xdeadbeef;
+    keystore.magic   = 0xdeadbeef;
     keystore.key.len = 0;
     ret = app_state_save_sync();
     if (ret != 0) {
@@ -223,7 +223,7 @@ static void program_default_secret(void) {
   }
 
   // Initialize remainder of HOTP key
-  keystore.key.len = ret;
+  keystore.key.len     = ret;
   keystore.key.counter = 0;
 
   printf("Programmed \"%s\" as key \r\n", default_secret);

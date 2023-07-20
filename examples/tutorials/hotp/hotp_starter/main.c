@@ -187,7 +187,7 @@ static void program_default_secret(void) {
   }
 
   // Initialize remainder of HOTP key
-  hotp_key.len = ret;
+  hotp_key.len     = ret;
   hotp_key.counter = 0;
 
   printf("Programmed \"%s\" as key \r\n", default_secret);

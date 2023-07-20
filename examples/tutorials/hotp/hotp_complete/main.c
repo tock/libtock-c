@@ -60,7 +60,7 @@ typedef struct {
   counter_t counter;
 } hotp_key_t;
 
-//hotp_key_t hotp_key = {0};
+// hotp_key_t hotp_key = {0};
 
 
 // --- Button Handling ---
@@ -230,7 +230,7 @@ static void program_default_secret(void) {
   }
 
   // Initialize remainder of HOTP key
-  keystore.keys[0].len = ret;
+  keystore.keys[0].len     = ret;
   keystore.keys[0].counter = 0;
 
   printf("Programmed \"%s\" as key \r\n", default_secret);
