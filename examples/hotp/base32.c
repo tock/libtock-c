@@ -20,9 +20,9 @@
 #include "base32.h"
 
 int base32_decode(const uint8_t *encoded, uint8_t *result, int bufSize) {
-  int buffer = 0;
+  int buffer   = 0;
   int bitsLeft = 0;
-  int count = 0;
+  int count    = 0;
   for (const uint8_t *ptr = encoded; count < bufSize && *ptr; ++ptr) {
     uint8_t ch = *ptr;
     if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == '-') {
@@ -48,11 +48,11 @@ int base32_decode(const uint8_t *encoded, uint8_t *result, int bufSize) {
       return -1;
     }
 
-    buffer |= ch;
+    buffer   |= ch;
     bitsLeft += 5;
     if (bitsLeft >= 8) {
       result[count++] = buffer >> (bitsLeft - 8);
-      bitsLeft -= 8;
+      bitsLeft       -= 8;
     }
   }
   if (count < bufSize) {
@@ -68,23 +68,23 @@ int base32_encode(const uint8_t *data, int length, uint8_t *result,
   }
   int count = 0;
   if (length > 0) {
-    int buffer = data[0];
-    int next = 1;
+    int buffer   = data[0];
+    int next     = 1;
     int bitsLeft = 8;
     while (count < bufSize && (bitsLeft > 0 || next < length)) {
       if (bitsLeft < 5) {
         if (next < length) {
-          buffer <<= 8;
-          buffer |= data[next++] & 0xFF;
+          buffer  <<= 8;
+          buffer   |= data[next++] & 0xFF;
           bitsLeft += 8;
         } else {
           int pad = 5 - bitsLeft;
-          buffer <<= pad;
+          buffer  <<= pad;
           bitsLeft += pad;
         }
       }
       int index = 0x1F & (buffer >> (bitsLeft - 5));
-      bitsLeft -= 5;
+      bitsLeft       -= 5;
       result[count++] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"[index];
     }
   }
