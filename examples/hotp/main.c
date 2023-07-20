@@ -1,3 +1,6 @@
+// TODO: description here
+
+#include <ctype.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -17,7 +20,6 @@ int decrypt(const uint8_t*, int, uint8_t*, int);
 int hmac(const uint8_t*, int, const uint8_t*, int, uint8_t*, int);
 
 
-#define HMAC_OUTPUT_BUF_LEN 32
 #define NUM_KEYS 4
 typedef uint64_t counter_t;
 
@@ -35,12 +37,7 @@ struct key_storage {
 APP_STATE_DECLARE(struct key_storage, keystore);
 
 
-uint8_t hmac_output_buf[HMAC_OUTPUT_BUF_LEN];
 
-char hotp_format_buffer[16];
-
-// For USB keyboard.
-uint8_t keyboard_buffer[64];
 
 // Base32-encoded key:
 // O775VWOS5TBT6VZ4VNDMB4SOMGKNC2BXOVKCRNDFYJ4WSDLPTELUG24QJCNIT53CDACYE6CDKDQKOXSINABRA5UFOPOU5WIDZJLFBNQ=
@@ -61,14 +58,10 @@ uint8_t keyboard_buffer[64];
     0xdd, 0x4e, 0xd9, 0x03, 0xca, 0x56, 0x50, 0xb6
 };*/
 
+// Select how many digits the key is
 int key_digits[NUM_KEYS] = { 6, 6, 6, 6 };
 
-//struct hotp_key keys[NUM_KEYS];
-/*  &key0[0],
-  (uint8_t*) "world",
-  (uint8_t*) "foo",
-  (uint8_t*) "bar"
-};*/
+
 
 static void hmac_upcall(__attribute__ ((unused)) int   arg0,
                         __attribute__ ((unused)) int   arg1,
@@ -131,36 +124,71 @@ int hmac(const uint8_t* key, int key_len, const uint8_t* data, int data_len, uin
 }
 
 int decrypt(const uint8_t* cipher, int cipherlen, uint8_t* plaintext, int plaintext_capacity) {
-  int copylen = plaintext_capacity < cipherlen ? plaintext_capacity : cipherlen;
+  int copylen = cipherlen;
+  if (plaintext_capacity < cipherlen) {
+    copylen = plaintext_capacity;
+  }
   memcpy(plaintext, cipher, copylen);
   return copylen;
 }
 
+
+
+// --- Button Handling ---
+
+// Global to keep track of most recently pressed button
 int pressed_btn_num;
 
 // Callback for button presses.
 //   num: The index of the button associated with the callback
 //   val: 1 if pressed, 0 if depressed
-static void button_upcall(int                            num,
-                          int                            val,
-                          __attribute__ ((unused)) int   arg2,
-                          void *ud) {
-    if (val == 1) {
-        pressed_btn_num = num;
-        *((bool*)ud) = true;
-    }
+static void button_upcall(int num,
+                          int val,
+                          __attribute__ ((unused)) int arg2,
+                         void *ud) {
+  if (val == 1) {
+    pressed_btn_num = num;
+    *((bool*)ud) = true;
+  }
 }
 
-static void blink_timer_upcall(__attribute__ ((unused)) int   arg0,
-                          __attribute__ ((unused)) int   arg1,
-                          __attribute__ ((unused)) int   arg2,
-                          void *ud) {
-    int btn_num = (int)ud;
-    led_toggle(btn_num);
+// Initializes interrupts for all buttons on the board
+static int initialize_buttons(bool* flag_pointer) {
+  // Enable button interrupts
+  int err = button_subscribe(button_upcall, (void*)flag_pointer);
+  if (err != RETURNCODE_SUCCESS) {
+    return err;
+  }
+
+  // Enable interrupts on each button.
+  int count = 0;
+  err = button_count(&count);
+  if (err != RETURNCODE_SUCCESS) {
+    return err;
+  }
+
+  for (int i=0; i < count; i++) {
+    button_enable_interrupt(i);
+  }
+
+  return RETURNCODE_SUCCESS;
 }
 
+
+// --- App State Handling ---
+
+
+
+// --- Main Loop ---
+
+// Performs initialization and interactivity.
 int main(void) {
   delay_ms(1000);
+  printf("Tock HOTP App Started. Usage:\r\n"
+      "* Press a button to get the next HOTP code for that slot.\r\n"
+      "* Hold a button to enter a new HOTP secret for that slot.\r\n");
+
+  // Recover state from flash if it exists
   int ret;
   ret = app_state_load_sync();
   if (ret != 0) printf("ERROR(%i): Could not read the flash region.\r\n", ret);
@@ -176,118 +204,150 @@ int main(void) {
     else printf("Initialized state\r\n");
   }
 
-  int err;
-
-  bool button_pressed;
-  err = button_subscribe(button_upcall, (void*)&button_pressed);
-  if (err < 0) return err;
-
-  // Enable interrupts on each button.
-  int count;
-  err = button_count(&count);
-  if (err < 0) return err;
-
-  for (int i = 0; i < count; i++) {
-    button_enable_interrupt(i);
+  // Initialize buttons
+  bool button_pressed = false;
+  if (initialize_buttons(&button_pressed) != RETURNCODE_SUCCESS) {
+    printf("ERROR initializing buttons: \r\n");
+    return 1;
   }
 
-  for (;;) {
+  // Main loop. Waits for button presses
+  while (true) {
+    // Yield until a button is pressed
     button_pressed = false;
     yield_for(&button_pressed);
     int btn_num = pressed_btn_num;
 
+    // Delay and check if button is still pressed, signalling a "hold"
     delay_ms(500);
-    int new_val;
+    int new_val = 0;
     button_read(btn_num, &new_val);
+
+    // Handle long presses (program new secret)
     if (new_val) {
-        tock_timer_t repeating;
-        timer_every(500, blink_timer_upcall, (void*)btn_num, &repeating);
-        printf("Program a new key in slot %d\r\n", btn_num);
-        printf("(\"c\" to cancel) >\r\n");
-        uint8_t newkey[128];
-        int i = 0;
-        char c;
-        do {
-          c = getch();
+
+      // Request user input
+      led_on(btn_num);
+      printf("Program a new key in slot %d\r\n", btn_num);
+      printf("(hit enter without typing to cancel) >  ");
+
+      // Read key values from user
+      // TODO: sure would be nice to clear all previous input before starting this
+      uint8_t newkey[128];
+      int i = 0;
+      while (i < 127) {
+        // read next character
+        char c = getch();
+
+        // break on enter
+        if (c == '\n') {
+          break;
+        }
+
+        // only record alphanumeric characters
+        if (isalnum(c)) {
           newkey[i] = c;
           i++;
-        } while (c != '\n' && c != '\r' && i < 128);
-        newkey[i - 1] = 0;
-        timer_cancel(&repeating);
-        led_off(btn_num);
-        if (newkey[0] == 'c' && i == 2) {
-            continue;
-        }
-        printf("%s\r\n", newkey);
-        keystore.keys[btn_num].len = base32_decode(newkey, keystore.keys[btn_num].key, 64);
-        printf("%d\r\n", keystore.keys[btn_num].len);
-        keystore.keys[btn_num].counter = 0;
-        ret = app_state_save_sync();
-        if (ret != 0) printf("ERROR(%i): Could not write back to flash.\r\n", ret);
-        printf("Programmed %s to slot %d\r\n", newkey, btn_num);
-        continue;
-    }
 
-    if (btn_num < NUM_KEYS && keystore.keys[btn_num].len > 0) {
-      led_toggle(btn_num);
+          // echo input to user
+          putnstr(&c, 1);
+        }
+      }
+
+      // Finished. Append null terminator and echo newline
+      newkey[i] = '\0';
+      putnstr("\r\n", 1);
+
+      // Handle early exits
+      if (newkey[0] == '\0') {
+        printf("Aborted\r\n");
+        led_off(btn_num);
+        continue;
+      }
+
+      // Decode and save secret to flash
+      keystore.keys[btn_num].len = base32_decode(newkey, keystore.keys[btn_num].key, 64);
+      keystore.keys[btn_num].counter = 0;
+      ret = app_state_save_sync();
+      if (ret != 0) {
+        printf("ERROR(%i): Could not write back to flash.\r\n", ret);
+      }
+
+      // Completed!
+      printf("Programmed \"%s\" to slot %d\r\n", newkey, btn_num);
+      led_off(btn_num);
+
+      // Handle short presses on already configured keys (output next code)
+    } else if (btn_num < NUM_KEYS && keystore.keys[btn_num].len > 0) {
+      led_on(btn_num);
 
       // Decrypt the key:
       uint8_t key[64];
-      int keylen = decrypt(keystore.keys[btn_num].key, keystore.keys[btn_num].len, &key[0], 64);
+      int keylen = decrypt(keystore.keys[btn_num].key, keystore.keys[btn_num].len, key, 64);
 
       // Generate the HMAC'ed data from the "moving factor" (timestamp in TOTP,
       // counter in HOTP), shuffled in a specific way:
-      uint8_t moving_factor[sizeof (counter_t)];
-      size_t i;
-      for (i = 0; i < sizeof (counter_t); i++)
-        moving_factor[i] =
-    	(keystore.keys[btn_num].counter >> ((sizeof (counter_t) - i - 1) * 8)) & 0xFF;
+      uint8_t moving_factor[sizeof(counter_t)];
+      for (size_t i = 0; i < sizeof(counter_t); i++) {
+        moving_factor[i] = (keystore.keys[btn_num].counter >> ((sizeof(counter_t) - i - 1) * 8)) & 0xFF;
+      }
 
-      // Perform the HMAC operation. TODO! error check, this works exactly once...
-      hmac(&key[0], keylen, &moving_factor[0], sizeof (counter_t), hmac_output_buf, HMAC_OUTPUT_BUF_LEN);
+      // Perform the HMAC operation
+      const uint8_t HMAC_OUTPUT_BUF_LEN = 32;
+      uint8_t hmac_output_buf[HMAC_OUTPUT_BUF_LEN];
+      hmac(key, keylen, moving_factor, sizeof(counter_t), hmac_output_buf, HMAC_OUTPUT_BUF_LEN);
 
-      // Finally, increment the counter:
+      // Increment the counter and save to flash
       keystore.keys[btn_num].counter++;
       ret = app_state_save_sync();
-      if (ret != 0) printf("ERROR(%i): Could not write back to flash.\r\n", ret);
+      if (ret != 0) {
+        printf("ERROR(%i): Could not write back to flash.\r\n", ret);
+      }
 
+      // Get output value
       uint8_t offset = hmac_output_buf[HMAC_OUTPUT_BUF_LEN - 1] & 0x0f;
       uint32_t S = (((hmac_output_buf[offset] & 0x7f) << 24)
-    	 | ((hmac_output_buf[offset + 1] & 0xff) << 16)
-    	 | ((hmac_output_buf[offset + 2] & 0xff) << 8)
-    	 | ((hmac_output_buf[offset + 3] & 0xff)));
+          | ((hmac_output_buf[offset + 1] & 0xff) << 16)
+          | ((hmac_output_buf[offset + 2] & 0xff) << 8)
+          | ((hmac_output_buf[offset + 3] & 0xff)));
 
+      // Limit output to correct number of digits
       switch (key_digits[btn_num]) {
-      case 6:
-    	S = S % 1000000;
-    	break;
-      case 7:
-    	S = S % 10000000;
-    	break;
-      case 8:
-    	S = S % 100000000;
-    	break;
-      default:
-    	// TODO: error handling!
-    	S = 0;
-    	break;
+        case 6:
+          S = S % 1000000;
+          break;
+        case 7:
+          S = S % 10000000;
+          break;
+        case 8:
+          S = S % 100000000;
+          break;
+        default:
+          printf("ERROR: invalid HMAC output\r\n");
+          S = 0;
+          break;
       }
-
-      snprintf(hotp_format_buffer, 16, "%.*ld", key_digits[btn_num], S);
 
       // Write the value to the USB keyboard.
-      //value_buf[value_len] = '\0';
-      ret = usb_keyboard_hid_send_string_sync(keyboard_buffer, &hotp_format_buffer[0], 16);
+      char hotp_format_buffer[16];
+      snprintf(hotp_format_buffer, 16, "%.*ld", key_digits[btn_num], S);
+      uint8_t keyboard_buffer[64];
+      ret = usb_keyboard_hid_send_string_sync(keyboard_buffer, hotp_format_buffer, 16);
       if (ret < 0) {
-          printf("ERROR sending string with USB keyboard HID: %i\r\n", ret);
+        printf("ERROR sending string with USB keyboard HID: %i\r\n", ret);
       } else {
-          printf("Typed \"%s\" on the USB HID the keyboard\r\n", hotp_format_buffer);
+        printf("Typed \"%s\" on the USB HID the keyboard\r\n", hotp_format_buffer);
       }
-      led_toggle(btn_num);
+
+      // Complete
+      led_off(btn_num);
+
+      // Error for short press on a non-configured key
     } else if (keystore.keys[btn_num].len == 0) {
-        printf("HOTP / TOTP slot %d not yet configured.\r\n", btn_num);
+      printf("HOTP / TOTP slot %d not yet configured.\r\n", btn_num);
     }
   }
 
   return 0;
 }
+
