@@ -258,8 +258,8 @@ static void get_next_code(void) {
 int main(void) {
   delay_ms(1000);
   printf("Tock HOTP App Started. Usage:\r\n"
-      "* Press button 0 to get the next HOTP code for that slot.\r\n"
-      "* Hold button 0 to enter a new HOTP secret for that slot.\r\n");
+      "* Press Button 1 to get the next HOTP code for that slot.\r\n"
+      "* Hold Button 1 to enter a new HOTP secret for that slot.\r\n");
 
   // Initialize buttons
   bool button_pressed = false;
