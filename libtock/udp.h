@@ -4,6 +4,7 @@
 #include <sys/types.h>
 
 #include "tock.h"
+#include <unistd.h>
 
 #ifdef __cplusplus
 extern "C" {
