@@ -338,8 +338,7 @@ static void get_next_code(int slot_num) {
   }
 
   // Write the value to the USB keyboard.
-  uint8_t keyboard_buffer[64]; // TODO: grab PR #333 once merged to remove this unnecessary buffer
-  ret = usb_keyboard_hid_send_string_sync(keyboard_buffer, hotp_format_buffer, len);
+  ret = usb_keyboard_hid_send_string_sync(hotp_format_buffer, len);
   if (ret < 0) {
     printf("ERROR sending string with USB keyboard HID: %i\r\n", ret);
   } else {
