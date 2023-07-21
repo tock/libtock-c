@@ -39,6 +39,7 @@
 
 // Local includes
 #include "base32.h"
+#include "oracle.h"
 
 
 // --- Definitions for HOTP App ---
@@ -56,6 +57,7 @@ typedef uint64_t counter_t;
 
 typedef struct {
   uint8_t len;
+  uint8_t iv[16];
   uint8_t key[64];
   counter_t counter;
 } hotp_key_t;
@@ -113,6 +115,8 @@ typedef struct {
 
 APP_STATE_DECLARE(key_storage_t, keystore);
 
+static void program_default_secret(void);
+
 static int initialize_app_state(void) {
   // Recover state from flash if it exists
   int ret = app_state_load_sync();
@@ -136,7 +140,11 @@ static int initialize_app_state(void) {
     } else {
       printf("Initialized state\r\n");
     }
+
+    // Configure a default HOTP secret
+    program_default_secret();
   }
+
 
   return RETURNCODE_SUCCESS;
 }
@@ -205,35 +213,43 @@ done:
   return ret;
 }
 
-static int decrypt(const uint8_t* cipher, int cipherlen, uint8_t* plaintext, int plaintext_capacity) {
-  int copylen = cipherlen;
-  if (plaintext_capacity < cipherlen) {
-    copylen = plaintext_capacity;
-  }
-  memcpy(plaintext, cipher, copylen);
-  return copylen;
-}
-
-
 // --- HOTP Actions ---
 
-static void program_default_secret(void) {
-  led_on(0);
-  const char* default_secret = "test";
-
+static void program_secret(int slot_num, const char* secret) {
+  uint8_t plaintext_key[64];
   // Decode base32 to get HOTP key value
-  int ret = base32_decode((const uint8_t*)default_secret, keystore.keys[0].key, 64);
+  int ret = base32_decode((const uint8_t*)secret, plaintext_key, 64);
   if (ret < 0 ) {
     printf("ERROR cannot base32 decode secret\r\n");
-    keystore.keys[0].len = 0;
+    keystore.keys[slot_num].len = 0;
+    return;
+  }
+
+  ret = encrypt(plaintext_key, ret, keystore.keys[slot_num].key, 64, keystore.keys[slot_num].iv);
+  if (ret < 0 ) {
+    printf("ERROR cannot encrypt key\r\n");
+    keystore.keys[slot_num].len = 0;
     return;
   }
 
   // Initialize remainder of HOTP key
-  keystore.keys[0].len     = ret;
-  keystore.keys[0].counter = 0;
+  keystore.keys[slot_num].len     = ret;
+  keystore.keys[slot_num].counter = 0;
 
-  printf("Programmed \"%s\" as key \r\n", default_secret);
+
+  ret = app_state_save_sync();
+  if (ret != 0) {
+    printf("ERROR(%i): Could not write back to flash.\r\n", ret);
+  }
+
+  // Completed!
+  printf("Programmed \"%s\" to slot %d\r\n", secret, slot_num);
+}
+
+static void program_default_secret(void) {
+  led_on(0);
+  const char* default_secret = "test";
+  program_secret(0, default_secret);
   led_off(0);
 }
 
@@ -245,7 +261,7 @@ static void program_new_secret(int slot_num) {
 
   // Read key values from user
   // TODO: sure would be nice to clear all previous input before starting this
-  uint8_t newkey[128];
+  char newkey[128];
   int i = 0;
   while (i < 127) {
     // read next character
@@ -277,16 +293,7 @@ static void program_new_secret(int slot_num) {
     return;
   }
 
-  // Decode and save secret to flash
-  keystore.keys[slot_num].len     = base32_decode(newkey, keystore.keys[slot_num].key, 64);
-  keystore.keys[slot_num].counter = 0;
-  int ret = app_state_save_sync();
-  if (ret != 0) {
-    printf("ERROR(%i): Could not write back to flash.\r\n", ret);
-  }
-
-  // Completed!
-  printf("Programmed \"%s\" to slot %d\r\n", newkey, slot_num);
+  program_secret(slot_num, newkey);
   led_off(slot_num);
 }
 
@@ -296,7 +303,7 @@ static void get_next_code(int slot_num) {
   // Decrypt the key
   // TODO: should this be here in PART1 of the tutorial?
   uint8_t key[64];
-  int keylen = decrypt(keystore.keys[slot_num].key, keystore.keys[slot_num].len, key, 64);
+  int keylen = decrypt(keystore.keys[slot_num].iv, keystore.keys[slot_num].key, keystore.keys[slot_num].len, key, 64);
 
   // Generate the HMAC'ed data from the "moving factor" (timestamp in TOTP,
   // counter in HOTP), shuffled in a specific way:
@@ -372,9 +379,6 @@ int main(void) {
     printf("ERROR initializing buttons\r\n");
     return 1;
   }
-
-  // Configure a default HOTP secret
-  program_default_secret();
 
   // Main loop. Waits for button presses
   while (true) {
