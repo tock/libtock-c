@@ -5,15 +5,15 @@
 
 struct crypt_upcall_ud {
   bool done;
-  int  len;
+  int len;
 };
 
-static void crypt_upcall(__attribute__((unused)) int num,
-                         int len,
-                        __attribute__ ((unused)) int arg2,
-                        void *                       ud) {
+static void crypt_upcall(__attribute__((unused)) int  num,
+                         int                          len,
+                         __attribute__ ((unused)) int arg2,
+                         void *                       ud) {
   ((struct crypt_upcall_ud*)ud)->done = true;
-  ((struct crypt_upcall_ud*)ud)->len = len;
+  ((struct crypt_upcall_ud*)ud)->len  = len;
 }
 
 int decrypt(const uint8_t* iv, const uint8_t* cipher, int cipher_len, uint8_t* output, int outputlen) {
@@ -36,12 +36,11 @@ int decrypt(const uint8_t* iv, const uint8_t* cipher, int cipher_len, uint8_t* o
 
   struct crypt_upcall_ud ud;
   ud.done = false;
-  ud.len = 0;
+  ud.len  = 0;
   subscribe_return_t sr = subscribe(0x99999, 0, &crypt_upcall, (void*)&ud);
   if (!sr.success) {
     return tock_subscribe_return_to_returncode(sr);
   }
-
 
   syscall_return_t cr = command(0x99999, 1, 0, 0);
   if (cr.type != TOCK_SYSCALL_SUCCESS) {
@@ -56,9 +55,9 @@ int decrypt(const uint8_t* iv, const uint8_t* cipher, int cipher_len, uint8_t* o
 int encrypt(const uint8_t* plaintext, int plaintext_len, uint8_t* output, int output_len, uint8_t iv[16]) {
   // get randomness for iv
   int rng_out = 0;
-  int suc = rng_sync(iv, 16, 16, &rng_out);
+  int suc     = rng_sync(iv, 16, 16, &rng_out);
   if (suc != 0) {
-      return suc;
+    return suc;
   }
 
   return decrypt(iv, plaintext, plaintext_len, output, output_len);

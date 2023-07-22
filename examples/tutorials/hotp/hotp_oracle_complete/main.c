@@ -145,7 +145,6 @@ static int initialize_app_state(void) {
     program_default_secret();
   }
 
-
   return RETURNCODE_SUCCESS;
 }
 
@@ -235,7 +234,6 @@ static void program_secret(int slot_num, const char* secret) {
   // Initialize remainder of HOTP key
   keystore.keys[slot_num].len     = ret;
   keystore.keys[slot_num].counter = 0;
-
 
   ret = app_state_save_sync();
   if (ret != 0) {
