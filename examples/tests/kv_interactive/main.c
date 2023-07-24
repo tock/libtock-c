@@ -24,7 +24,7 @@ static int get_command(void) {
 
     if (c == RETURNCODE_FAIL) {
       printf("\ngetch() failed!\n");
-      return 0;
+      return c;
 
     } else {
       char in = c;
