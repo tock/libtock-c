@@ -1,23 +1,12 @@
-// TODO: description here
-// probably should be a license too, right?
-
-
+// USB Security Key Application
+//
+// Outputs HOTP codes over USB HID
+//
 // Test with: https://www.verifyr.com/en/otp/check#hotp
-// Use the "Generate HOTP Code" window with whatever secret you want
+// Use the "Generate HOTP Code" window with the default secret "test" or whatever secret you use
 // Counter should be the current counter value
 // MUST use algorithm "sha256"
-// Digits should be "6" first the first two slots, "7" for the third, and "8" for the last
-
-// --- Python3 example code ---
-//
-// Base32-encoded key:
-// O775VWOS5TBT6VZ4VNDMB4SOMGKNC2BXOVKCRNDFYJ4WSDLPTELUG24QJCNIT53CDACYE6CDKDQKOXSINABRA5UFOPOU5WIDZJLFBNQ=
-//
-// To generate HOTP values in Python, use:
-// >>> import pyotp, hashlib
-// >>> otp = pyotp.HOTP("$THE_ABOVE_BASE32_KEY", digest=hashlib.sha256)
-// >>> otp.at(1)
-// '571577'
+// Digits should be "6" unless you later change that
 
 // C standard library includes
 #include <ctype.h>
@@ -287,7 +276,6 @@ static void get_next_code(void) {
   led_on(0);
 
   // Decrypt the key
-  // TODO: should this be here in PART1 of the tutorial?
   uint8_t key[64];
   int keylen = decrypt(keystore.key.key, keystore.key.len, key, 64);
 
