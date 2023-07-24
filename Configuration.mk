@@ -150,8 +150,8 @@ ELF2TAB_ARGS += --kernel-major $(KERNEL_MAJOR_VERSION) --kernel-minor $(KERNEL_M
 # By default, add space in the footer that can be used for credentials. This
 # simplifies allowing tockloader to add credentials after a tbf is compiled.
 #
-# A build can opt out by setting `NO_FOOTER=1`.
-ifneq ($(NO_FOOTER),)
+# A build can opt out by setting `TBF_NO_FOOTER=1`.
+ifneq ($(TBF_NO_FOOTER),)
   # Opt out of default space for credentials in the footer.
 else
   ELF2TAB_ARGS += --minimum-footer-size 3000
