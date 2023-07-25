@@ -27,6 +27,14 @@ SECTIONS {
      */
     .crt0_header :
     {
+        /* elf2tab requires that the `_FLASH_ORIGIN` symbol be present to
+         * mark the first address in the flash memory. Since the linker can do
+         * various things with how it creates segments, we explicitly mark this
+         * address for elf2tab. elf2tab will use it to add a fixed address
+         * header in the TBF header if needed.
+         */
+        _flash_origin = .;
+
         /**
          * Populate the header expected by `crt0`:
          *
