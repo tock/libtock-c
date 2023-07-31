@@ -59,7 +59,7 @@ struct DateTime{
 int get_date(struct Date *get_date);
 
 // Writes set_date into the registers
-int set_date(struct Date set_date);
+int set_date(const struct Date *set_date);
 
 #ifdef __cplusplus
 }
