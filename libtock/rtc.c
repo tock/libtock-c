@@ -38,9 +38,9 @@ int get_date(struct Date *put_date){
   return tock_command_return_novalue_to_returncode(rval);
 }
 
-int set_date(struct Date set_date){
-  date = set_date.year * (1 << 9) + set_date.month * (1 << 5) + set_date.day;
-  time = set_date.day_of_week * (1 << 17) + set_date.hour * (1 << 12) + set_date.minute * (1 << 6) + set_date.seconds;
+int set_date(const struct Date *set_date){
+  date = set_date->year * (1 << 9) + set_date->month * (1 << 5) + set_date->day;
+  time = set_date->day_of_week * (1 << 17) + set_date->hour * (1 << 12) + set_date->minute * (1 << 6) + set_date->seconds;
 
   syscall_return_t rval = command(DRIVER_NUM_RTC, 2, date, time);
   return tock_command_return_novalue_to_returncode(rval);
