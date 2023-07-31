@@ -15,7 +15,7 @@ int main(void){
     .seconds = 1
   };
 
-  set_date(date);
+  set_date(&date);
   // Clock has a small delay before starting to count seconds
   delay_ms(2000);
 
