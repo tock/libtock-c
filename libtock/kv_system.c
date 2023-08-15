@@ -12,6 +12,8 @@
 #define TOCK_KV_SYSTEM_GET             1
 #define TOCK_KV_SYSTEM_SET             2
 #define TOCK_KV_SYSTEM_DELETE          3
+#define TOCK_KV_SYSTEM_ADD             4
+#define TOCK_KV_SYSTEM_UPDATE          5
 
 int kv_system_set_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_KV_SYSTEM, TOCK_KV_SYSTEM_CB, callback, callback_args);
@@ -50,6 +52,16 @@ int kv_system_set(void) {
 
 int kv_system_delete(void) {
   syscall_return_t cval = command(DRIVER_NUM_KV_SYSTEM, TOCK_KV_SYSTEM_DELETE, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
+}
+
+int kv_system_add(void) {
+  syscall_return_t cval = command(DRIVER_NUM_KV_SYSTEM, TOCK_KV_SYSTEM_ADD, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
+}
+
+int kv_system_update(void) {
+  syscall_return_t cval = command(DRIVER_NUM_KV_SYSTEM, TOCK_KV_SYSTEM_UPDATE, 0, 0);
   return tock_command_return_novalue_to_returncode(cval);
 }
 
@@ -109,7 +121,8 @@ int kv_system_get_sync(const uint8_t* key_buffer, uint32_t key_len, uint8_t* ret
   return RETURNCODE_SUCCESS;
 }
 
-int kv_system_set_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len) {
+static int kv_system_insert_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer,
+                                 uint32_t val_len, int (*op_fn)(void)){
   int err;
   result.fired = false;
 
@@ -122,7 +135,8 @@ int kv_system_set_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_
   err = kv_system_set_input_buffer(val_buffer, val_len);
   if (err < 0) return err;
 
-  err = kv_system_set();
+  // Do the requested set/add/update operation.
+  err = op_fn();
   if (err < 0) return err;
 
   // Wait for the callback.
@@ -140,6 +154,18 @@ int kv_system_set_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_
   }
 
   return RETURNCODE_SUCCESS;
+}
+
+int kv_system_set_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len) {
+  return kv_system_insert_sync(key_buffer, key_len, val_buffer, val_len, kv_system_set);
+}
+
+int kv_system_add_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len) {
+  return kv_system_insert_sync(key_buffer, key_len, val_buffer, val_len, kv_system_add);
+}
+
+int kv_system_update_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len) {
+  return kv_system_insert_sync(key_buffer, key_len, val_buffer, val_len, kv_system_update);
 }
 
 int kv_system_delete_sync(const uint8_t* key_buffer, uint32_t key_len) {
