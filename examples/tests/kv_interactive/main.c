@@ -63,6 +63,8 @@ int main(void) {
   printf("Please enter a command: get, set, or delete\n");
   printf("   get <key>\n");
   printf("   set <key> <value>\n");
+  printf("   add <key> <value>\n");
+  printf("   update <key> <value>\n");
   printf("   delete <key>\n");
   printf("\n");
 
@@ -120,6 +122,60 @@ int main(void) {
         printf("Error setting key %i\n", ret);
       } else {
         printf("Set key-value\n");
+      }
+
+    } else if (strncmp(read_buf, "add", 3) == 0) {
+      int key_start   = 4;
+      int key_end     = find_end(key_start);
+      int key_len     = key_end - key_start;
+      int value_start = key_end + 1;
+      if (value_start >= DATA_LEN) {
+        printf("Error parsing key and value, key too long.\n");
+        continue;
+      }
+      int value_end = find_end(value_start);
+      int value_len = value_end - value_start;
+
+      memcpy(key_buf, read_buf + key_start, key_len);
+      key_buf[key_len] = '\0';
+
+      memcpy(value_buf, read_buf + value_start, value_len);
+      value_buf[value_len] = '\0';
+
+      printf("Adding %s=%s\n", key_buf, value_buf);
+
+      ret = kv_system_add_sync(key_buf, key_len, value_buf, value_len);
+      if (ret < 0) {
+        printf("Error adding key %i\n", ret);
+      } else {
+        printf("Added key-value\n");
+      }
+
+    } else if (strncmp(read_buf, "update", 3) == 0) {
+      int key_start   = 7;
+      int key_end     = find_end(key_start);
+      int key_len     = key_end - key_start;
+      int value_start = key_end + 1;
+      if (value_start >= DATA_LEN) {
+        printf("Error parsing key and value, key too long.\n");
+        continue;
+      }
+      int value_end = find_end(value_start);
+      int value_len = value_end - value_start;
+
+      memcpy(key_buf, read_buf + key_start, key_len);
+      key_buf[key_len] = '\0';
+
+      memcpy(value_buf, read_buf + value_start, value_len);
+      value_buf[value_len] = '\0';
+
+      printf("Updating %s=%s\n", key_buf, value_buf);
+
+      ret = kv_system_update_sync(key_buf, key_len, value_buf, value_len);
+      if (ret < 0) {
+        printf("Error updating key %i\n", ret);
+      } else {
+        printf("Updated key-value\n");
       }
 
     } else if (strncmp(read_buf, "delete", 6) == 0) {
