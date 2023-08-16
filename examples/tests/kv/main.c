@@ -294,6 +294,18 @@ static bool test_add_update_set(void) {
   return true;
 }
 
+static bool test_set_zero_value(void) {
+  int ret;
+  char key[] = "kvtestapp";
+  strcpy((char*) key_buf, key);
+
+  uint32_t value_len = 0;
+  ret = kv_system_set_sync(key_buf, strlen(key), value_buf, value_len);
+  CHECK(ret == RETURNCODE_SUCCESS);
+
+  return true;
+}
+
 static bool subtest_set_get_region(uint32_t start, uint32_t stop) {
   const char * keys[] = {
     "kvtestappak",
@@ -333,8 +345,6 @@ static bool subtest_set_get_region(uint32_t start, uint32_t stop) {
   int ret;
 
   for (uint32_t i = start; i < stop; i++) {
-    // printf ("%d: %s\n", i, array[i]);
-
     strcpy((char*) key_buf, keys[i]);
 
     uint32_t value_len = i + 32;
@@ -400,6 +410,7 @@ int main(void) {
     TEST(delete),
     TEST(delete_delete),
     TEST(add_update_set),
+    TEST(set_zero_value),
     TEST(set_get_32regions_1),
     TEST(set_get_32regions_2),
     TEST(set_get_32regions_3),
