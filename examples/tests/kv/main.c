@@ -108,6 +108,18 @@ static bool test_get_not_found(void) {
   return true;
 }
 
+static bool test_get_not_found2(void) {
+  int ret;
+  char random_key[] = "HKANfdlksiqiovcHIFoihASIUcc";
+  strcpy((char*) key_buf, random_key);
+
+  uint32_t value_len = 0;
+  ret = kv_system_get_sync(key_buf, strlen(random_key), data_buf, DATA_LEN, &value_len);
+  CHECK(ret == RETURNCODE_ENOSUPPORT);
+
+  return true;
+}
+
 static bool test_add(void) {
   int ret;
   char key[] = "kvtestapp";
@@ -242,6 +254,46 @@ static bool test_delete_delete(void) {
   return true;
 }
 
+static bool test_add_update_set(void) {
+  int ret;
+  char key[] = "kvtestapp";
+  strcpy((char*) key_buf, key);
+
+  ret = kv_system_delete_sync(key_buf, strlen(key));
+  CHECK(ret == RETURNCODE_SUCCESS || ret == RETURNCODE_ENOSUPPORT);
+
+  uint32_t value_len = 30;
+  for (uint32_t i = 0; i < value_len; i++) {
+    value_buf[i] = (uint8_t) i;
+  }
+
+  ret = kv_system_add_sync(key_buf, strlen(key), value_buf, value_len);
+  CHECK(ret == RETURNCODE_SUCCESS);
+
+  value_len = 15;
+  for (uint32_t i = 0; i < value_len; i++) {
+    value_buf[i] = (uint8_t) i + 10;
+  }
+
+  ret = kv_system_update_sync(key_buf, strlen(key), value_buf, value_len);
+  CHECK(ret == RETURNCODE_SUCCESS);
+
+  value_len    = 2;
+  value_buf[0] = 'H';
+  value_buf[1] = 'I';
+
+  ret = kv_system_set_sync(key_buf, strlen(key), value_buf, value_len);
+  CHECK(ret == RETURNCODE_SUCCESS);
+
+  ret = kv_system_get_sync(key_buf, strlen(key), data_buf, 100, &value_len);
+  CHECK(ret == RETURNCODE_SUCCESS);
+  CHECK(value_len == 2);
+  CHECK(value_buf[0] == 'H');
+  CHECK(value_buf[1] == 'I');
+
+  return true;
+}
+
 static bool subtest_set_get_region(uint32_t start, uint32_t stop) {
   const char * keys[] = {
     "kvtestappak",
@@ -340,12 +392,14 @@ int main(void) {
     TEST(key_too_long),
     TEST(set_value_too_long),
     TEST(get_not_found),
+    TEST(get_not_found2),
     TEST(add),
     TEST(add_add),
     TEST(update),
     TEST(update_no_exist),
     TEST(delete),
     TEST(delete_delete),
+    TEST(add_update_set),
     TEST(set_get_32regions_1),
     TEST(set_get_32regions_2),
     TEST(set_get_32regions_3),
