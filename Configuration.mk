@@ -74,22 +74,22 @@ OPENTITAN_TOCK_TARGETS := rv32imc|rv32imc.0x20030080.0x10005000|0x20030080|0x100
                           rv32imc|rv32imc.0x20034080.0x10008000|0x20034080|0x10008000
 
 # Specific addresses useful for the ARTY-E21 FPGA softcore hardware memory map.
-ARTY_E21_TOCK_TARGETS := rv32imac|rv32imac.0x40430060.0x80004000|0x40430060|0x80004000\
-                         rv32imac|rv32imac.0x40440060.0x80007000|0x40440060|0x80007000
+ARTY_E21_TOCK_TARGETS := rv32imac|rv32imac.0x40430080.0x80004000|0x40430080|0x80004000\
+                         rv32imac|rv32imac.0x40440080.0x80007000|0x40440080|0x80007000
 
 # Include the RISC-V targets.
-#  rv32imac|rv32imac.0x20040060.0x80002800 # RISC-V for HiFive1b
-#  rv32imac|rv32imac.0x403B0060.0x3FCC0000 # RISC-V for ESP32-C3
-#  rv32imc|rv32imc.0x41000060.0x42008000   # RISC-V for LiteX Arty-A7
-#  rv32imc|rv32imc.0x00080060.0x40008000   # RISC-V for LiteX Simulator
+#  rv32imac|rv32imac.0x20040080.0x80002800 # RISC-V for HiFive1b
+#  rv32imac|rv32imac.0x403B0080.0x3FCC0000 # RISC-V for ESP32-C3
+#  rv32imc|rv32imc.0x41000080.0x42008000   # RISC-V for LiteX Arty-A7
+#  rv32imc|rv32imc.0x00080080.0x40008000   # RISC-V for LiteX Simulator
 TOCK_TARGETS ?= cortex-m0\
                 cortex-m3\
                 cortex-m4\
                 cortex-m7\
-                rv32imac|rv32imac.0x20040060.0x80002800|0x20040060|0x80002800\
-                rv32imac|rv32imac.0x403B0060.0x3FCC0000|0x403B0060|0x3FCC0000\
-                rv32imc|rv32imc.0x41000060.0x42008000|0x41000060|0x42008000\
-                rv32imc|rv32imc.0x00080060.0x40008000|0x00080060|0x40008000\
+                rv32imac|rv32imac.0x20040080.0x80002800|0x20040080|0x80002800\
+                rv32imac|rv32imac.0x403B0080.0x3FCC0000|0x403B0080|0x3FCC0000\
+                rv32imc|rv32imc.0x41000080.0x42008000|0x41000080|0x42008000\
+                rv32imc|rv32imc.0x00080080.0x40008000|0x00080080|0x40008000\
                 $(OPENTITAN_TOCK_TARGETS) \
                 $(ARTY_E21_TOCK_TARGETS)
 endif
@@ -111,7 +111,7 @@ TOCK_ARCHS := $(sort $(foreach target, $(TOCK_TARGETS), $(firstword $(subst |, ,
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
-ELF2TAB_REQUIRED_VERSION := 0.7.0
+ELF2TAB_REQUIRED_VERSION := 0.11.0
 ELF2TAB_EXISTS := $(shell $(SHELL) -c "command -v $(ELF2TAB)")
 ELF2TAB_VERSION := $(shell $(SHELL) -c "$(ELF2TAB) --version | cut -d ' ' -f 2")
 
@@ -146,6 +146,17 @@ endif
 ELF2TAB_ARGS += -n $(PACKAGE_NAME)
 ELF2TAB_ARGS += --stack $(STACK_SIZE) --app-heap $(APP_HEAP_SIZE) --kernel-heap $(KERNEL_HEAP_SIZE)
 ELF2TAB_ARGS += --kernel-major $(KERNEL_MAJOR_VERSION) --kernel-minor $(KERNEL_MINOR_VERSION)
+
+# By default, add space in the footer that can be used for credentials. This
+# simplifies allowing tockloader to add credentials after a tbf is compiled.
+#
+# A build can opt out by setting `TBF_NO_FOOTER=1`.
+ifneq ($(TBF_NO_FOOTER),)
+  # Opt out of default space for credentials in the footer.
+else
+  ELF2TAB_ARGS += --minimum-footer-size 3000
+endif
+
 
 # Flags for building app Assembly, C, and C++ files used by all architectures.
 # n.b. CPPFLAGS are shared for C and C++ sources (it's short for C PreProcessor,
