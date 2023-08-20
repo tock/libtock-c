@@ -113,7 +113,8 @@ Prerequisites
    Alternatively, you may use a pre-compiled toolchain that we created with
    Crosstool-NG.
    ```
-   $ wget http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
+   $ wget http://www.cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
+     (or https://alpha.mirror.svc.schuermann.io/files/2023-08-17_gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip)
    $ unzip gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
    # add gcc-riscv64-unknown-elf-8.3.0-ubuntu/bin to your `$PATH` variable.
    ```
