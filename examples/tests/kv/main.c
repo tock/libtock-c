@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <kv_system.h>
+#include <kv.h>
 #include <unit_test.h>
 
 #define KEY_LEN  200
@@ -14,7 +14,7 @@ uint8_t value_buf[DATA_LEN];
 
 
 static bool test_exists(void) {
-  int ret = kv_system_check_status();
+  int ret = kv_check_status();
   CHECK(ret == RETURNCODE_SUCCESS);
   return true;
 }
@@ -29,10 +29,10 @@ static bool test_set_get(void) {
     value_buf[i] = (uint8_t) i;
   }
 
-  ret = kv_system_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
-  ret = kv_system_get_sync(key_buf, strlen(key), data_buf, DATA_LEN, &value_len);
+  ret = kv_get_sync(key_buf, strlen(key), data_buf, DATA_LEN, &value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
   CHECK(value_len == 45);
   for (uint32_t i = 0; i < value_len; i++) {
@@ -52,10 +52,10 @@ static bool test_set_get_too_long(void) {
     value_buf[i] = (uint8_t) i;
   }
 
-  ret = kv_system_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
-  ret = kv_system_get_sync(key_buf, strlen(key), data_buf, 2, &value_len);
+  ret = kv_get_sync(key_buf, strlen(key), data_buf, 2, &value_len);
   CHECK(ret == RETURNCODE_ESIZE);
   CHECK(value_len == 10);
   for (uint32_t i = 0; i < 2; i++) {
@@ -69,18 +69,18 @@ static bool test_key_too_long(void) {
   int ret;
 
   uint32_t value_len = 0;
-  ret = kv_system_get_sync(key_buf, KEY_LEN, value_buf, 50, &value_len);
+  ret = kv_get_sync(key_buf, KEY_LEN, value_buf, 50, &value_len);
   CHECK(ret == RETURNCODE_ESIZE);
 
   value_buf[0] = 'V';
-  ret = kv_system_set_sync(key_buf, KEY_LEN, value_buf, 1);
+  ret = kv_set_sync(key_buf, KEY_LEN, value_buf, 1);
   CHECK(ret == RETURNCODE_ESIZE);
-  ret = kv_system_add_sync(key_buf, KEY_LEN, value_buf, 1);
+  ret = kv_add_sync(key_buf, KEY_LEN, value_buf, 1);
   CHECK(ret == RETURNCODE_ESIZE);
-  ret = kv_system_update_sync(key_buf, KEY_LEN, value_buf, 1);
+  ret = kv_update_sync(key_buf, KEY_LEN, value_buf, 1);
   CHECK(ret == RETURNCODE_ESIZE);
 
-  ret = kv_system_delete_sync(key_buf, KEY_LEN);
+  ret = kv_delete_sync(key_buf, KEY_LEN);
   CHECK(ret == RETURNCODE_ESIZE);
 
   return true;
@@ -90,7 +90,7 @@ static bool test_set_value_too_long(void) {
   int ret;
 
   key_buf[0] = 'K';
-  ret        = kv_system_set_sync(key_buf, 1, value_buf, DATA_LEN);
+  ret        = kv_set_sync(key_buf, 1, value_buf, DATA_LEN);
   CHECK(ret == RETURNCODE_ESIZE);
 
   return true;
@@ -102,7 +102,7 @@ static bool test_get_not_found(void) {
   strcpy((char*) key_buf, random_key);
 
   uint32_t value_len = 0;
-  ret = kv_system_get_sync(key_buf, strlen(random_key), data_buf, DATA_LEN, &value_len);
+  ret = kv_get_sync(key_buf, strlen(random_key), data_buf, DATA_LEN, &value_len);
   CHECK(ret == RETURNCODE_ENOSUPPORT);
 
   return true;
@@ -114,7 +114,7 @@ static bool test_get_not_found2(void) {
   strcpy((char*) key_buf, random_key);
 
   uint32_t value_len = 0;
-  ret = kv_system_get_sync(key_buf, strlen(random_key), data_buf, DATA_LEN, &value_len);
+  ret = kv_get_sync(key_buf, strlen(random_key), data_buf, DATA_LEN, &value_len);
   CHECK(ret == RETURNCODE_ENOSUPPORT);
 
   return true;
@@ -125,7 +125,7 @@ static bool test_add(void) {
   char key[] = "kvtestapp";
   strcpy((char*) key_buf, key);
 
-  ret = kv_system_delete_sync(key_buf, strlen(key));
+  ret = kv_delete_sync(key_buf, strlen(key));
   CHECK(ret == RETURNCODE_SUCCESS || ret == RETURNCODE_ENOSUPPORT);
 
   uint32_t value_len = 10;
@@ -133,7 +133,7 @@ static bool test_add(void) {
     value_buf[i] = (uint8_t) i;
   }
 
-  ret = kv_system_add_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_add_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
   return true;
@@ -144,7 +144,7 @@ static bool test_add_add(void) {
   char key[] = "kvtestapp";
   strcpy((char*) key_buf, key);
 
-  ret = kv_system_delete_sync(key_buf, strlen(key));
+  ret = kv_delete_sync(key_buf, strlen(key));
   CHECK(ret == RETURNCODE_SUCCESS || ret == RETURNCODE_ENOSUPPORT);
 
   uint32_t value_len = 10;
@@ -152,10 +152,10 @@ static bool test_add_add(void) {
     value_buf[i] = (uint8_t) i;
   }
 
-  ret = kv_system_add_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_add_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
-  ret = kv_system_add_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_add_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_ENOSUPPORT);
 
   return true;
@@ -171,17 +171,17 @@ static bool test_update(void) {
     value_buf[i] = (uint8_t) i;
   }
 
-  ret = kv_system_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
   for (uint32_t i = 0; i < value_len; i++) {
     value_buf[i] = (uint8_t) (10 - i);
   }
 
-  ret = kv_system_update_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_update_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
-  ret = kv_system_get_sync(key_buf, strlen(key), data_buf, 100, &value_len);
+  ret = kv_get_sync(key_buf, strlen(key), data_buf, 100, &value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
   CHECK(value_len == 10);
   for (uint32_t i = 0; i < 10; i++) {
@@ -196,7 +196,7 @@ static bool test_update_no_exist(void) {
   char key[] = "kvtestapp";
   strcpy((char*) key_buf, key);
 
-  ret = kv_system_delete_sync(key_buf, strlen(key));
+  ret = kv_delete_sync(key_buf, strlen(key));
   CHECK(ret == RETURNCODE_SUCCESS || ret == RETURNCODE_ENOSUPPORT);
 
   uint32_t value_len = 10;
@@ -204,7 +204,7 @@ static bool test_update_no_exist(void) {
     value_buf[i] = (uint8_t) i;
   }
 
-  ret = kv_system_update_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_update_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_ENOSUPPORT);
 
   return true;
@@ -220,13 +220,13 @@ static bool test_delete(void) {
     value_buf[i] = (uint8_t) i;
   }
 
-  ret = kv_system_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
-  ret = kv_system_delete_sync(key_buf, strlen(key));
+  ret = kv_delete_sync(key_buf, strlen(key));
   CHECK(ret == RETURNCODE_SUCCESS);
 
-  ret = kv_system_get_sync(key_buf, strlen(key), data_buf, 100, &value_len);
+  ret = kv_get_sync(key_buf, strlen(key), data_buf, 100, &value_len);
   CHECK(ret == RETURNCODE_ENOSUPPORT);
 
   return true;
@@ -242,13 +242,13 @@ static bool test_delete_delete(void) {
     value_buf[i] = (uint8_t) i;
   }
 
-  ret = kv_system_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
-  ret = kv_system_delete_sync(key_buf, strlen(key));
+  ret = kv_delete_sync(key_buf, strlen(key));
   CHECK(ret == RETURNCODE_SUCCESS);
 
-  ret = kv_system_delete_sync(key_buf, strlen(key));
+  ret = kv_delete_sync(key_buf, strlen(key));
   CHECK(ret == RETURNCODE_ENOSUPPORT);
 
   return true;
@@ -259,7 +259,7 @@ static bool test_add_update_set(void) {
   char key[] = "kvtestapp";
   strcpy((char*) key_buf, key);
 
-  ret = kv_system_delete_sync(key_buf, strlen(key));
+  ret = kv_delete_sync(key_buf, strlen(key));
   CHECK(ret == RETURNCODE_SUCCESS || ret == RETURNCODE_ENOSUPPORT);
 
   uint32_t value_len = 30;
@@ -267,7 +267,7 @@ static bool test_add_update_set(void) {
     value_buf[i] = (uint8_t) i;
   }
 
-  ret = kv_system_add_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_add_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
   value_len = 15;
@@ -275,17 +275,17 @@ static bool test_add_update_set(void) {
     value_buf[i] = (uint8_t) i + 10;
   }
 
-  ret = kv_system_update_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_update_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
   value_len    = 2;
   value_buf[0] = 'H';
   value_buf[1] = 'I';
 
-  ret = kv_system_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
-  ret = kv_system_get_sync(key_buf, strlen(key), data_buf, 100, &value_len);
+  ret = kv_get_sync(key_buf, strlen(key), data_buf, 100, &value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
   CHECK(value_len == 2);
   CHECK(value_buf[0] == 'H');
@@ -300,7 +300,7 @@ static bool test_set_zero_value(void) {
   strcpy((char*) key_buf, key);
 
   uint32_t value_len = 0;
-  ret = kv_system_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
   return true;
@@ -352,10 +352,10 @@ static bool subtest_set_get_region(uint32_t start, uint32_t stop) {
       value_buf[j] = (uint8_t) (j + i);
     }
 
-    ret = kv_system_set_sync(key_buf, strlen(keys[i]), value_buf, value_len);
+    ret = kv_set_sync(key_buf, strlen(keys[i]), value_buf, value_len);
     CHECK(ret == RETURNCODE_SUCCESS);
 
-    ret = kv_system_get_sync(key_buf, strlen(keys[i]), data_buf, DATA_LEN, &value_len);
+    ret = kv_get_sync(key_buf, strlen(keys[i]), data_buf, DATA_LEN, &value_len);
     CHECK(ret == RETURNCODE_SUCCESS);
     CHECK(value_len == i + 32);
     for (uint32_t j = 0; j < value_len; j++) {

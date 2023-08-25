@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <kv_system.h>
+#include <kv.h>
 #include <unit_test.h>
 
 #define KEY_LEN  200
@@ -14,7 +14,7 @@ uint8_t value_buf[DATA_LEN];
 
 
 static bool test_exists(void) {
-  int ret = kv_system_check_status();
+  int ret = kv_check_status();
   CHECK(ret == RETURNCODE_SUCCESS);
   return true;
 }
@@ -30,10 +30,10 @@ static bool test_set_get(void) {
   }
 
   // If key exists this should fail.
-  ret = kv_system_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS || ret == RETURNCODE_ENOSUPPORT);
 
-  ret = kv_system_get_sync(key_buf, strlen(key), data_buf, DATA_LEN, &value_len);
+  ret = kv_get_sync(key_buf, strlen(key), data_buf, DATA_LEN, &value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
   return true;
@@ -49,10 +49,10 @@ static bool test_set_set(void) {
     value_buf[i] = (uint8_t) i;
   }
 
-  ret = kv_system_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS || ret == RETURNCODE_ENOSUPPORT);
 
-  ret = kv_system_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_ENOSUPPORT);
 
   return true;
@@ -68,10 +68,10 @@ static bool test_set_delete(void) {
     value_buf[i] = (uint8_t) i;
   }
 
-  ret = kv_system_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS || ret == RETURNCODE_ENOSUPPORT);
 
-  ret = kv_system_delete_sync(key_buf, strlen(key));
+  ret = kv_delete_sync(key_buf, strlen(key));
   CHECK(ret == RETURNCODE_ENOSUPPORT);
 
   return true;

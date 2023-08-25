@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include <console.h>
-#include <kv_system.h>
+#include <kv.h>
 
 #define KEY_LEN  64
 #define DATA_LEN 64
@@ -86,7 +86,7 @@ int main(void) {
 
       printf("Getting %s\n", key_buf);
 
-      ret = kv_system_get_sync(key_buf, key_len, data_buf, DATA_LEN, &value_len);
+      ret = kv_get_sync(key_buf, key_len, data_buf, DATA_LEN, &value_len);
       if (ret < 0) {
         printf("Could not get key: %i\n", ret);
       } else {
@@ -117,7 +117,7 @@ int main(void) {
 
       printf("Setting %s=%s\n", key_buf, value_buf);
 
-      ret = kv_system_set_sync(key_buf, key_len, value_buf, value_len);
+      ret = kv_set_sync(key_buf, key_len, value_buf, value_len);
       if (ret < 0) {
         printf("Error setting key %i\n", ret);
       } else {
@@ -144,7 +144,7 @@ int main(void) {
 
       printf("Adding %s=%s\n", key_buf, value_buf);
 
-      ret = kv_system_add_sync(key_buf, key_len, value_buf, value_len);
+      ret = kv_add_sync(key_buf, key_len, value_buf, value_len);
       if (ret < 0) {
         printf("Error adding key %i\n", ret);
       } else {
@@ -171,7 +171,7 @@ int main(void) {
 
       printf("Updating %s=%s\n", key_buf, value_buf);
 
-      ret = kv_system_update_sync(key_buf, key_len, value_buf, value_len);
+      ret = kv_update_sync(key_buf, key_len, value_buf, value_len);
       if (ret < 0) {
         printf("Error updating key %i\n", ret);
       } else {
@@ -188,7 +188,7 @@ int main(void) {
 
       printf("Deleting %s\n", key_buf);
 
-      ret = kv_system_delete_sync(key_buf, key_len);
+      ret = kv_delete_sync(key_buf, key_len);
       if (ret < 0) {
         printf("Could not delete key: %i\n", ret);
       } else {
