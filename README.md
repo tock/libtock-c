@@ -282,13 +282,7 @@ at your option.
 Contributions
 -------------
 
-We welcome contributions from all. We use the bors-ng bot to manage, approve,
-and merge PRs. In short, when someone replies `bors r+`, your PR has been
-approved and will be automatically merged. If a maintainer replies `bors
-delegate+`, then you have been granted the authority to mark your own PR for
-approval (usually this will happen if there are some trivial changes required).
-For a full list of bors commands, [see the bors
-documentation](https://bors.tech/documentation/).
+We welcome contributions from all.
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
