@@ -60,7 +60,7 @@ int main(void) {
 
   printf("[KV Interactive] Text interface to KV store\n");
   printf("\n");
-  printf("Please enter a command: get, set, or delete\n");
+  printf("Please enter a command: get, set/add/update, or delete\n");
   printf("   get <key>\n");
   printf("   set <key> <value>\n");
   printf("   add <key> <value>\n");
@@ -151,7 +151,7 @@ int main(void) {
         printf("Added key-value\n");
       }
 
-    } else if (strncmp(read_buf, "update", 3) == 0) {
+    } else if (strncmp(read_buf, "update", 6) == 0) {
       int key_start   = 7;
       int key_end     = find_end(key_start);
       int key_len     = key_end - key_start;
