@@ -39,7 +39,7 @@ Prerequisites
 
    **MacOS**:
    ```
-   $ brew tap ARMmbed/homebrew-formulae && brew update && brew install arm-none-eabi-gcc
+   $ brew tap ARMmbed/homebrew-formulae && brew update && brew install ARMmbed/homebrew-formulae/arm-none-eabi-gcc
    ```
 
    **Ubuntu (18.04LTS or later)**:
