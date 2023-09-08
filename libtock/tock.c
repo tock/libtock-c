@@ -234,6 +234,25 @@ int yield_no_wait(void) {
   }
 }
 
+int yield_for_subscribable_upcall_returnr0_sync(uint32_t driver, uint32_t subscribe) {
+  register uint32_t wait __asm__ ("r0")       = 2; // yield-waitfor-nocallback
+  register uint8_t* wait_field __asm__ ("r1") = NULL; // yield result ptr
+  register uint32_t r2 __asm__ ("r2") = driver;
+  register uint32_t r3 __asm__ ("r3") = subscribe;
+  register int rv0 __asm__ ("r0");
+  register int rv1 __asm__ ("r1");
+  register int rv2 __asm__ ("r2");
+
+  __asm__ volatile (
+      "svc 0       \n"
+      : "=r" (rv0), "=r" (rv1), "=r" (rv2)
+      : "r" (wait), "r" (wait_field), "r" (r2), "r" (r3)
+      : "memory"
+      );
+  return rv0;
+}
+
+
 void tock_exit(uint32_t completion_code) {
   register uint32_t r0 __asm__ ("r0") = 0; // Terminate
   register uint32_t r1 __asm__ ("r1") = completion_code;

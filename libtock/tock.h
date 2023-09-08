@@ -177,9 +177,10 @@ int tock_allow_userspace_r_return_to_returncode(allow_userspace_r_return_t);
 int tock_enqueue(subscribe_upcall cb, int arg0, int arg1, int arg2, void* ud);
 
 int yield_check_tasks(void);
+int yield_no_wait(void);
 void yield(void);
 void yield_for(bool*);
-int yield_no_wait(void);
+int yield_for_subscribable_upcall_returnr0_sync(uint32_t driver, uint32_t subscribe);
 
 void tock_exit(uint32_t completion_code) __attribute__ ((noreturn));
 void tock_restart(uint32_t completion_code) __attribute__ ((noreturn));
