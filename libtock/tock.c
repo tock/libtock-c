@@ -184,6 +184,25 @@ int yield_no_wait(void) {
   return (int)result;
 }
 
+yield_waitfor_return_t yield_wait_for(uint32_t driver, uint32_t subscribe) {
+  register uint32_t waitfor __asm__ ("r0") = 2; // yield-waitfor
+  register uint32_t r1 __asm__ ("r1")      = driver;
+  register uint32_t r2 __asm__ ("r2")      = subscribe;
+  register int rv0 __asm__ ("r0");
+  register int rv1 __asm__ ("r1");
+  register int rv2 __asm__ ("r2");
+
+  __asm__ volatile (
+    "svc 0       \n"
+    : "=r" (rv0), "=r" (rv1), "=r" (rv2)
+    : "r" (waitfor), "r" (r1), "r" (r2)
+    : "memory"
+    );
+  yield_waitfor_return_t rv = {rv0, rv1, rv2};
+  return rv;
+}
+
+
 void tock_exit(uint32_t completion_code) {
   register uint32_t r0 __asm__ ("r0") = 0; // Terminate
   register uint32_t r1 __asm__ ("r1") = completion_code;
@@ -398,6 +417,23 @@ int yield_no_wait(void) {
     "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
     );
   return (int)result;
+}
+
+yield_waitfor_return_t yield_wait_for(uint32_t driver, uint32_t subscribe) {
+  register uint32_t waitfor __asm__ ("a0") = 2; // yield-waitfor
+  register uint32_t a1 __asm__ ("a1")      = driver;
+  register uint32_t a2 __asm__ ("a2")      = subscribe;
+  register uint32_t a4 __asm__ ("a4")      = 0; // Yield
+  register int rv0 __asm__ ("a0");
+  register int rv1 __asm__ ("a1");
+  register int rv2 __asm__ ("a2");
+  __asm__ volatile (
+    "ecall\n"
+    : "=r" (rv0), "=r" (rv1), "=r" (rv2)
+    : "r" (waitfor), "r" (a1), "r" (a2), "r" (a4)
+    : "memory");
+  yield_waitfor_return_t rv = {rv0, rv1, rv2};
+  return rv;
 }
 
 
