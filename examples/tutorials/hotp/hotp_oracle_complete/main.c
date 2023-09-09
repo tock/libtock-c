@@ -113,7 +113,8 @@ static void save_key(int slot_num) {
   ret = kv_set_sync(key, key_len, value, sizeof(hotp_key_t));
 
   if (ret != 0) {
-    printf("ERROR(%i): Could not store key.\r\n", ret);
+    printf("ERROR(%i): %s.\r\n", ret, tock_strrcode(ret));
+    printf("  Could not store key.\r\n");
   }
 }
 
@@ -230,6 +231,7 @@ static void program_secret(int slot_num, const char* secret) {
 
   ret = encrypt(plaintext_key, ret, keys[slot_num].key, 64, keys[slot_num].iv);
   if (ret < 0 ) {
+    printf("ERROR(%i): %s.\r\n", ret, tock_strrcode(ret));
     printf("ERROR cannot encrypt key\r\n");
     keys[slot_num].len = 0;
     return;
@@ -266,7 +268,7 @@ static void program_new_secret(int slot_num) {
     char c = getch();
 
     // break on enter
-    if (c == '\n') {
+    if (c == '\n' || c == '\r') {
       break;
     }
 
@@ -338,13 +340,19 @@ static void get_next_code(int slot_num) {
     len = 16;
   }
 
-  // Write the value to the USB keyboard.
-  int ret = usb_keyboard_hid_send_string_sync(hotp_format_buffer, len);
-  if (ret < 0) {
-    printf("ERROR sending string with USB keyboard HID: %i\r\n", ret);
+  if (driver_exists(DRIVER_NUM_USBKEYBOARDHID)) {
+    // Write the value to the USB keyboard.
+    int ret = usb_keyboard_hid_send_string_sync(hotp_format_buffer, len);
+    if (ret < 0) {
+      printf("ERROR sending string with USB keyboard HID: %i\r\n", ret);
+    } else {
+      printf("Counter: %u. Typed \"%s\" on the USB HID the keyboard\r\n", (size_t)keys[slot_num].counter - 1,
+             hotp_format_buffer);
+    }
   } else {
-    printf("Counter: %u. Typed \"%s\" on the USB HID the keyboard\r\n", (size_t)keys[slot_num].counter - 1,
-           hotp_format_buffer);
+    // Fallback to just print on the console.
+    hotp_format_buffer[len] = '\0';
+    printf("CODE: %s\n", hotp_format_buffer);
   }
 
   // Complete
