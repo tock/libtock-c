@@ -15,16 +15,16 @@ if [[ ! -e $NEWLIB_INCLUDE_PATH ]]; then
   exit 1
 fi
 
-export CFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -fPIC -msingle-pic-base -mno-pic-data-is-text-relative -mthumb -mcpu=cortex-m0 -isystem $NEWLIB_INCLUDE_PATH"
-export CXXFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -fPIC -msingle-pic-base -mno-pic-data-is-text-relative -mthumb -mcpu=cortex-m0 -isystem $NEWLIB_INCLUDE_PATH"
+export CFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -isystem $NEWLIB_INCLUDE_PATH"
+export CXXFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -isystem $NEWLIB_INCLUDE_PATH"
 
 if gcc --version | grep -q clang; then
-  echo "$(tput bold)System gcc is clang. Overriding with gcc-11"
-  echo "$(tput sgr0)You may need to brew install gcc@11 if you haven't."
+  echo "$(tput bold)System gcc is clang. Overriding with gcc-13"
+  echo "$(tput sgr0)You may need to brew install gcc@13 if you haven't."
   echo ""
   sleep 2
-  export CC=gcc-11
-  export CXX=g++-11
+  export CC=gcc-13
+  export CXX=g++-13
 
   gmp=$($CC -v 2>&1 | tr " " "\n" | grep gmp)
   mpfr=$($CC -v 2>&1 | tr " " "\n" | grep mpfr)
@@ -35,13 +35,24 @@ else
   extra_with=""
 fi
 
+# Choose the target based on what toolchain is installed.
+if command -v riscv64-none-elf-gcc &> /dev/null
+then
+  TARGET=riscv64-none-elf
+elif command -v riscv32-none-elf-gcc &> /dev/null
+then
+  TARGET=riscv32-none-elf
+elif command -v riscv64-elf-gcc &> /dev/null
+then
+  TARGET=riscv64-elf
+else
+  TARGET=riscv64-unknown-elf
+fi
+
 $GCC_SRC_DIR/configure \
   --build=x86_64-linux-gnu \
   --host=x86_64-linux-gnu \
-  --target=arm-none-eabi \
-  --with-cpu=cortex-m0 \
-  --with-mode=thumb \
-  --disable-fpu \
+  --target=$TARGET \
   --with-newlib $extra_with \
   --with-headers=$NEWLIB_INCLUDE_PATH \
   --enable-languages="c c++" \
