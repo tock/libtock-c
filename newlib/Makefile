@@ -11,7 +11,11 @@ newlib-$(NEWLIB_VERSION): newlib-$(NEWLIB_VERSION).tar.gz
 	@tar -xzf $<
 	@touch $@ # Touch so directory appears newer than tarball
 
-rebuild-newlib: newlib-$(NEWLIB_VERSION)
+newlib-headers: newlib-$(NEWLIB_VERSION)
+	@rm -rf include
+	@cp -r $</newlib/libc/include include
+
+rebuild-newlib: newlib-$(NEWLIB_VERSION) newlib-headers
 	@echo ""
 	@echo "=== BEGINNING ARM BUILD =========================="
 	@echo ""
