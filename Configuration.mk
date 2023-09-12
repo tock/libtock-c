@@ -176,7 +176,8 @@ override CPPFLAGS += \
       -fstack-usage\
       -D_FORTIFY_SOURCE=2\
       -Wall\
-      -Wextra
+      -Wextra\
+      -I$(TOCK_USERLAND_BASE_DIR)/newlib/include
 override WLFLAGS += \
       -Wl,--warn-common\
       -Wl,--gc-sections\
