@@ -29,3 +29,6 @@ rebuild-newlib: newlib-$(NEWLIB_VERSION)
 	@mkdir -p newlib-riscv-$(NEWLIB_VERSION)-out
 	@echo "Entering directory newlib-riscv-$(NEWLIB_VERSION)-out"
 	cd newlib-riscv-$(NEWLIB_VERSION)-out; sh ../build-riscv.sh ../$<
+	cd newlib-riscv-$(NEWLIB_VERSION)-out/riscv64-elf/rv32i/ilp32/newlib; cp libc.a libm.a ../../../../../rv32/rv32i/
+	cd newlib-riscv-$(NEWLIB_VERSION)-out/riscv64-elf/rv32im/ilp32/newlib; cp libc.a libm.a ../../../../../rv32/rv32im/
+	cd newlib-riscv-$(NEWLIB_VERSION)-out/riscv64-elf/rv32imac/ilp32/newlib; cp libc.a libm.a ../../../../../rv32/rv32imac/
