@@ -295,10 +295,8 @@ override WLFLAGS_rv32i    += $(WLFLAGS_rv32)
 override WLFLAGS_rv32imc  += $(WLFLAGS_rv32)
 override WLFLAGS_rv32imac += $(WLFLAGS_rv32)
 
-# Set the system libraries we link against for RISC-V. We support C++ apps by
-# default.
-override LINK_LIBS_rv32 += \
-      -lgcc -lstdc++ -lsupc++
+# Currently there are no shared link libraries for all rv32 architectures.
+override LINK_LIBS_rv32 =
 
 override LINK_LIBS_rv32i    += $(LINK_LIBS_rv32)
 override LINK_LIBS_rv32imc  += $(LINK_LIBS_rv32)
@@ -306,16 +304,25 @@ override LINK_LIBS_rv32imac += $(LINK_LIBS_rv32)
 
 # Use precompiled libaries we provide to link against.
 override LEGACY_LIBS_rv32i += \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libstdc++.a\
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libsupc++.a\
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libgcc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libm.a
 
 override LEGACY_LIBS_rv32im += \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32im/libstdc++.a\
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32im/libsupc++.a\
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32im/libgcc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libm.a
 
 override LEGACY_LIBS_rv32imc += $(LEGACY_LIBS_rv32im)
 
 override LEGACY_LIBS_rv32imac += \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32imac/libstdc++.a\
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32imac/libsupc++.a\
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32imac/libgcc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libc.a\
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libm.a
 
