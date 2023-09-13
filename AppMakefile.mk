@@ -157,7 +157,7 @@ $$(BUILDDIR)/$(1)/$(2).custom.ld: $$(LAYOUT) | $$(BUILDDIR)/$(1)
 	  perl -pi -e "s/(SRAM.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$(4)\$$$$3/" $$@
 
 # Collect all desired built output.
-$$(BUILDDIR)/$(1)/$(2).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(2).custom.ld | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(2).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(BUILDDIR)/$(1)/$(2).custom.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(WLFLAGS) $$(WLFLAGS_$(1))\
 	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
@@ -165,7 +165,7 @@ $$(BUILDDIR)/$(1)/$(2).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
 	    -T $$(BUILDDIR)/$(1)/$(2).custom.ld\
 	    -nostdlib\
-	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(LINK_LIBS_$(1)) -Wl,--end-group\
+	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LINK_LIBS_$(1)) -Wl,--end-group\
 	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(2).Map\
 	    -o $$@
 
@@ -244,7 +244,7 @@ else
 endif
 
 # Step 2: Create a new ELF with the layout that matches what's loaded
-$$(BUILDDIR)/$(1)/$(2).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(2).userland_debug.ld | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(2).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(BUILDDIR)/$(1)/$(2).userland_debug.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(WLFLAGS) $$(WLFLAGS_$(1))\
 	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
@@ -252,7 +252,7 @@ $$(BUILDDIR)/$(1)/$(2).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
 	    -T $$(BUILDDIR)/$(1)/$(2).userland_debug.ld\
 	    -nostdlib\
-	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(LINK_LIBS_$(1)) -Wl,--end-group\
+	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LINK_LIBS_$(1)) -Wl,--end-group\
 	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(2).Map\
 	    -o $$@
 

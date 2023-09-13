@@ -296,36 +296,26 @@ override WLFLAGS_rv32i    += $(WLFLAGS_rv32)
 override WLFLAGS_rv32imc  += $(WLFLAGS_rv32)
 override WLFLAGS_rv32imac += $(WLFLAGS_rv32)
 
-# Currently there are no shared link libraries for all rv32 architectures.
-override LINK_LIBS_rv32 =
-
-override LINK_LIBS_rv32i    += $(LINK_LIBS_rv32)
-override LINK_LIBS_rv32imc  += $(LINK_LIBS_rv32)
-override LINK_LIBS_rv32imac += $(LINK_LIBS_rv32)
-
-# Use precompiled libaries we provide to link against.
-override LEGACY_LIBS_rv32i += \
-      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libstdc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libsupc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libgcc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libc.a\
+override LINK_LIBS_rv32i    += \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libstdc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libsupc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libgcc.a \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libc.a \
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libm.a
 
-override LEGACY_LIBS_rv32im += \
-      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32im/libstdc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32im/libsupc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32im/libgcc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libc.a\
+override LINK_LIBS_rv32imc  += \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libstdc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libsupc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libgcc.a \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libc.a \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libm.a
+
+override LINK_LIBS_rv32imac += \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32im/libstdc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32im/libsupc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32im/libgcc.a \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libc.a \
       $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libm.a
-
-override LEGACY_LIBS_rv32imc += $(LEGACY_LIBS_rv32im)
-
-override LEGACY_LIBS_rv32imac += \
-      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32imac/libstdc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32imac/libsupc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32imac/libgcc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libm.a
 
 
 ################################################################################
@@ -388,27 +378,33 @@ override CPPFLAGS_cortex-m4 += $(CPPFLAGS_cortex-m) \
 override CPPFLAGS_cortex-m7 += $(CPPFLAGS_cortex-m) \
       -mcpu=cortex-m7
 
-# Single-arch libraries, to be phased out
-override LEGACY_LIBS_cortex-m += \
-      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libstdc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libsupc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libgcc.a
-
-override LEGACY_LIBS_cortex-m0 += $(LEGACY_LIBS_cortex-m) \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v6-m/libc.a\
+override LINK_LIBS_cortex-m0 += \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v6-m/libstdc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v6-m/libsupc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v6-m/libgcc.a \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v6-m/libc.a \
       $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v6-m/libm.a
 
-override LEGACY_LIBS_cortex-m3 += $(LEGACY_LIBS_cortex-m) \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
+override LINK_LIBS_cortex-m3 += \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7-m/libstdc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7-m/libsupc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7-m/libgcc.a \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a \
       $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
 
-override LEGACY_LIBS_cortex-m4 += $(LEGACY_LIBS_cortex-m) \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
+override LINK_LIBS_cortex-m4 += \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7e-m/libstdc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7e-m/libsupc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7e-m/libgcc.a \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7e-m/libc.a \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7e-m/libm.a
 
-override LEGACY_LIBS_cortex-m7 += $(LEGACY_LIBS_cortex-m) \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
+override LINK_LIBS_cortex-m7 += \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7e-m/libstdc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7e-m/libsupc++.a \
+      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7e-m/libgcc.a \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7e-m/libc.a \
+      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7e-m/libm.a
 
 # Cortex-M needs an additional OBJDUMP flag.
 override OBJDUMP_FLAGS_cortex-m  += --disassembler-options=force-thumb
