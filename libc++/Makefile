@@ -15,13 +15,21 @@ rebuild-gcc: gcc-$(GCC_VERSION)
 	@echo ""
 	@echo "=== BEGINNING ARM BUILD =========================="
 	@echo ""
-	@mkdir -p gcc-$(GCC_VERSION)-out
-	@echo "Entering directory gcc-$(GCC_VERSION)-out"
-	mkdir -p cortex-m
+	@mkdir -p gcc-arm-$(GCC_VERSION)-out
+	@echo "Entering directory gcc-arm-$(GCC_VERSION)-out"
+	mkdir -p cortex-m/v6-m
+	mkdir -p cortex-m/v7-m
+	mkdir -p cortex-m/v7e-m
 	cd gcc-arm-$(GCC_VERSION)-out; sh ../build-arm.sh ../$<
-	cp gcc-arm-$(GCC_VERSION)-out/arm-none-eabi/libgcc/libgcc.a ./cortex-m/
-	cp gcc-arm-$(GCC_VERSION)-out/arm-none-eabi/libstdc++-v3/src/.libs/libstdc++.a ./cortex-m/
-	cp gcc-arm-$(GCC_VERSION)-out/arm-none-eabi/libstdc++-v3/libsupc++/.libs/libsupc++.a ./cortex-m/
+	cp gcc-arm-$(GCC_VERSION)-out/arm-none-eabi/thumb/v6-m/nofp/libgcc/libgcc.a ./cortex-m/v6-m/
+	cp gcc-arm-$(GCC_VERSION)-out/arm-none-eabi/thumb/v6-m/nofp/libstdc++-v3/src/.libs/libstdc++.a ./cortex-m/v6-m/
+	cp gcc-arm-$(GCC_VERSION)-out/arm-none-eabi/thumb/v6-m/nofp/libstdc++-v3/libsupc++/.libs/libsupc++.a ./cortex-m/v6-m/
+	cp gcc-arm-$(GCC_VERSION)-out/arm-none-eabi/thumb/v7-m/nofp/libgcc/libgcc.a ./cortex-m/v7-m/
+	cp gcc-arm-$(GCC_VERSION)-out/arm-none-eabi/thumb/v7-m/nofp/libstdc++-v3/src/.libs/libstdc++.a ./cortex-m/v7-m/
+	cp gcc-arm-$(GCC_VERSION)-out/arm-none-eabi/thumb/v7-m/nofp/libstdc++-v3/libsupc++/.libs/libsupc++.a ./cortex-m/v7-m/
+	cp gcc-arm-$(GCC_VERSION)-out/arm-none-eabi/thumb/v7e-m/nofp/libgcc/libgcc.a ./cortex-m/v7e-m/
+	cp gcc-arm-$(GCC_VERSION)-out/arm-none-eabi/thumb/v7e-m/nofp/libstdc++-v3/src/.libs/libstdc++.a ./cortex-m/v7e-m/
+	cp gcc-arm-$(GCC_VERSION)-out/arm-none-eabi/thumb/v7e-m/nofp/libstdc++-v3/libsupc++/.libs/libsupc++.a ./cortex-m/v7e-m/
 	@echo ""
 	@echo "=== BEGINNING RISC-V BUILD =========================="
 	@echo ""
