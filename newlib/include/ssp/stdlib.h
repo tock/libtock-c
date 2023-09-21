@@ -20,7 +20,7 @@ __ssp_redirect_raw(size_t, wcstombs, \
 __ssp_decl(int, wctomb, (char *__buf, wchar_t __wc))
 {
   if (__buf != NULL)
-    __ssp_check(__buf, MB_CUR_MAX, __ssp_bos);
+    __ssp_check(__buf, (unsigned int) MB_CUR_MAX, __ssp_bos);
   return __ssp_real_wctomb (__buf, __wc);
 }
 
