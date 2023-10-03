@@ -171,7 +171,7 @@ int adc_set_double_buffer(uint16_t* buffer, uint32_t len) {
   return tock_allow_rw_return_to_returncode(rw);
 }
 
-bool adc_is_present(void) {
+bool adc_exists(void) {
   return driver_exists(DRIVER_NUM_ADC);
 }
 

@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 // Check for presence of the driver
-bool ieee802154_driver_is_present(void);
+bool ieee802154_driver_exists(void);
 
 // Synchronously enable the 802.15.4 radio. Returns once the radio is fully
 // initialized.
