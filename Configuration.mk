@@ -27,6 +27,9 @@ RANLIB := -ranlib
 READELF := -readelf
 SIZE := -size
 
+# Library versions.
+NEWLIB_VERSION ?= 4.3.0.20230120
+
 # Set default region sizes for process memory requirements.
 STACK_SIZE       ?= 2048
 APP_HEAP_SIZE    ?= 1024
@@ -123,6 +126,14 @@ endif
 
 ################################################################################
 ##
+## Helpful paths for all platforms
+##
+################################################################################
+
+override NEWLIB_BASE_DIR := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-$(NEWLIB_VERSION)
+
+################################################################################
+##
 ## Shared build flags for all architectures in libtock-c.
 ##
 ################################################################################
@@ -164,8 +175,7 @@ override CPPFLAGS += \
       -fstack-usage\
       -D_FORTIFY_SOURCE=2\
       -Wall\
-      -Wextra\
-      -I$(TOCK_USERLAND_BASE_DIR)/newlib/include
+      -Wextra
 override WLFLAGS += \
       -Wl,--warn-common\
       -Wl,--gc-sections\
@@ -176,6 +186,9 @@ OBJDUMP_FLAGS += --disassemble-all --source -C --section-headers
 
 # Use a generic linker script for all libtock-c apps.
 LAYOUT ?= $(TOCK_USERLAND_BASE_DIR)/userland_generic.ld
+
+# Include libc headers for all platforms.
+override CPPFLAGS += -I$(NEWLIB_BASE_DIR)/headers
 
 # Various flags for a specific toolchain. Different compilers may have different
 # supported features. For GCC we warn if the compiler estimates the stack usage
@@ -287,22 +300,22 @@ override LINK_LIBS_rv32i    += \
       $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libstdc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libsupc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libgcc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libm.a
+      $(NEWLIB_BASE_DIR)/riscv/rv32i/ilp32/newlib/libc.a \
+      $(NEWLIB_BASE_DIR)/riscv/rv32i/ilp32/newlib/libm.a
 
 override LINK_LIBS_rv32imc  += \
       $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libstdc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libsupc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32i/libgcc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libm.a
+      $(NEWLIB_BASE_DIR)/riscv/rv32im/ilp32/newlib/libc.a \
+      $(NEWLIB_BASE_DIR)/riscv/rv32im/ilp32/newlib/libm.a
 
 override LINK_LIBS_rv32imac += \
       $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32im/libstdc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32im/libsupc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/rv32/rv32im/libgcc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libm.a
+      $(NEWLIB_BASE_DIR)/riscv/rv32imac/ilp32/newlib/libc.a \
+      $(NEWLIB_BASE_DIR)/riscv/rv32imac/ilp32/newlib/libm.a
 
 
 ################################################################################
@@ -369,29 +382,29 @@ override LINK_LIBS_cortex-m0 += \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v6-m/libstdc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v6-m/libsupc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v6-m/libgcc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v6-m/libc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v6-m/libm.a
+      $(NEWLIB_BASE_DIR)/thumb/v6-m/nofp/newlib/libc.a \
+      $(NEWLIB_BASE_DIR)/thumb/v6-m/nofp/newlib/libm.a
 
 override LINK_LIBS_cortex-m3 += \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7-m/libstdc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7-m/libsupc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7-m/libgcc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
+      $(NEWLIB_BASE_DIR)/thumb/v7-m/nofp/newlib/libc.a \
+      $(NEWLIB_BASE_DIR)/thumb/v7-m/nofp/newlib/libm.a
 
 override LINK_LIBS_cortex-m4 += \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7e-m/libstdc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7e-m/libsupc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7e-m/libgcc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7e-m/libc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7e-m/libm.a
+      $(NEWLIB_BASE_DIR)/thumb/v7e-m/nofp/newlib/libc.a \
+      $(NEWLIB_BASE_DIR)/thumb/v7e-m/nofp/newlib/libm.a
 
 override LINK_LIBS_cortex-m7 += \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7e-m/libstdc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7e-m/libsupc++.a \
       $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/v7e-m/libgcc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7e-m/libc.a \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7e-m/libm.a
+      $(NEWLIB_BASE_DIR)/thumb/v7e-m/nofp/newlib/libc.a \
+      $(NEWLIB_BASE_DIR)/thumb/v7e-m/nofp/newlib/libm.a
 
 # Cortex-M needs an additional OBJDUMP flag.
 override OBJDUMP_FLAGS_cortex-m  += --disassembler-options=force-thumb
