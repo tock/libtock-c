@@ -39,7 +39,7 @@ Prerequisites
 
    **MacOS**:
    ```
-   $ brew tap ARMmbed/homebrew-formulae && brew update && brew install arm-none-eabi-gcc
+   $ brew tap ARMmbed/homebrew-formulae && brew update && brew install ARMmbed/homebrew-formulae/arm-none-eabi-gcc
    ```
 
    **Ubuntu (18.04LTS or later)**:
@@ -113,7 +113,8 @@ Prerequisites
    Alternatively, you may use a pre-compiled toolchain that we created with
    Crosstool-NG.
    ```
-   $ wget http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
+   $ wget http://www.cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
+     (or https://alpha.mirror.svc.schuermann.io/files/2023-08-17_gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip)
    $ unzip gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
    # add gcc-riscv64-unknown-elf-8.3.0-ubuntu/bin to your `$PATH` variable.
    ```
@@ -281,13 +282,7 @@ at your option.
 Contributions
 -------------
 
-We welcome contributions from all. We use the bors-ng bot to manage, approve,
-and merge PRs. In short, when someone replies `bors r+`, your PR has been
-approved and will be automatically merged. If a maintainer replies `bors
-delegate+`, then you have been granted the authority to mark your own PR for
-approval (usually this will happen if there are some trivial changes required).
-For a full list of bors commands, [see the bors
-documentation](https://bors.tech/documentation/).
+We welcome contributions from all.
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be

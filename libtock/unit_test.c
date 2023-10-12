@@ -228,7 +228,9 @@ void unit_test_runner(unit_test_fun *tests, uint32_t test_count,
   test->count      = test_count;
   test->timeout_ms = timeout_ms;
 
-  // Establish communication with the test supervisor service.
+  // Establish communication with the test supervisor service. First delay 10 ms
+  // to ensure the supervisor service has time to register.
+  delay_ms(10);
   size_t test_svc;
   int err = ipc_discover(svc_name, &test_svc);
   if (err < 0) return;
