@@ -31,6 +31,8 @@ extern "C" {
 
 #include "tock.h"
 
+#include <sys/time.h>
+
 /** \brief Opaque handle to a single-shot alarm.
  *
  * An opaque handle to an alarm created by `alarm_at` or `alarm_in`. Memory
@@ -69,6 +71,18 @@ int alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall, void*, alarm_t *
  */
 void alarm_cancel(alarm_t*);
 
+// Use this to implement _gettimeofday yourself as libtock-c doesn't provide
+// an implementation.
+//
+// See https://github.com/tock/libtock-c/pull/355#issuecomment-1841351091 for
+// more details
+//
+// ```c
+// int _gettimeofday(struct timeval *tv, void *tzvp) {
+//   return gettimeasticks(tv, tzvp);
+// }
+// ```
+int gettimeasticks(struct timeval *tv, void *tzvp);
 
 #ifdef __cplusplus
 }
