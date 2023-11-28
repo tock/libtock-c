@@ -1,0 +1,18 @@
+TOCK_USERLAND_BASE_DIR ?= ..
+LR1110_DIR = $(TOCK_USERLAND_BASE_DIR)/lr1110/lr1110
+
+VERSION_HASH := 7c33c9ef136c841a7b44f530d2415789c86f48af
+
+SEEED_DIR := $(LR1110_DIR)/seeed
+ZIP_FILE := $(SEEED_DIR).zip
+EXTRACTED_DIR := $(SEEED_DIR)/Seeed_Wio_WM1110_Dev_Board-$(VERSION_HASH)
+
+all : $(ZIP_FILE)
+
+$(ZIP_FILE):
+	curl -L --output $(ZIP_FILE) "https://codeload.github.com/Seeed-Studio/Seeed_Wio_WM1110_Dev_Board/zip/$(VERSION_HASH)"
+	unzip -q $(ZIP_FILE) -d $(SEEED_DIR)
+	rm -f $(ZIP_FILE) # Remove zip file after unzip
+	mv $(EXTRACTED_DIR)/* $(SEEED_DIR)/
+	rmdir $(EXTRACTED_DIR)  # move unzipped code to SEEED_DIR, remove original directory
+	touch $(SEEED_DIR)
