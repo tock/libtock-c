@@ -1,0 +1,17 @@
+TOCK_USERLAND_BASE_DIR ?= ..
+LIBNAME := wm1110
+$(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/$(LIBNAME)
+
+DEPPATH += --dep-path $(WM1110_DIR)
+VPATH += :$(WM1110_DIR)
+
+WM1110_DIR = $(TOCK_USERLAND_BASE_DIR)/wm1110/wm1110
+
+include $(WM1110_DIR)/wm1110.mk
+
+# List all C and Assembly files
+$(LIBNAME)_SRCS  := $(CSRCS)
+
+include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
+
+
