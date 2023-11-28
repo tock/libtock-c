@@ -1,0 +1,221 @@
+<!DOCTYPE CrossStudio_Project_File>
+<solution Name="wm1110_dev_kit_pca10056" target="8" version="2">
+  <project Name="wm1110_dev_kit_pca10056">
+    <configuration
+      Name="Common"
+      arm_architecture="v7EM"
+      arm_core_type="Cortex-M4"
+      arm_endian="Little"
+      arm_fp_abi="Hard"
+      arm_fpu_type="FPv4-SP-D16"
+      arm_linker_heap_size="8192"
+      arm_linker_process_stack_size="0"
+      arm_linker_stack_size="8192"
+      arm_linker_treat_warnings_as_errors="No"
+      arm_simulator_memory_simulation_parameter="RWX 00000000,00100000,FFFFFFFF;RWX 20000000,00010000,CDCDCDCD"
+      arm_target_device_name="nRF52840_xxAA"
+      arm_target_interface_type="SWD"
+      c_preprocessor_definitions="BOARD_PCA10056;CONFIG_GPIO_AS_PINRESET;FLOAT_ABI_HARD;INITIALIZE_USER_SECTIONS;NO_VTOR_CONFIG;NRF52840_XXAA;ADD_SMTC_ALC_SYNC;ADD_SMTC_FILE_UPLOAD;ADD_SMTC_STREAM;ENABLE_MODEM_GNSS_FEATURE;LR11XX;LR11XX_TRANSCEIVER;HAL_DBG_TRACE=1;MODEM_HAL_DBG_TRACE=1;MW_DBG_TRACE_COLOR=0;MODEM_HAL_DEEP_DBG_TRACE=0;REGION_AS_923;REGION_AU_915;REGION_EU_868;REGION_IN_865;REGION_KR_920;REGION_RU_864;REGION_US_915;RP2_103;SMTC_MULTICAST;TASK_EXTENDED_1;TASK_EXTENDED_2"
+      c_user_include_directories="../config;../../../../../../components;../../../../../../components/boards;../../../../../../components/drivers_nrf/nrf_soc_nosd;../../../../../../components/libraries/atomic;../../../../../../components/libraries/balloc;../../../../../../components/libraries/bsp;../../../../../../components/libraries/delay;../../../../../../components/libraries/experimental_section_vars;../../../../../../components/libraries/fifo;../../../../../../components/libraries/fstorage;../../../../../../components/libraries/hardfault;../../../../../../components/libraries/log;../../../../../../components/libraries/log/src;../../../../../../components/libraries/memobj;../../../../../../components/libraries/mutex;../../../../../../components/libraries/pwr_mgmt;../../../../../../components/libraries/queue;../../../../../../components/libraries/ringbuf;../../../../../../components/libraries/strerror;../../../../../../components/libraries/timer;../../../../../../components/libraries/util;../../../../../../components/toolchain/cmsis/include;../../../;../../../../../../external/fprintf;../../../../../../integration/nrfx;../../../../../../integration/nrfx/legacy;../../../../../../modules/nrfx;../../../../../../modules/nrfx/drivers/include;../../../../../../modules/nrfx/hal;../../../../../../modules/nrfx/mdk;../../../smtc_hal;../../../smtc_hal/inc;../../../wm1110/libraries/uart;../../../wm1110/interface;../../../wm1110/LR11XX/common/inc;../../../wm1110/LR11XX/radio_drivers_hal;../../../wm1110/LR11XX/smtc_lr11xx_board;../../../wm1110/LR11XX/smtc_shield_lr11xx/common/inc;../../../wm1110/peripherals/inc;../../../lora_basics_modem;../../../lora_basics_modem/smtc_modem_api;../../../lora_basics_modem/smtc_modem_hal;../../../lora_basics_modem/smtc_modem_core;../../../lora_basics_modem/smtc_modem_core/device_management;../../../lora_basics_modem/smtc_modem_core/lorawan_api;../../../lora_basics_modem/smtc_modem_core/lr1mac;../../../lora_basics_modem/smtc_modem_core/lr1mac/src;../../../lora_basics_modem/smtc_modem_core/lr1mac/src/lr1mac_class_b;../../../lora_basics_modem/smtc_modem_core/lr1mac/src/lr1mac_class_c;../../../lora_basics_modem/smtc_modem_core/lr1mac/src/services;../../../lora_basics_modem/smtc_modem_core/lr1mac/src/smtc_real/src;../../../lora_basics_modem/smtc_modem_core/modem_config;../../../lora_basics_modem/smtc_modem_core/modem_core;../../../lora_basics_modem/smtc_modem_core/modem_services;../../../lora_basics_modem/smtc_modem_core/modem_supervisor;../../../lora_basics_modem/smtc_modem_core/radio_drivers/lr11xx_driver/src;../../../lora_basics_modem/smtc_modem_core/radio_planner/src;../../../lora_basics_modem/smtc_modem_core/smtc_modem_crypto;../../../lora_basics_modem/smtc_modem_core/smtc_modem_crypto/lr11xx_crypto_engine;../../../lora_basics_modem/smtc_modem_core/smtc_modem_crypto/smtc_secure_element;../../../lora_basics_modem/smtc_modem_core/smtc_modem_crypto/soft_secure_element;../../../lora_basics_modem/smtc_modem_core/smtc_modem_services;../../../lora_basics_modem/smtc_modem_core/smtc_modem_services/headers;../../../lora_basics_modem/smtc_modem_core/smtc_modem_services/src;../../../lora_basics_modem/smtc_modem_core/smtc_modem_services/src/alc_sync;../../../lora_basics_modem/smtc_modem_core/smtc_modem_services/src/almanac_update;../../../lora_basics_modem/smtc_modem_core/smtc_modem_services/src/file_upload;../../../lora_basics_modem/smtc_modem_core/smtc_modem_services/src/stream;../../../lora_basics_modem/smtc_modem_core/smtc_ral/src;../../../lora_basics_modem/smtc_modem_core/smtc_ralf/src;../../../geolocation_middleware/bsp;../../../geolocation_middleware/common;../../../geolocation_middleware/gnss/src;../../../geolocation_middleware/wifi/src;../../../apps/common;../../../apps/examples/full_almanac_update;../../../apps/examples/geolocation_gnss;../../../apps/examples/geolocation_gnss_wifi;../../../apps/examples/geolocation_wifi"
+      debug_register_definition_file="../../../../../../modules/nrfx/mdk/nrf52840.svd"
+      debug_start_from_entry_point_symbol="No"
+      debug_target_connection="J-Link"
+      gcc_debugging_level="Level 3"
+      gcc_entry_point="Reset_Handler"
+      linker_output_format="hex"
+      linker_printf_fmt_level="long"
+      linker_printf_fp_enabled="Float"
+      linker_printf_width_precision_supported="Yes"
+      linker_scanf_fmt_level="long"
+      linker_section_placement_file="flash_placement.xml"
+      linker_section_placement_macros="FLASH_PH_START=0x0;FLASH_PH_SIZE=0x100000;RAM_PH_START=0x20000000;RAM_PH_SIZE=0x40000;FLASH_START=0x0;FLASH_SIZE=0x100000;RAM_START=0x20000000;RAM_SIZE=0x40000"
+      linker_section_placements_segments="FLASH1 RX 0x0 0x100000;RAM1 RWX 0x20000000 0x40000"
+      macros="CMSIS_CONFIG_TOOL=../../../../../../external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar"
+      project_directory=""
+      project_type="Executable" />
+    <folder Name="Segger Startup Files">
+      <file file_name="$(StudioDir)/source/thumb_crt0.s" />
+    </folder>
+    <folder Name="nRF_Log">
+      <file file_name="../../../../../../components/libraries/log/src/nrf_log_frontend.c" />
+      <file file_name="../../../../../../components/libraries/log/src/nrf_log_str_formatter.c" />
+    </folder>
+    <folder Name="nRF_Libraries">
+      <file file_name="../../../../../../components/libraries/util/app_error.c" />
+      <file file_name="../../../../../../components/libraries/util/app_error_handler_gcc.c" />
+      <file file_name="../../../../../../components/libraries/util/app_error_weak.c" />
+      <file file_name="../../../../../../components/libraries/fifo/app_fifo.c" />
+      <file file_name="../../../wm1110/libraries/uart/app_uart_fifo.c" />
+      <file file_name="../../../../../../components/libraries/util/app_util_platform.c" />
+      <file file_name="../../../../../../components/libraries/timer/drv_rtc.c" />
+      <file file_name="../../../../../../components/libraries/util/nrf_assert.c" />
+      <file file_name="../../../../../../components/libraries/atomic/nrf_atomic.c" />
+      <file file_name="../../../../../../components/libraries/balloc/nrf_balloc.c" />
+      <file file_name="../../../../../../external/fprintf/nrf_fprintf.c" />
+      <file file_name="../../../../../../external/fprintf/nrf_fprintf_format.c" />
+      <file file_name="../../../../../../components/libraries/fstorage/nrf_fstorage.c" />
+      <file file_name="../../../../../../components/libraries/fstorage/nrf_fstorage_nvmc.c" />
+      <file file_name="../../../../../../components/libraries/memobj/nrf_memobj.c" />
+      <file file_name="../../../../../../components/libraries/pwr_mgmt/nrf_pwr_mgmt.c" />
+      <file file_name="../../../../../../components/libraries/queue/nrf_queue.c" />
+      <file file_name="../../../../../../components/libraries/ringbuf/nrf_ringbuf.c" />
+      <file file_name="../../../../../../components/libraries/experimental_section_vars/nrf_section_iter.c" />
+      <file file_name="../../../../../../components/libraries/strerror/nrf_strerror.c" />
+    </folder>
+    <folder Name="nRF_Drivers">
+      <file file_name="../../../../../../integration/nrfx/legacy/nrf_drv_clock.c" />
+      <file file_name="../../../../../../integration/nrfx/legacy/nrf_drv_rng.c" />
+      <file file_name="../../../../../../integration/nrfx/legacy/nrf_drv_uart.c" />
+      <file file_name="../../../../../../modules/nrfx/hal/nrf_nvmc.c" />
+      <file file_name="../../../../../../components/drivers_nrf/nrf_soc_nosd/nrf_nvic.c" />
+      <file file_name="../../../../../../modules/nrfx/soc/nrfx_atomic.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_clock.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_gpiote.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/prs/nrfx_prs.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_rng.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_rtc.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_spim.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_timer.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_uart.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_uarte.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_wdt.c" />
+      <file file_name="../../../../../../integration/nrfx/legacy/nrf_drv_twi.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_twi_twim.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_twim.c" />
+    </folder>
+    <folder Name="Application">
+      <file file_name="../config/sdk_config.h" />
+      <file file_name="../../../apps/examples/air_th_sensor/main_air_th_sensor.c" />
+    </folder>
+    <folder Name="None">
+      <file file_name="../../../../../../modules/nrfx/mdk/ses_startup_nrf_common.s" />
+      <file file_name="../../../../../../modules/nrfx/mdk/ses_startup_nrf52840.s" />
+      <file file_name="../../../../../../modules/nrfx/mdk/system_nrf52840.c" />
+    </folder>
+    <folder Name="LBM_smtc_hal">
+      <file file_name="../../../smtc_hal/src/smtc_hal_flash.c" />
+      <file file_name="../../../smtc_hal/src/smtc_hal_gpio.c" />
+      <file file_name="../../../smtc_hal/src/smtc_hal_lp_time.c" />
+      <file file_name="../../../smtc_hal/src/smtc_hal_mcu.c" />
+      <file file_name="../../../smtc_hal/src/smtc_hal_rng.c" />
+      <file file_name="../../../smtc_hal/src/smtc_hal_rtc.c" />
+      <file file_name="../../../smtc_hal/src/smtc_hal_spi.c" />
+      <file file_name="../../../smtc_hal/src/smtc_hal_trace.c" />
+      <file file_name="../../../smtc_hal/src/smtc_hal_uart.c" />
+      <file file_name="../../../smtc_hal/src/smtc_hal_watchdog.c" />
+      <file file_name="../../../smtc_hal/src/smtc_hal_i2c.c" />
+    </folder>
+    <folder Name="LBM_common">
+      <file file_name="../../../apps/common/apps_utilities.c" />
+      <file file_name="../../../apps/common/apps_modem_common.c" />
+      <file file_name="../../../apps/common/apps_modem_event.c" />
+      <file file_name="../../../apps/common/smtc_modem_api_str.c" />
+      <file file_name="../../../apps/common/lorawan_key_config.h" />
+    </folder>
+    <folder Name="LBM_lr1mac">
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/lr1_stack_mac_layer.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/lr1mac_core.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/lr1mac_utilities.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/smtc_real/src/smtc_real.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/services/smtc_duty_cycle.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/services/smtc_lbt.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/lr1mac_class_c/lr1mac_class_c.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/lr1mac_class_b/smtc_beacon_sniff.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/lr1mac_class_b/smtc_ping_slot.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/services/smtc_multicast.c" />
+    </folder>
+    <folder Name="LBM_radio_hal">
+      <file file_name="../../../wm1110/LR11XX/radio_drivers_hal/lr11xx_hal.c" />
+    </folder>
+    <folder Name="LBM_radio_planner">
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/radio_planner/src/radio_planner.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/radio_planner/src/radio_planner_hal.c" />
+    </folder>
+    <folder Name="LBM_radio_ral">
+      <file file_name="../../../wm1110/LR11XX/common/src/ral_lr11xx_bsp.c" />
+    </folder>
+    <folder Name="LBM_smtc_ralf">
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/smtc_ralf/src/ralf_lr11xx.c" />
+    </folder>
+    <folder Name="LBM_smtc_modem_core">
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lorawan_api/lorawan_api.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/device_management/dm_downlink.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/device_management/modem_context.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/modem_core/smtc_modem.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/modem_core/smtc_modem_test.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/modem_services/fifo_ctrl.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/modem_services/lorawan_certification.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/modem_services/modem_utilities.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/modem_services/smtc_modem_services_hal.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/modem_services/smtc_clock_sync.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/modem_supervisor/modem_supervisor.c" />
+    </folder>
+    <folder Name="LBM_smtc_modem_crypto">
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/smtc_modem_crypto/smtc_modem_crypto.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/smtc_modem_crypto/soft_secure_element/aes.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/smtc_modem_crypto/soft_secure_element/cmac.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/smtc_modem_crypto/soft_secure_element/soft_se.c" />
+    </folder>
+    <folder Name="LBM_smtc_modem_services">
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/smtc_modem_services/src/alc_sync/alc_sync.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/smtc_modem_services/src/almanac_update/almanac_update.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/smtc_modem_services/src/file_upload/file_upload.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/smtc_modem_services/src/stream/rose.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/smtc_modem_services/src/stream/stream.c" />
+    </folder>
+    <folder Name="LBM_smtc_modem_hal">
+      <file file_name="../../../smtc_hal/smtc_modem_hal.c" />
+    </folder>
+    <folder Name="LBM_middleware">
+      <file file_name="../../../wm1110/LR11XX/smtc_shield_lr11xx/common/src/mw_bsp.c" />
+      <file file_name="../../../geolocation_middleware/common/mw_common.c" />
+      <file file_name="../../../geolocation_middleware/gnss/src/gnss_helpers.c" />
+      <file file_name="../../../geolocation_middleware/gnss/src/gnss_middleware.c" />
+      <file file_name="../../../geolocation_middleware/wifi/src/wifi_helpers.c" />
+      <file file_name="../../../geolocation_middleware/wifi/src/wifi_middleware.c" />
+      <file file_name="../../../geolocation_middleware/gnss/src/gnss_queue.c" />
+    </folder>
+    <folder Name="LBM_stmc_region">
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/smtc_real/src/region_eu_868.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/smtc_real/src/region_kr_920.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/smtc_real/src/region_us_915.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/smtc_real/src/region_ru_864.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/smtc_real/src/region_in_865.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/smtc_real/src/region_au_915.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/lr1mac/src/smtc_real/src/region_as_923.c" />
+    </folder>
+    <folder Name="LBM_wm1110">
+      <file file_name="../../../wm1110/LR11XX/smtc_shield_lr11xx/common/src/smtc_shield_lr11x0_common.c" />
+      <file file_name="../../../wm1110/LR11XX/smtc_shield_lr11xx/common/src/smtc_shield_lr11xx_common.c" />
+      <file file_name="../../../wm1110/LR11XX/smtc_shield_lr11xx/LR1110/LR1110MB1DxS/smtc_shield_lr1110mb1dxs.c" />
+      <file file_name="../../../wm1110/LR11XX/common/src/smtc_board_lr11xx.c" />
+    </folder>
+    <folder Name="LBM_smtc_ral">
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/smtc_ral/src/ral_lr11xx.c" />
+    </folder>
+    <folder Name="LBM_radio_driver">
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/radio_drivers/lr11xx_driver/src/lr11xx_bootloader.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/radio_drivers/lr11xx_driver/src/lr11xx_crypto_engine.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/radio_drivers/lr11xx_driver/src/lr11xx_driver_version.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/radio_drivers/lr11xx_driver/src/lr11xx_gnss.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/radio_drivers/lr11xx_driver/src/lr11xx_radio.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/radio_drivers/lr11xx_driver/src/lr11xx_regmem.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/radio_drivers/lr11xx_driver/src/lr11xx_system.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/radio_drivers/lr11xx_driver/src/lr11xx_wifi.c" />
+      <file file_name="../../../lora_basics_modem/smtc_modem_core/radio_drivers/lr11xx_driver/src/lr11xx_lr_fhss.c" />
+    </folder>
+    <folder Name="wm1110_peripherals">
+      <file file_name="../../../wm1110/peripherals/src/sht41.c" />
+      <file file_name="../../../wm1110/peripherals/src/lis3dh.c" />
+    </folder>
+  </project>
+  <configuration
+    Name="Release"
+    c_preprocessor_definitions="NDEBUG"
+    gcc_optimization_level="Optimize For Size"
+    link_time_optimization="No" />
+  <configuration
+    Name="Debug"
+    c_preprocessor_definitions="DEBUG; DEBUG_NRF"
+    gcc_optimization_level="None" />
+</solution>

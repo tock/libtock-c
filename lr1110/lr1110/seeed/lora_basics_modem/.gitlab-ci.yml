@@ -1,0 +1,124 @@
+image: gitlab-radio-lib-runner-image-update
+
+before_script:
+  - apt-get update
+  - gem update --system
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+stages:
+    - build
+
+#-- Common job ---------------------------------------------------------------
+.build:
+  stage: build
+
+  variables:
+    TARGET: "sx1261"
+    TRACE: "yes"
+    CRYPTO: "SOFT"
+    OPT: ""
+    REGION: ""
+    RP: ""
+    MCU_FLAGS: "-mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard"
+
+  before_script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+
+  script:
+    - arm-none-eabi-gcc --version
+    - make basic_modem_$TARGET MODEM_TRACE=$TRACE CRYPTO=$CRYPTO $REGION RP_VERSION=$RP MCU_FLAGS="$MCU_FLAGS" VERBOSE=yes
+
+#-- SX1261 jobs --------------------------------------------------------------
+job-build-sx1261-rp2-1-0-1:
+  extends: .build
+  variables:
+    TARGET: "sx1261"
+    RP: "RP2_101"
+
+job-build-sx1261-rp2-1-0-3:
+  extends: .build
+  variables:
+    TARGET: "sx1261"
+    RP: "RP2_103"
+
+#-- SX1262 jobs --------------------------------------------------------------
+job-build-sx1262-rp2-1-0-1:
+  extends: .build
+  variables:
+    TARGET: "sx1262"
+    RP: "RP2_101"
+
+job-build-sx1262-rp2-1-0-3:
+  extends: .build
+  variables:
+    TARGET: "sx1262"
+    RP: "RP2_103"
+
+#-- SX1268 jobs --------------------------------------------------------------
+job-build-sx1268-rp2-1-0-1:
+  extends: .build
+  variables:
+    TARGET: "sx1262"
+    RP: "RP2_101"
+
+job-build-sx1268-rp2-1-0-3:
+  extends: .build
+  variables:
+    TARGET: "sx1262"
+    RP: "RP2_103"
+
+#-- SX128x jobs --------------------------------------------------------------
+job-build-sx128x:
+  extends: .build
+  variables:
+    TARGET: "sx128x"
+    RP: "RP2_101"
+
+#-- LR1110 jobs --------------------------------------------------------------
+job-build-lr1110-rp2-1-0-1:
+  extends: .build
+  variables:
+    TARGET: "lr1110"
+    RP: "RP2_101"
+
+job-build-lr1110-rp2-1-0-3:
+  extends: .build
+  variables:
+    TARGET: "lr1110"
+    RP: "RP2_103"
+
+job-build-lr1110-crypto:
+  extends: .build
+  variables:
+    TARGET: "lr1110"
+    CRYPTO: "LR11XX"
+    RP: "RP2_101"
+
+job-build-lr1110-crypto-cred:
+  extends: .build
+  variables:
+    TARGET: "lr1110"
+    CRYPTO: "LR11XX_WITH_CREDENTIALS"
+    RP: "RP2_101"
+
+job-build-lr1110-no-trace:
+  extends: .build
+  variables:
+    TARGET: "lr1110"
+    TRACE: "no"
+
+#-- LR1120 jobs --------------------------------------------------------------
+job-build-lr1120-rp2-1-0-1:
+  extends: .build
+  variables:
+    TARGET: "lr1120"
+    RP: "RP2_101"
+
+job-build-lr1120-rp2-1-0-3:
+  extends: .build
+  variables:
+    TARGET: "lr1120"
+    RP: "RP2_103"
