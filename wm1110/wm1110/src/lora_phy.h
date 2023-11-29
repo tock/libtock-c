@@ -1,7 +1,7 @@
 #pragma once
 
 #include "tock.h"
-#include "tock_gpio.h"
+#include "gpio.h"
 
 #ifdef __cplusplus
 extern "C" {
