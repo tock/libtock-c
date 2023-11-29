@@ -7,6 +7,8 @@ VPATH += :$(WM1110_DIR)
 
 WM1110_DIR = $(TOCK_USERLAND_BASE_DIR)/wm1110/wm1110
 
+override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
+
 include $(WM1110_DIR)/wm1110.mk
 
 # List all C and Assembly files
