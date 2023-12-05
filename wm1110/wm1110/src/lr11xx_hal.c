@@ -124,24 +124,21 @@ lr11xx_hal_status_t lr11xx_hal_write( const void* context, const uint8_t* comman
     // Disable IRQ to secure LR11XX concurrent access
     modem_disable_irq( );
 
-    // Put NSS low to start spi transaction
-    hal_gpio_set_value( lr11xx_context->nss, 0 );
-    for( uint16_t i = 0; i < command_length; i++ )
-    {
-        hal_spi_in_out( lr11xx_context->spi_id, command[i] );
-    }
-    for( uint16_t i = 0; i < data_length; i++ )
-    {
-        hal_spi_in_out( lr11xx_context->spi_id, data[i] );
-    }
+
+    uint8_t wbuffer[100];
+
+    int write_length = command_length+data_length;
+
+    memcpy(wbuffer, command, command_length);
+    memcpy(wbuffer+command_length, data, data_length);
 
 #if defined( USE_LR11XX_CRC_OVER_SPI )
     // Send the CRC byte at the end of the transaction
-    hal_spi_in_out( lr11xx_context->spi_id, cmd_crc );
+    wbuffer[write_length] = cmd_crc;
+    write_length += 1;
 #endif
 
-    // Put NSS high as the spi transaction is finished
-    hal_gpio_set_value( lr11xx_context->nss, 1 );
+    lora_phy_write_sync((const char*)wbuffer,  write_length);
 
     // LR11XX_SYSTEM_SET_SLEEP_OC=0x011B opcode. In sleep mode the radio busy line is held at 1 => do not test it
     if( ( command[0] == 0x01 ) && ( command[1] == 0x1B ) )
@@ -151,7 +148,7 @@ lr11xx_hal_status_t lr11xx_hal_write( const void* context, const uint8_t* comman
         // add a incompressible delay to prevent trying to wake the radio before it is full asleep
         delay_ms( 1 );
 
-        // 
+        //
         hal_spi_deinit( );
     }
 
@@ -167,21 +164,37 @@ lr11xx_hal_status_t lr11xx_hal_read( const void* context, const uint8_t* command
     const lr11xx_hal_context_t* lr11xx_context = ( const lr11xx_hal_context_t* ) context;
 
     lr11xx_hal_check_device_ready( lr11xx_context );
-    
+
     uint8_t rbuffer[100];
     uint8_t wbuffer[100];
 
     memcpy(wbuffer, command, command_length);
 
     lora_phy_read_write_sync((const char*)wbuffer, (char*)rbuffer, command_length);
-    
+
     lr11xx_hal_check_device_ready( lr11xx_context );
 
     memset(wbuffer, 0, sizeof(wbuffer));
 
-    lora_phy_read_write_sync((const char*)wbuffer, (char*)rbuffer, 5);
+    lora_phy_read_write_sync((const char*)wbuffer, (char*)rbuffer, data_length+1);
 
-    memcpy(data, rbuffer, data_length);
+    memcpy(data, rbuffer+1, data_length);
+
+    bool int_pending = rbuffer[0] & 0x1;
+    uint8_t stat1 = (rbuffer[0] >> 1) & 0x7;
+
+    printf("resp intpend: %i, stat1: %i\n", int_pending, stat1);
+
+
+
+
+
+
+
+
+
+
+
 
 // #if defined( USE_LR11XX_CRC_OVER_SPI )
 //     // Compute the CRC over command array

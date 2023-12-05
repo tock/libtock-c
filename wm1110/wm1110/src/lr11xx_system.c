@@ -196,6 +196,10 @@ lr11xx_status_t lr11xx_system_get_version( const void* context, lr11xx_system_ve
         ( uint8_t ) ( LR11XX_SYSTEM_GET_VERSION_OC >> 8 ),
         ( uint8_t ) ( LR11XX_SYSTEM_GET_VERSION_OC >> 0 ),
     };
+    // const uint8_t cbuffer[LR11XX_SYSTEM_GET_VERSION_CMD_LENGTH] = {
+    //     0x1,
+    //     0x0,
+    // };
     uint8_t rbuffer[LR11XX_SYSTEM_VERSION_LENGTH] = { 0x00 };
 
     const lr11xx_status_t status = ( lr11xx_status_t ) lr11xx_hal_read(
