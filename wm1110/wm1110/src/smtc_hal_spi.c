@@ -26,7 +26,7 @@ void hal_spi_init( void )
         lora_phy_set_polarity(false);
         // Set the chip select pin
         // spi_set_chip_select(LR1110_SPI_NSS_PIN);
-        
+
         // spi_init = true;
         // nrfx_spim_config_t spi_config = NRFX_SPIM_DEFAULT_CONFIG;
         // spi_config.frequency = NRF_SPIM_FREQ_4M;
@@ -78,7 +78,7 @@ void hal_spi_write_read( const uint8_t* cbuffer, uint8_t* rbuffer, uint16_t leng
     {
         lora_phy_read_write_sync((const char*)cbuffer, (char*)rbuffer, (size_t)length);
 
-        
+
         // nrfx_spim_xfer_desc_t xfer_desc = NRFX_SPIM_XFER_TRX( cbuffer, length, rbuffer, length );
         // nrfx_spim_xfer( &spi, &xfer_desc, NRFX_SPIM_FLAG_NO_XFER_EVT_HANDLER );
     }
@@ -89,7 +89,7 @@ void hal_spi_read_with_dummy_byte( uint8_t* buffer, uint16_t length, uint8_t dum
     if( spi_initialized == true )
     {
         if( length <= sizeof( m_tx_buf ))
-        { 
+        {
             memset( m_tx_buf, dummy_byte, length );
             lora_phy_read_write_sync((const char*)m_tx_buf, (char*)buffer, (size_t)length);
             // nrfx_spim_xfer_desc_t xfer_desc = NRFX_SPIM_XFER_TRX( m_tx_buf, length, buffer, length );

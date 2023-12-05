@@ -328,7 +328,7 @@ override LEGACY_LIBS_rv32imac += \
 
 # Setup the correct toolchain for each architecture. ARM has a standard
 # toolchain we can use for every variant.
-TOOLCHAIN_cortex-m  := arm-none-eabi
+TOOLCHAIN_cortex-m  := /Users/bradjc/temp/gcc-arm/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi
 TOOLCHAIN_cortex-m0 := $(TOOLCHAIN_cortex-m)
 TOOLCHAIN_cortex-m3 := $(TOOLCHAIN_cortex-m)
 TOOLCHAIN_cortex-m4 := $(TOOLCHAIN_cortex-m)

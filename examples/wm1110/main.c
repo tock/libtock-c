@@ -26,15 +26,17 @@ void lr1110_sleep_enter( uint32_t tick )
     hal_spi_init( );
 
     printf("\nafter spi init\n");
- 
-    // lr11xx_system_clear_errors( &radio_context );   
+
+    lr11xx_hal_reset(&radio_context);
+
+    lr11xx_system_clear_errors( &radio_context );
     // lr11xx_system_set_tcxo_mode( &radio_context , LR11XX_SYSTEM_TCXO_CTRL_3_3V, 50 );
     // lr11xx_system_cfg_lfclk( &radio_context , LR11XX_SYSTEM_LFCLK_XTAL, 1 );
-    
+
     // lr11xx_system_sleep_cfg_t radio_sleep_cfg;
     // radio_sleep_cfg.is_warm_start  = 1;
     // radio_sleep_cfg.is_rtc_timeout = 1;
-    
+
     // lr11xx_system_drive_dio_in_sleep_mode( &radio_context , true );
     // lr11xx_system_set_sleep( &radio_context , radio_sleep_cfg, tick );
 
@@ -53,15 +55,23 @@ void lr1110_sleep_enter( uint32_t tick )
                              version.fw );
     }
 
-    printf("\nbefore spi deinit\n");
-    hal_spi_deinit( );
+    lr11xx_system_uid_t unique_identifier;
+    status= lr11xx_system_read_uid( &radio_context, &unique_identifier );
+
+    printf("uid %x %x %x\n", unique_identifier[0], unique_identifier[1], unique_identifier[2]);
+
+
+
+
+    // printf("\nbefore spi deinit\n");
+    // hal_spi_deinit( );
 }
 
 int main(void)
 {
     //hal_pwr_init( );
     printf("\nbefore initalize lora\n");
-    
+
     hal_gpio_init_out( LR1110_SPI_NSS_PIN, HAL_GPIO_SET );
     hal_gpio_init_in( LR1110_BUSY_PIN, HAL_GPIO_PULL_MODE_NONE, HAL_GPIO_IRQ_MODE_OFF, NULL );
     hal_gpio_init_in( LR1110_IRQ_PIN, HAL_GPIO_PULL_MODE_DOWN, HAL_GPIO_IRQ_MODE_RISING, NULL );
@@ -76,10 +86,9 @@ int main(void)
     //hal_debug_deinit( );
 
     delay_ms( 5000 );
-    
+
     // while( 1 )
     // {
     //     nrf_pwr_mgmt_run( );
     // }
 }
- 
