@@ -10,11 +10,11 @@ static struct data result = { .fired = false };
 
 // Internal upcall  for faking synchronous reads
 static void press_upcall(int                          press,
-                        __attribute__ ((unused)) int unused,
-                        __attribute__ ((unused)) int unused1,
-                        void*                        ud) {
+                         __attribute__ ((unused)) int unused,
+                         __attribute__ ((unused)) int unused1,
+                         void*                        ud) {
   struct data* data = (struct data*) ud;
-  data->press  = press;
+  data->press = press;
   data->fired = true;
 }
 
