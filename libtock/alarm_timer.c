@@ -211,3 +211,19 @@ int yield_for_with_timeout(bool* cond, uint32_t ms) {
   timer_cancel(&timer);
   return RETURNCODE_SUCCESS;
 }
+
+int gettimeasticks(struct timeval *tv, __attribute__ ((unused)) void *tzvp)
+{
+  uint32_t frequency, now, seconds, remainder;
+
+  alarm_internal_frequency(&frequency);
+  alarm_internal_read(&now);
+
+  seconds   = now / frequency;
+  remainder = now % frequency;
+
+  tv->tv_sec  = seconds;
+  tv->tv_usec = (remainder * 1000 * 1000) / frequency;
+
+  return 0;
+}
