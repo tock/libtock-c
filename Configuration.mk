@@ -214,23 +214,23 @@ override CPPFLAGS_PIC += \
 # essentially any target. Thus, try a few known names and choose the one for
 # which a compiler is found.
 ifneq (,$(shell which riscv64-none-elf-gcc 2>/dev/null))
-  TOOLCHAIN_rv32i := riscv64-none-elf
+  TOOLCHAIN_rv32 := riscv64-none-elf
 else ifneq (,$(shell which riscv32-none-elf-gcc 2>/dev/null))
-  TOOLCHAIN_rv32i := riscv32-none-elf
+  TOOLCHAIN_rv32 := riscv32-none-elf
 else ifneq (,$(shell which riscv64-elf-gcc 2>/dev/null))
-  TOOLCHAIN_rv32i := riscv64-elf
+  TOOLCHAIN_rv32 := riscv64-elf
 else ifneq (,$(shell which riscv64-unknown-elf-clang 2>/dev/null))
-  TOOLCHAIN_rv32i := riscv64-unknown-elf
+  TOOLCHAIN_rv32 := riscv64-unknown-elf
 else ifneq (,$(shell which riscv32-unknown-elf-clang 2>/dev/null))
-  TOOLCHAIN_rv32i := riscv32-unknown-elf
+  TOOLCHAIN_rv32 := riscv32-unknown-elf
 else
-  # Fallback option. We don't particularly want to throw an error (even if
-  # RISCV=1 is set) as this configuration makefile can be useful without a
-  # proper toolchain.
-  TOOLCHAIN_rv32i := riscv64-unknown-elf
+  # Fallback option. We don't particularly want to throw an error as this
+  # configuration makefile can be useful without a proper toolchain.
+  TOOLCHAIN_rv32 := riscv64-unknown-elf
 endif
-TOOLCHAIN_rv32imac := $(TOOLCHAIN_rv32i)
-TOOLCHAIN_rv32imc := $(TOOLCHAIN_rv32i)
+TOOLCHAIN_rv32i    := $(TOOLCHAIN_rv32)
+TOOLCHAIN_rv32imc  := $(TOOLCHAIN_rv32)
+TOOLCHAIN_rv32imac := $(TOOLCHAIN_rv32)
 
 # For RISC-V we default to GCC, but can support clang as well. Eventually, one
 # or both toolchains might support the PIC we need, at which point we would
@@ -246,6 +246,42 @@ CC_rv32i    := $(CC_rv32)
 CC_rv32imc  := $(CC_rv32)
 CC_rv32imac := $(CC_rv32)
 
+# Determine the version of the RISC-V compiler. This is used to select the
+# version of the libgcc library that is compatible.
+CC_rv32_version := $(shell $(TOOLCHAIN_rv32)$(CC_rv32) -dumpfullversion)
+CC_rv32_version_major := $(shell echo $(CC_rv32_version) | cut -f1 -d.)
+
+# Match compiler version to support libtock-newlib versions.
+ifeq ($(CC_rv32_version_major),10)
+  NEWLIB_VERSION_rv32 := 4.2.0.20211231
+else ifeq ($(CC_rv32_version_major),11)
+  NEWLIB_VERSION_rv32 := 4.2.0.20211231
+else ifeq ($(CC_rv32_version_major),12)
+  NEWLIB_VERSION_rv32 := 4.3.0.20230120
+else ifeq ($(CC_rv32_version_major),13)
+  NEWLIB_VERSION_rv32 := 4.3.0.20230120
+else
+  NEWLIB_VERSION_rv32 := 4.3.0.20230120
+endif
+NEWLIB_VERSION_rv32i    := $(NEWLIB_VERSION_rv32)
+NEWLIB_VERSION_rv32imc  := $(NEWLIB_VERSION_rv32)
+NEWLIB_VERSION_rv32imac := $(NEWLIB_VERSION_rv32)
+NEWLIB_BASE_DIR_rv32 := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-$(NEWLIB_VERSION_rv32)
+
+# Match compiler version to supported libtock-libc++ versions.
+ifeq ($(CC_rv32_version_major),10)
+  LIBCPP_VERSION_rv32 := 10.5.0
+else ifeq ($(CC_rv32_version_major),11)
+  LIBCPP_VERSION_rv32 := 10.5.0
+else ifeq ($(CC_rv32_version_major),12)
+  LIBCPP_VERSION_rv32 := 12.3.0
+else ifeq ($(CC_rv32_version_major),13)
+  LIBCPP_VERSION_rv32 := 13.2.0
+else
+  LIBCPP_VERSION_rv32 := 13.2.0
+endif
+LIBCPP_BASE_DIR_rv32 := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$(LIBCPP_VERSION_rv32)
+
 # Set the toolchain specific flags.
 #
 # Note: There are no non-gcc, clang-specific flags currently in use, so there is
@@ -258,8 +294,7 @@ endif
 
 # Set the toolchain specific `CFLAGS` for RISC-V. We use the same generic
 # toolchain flags for each RISC-V variant.
-override CFLAGS_rv32 += \
-      $(CFLAGS_toolchain_rv32)
+override CFLAGS_rv32 += $(CFLAGS_toolchain_rv32)
 
 override CFLAGS_rv32i    += $(CFLAGS_rv32)
 override CFLAGS_rv32imc  += $(CFLAGS_rv32)
@@ -267,7 +302,10 @@ override CFLAGS_rv32imac += $(CFLAGS_rv32)
 
 # Set the base `CPPFLAGS` for all RISC-V variants based on the toolchain family.
 override CPPFLAGS_rv32 += \
-      $(CPPFLAGS_toolchain_rv32)
+      $(CPPFLAGS_toolchain_rv32) \
+      -I$(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/include \
+      -I$(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/include/c++/$(LIBCPP_VERSION_rv32) \
+      -I$(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/include/c++/$(LIBCPP_VERSION_rv32)/riscv64-unknown-elf
 
 # Set the `CPPFLAGS` for RISC-V. Here we need different flags for different
 # variants.
@@ -295,29 +333,26 @@ override WLFLAGS_rv32i    += $(WLFLAGS_rv32)
 override WLFLAGS_rv32imc  += $(WLFLAGS_rv32)
 override WLFLAGS_rv32imac += $(WLFLAGS_rv32)
 
-# Set the system libraries we link against for RISC-V. We support C++ apps by
-# default.
-override LINK_LIBS_rv32 += \
-      -lgcc -lstdc++ -lsupc++
+override LINK_LIBS_rv32i    += \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libstdc++.a \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libsupc++.a \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/lib/gcc/riscv64-unknown-elf/$(LIBCPP_VERSION_rv32)/rv32i/ilp32/libgcc.a \
+      $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libc.a \
+      $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libm.a
 
-override LINK_LIBS_rv32i    += $(LINK_LIBS_rv32)
-override LINK_LIBS_rv32imc  += $(LINK_LIBS_rv32)
-override LINK_LIBS_rv32imac += $(LINK_LIBS_rv32)
+override LINK_LIBS_rv32imc  += \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libstdc++.a \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libsupc++.a \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/lib/gcc/riscv64-unknown-elf/$(LIBCPP_VERSION_rv32)/rv32im/ilp32/libgcc.a \
+      $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libc.a \
+      $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libm.a
 
-# Use precompiled libaries we provide to link against.
-override LEGACY_LIBS_rv32i += \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32i/libm.a
-
-override LEGACY_LIBS_rv32im += \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32im/libm.a
-
-override LEGACY_LIBS_rv32imc += $(LEGACY_LIBS_rv32im)
-
-override LEGACY_LIBS_rv32imac += \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/rv32/rv32imac/libm.a
+override LINK_LIBS_rv32imac += \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libstdc++.a \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libsupc++.a \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/lib/gcc/riscv64-unknown-elf/$(LIBCPP_VERSION_rv32)/rv32imac/ilp32/libgcc.a \
+      $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libc.a \
+      $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libm.a
 
 
 ################################################################################
@@ -342,6 +377,43 @@ CC_cortex-m3 := $(CC_cortex-m)
 CC_cortex-m4 := $(CC_cortex-m)
 CC_cortex-m7 := $(CC_cortex-m)
 
+# Determine the version of the ARM compiler. This is used to select the version
+# of the libgcc library that is compatible.
+CC_cortex-m_version := $(shell $(TOOLCHAIN_cortex-m)$(CC_cortex-m) -dumpfullversion)
+CC_cortex-m_version_major := $(shell echo $(CC_cortex-m_version) | cut -f1 -d.)
+
+# Match compiler version to support libtock-newlib versions.
+ifeq ($(CC_cortex-m_version_major),10)
+  NEWLIB_VERSION_cortex-m := 4.2.0.20211231
+else ifeq ($(CC_cortex-m_version_major),11)
+  NEWLIB_VERSION_cortex-m := 4.2.0.20211231
+else ifeq ($(CC_cortex-m_version_major),12)
+  NEWLIB_VERSION_cortex-m := 4.3.0.20230120
+else ifeq ($(CC_cortex-m_version_major),13)
+  NEWLIB_VERSION_cortex-m := 4.3.0.20230120
+else
+  NEWLIB_VERSION_cortex-m := 4.3.0.20230120
+endif
+NEWLIB_VERSION_cortex-m0 := $(NEWLIB_VERSION_cortex-m)
+NEWLIB_VERSION_cortex-m3 := $(NEWLIB_VERSION_cortex-m)
+NEWLIB_VERSION_cortex-m4 := $(NEWLIB_VERSION_cortex-m)
+NEWLIB_VERSION_cortex-m7 := $(NEWLIB_VERSION_cortex-m)
+NEWLIB_BASE_DIR_cortex-m := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-$(NEWLIB_VERSION_cortex-m)
+
+# Match compiler version to supported libtock-libc++ versions.
+ifeq ($(CC_cortex-m_version_major),10)
+  LIBCPP_VERSION_cortex-m := 10.5.0
+else ifeq ($(CC_cortex-m_version_major),11)
+  LIBCPP_VERSION_cortex-m := 10.5.0
+else ifeq ($(CC_cortex-m_version_major),12)
+  LIBCPP_VERSION_cortex-m := 12.3.0
+else ifeq ($(CC_cortex-m_version_major),13)
+  LIBCPP_VERSION_cortex-m := 13.2.0
+else
+  LIBCPP_VERSION_cortex-m := 13.2.0
+endif
+LIBCPP_BASE_DIR_cortex-m := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$(LIBCPP_VERSION_cortex-m)
+
 # Based on the toolchain used by each architecture, add in toolchain-specific
 # flags. We assume that each architecture family uses the same toolchain.
 ifeq ($(findstring -gcc,$(CC_cortex-m)),-gcc)
@@ -349,9 +421,7 @@ ifeq ($(findstring -gcc,$(CC_cortex-m)),-gcc)
   override CFLAGS_toolchain_cortex-m += $(CFLAGS_gcc)
 endif
 
-override CFLAGS_cortex-m += \
-      $(CFLAGS_toolchain_cortex-m)
-
+override CFLAGS_cortex-m  += $(CFLAGS_toolchain_cortex-m)
 override CFLAGS_cortex-m0 += $(CFLAGS_cortex-m)
 override CFLAGS_cortex-m3 += $(CFLAGS_cortex-m)
 override CFLAGS_cortex-m4 += $(CFLAGS_cortex-m)
@@ -364,7 +434,10 @@ override CPPFLAGS_cortex-m += \
       -mfloat-abi=soft\
       -msingle-pic-base\
       -mpic-register=r9\
-      -mno-pic-data-is-text-relative
+      -mno-pic-data-is-text-relative\
+      -I$(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/include\
+      -I$(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/include/c++/$(LIBCPP_VERSION_cortex-m)\
+      -I$(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/include/c++/$(LIBCPP_VERSION_cortex-m)/arm-none-eabi
 
 # Work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85606
 override CPPFLAGS_cortex-m0 += $(CPPFLAGS_cortex-m) \
@@ -380,27 +453,33 @@ override CPPFLAGS_cortex-m4 += $(CPPFLAGS_cortex-m) \
 override CPPFLAGS_cortex-m7 += $(CPPFLAGS_cortex-m) \
       -mcpu=cortex-m7
 
-# Single-arch libraries, to be phased out
-override LEGACY_LIBS_cortex-m += \
-      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libstdc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libsupc++.a\
-      $(TOCK_USERLAND_BASE_DIR)/libc++/cortex-m/libgcc.a
+override LINK_LIBS_cortex-m0 += \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libstdc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libsupc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v6-m/nofp/libgcc.a \
+      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libc.a \
+      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libm.a
 
-override LEGACY_LIBS_cortex-m0 += $(LEGACY_LIBS_cortex-m) \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v6-m/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v6-m/libm.a
+override LINK_LIBS_cortex-m3 += \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libstdc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libsupc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v7-m/nofp/libgcc.a \
+      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libc.a \
+      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libm.a
 
-override LEGACY_LIBS_cortex-m3 += $(LEGACY_LIBS_cortex-m) \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
+override LINK_LIBS_cortex-m4 += \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libstdc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libsupc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v7e-m/nofp/libgcc.a \
+      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libc.a \
+      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libm.a
 
-override LEGACY_LIBS_cortex-m4 += $(LEGACY_LIBS_cortex-m) \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
-
-override LEGACY_LIBS_cortex-m7 += $(LEGACY_LIBS_cortex-m) \
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libc.a\
-      $(TOCK_USERLAND_BASE_DIR)/newlib/cortex-m/v7-m/libm.a
+override LINK_LIBS_cortex-m7 += \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libstdc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libsupc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v7e-m/nofp/libgcc.a \
+      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libc.a \
+      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libm.a
 
 # Cortex-M needs an additional OBJDUMP flag.
 override OBJDUMP_FLAGS_cortex-m  += --disassembler-options=force-thumb
