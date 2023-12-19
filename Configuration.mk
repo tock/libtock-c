@@ -56,17 +56,6 @@ PACKAGE_NAME ?= $(shell basename "$(shell pwd)")
 # 3. (Optional) The address to use as the fixed start of flash.
 # 4. (Optional) The address to use as the fixed start of RAM.
 #
-# By default we currently only build the Cortex-M targets. To enable the RISC-V
-# targets, set the RISCV variable like so:
-#
-#     $ make RISCV=1
-#
-# Once the RV32 toolchain distribution stabilizes (as of June 2020 the toolchain
-# isn't as easily obtained as we would like), we intend to make the RISC-V
-# targets build by default as well.
-ifeq ($(RISCV),)
-TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4 cortex-m7
-else
 # Specific addresses useful for the OpenTitan hardware memory map.
 OPENTITAN_TOCK_TARGETS := rv32imc|rv32imc.0x20030080.0x10005000|0x20030080|0x10005000\
                           rv32imc|rv32imc.0x20030880.0x10008000|0x20030880|0x10008000\
@@ -92,7 +81,6 @@ TOCK_TARGETS ?= cortex-m0\
                 rv32imc|rv32imc.0x00080080.0x40008000|0x00080080|0x40008000\
                 $(OPENTITAN_TOCK_TARGETS) \
                 $(ARTY_E21_TOCK_TARGETS)
-endif
 
 # Generate `TOCK_ARCH_FAMILIES`, the set of architecture families which will be
 # used to determine toolchains to use in the build process.
@@ -651,9 +639,7 @@ ifneq ($(V),)
   $(info Config:)
   $(info GIT: $(shell git describe --always 2>&1))
   $(info $(TOOLCHAIN_cortex-m4)$(CC_cortex-m4) --version: $(shell $(TOOLCHAIN_cortex-m4)$(CC_cortex-m4) --version))
-ifneq ($(RISCV),)
   $(info $(TOOLCHAIN_rv32i)$(CC_rv32i) --version: $(shell $(TOOLCHAIN_rv32i)$(CC_rv32i) --version))
-endif
   $(info LAYOUT=$(LAYOUT))
   $(info MAKEFLAGS=$(MAKEFLAGS))
   $(info PACKAGE_NAME=$(PACKAGE_NAME))
