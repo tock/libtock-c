@@ -246,7 +246,7 @@ static void program_new_secret(int slot_num) {
     }
 
     // only record alphanumeric characters
-    if (isalnum(c)) {
+    if (isalnum((int) c)) {
       newkey[i] = c;
       i++;
 
