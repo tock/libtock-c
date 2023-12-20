@@ -3,11 +3,11 @@
 GCC_VERSION=$1
 
 if [ $GCC_VERSION = "13.2.0" ]; then
-  GCC_SHA="8f57e699f77fddc0c9e123b64793a7e159b14a61f7052713d06d34d41d084308"
+  GCC_SHA="9940242a1390f897f8c3fe6e7a8821e863580797f9a6e80a91f52e41dd8086a1"
 elif [ $GCC_VERSION = "12.3.0" ]; then
-  GCC_SHA="9b6f3a5cf0c2de887683e17b3945b056347f03bccb6129340cfb0d49d6cb3c95"
+  GCC_SHA="b0686eb1905594bde7b746fc58be97aceac8f802d8b5171adb6a4e84f3906d30"
 elif [ $GCC_VERSION = "10.5.0" ]; then
-  GCC_SHA="705050dec9331b93ce5cc9cff63e564cdb541f09d84f299f3cde97ad5d2cb343"
+  GCC_SHA="1cd4eef592bcc7b9ec77e2c21b50dabcff9b614b4cd1ec82a9dac238c8789c95"
 fi
 
 # Name of the pre-created compiled directories.
