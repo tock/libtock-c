@@ -48,7 +48,7 @@ const int COMMAND_SEND = 26;
 // parameters / return codes are not enough te contain the required data.
 unsigned char BUF_CFG[27];
 
-bool ieee802154_driver_is_present(void) {
+bool ieee802154_driver_exists(void) {
   return driver_exists(RADIO_DRIVER);
 }
 

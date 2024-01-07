@@ -1,7 +1,11 @@
 #include "read_only_state.h"
 
+bool read_only_state_exists(void) {
+  return driver_exists(READ_ONLY_STATEDRIVER_NUM);
+}
+
 int read_only_state_get_version(void) {
-  syscall_return_t res = command(READ_ONLY_STATEDRIVER_NUM, 0, 0, 0);
+  syscall_return_t res = command(READ_ONLY_STATEDRIVER_NUM, 1, 0, 0);
 
   if (res.type != TOCK_SYSCALL_SUCCESS_U32) {
     return RETURNCODE_ENOSUPPORT;

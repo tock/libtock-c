@@ -1,8 +1,7 @@
 #include "gpio.h"
 
-int gpio_count(int* count) {
-  syscall_return_t rval = command(GPIO_DRIVER_NUM, 0, 0, 0);
-  return tock_command_return_u32_to_returncode(rval, (uint32_t*) count);
+bool gpio_exists(void) {
+  return driver_exists(GPIO_DRIVER_NUM);
 }
 
 int gpio_enable_output(GPIO_Pin_t pin) {
@@ -48,6 +47,11 @@ int gpio_disable_interrupt(GPIO_Pin_t pin) {
 int gpio_disable(GPIO_Pin_t pin) {
   syscall_return_t rval = command(GPIO_DRIVER_NUM, 9, pin, 0);
   return tock_command_return_novalue_to_returncode(rval);
+}
+
+int gpio_count(int* count) {
+  syscall_return_t rval = command(GPIO_DRIVER_NUM, 10, 0, 0);
+  return tock_command_return_u32_to_returncode(rval, (uint32_t*) count);
 }
 
 int gpio_interrupt_callback(subscribe_upcall callback, void* callback_args) {
