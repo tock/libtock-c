@@ -8,7 +8,7 @@ struct data {
 
 static struct data result = { .fired = false };
 
-// Internal upcall  for faking synchronous reads
+// Internal upcall for faking synchronous reads
 static void press_upcall(int                          press,
                          __attribute__ ((unused)) int unused,
                          __attribute__ ((unused)) int unused1,
@@ -16,6 +16,10 @@ static void press_upcall(int                          press,
   struct data* data = (struct data*) ud;
   data->press = press;
   data->fired = true;
+}
+
+bool pressure_exists(void) {
+  return driver_exists(DRIVER_NUM_PRESSURE);
 }
 
 int pressure_set_callback(subscribe_upcall callback, void* callback_args) {
