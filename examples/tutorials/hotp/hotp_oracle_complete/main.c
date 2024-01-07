@@ -45,7 +45,6 @@ int key_digits[NUM_KEYS] = {6, 6, 7, 8};
 typedef uint64_t counter_t;
 
 typedef struct __attribute__((__packed__)) {
-  uint32_t magic;
   uint8_t len;
   uint8_t iv[16];
   uint8_t key[64];
@@ -132,12 +131,9 @@ static int initialize_keys(void) {
     uint32_t value_len = 0;
     ret = kv_get_sync(key, key_len, value, sizeof(hotp_key_t), &value_len);
 
-    hotp_key_t* hotp_key = (hotp_key_t*) value;
-
     // Check if we read what looks like a valid key.
-    if (ret != RETURNCODE_SUCCESS || value_len != sizeof(hotp_key_t) || hotp_key->magic != 0xdeadbeef) {
-      keys[i].magic = 0xdeadbeef;
-      keys[i].len   = 0;
+    if (ret != RETURNCODE_SUCCESS || value_len != sizeof(hotp_key_t)) {
+      keys[i].len = 0;
       save_key(i);
 
       if (i == 0) {
