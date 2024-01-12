@@ -18,6 +18,10 @@ static void humidity_upcall(int                          humidity,
   data->fired    = true;
 }
 
+bool humidity_exists(void) {
+  return driver_exists(DRIVER_NUM_HUMIDITY);
+}
+
 int humidity_set_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_HUMIDITY, 0, callback, callback_args);
   return tock_subscribe_return_to_returncode(sval);
