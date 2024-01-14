@@ -47,7 +47,7 @@ static size_t page_size_bytes(u8g2_t* u8g2) {
 }
 
 
-void u8g2_tock_init(u8g2_t *u8g2);
+
 
 
 static u8x8_display_info_t u8x8_ssd1306_128x64_noname_display_info =
