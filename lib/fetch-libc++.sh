@@ -16,7 +16,7 @@ ZIP_FILE=libtock-libc++-$GCC_VERSION.zip
 # List of mirrors we support.
 MIRRORS=(\
   "https://www.cs.virginia.edu/~bjc8c/archive/tock"\
-  "https://alpha.mirror.svc.schuermann.io/files"\
+  "https://alpha.mirror.svc.schuermann.io/files/tock"\
 )
 
 let FOUND=0
