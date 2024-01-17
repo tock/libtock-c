@@ -23,6 +23,8 @@ static void read_ptr(uint32_t* p) {
   printf("    value %lu\n", *p);
 }
 
+#pragma GCC diagnostic ignored "-Wpragmas"
+#pragma GCC diagnostic ignored "-Winfinite-recursion"
 static void grow_stack(void) {
   register uint32_t* sp asm ("sp");
 

@@ -11,19 +11,19 @@ TOCK_TARGETS := cortex-m0 cortex-m3 cortex-m4 cortex-m7
 CXX_SRCS := $(wildcard *.cc)
 
 # Include the core RadioLib headers
-override CPPFLAGS += -I../RadioLib/src
+override CPPFLAGS += -isystem ../RadioLib/src
 
 # Include the Tock specific headers
-override CPPFLAGS += -I../RadioLib/examples/NonArduino/Tock
+override CPPFLAGS += -isystem ../RadioLib/examples/NonArduino/Tock
 
 # Include the base of libtock-c to fix the libtock/ includes from RadioLib
 override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/
 
-override LEGACY_LIBS_cortex-m += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
-override LEGACY_LIBS_cortex-m0 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
-override LEGACY_LIBS_cortex-m3 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
-override LEGACY_LIBS_cortex-m4 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
-override LEGACY_LIBS_cortex-m7 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
+override LINK_LIBS_cortex-m += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
+override LINK_LIBS_cortex-m0 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
+override LINK_LIBS_cortex-m3 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
+override LINK_LIBS_cortex-m4 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
+override LINK_LIBS_cortex-m7 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
 
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.
