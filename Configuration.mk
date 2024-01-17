@@ -291,9 +291,9 @@ override CFLAGS_rv32imac += $(CFLAGS_rv32)
 # Set the base `CPPFLAGS` for all RISC-V variants based on the toolchain family.
 override CPPFLAGS_rv32 += \
       $(CPPFLAGS_toolchain_rv32) \
-      -I$(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/include \
-      -I$(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/include/c++/$(LIBCPP_VERSION_rv32) \
-      -I$(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/include/c++/$(LIBCPP_VERSION_rv32)/riscv64-unknown-elf
+      -isystem $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/include \
+      -isystem $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/include/c++/$(LIBCPP_VERSION_rv32) \
+      -isystem $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/include/c++/$(LIBCPP_VERSION_rv32)/riscv64-unknown-elf
 
 # Set the `CPPFLAGS` for RISC-V. Here we need different flags for different
 # variants.
@@ -423,9 +423,9 @@ override CPPFLAGS_cortex-m += \
       -msingle-pic-base\
       -mpic-register=r9\
       -mno-pic-data-is-text-relative\
-      -I$(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/include\
-      -I$(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/include/c++/$(LIBCPP_VERSION_cortex-m)\
-      -I$(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/include/c++/$(LIBCPP_VERSION_cortex-m)/arm-none-eabi
+      -isystem $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/include\
+      -isystem $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/include/c++/$(LIBCPP_VERSION_cortex-m)\
+      -isystem $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/include/c++/$(LIBCPP_VERSION_cortex-m)/arm-none-eabi
 
 # Work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85606
 override CPPFLAGS_cortex-m0 += $(CPPFLAGS_cortex-m) \
