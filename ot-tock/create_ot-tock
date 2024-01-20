@@ -1,0 +1,43 @@
+#! /bin/bash
+
+
+mkdir -p build && cd build && cmake .. -DOT_PLATFORM=external -Wno-dev  && cmake --build . --target openthread-ftd 
+
+mkdir -p cortex-m4
+cd ..
+
+# Specify the directory containing the .a files
+library_directory="build/openthread"
+DST_DIR="build/cortex-m4"
+OUTPUT_LIB="ot-tock"
+
+cp $library_directory/src/core/libopenthread-ftd.a $DST_DIR/libopenthread-ftd.a
+cp $library_directory/third_party/mbedtls/repo/library/libmbedx509.a $DST_DIR/libmbedx509.a
+cp $library_directory/third_party/mbedtls/repo/library/libmbedcrypto.a $DST_DIR/libmbedcrypto.a
+cp $library_directory/third_party/mbedtls/repo/library/libmbedtls.a $DST_DIR/libmbedtls.a
+cp $library_directory/third_party/tcplp/libtcplp-ftd.a $DST_DIR/libtcplp-ftd.a
+#cp $library_directory/src/cli/libopenthread-cli-ftd.a $DST_DIR/libopenthread-cli-ftd.a
+
+# Create a temporary directory to extract object files
+temp_dir="temp_extracted_objects"
+mkdir $DST_DIR/$temp_dir
+
+cd $DST_DIR/$temp_dir
+
+
+# Extract object files from all .a files in the directory
+for lib in ../*.a; do
+        ar -x $lib
+done
+
+# Create a combined static library
+ar -rcs $OUTPUT_LIB.a ./*.obj
+
+mv $OUTPUT_LIB.a ..
+cd ..
+
+# Clean up temporary directory
+rm -r $temp_dir
+
+echo "Merged static libraries successfully."
+
