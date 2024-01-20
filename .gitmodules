@@ -4,3 +4,6 @@
 [submodule "lvgl/lvgl"]
 	path = lvgl/lvgl
 	url = https://github.com/littlevgl/lvgl.git
+[submodule "ot-tock/openthread"]
+	path = ot-tock/openthread
+	url = https://github.com/openthread/openthread.git
