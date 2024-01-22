@@ -1,7 +1,6 @@
 #! /bin/bash
 
-
-mkdir -p build && cd build && cmake .. -DOT_PLATFORM=external -Wno-dev  && cmake --build . --target openthread-ftd 
+mkdir -p build && cd build && cmake .. -DOT_PLATFORM=external -Wno-dev  && cmake --build . --target openthread-ftd
 
 mkdir -p cortex-m4
 cd ..
@@ -21,6 +20,7 @@ cp $library_directory/third_party/tcplp/libtcplp-ftd.a $DST_DIR/libtcplp-ftd.a
 # Create a temporary directory to extract object files
 temp_dir="temp_extracted_objects"
 mkdir $DST_DIR/$temp_dir
+rm -rf $DST_DIR/$OUTPUT_LIB.a
 
 cd $DST_DIR/$temp_dir
 
@@ -31,7 +31,7 @@ for lib in ../*.a; do
 done
 
 # Create a combined static library
-ar -rcs $OUTPUT_LIB.a ./*.obj
+ar rc $OUTPUT_LIB.a ./*.obj
 
 mv $OUTPUT_LIB.a ..
 cd ..
@@ -40,4 +40,5 @@ cd ..
 rm -r $temp_dir
 
 echo "Merged static libraries successfully."
+
 

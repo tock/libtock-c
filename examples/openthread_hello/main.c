@@ -3,9 +3,17 @@
 
 int main(int argc, char *argv[])
 {
-	otInstance *instance;
-	instance = otInstanceInitSingle();
-	assert(instance);
-	return 0;
+        otInstance *instance;
+        instance = otInstanceInitSingle();
+        assert(instance);
+
+    for(;;)
+    {
+        otTaskletsProcess(instance);
+    //    otSysProcessDrivers(instance); IMPLEMENT IN PLATFORM
+    }
+
+        return 0;
 }
+
 
