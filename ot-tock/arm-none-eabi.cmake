@@ -36,21 +36,19 @@ set(CMAKE_RANLIB                   arm-none-eabi-ranlib)
 
 execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE COMPILER_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-set(COMMON_C_FLAGS                 "-mcpu=cortex-m4 -mfloat-abi=soft  -mthumb -fdata-sections -ffunction-sections")
-
-if(COMPILER_VERSION VERSION_GREATER_EQUAL 7)
-    set(COMMON_C_FLAGS             "${COMMON_C_FLAGS} -Wno-expansion-to-defined")
-endif()
+set(COMMON_C_FLAGS "-frecord-gcc-switches -gdwarf-2 -Os -fdata-sections -ffunction-sections -fstack-usage -D_FORTIFY_SOURCE=2 -fPIC -mthumb -mfloat-abi=soft -msingle-pic-base -mpic-register=r9 -mno-pic-data-is-text-relative -mcpu=cortex-m4 -isystem ../lib/libtock-newlib-4.2.0.20211231/arm/arm-none-eabi/include -isystem ../lib/libtock-libc++-10.5.0/arm/arm-none-eabi/include/c++/10.5.0 -isystem ../lib/libtock-libc++-10.5.0/arm/arm-none-eabi/include/c++/10.5.0/arm-none-eabi")
 
 set(CMAKE_C_FLAGS_INIT             "${COMMON_C_FLAGS} -std=gnu11")
-set(CMAKE_CXX_FLAGS_INIT           "${COMMON_C_FLAGS} -fno-exceptions -fno-rtti")
-set(CMAKE_ASM_FLAGS_INIT           "${COMMON_C_FLAGS} -x assembler-with-cpp")
+set(CMAKE_CXX_FLAGS_INIT           "${COMMON_C_FLAGS}")
+set(CMAKE_ASM_FLAGS_INIT           "${COMMON_C_FLAGS}")
+#set(CMAKE_EXE_LINKER_FLAGS_INIT    "${COMMON_C_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_INIT    "${COMMON_C_FLAGS} -specs=nano.specs -specs=nosys.specs")
 
-set(CMAKE_C_FLAGS_DEBUG            "-Og -g")
-set(CMAKE_CXX_FLAGS_DEBUG          "-Og -g")
-set(CMAKE_ASM_FLAGS_DEBUG          "-g")
+#set(CMAKE_C_FLAGS_DEBUG            "-Og -g")
+#set(CMAKE_CXX_FLAGS_DEBUG          "-Os -g")
+#set(CMAKE_ASM_FLAGS_DEBUG          "-g")
+#
+#set(CMAKE_C_FLAGS_RELEASE          "-Os")
+#set(CMAKE_CXX_FLAGS_RELEASE        "-Os")
+#set(CMAKE_ASM_FLAGS_RELEASE        "")
 
-set(CMAKE_C_FLAGS_RELEASE          "-Os")
-set(CMAKE_CXX_FLAGS_RELEASE        "-Os")
-set(CMAKE_ASM_FLAGS_RELEASE        "")

@@ -1,4 +1,0 @@
-
-## IMPORTANT
-
-- I commented out a line in the openthread library that is for freeing/alloc heap in mbedtls.cpp?
