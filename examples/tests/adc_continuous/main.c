@@ -111,7 +111,7 @@ int main(void) {
   printf("[Tock] ADC Continuous Test\n");
 
   // check if ADC driver exists
-  if (!adc_is_present()) {
+  if (!adc_exists()) {
     printf("No ADC driver!\n");
     return -1;
   }

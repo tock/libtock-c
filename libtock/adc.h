@@ -45,7 +45,7 @@ int adc_set_buffer(uint16_t* buffer, uint32_t length);
 int adc_set_double_buffer(uint16_t* buffer, uint32_t length);
 
 // query whether the ADC driver is present
-bool adc_is_present(void);
+bool adc_exists(void);
 
 // query how many channels are available in the ADC driver
 int adc_channel_count(int* count);

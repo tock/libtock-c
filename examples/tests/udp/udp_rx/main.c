@@ -72,7 +72,7 @@ int main(void) {
   }
   ;
 
-  if (ieee802154_driver_is_present()) {
+  if (ieee802154_driver_exists()) {
     ieee802154_set_address(49138); // Corresponds to the dst mac addr set in kernel
     ieee802154_set_pan(0xABCD);
     ieee802154_config_commit();

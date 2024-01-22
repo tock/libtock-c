@@ -17,58 +17,47 @@
 #
 #  $ nix-shell shell.nix --arg disableRiscvToolchain true
 
-{ pkgs ? import <nixpkgs> {}, disableRiscvToolchain ? false }:
+{ pkgs ? import <nixpkgs> {}, disableRiscvToolchain ? false, withUnfreePkgs ? false }:
 
 with builtins;
 let
-  inherit (pkgs) stdenv lib;
-  pythonPackages = lib.fix' (self: with self; pkgs.python3Packages //
-  {
+  inherit (pkgs) stdenv stdenvNoCC lib;
 
-    tockloader = buildPythonPackage rec {
-      pname = "tockloader";
-      version = "1.9.0";
-      name = "${pname}-${version}";
+  # Tockloader v1.11.0pre-git
+  tockloader = import (pkgs.fetchFromGitHub {
+    owner = "tock";
+    repo = "tockloader";
+    rev = "df8823545cbdd3ef49ce3d255404b7adaef5fcfc";
+    sha256 = "sha256-gl+uz+JrzZ6RRIu2r7xALtstKzhfiUENbKeNhuSNXAQ=";
+  }) { inherit pkgs withUnfreePkgs; };
 
-      propagatedBuildInputs = [
-        argcomplete
-        colorama
-        crcmod
-        pyserial
-        toml
-        tqdm
-        questionary
-      ];
-
-      src = fetchPypi {
-        inherit pname version;
-        sha256 = "sha256-7W55jugVtamFUL8N3dD1LFLJP2UDQb74V6o96rd/tEg=";
-      };
-    };
-  });
   elf2tab = pkgs.rustPlatform.buildRustPackage rec {
     name = "elf2tab-${version}";
-    version = "0.10.2";
+    version = "0.11.0";
 
     src = pkgs.fetchFromGitHub {
       owner = "tock";
       repo = "elf2tab";
       rev = "v${version}";
-      sha256 = "sha256-mlb94K3mTSGpkP+bFAQd6/AN2cssR+48nreTOym21jU=";
+      sha256 = "sha256-cjDFi9vaD9O2oVtGAapvvHrA+yUe17teoVzTso2enpI=";
     };
 
-    cargoSha256 = "sha256-Dt6iPb7xXD6bvf1GS17xdFhRSm5qd3FfZaJfW0eRBf8=";
+    cargoSha256 = "sha256-KGPp6Dx1aUX8XILfV8kbiXKinoBVkEmBRxD9mWrsVNk=";
   };
 in
   pkgs.mkShell {
     name = "tock-dev";
 
     buildInputs = with pkgs; [
+      nrf-command-line-tools
       elf2tab
       gcc-arm-embedded
       python3Full
-      pythonPackages.tockloader
-    ] ++ (lib.optional (!disableRiscvToolchain) (
+      tockloader
+    ] ++ (lib.optionals withUnfreePkgs [
+      segger-jlink
+      tockloader.nrf-command-line-tools
+    ]) ++ (lib.optional (!disableRiscvToolchain) (
       pkgsCross.riscv32-embedded.buildPackages.gcc.override (oldCc: {
         cc = (pkgsCross.riscv32-embedded.buildPackages.gcc.cc.override (oldCcArgs: {
           libcCross = oldCcArgs.libcCross.overrideAttrs (oldNewlibAttrs: {
@@ -93,5 +82,8 @@ in
       ${if (!disableRiscvToolchain) then ''
         export RISCV=1
       '' else ""}
+
+      # TODO: This should be patched into the rpath of the respective libraries!
+      export LD_LIBRARY_PATH=${pkgs.libusb}/lib:${pkgs.segger-jlink}/lib:$LD_LIBRARY_PATH
     '';
   }

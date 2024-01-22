@@ -28,6 +28,7 @@ typedef enum {
 // Returns the number of GPIO pins configured on the board.
 int gpio_count(int* count);
 
+bool gpio_exists(void);
 int gpio_enable_output(GPIO_Pin_t pin);
 int gpio_set(GPIO_Pin_t pin);
 int gpio_clear(GPIO_Pin_t pin);

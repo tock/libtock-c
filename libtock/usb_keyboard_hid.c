@@ -74,7 +74,7 @@ static int to_hid_keycode(char c, uint8_t* modifier, uint8_t* key)
   *modifier = 0;
 
   if ((c >= 'A') && (c <= 'Z')) {
-    c         = tolower(c);
+    c         = tolower((int) c);
     *modifier = shift;
   }
   if ((c >= 'a') && (c <= 'z')) {
