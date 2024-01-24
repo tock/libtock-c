@@ -97,4 +97,8 @@ int main(void) {
   for (j = 0; j < nbuttons; j++) {
     button_enable_interrupt(j);
   }
+
+  while (1) {
+    yield();
+  }
 }

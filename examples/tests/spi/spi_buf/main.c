@@ -51,4 +51,8 @@ int main(void) {
   spi_set_polarity(false);
   spi_set_phase(false);
   spi_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
+
+  while (1) {
+    yield();
+  }
 }

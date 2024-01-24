@@ -64,4 +64,8 @@ int main(void) {
   spi_peripheral_set_phase(false);
   spi_peripheral_read_write(wbuf, rbuf, BUF_SIZE, write_cb, NULL);
   spi_peripheral_chip_selected(selected_cb, NULL);
+
+  while (1) {
+    yield();
+  }
 }

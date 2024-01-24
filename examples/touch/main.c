@@ -69,5 +69,8 @@ int main(void) {
     enable_multi_touch();
     multi_touch_set_callback(multi_touch_event, NULL, num_touches);
   }
-  return 0;
+
+  while (1) {
+    yield();
+  }
 }
