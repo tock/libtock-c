@@ -17,12 +17,11 @@ with builtins;
 let
   inherit (pkgs) stdenv stdenvNoCC lib;
 
-  # Tockloader v1.11.0pre-git
   tockloader = import (pkgs.fetchFromGitHub {
     owner = "tock";
     repo = "tockloader";
-    rev = "df8823545cbdd3ef49ce3d255404b7adaef5fcfc";
-    sha256 = "sha256-gl+uz+JrzZ6RRIu2r7xALtstKzhfiUENbKeNhuSNXAQ=";
+    rev = "v1.11.0";
+    sha256 = "sha256-bPEfpfOZOjOiazqRgn1cnqe4ohLPvocuENKoZx/Qw80=";
   }) { inherit pkgs withUnfreePkgs; };
 
   elf2tab = pkgs.rustPlatform.buildRustPackage rec {
