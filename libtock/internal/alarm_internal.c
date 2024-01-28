@@ -21,7 +21,7 @@ int alarm_internal_frequency(uint32_t* frequency) {
   return tock_command_return_u32_to_returncode(rval, frequency);
 }
 
-int alarm_internal_read(uint32_t* time) {
-  syscall_return_t rval = command(DRIVER_NUM_ALARM, 2, 0, 0);
-  return tock_command_return_u32_to_returncode(rval, time);
+int alarm_internal_read(uint64_t* time) {
+  syscall_return_t rval = command(DRIVER_NUM_ALARM, 7, 0, 0);
+  return tock_command_return_u64_to_returncode(rval, time);
 }

@@ -25,6 +25,11 @@ int alarm_internal_subscribe(subscribe_upcall cb, void *userdata);
  * Using reference + dt allows library to distinguish expired timers from
  * timers in the far future.
  *
+ * Note that internally Tock uses 64-bit timers, but the syscall interface
+ * doesn't allow us to pass a 64-bit and a 32-bit value. So we only support
+ * the bottom 32-bits of the reference. The Tock kernel will OR in the current
+ * high bits as required.
+ *
  * Side-effects: cancels any existing/outstanding timers
  */
 int alarm_internal_set(uint32_t reference, uint32_t dt);
@@ -45,7 +50,7 @@ int alarm_internal_frequency(uint32_t* frequency);
 /*
  * Get the current alarm counter.
  */
-int alarm_internal_read(uint32_t* time);
+int alarm_internal_read(uint64_t* time);
 
 #ifdef __cplusplus
 }
