@@ -1,6 +1,6 @@
 #! /bin/bash
 
-mkdir -p build && cd build && cmake .. -DOT_PLATFORM=external -Wno-dev  && cmake --build . --target openthread-ftd
+mkdir -p build && cd build && cmake .. -DOT_PLATFORM=external -DOT_MULTIPLE_INSTANCE="multiple instances" -Wno-dev  && cmake --build . --target openthread-ftd
 
 mkdir -p cortex-m4
 cd ..
