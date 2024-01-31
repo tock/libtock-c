@@ -3,9 +3,6 @@
 #include "timer.h"
 #include <limits.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include<inttypes.h>
-#define MAX_UINT32 ((uint32_t)(-1))
 
 // Returns 0 if a <= b < c, 1 otherwise
 static int within_range(uint32_t a, uint32_t b, uint32_t c) {
