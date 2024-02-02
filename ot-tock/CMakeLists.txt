@@ -33,11 +33,6 @@ include(arm-none-eabi.cmake)
 
 project(openthread_dummy)
 
-# This disabling flag is required for the OpenThread library to link to libtock-c. Currently,
-# this is not causing any complications, but may warrant future investigation into if
-# disabling this is valid, or if it will result in unintended consequences.
-set(OT_BUILTIN_MBEDTLS_MANAGEMENT OFF CACHE BOOL "disable builtin mbedtls management" FORCE)
-
 add_subdirectory(openthread)
 
 set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
