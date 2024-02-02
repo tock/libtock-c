@@ -1,44 +1,41 @@
 #! /bin/bash
 
-mkdir -p build && cd build && cmake .. -DOT_PLATFORM=external -DOT_MULTIPLE_INSTANCE="multiple instances" -Wno-dev  && cmake --build . --target openthread-ftd
+## NOTE: this script expects to be invoked from the ot-tock base directory. ## 
 
-mkdir -p cortex-m4
-cd ..
+# Create build directory and invoke CMake to create and execute build system. We specify that
+# the platform used will be external (Tock specific). For now, we specify the multiple
+# instance flag. This may change in future iterations of this script.
+mkdir -p build && cd build && cmake .. -DOT_PLATFORM=external -DOT_MULTIPLE_INSTANCE="multiple instances" -Wno-dev  && cmake --build . --target openthread-ftd && cd .. 
 
 # Specify the directory containing the .a files
 library_directory="build/openthread"
-DST_DIR="build/cortex-m4"
-OUTPUT_LIB="ot-tock"
 
-cp $library_directory/src/core/libopenthread-ftd.a $DST_DIR/libopenthread-ftd.a
-cp $library_directory/third_party/mbedtls/repo/library/libmbedx509.a $DST_DIR/libmbedx509.a
-cp $library_directory/third_party/mbedtls/repo/library/libmbedcrypto.a $DST_DIR/libmbedcrypto.a
-cp $library_directory/third_party/mbedtls/repo/library/libmbedtls.a $DST_DIR/libmbedtls.a
-cp $library_directory/third_party/tcplp/libtcplp-ftd.a $DST_DIR/libtcplp-ftd.a
-#cp $library_directory/src/cli/libopenthread-cli-ftd.a $DST_DIR/libopenthread-cli-ftd.a
+# Specify where libraries will be placed to follow Tock's external library structure. This
+# structure is specified in:
+# [https://github.com/tock/libtock-c/blob/master/doc/compilation.md].
+TEMPLATE_BUILD_DIR="build/cortex-m4"
+DST_DIR="build/lib"
 
-# Create a temporary directory to extract object files
-temp_dir="temp_extracted_objects"
-mkdir $DST_DIR/$temp_dir
-rm -rf $DST_DIR/$OUTPUT_LIB.a
-
-cd $DST_DIR/$temp_dir
-
-
-# Extract object files from all .a files in the directory
-for lib in ../*.a; do
-        ar -x $lib
+libs=("libopenthread-ftd" "libmbedx509" "libmbedcrypto" "libmbedtls" "libtcplp-ftd")
+for lib in "${libs[@]}"; do
+	mkdir -p "build/lib/$lib/$TEMPLATE_BUILD_DIR"
 done
 
-# Create a combined static library
-ar rc $OUTPUT_LIB.a ./*.obj
+# Copy each static library from the openthread build to the Tock external library directory
 
-mv $OUTPUT_LIB.a ..
-cd ..
+# libopenthread-ftd
+cp $library_directory/src/core/libopenthread-ftd.a $DST_DIR/libopenthread-ftd/build/cortex-m4
 
-# Clean up temporary directory
-rm -r $temp_dir
+# libmbedx509
+cp $library_directory/third_party/mbedtls/repo/library/libmbedx509.a $DST_DIR/libmbedx509/build/cortex-m4
 
-echo "Merged static libraries successfully."
+# libmbedcrypto
+cp $library_directory/third_party/mbedtls/repo/library/libmbedcrypto.a $DST_DIR/libmbedcrypto/build/cortex-m4
+
+# libmedtls
+cp $library_directory/third_party/mbedtls/repo/library/libmbedtls.a $DST_DIR/libmbedtls/build/cortex-m4
+
+# libtcplp
+cp $library_directory/third_party/tcplp/libtcplp-ftd.a $DST_DIR/libtcplp-ftd/build/cortex-m4
 
 
