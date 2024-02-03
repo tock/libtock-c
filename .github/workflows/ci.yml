@@ -5,6 +5,7 @@ env:
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
+  push:
   pull_request: # Run CI for PRs on any branch
   merge_group:
 
