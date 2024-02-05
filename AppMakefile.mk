@@ -107,6 +107,7 @@ $$(BUILDDIR)/$(1):
 	$$(TRACE_DIR)
 	$$(Q)mkdir -p $$@
 
+
 # First step doesn't actually compile, just generate header dependency information
 # More info on our approach here: http://stackoverflow.com/questions/97338
 $$(BUILDDIR)/$(1)/%.o: %.c | $$(BUILDDIR)/$(1) newlib-$$(NEWLIB_VERSION_$(1))
@@ -114,17 +115,17 @@ $$(BUILDDIR)/$(1)/%.o: %.c | $$(BUILDDIR)/$(1) newlib-$$(NEWLIB_VERSION_$(1))
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
-$$(BUILDDIR)/$(1)/%.o: %.cc | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/%.o: %.cc | $$(BUILDDIR)/$(1) newlib-$$(NEWLIB_VERSION_$(1)) libc++-$$(LIBCPP_VERSION_$(1))
 	$$(TRACE_CXX)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
-$$(BUILDDIR)/$(1)/%.o: %.cpp | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/%.o: %.cpp | $$(BUILDDIR)/$(1) newlib-$$(NEWLIB_VERSION_$(1)) libc++-$$(LIBCPP_VERSION_$(1))
 	$$(TRACE_CXX)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
-$$(BUILDDIR)/$(1)/%.o: %.cxx | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/%.o: %.cxx | $$(BUILDDIR)/$(1) newlib-$$(NEWLIB_VERSION_$(1)) libc++-$$(LIBCPP_VERSION_$(1))
 	$$(TRACE_CXX)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<

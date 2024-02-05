@@ -36,7 +36,9 @@ for MIRROR in ${MIRRORS[@]}; do
 done
 
 if [[ $FOUND -ne 0 ]]; then
-  unzip $ZIP_FILE
+  echo "Unpacking $ZIP_FILE..."
+  unzip -q $ZIP_FILE
+  echo "Done upacking $ZIP_FILE..."
 else
   echo "ERROR: Unable to find tock-libc++"
   exit -1

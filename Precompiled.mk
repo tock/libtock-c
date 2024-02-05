@@ -86,6 +86,11 @@ $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0:
 $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0:
 	cd $(TOCK_USERLAND_BASE_DIR)/lib; ./fetch-libc++.sh 13.2.0
 
+# Helper rule to specify libc++ as a dependency in the libtock-c build system.
+libc++-10.5.0: | $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
+libc++-12.3.0: | $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
+libc++-13.2.0: | $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
+
 # LIBC++ 10.5.0
 
 $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0

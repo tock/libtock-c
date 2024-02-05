@@ -268,6 +268,9 @@ else ifeq ($(CC_rv32_version_major),13)
 else
   LIBCPP_VERSION_rv32 := 13.2.0
 endif
+LIBCPP_VERSION_rv32i    := $(LIBCPP_VERSION_rv32)
+LIBCPP_VERSION_rv32imc  := $(LIBCPP_VERSION_rv32)
+LIBCPP_VERSION_rv32imac := $(LIBCPP_VERSION_rv32)
 LIBCPP_BASE_DIR_rv32 := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$(LIBCPP_VERSION_rv32)
 
 # Set the toolchain specific flags.
@@ -400,6 +403,10 @@ else ifeq ($(CC_cortex-m_version_major),13)
 else
   LIBCPP_VERSION_cortex-m := 13.2.0
 endif
+LIBCPP_VERSION_cortex-m0 := $(LIBCPP_VERSION_cortex-m)
+LIBCPP_VERSION_cortex-m3 := $(LIBCPP_VERSION_cortex-m)
+LIBCPP_VERSION_cortex-m4 := $(LIBCPP_VERSION_cortex-m)
+LIBCPP_VERSION_cortex-m7 := $(LIBCPP_VERSION_cortex-m)
 LIBCPP_BASE_DIR_cortex-m := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$(LIBCPP_VERSION_cortex-m)
 
 # Based on the toolchain used by each architecture, add in toolchain-specific
