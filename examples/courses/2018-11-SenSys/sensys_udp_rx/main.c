@@ -101,7 +101,6 @@ int main(void) {
       printf("Failed to bind to socket %d\n", result);
       break;
   }
-
   // Note: Prior to 2.0, libtock-c kept apps alive in an implicit busy loop.
   // Since 2.0, apps must now explicitly include their own event loop to
   // avoid termination.
