@@ -219,11 +219,29 @@ int gettimeasticks(struct timeval *tv, __attribute__ ((unused)) void *tzvp)
   alarm_internal_frequency(&frequency);
   alarm_internal_read(&now);
 
+  // The microsecond calculation will overflow in the intermediate scaling of
+  // (remainder * 1000) if the remainder is approximately greater than 4e6. Because
+  // remainder is calculated as now % frequency, we can define 0 <= remainder < frequency.
+  // This implies that the tv_usec must be of type uint64_t if frequency > 4MHz to avoid
+  // an overflow from occurring. We check this in the below assertion statement.
+  const uint32_t MAX_VALID_FREQ = 4000000;
+  assert(frequency < MAX_VALID_FREQ || sizeof(tv->tv_usec) == sizeof(uint64_t));
+
+  // Confirm frequency assumption
+  assert(frequency > 0);
+
   seconds   = now / frequency;
   remainder = now % frequency;
 
+  // NOTE: the drawback to this microsecond calculation is the potential loss of precision
+  // when scaling frequency / 1000 (lose 3 degrees of precision). At the time of this
+  // implementation (1/31/24), the Tock timer frequency struct provides support for
+  // frequencies such as 1KHz, 16KHz, 1MHz, etc. With such frequencies, there is not a loss
+  // of precision as the 3 least significant digits do not encode data. The only case of a lose
+  // in precision is for the frequency 32.768KHz. In this case, the loss of precision introduces ~1us
+  // of error.
   tv->tv_sec  = seconds;
-  tv->tv_usec = (remainder * 1000 * 1000) / frequency;
+  tv->tv_usec = (remainder * 1000) / (frequency / 1000);
 
   return 0;
 }
