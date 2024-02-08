@@ -80,7 +80,7 @@ uint8_t u8x8_d_ssd1306_128x64_noname(u8x8_t *u8x8, uint8_t msg, __attribute__ ((
 
   switch(msg)
   {
-    case U8X8_MSG_DISPLAY_SETUP_MEMORY:
+    case U8X8_MSG_DISPLAY_SETUP_MEMORY: {
 
       size_t width, height;
       screen_get_resolution(&width, &height);
@@ -93,6 +93,7 @@ uint8_t u8x8_d_ssd1306_128x64_noname(u8x8_t *u8x8, uint8_t msg, __attribute__ ((
 
       u8x8_d_helper_display_setup_memory(u8x8, &u8x8_ssd1306_128x64_noname_display_info);
       break;
+    }
     default:
       return 0;
   }
