@@ -1,5 +1,5 @@
-#include <ipc.h>
-#include <led.h>
+#include <interface/led.h>
+#include <kernel/ipc.h>
 #include <tock.h>
 
 // This service can control the LEDs on a board.

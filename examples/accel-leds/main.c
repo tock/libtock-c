@@ -1,8 +1,8 @@
 #include <limits.h>
 #include <stdio.h>
 
-#include <led.h>
-#include <ninedof.h>
+#include <interface/led.h>
+#include <sensors/ninedof.h>
 
 int main(void) {
   printf("[App] Accelerometer -> LEDs\n");

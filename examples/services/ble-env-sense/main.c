@@ -6,15 +6,15 @@
 
 #include <ble_advdata.h>
 #include <nordic_common.h>
+#include <nrf.h>
 #include <nrf_error.h>
 
 #include <eddystone.h>
 #include <simple_adv.h>
 #include <simple_ble.h>
 
-#include <ipc.h>
-#include <nrf.h>
-#include <nrf51_serialization.h>
+#include <kernel/ipc.h>
+#include <net/nrf51_serialization.h>
 #include <tock.h>
 
 #include "env_sense_service.h"

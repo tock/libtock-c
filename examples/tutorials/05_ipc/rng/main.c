@@ -1,5 +1,5 @@
-#include <ipc.h>
-#include <rng.h>
+#include <kernel/ipc.h>
+#include <peripherals/rng.h>
 #include <tock.h>
 
 // Random Number Generator Service

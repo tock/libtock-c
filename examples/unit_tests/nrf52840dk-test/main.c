@@ -1,12 +1,14 @@
-#include <button.h>
-#include <gpio.h>
-#include <led.h>
+#include <stdbool.h>
 #include <stdio.h>
+
+#include <interface/button.h>
+#include <interface/led.h>
+#include <peripherals/gpio.h>
 #include <timer.h>
 #include <tock.h>
 #include <unit_test.h>
 
-#include <stdbool.h>
+
 
 #define GPIO1_IN 0
 #define GPIO1_OUT 1

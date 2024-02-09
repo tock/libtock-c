@@ -1,16 +1,16 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <ambient_light.h>
-#include <humidity.h>
-#include <lps25hb.h>
-#include <ninedof.h>
-#include <proximity.h>
-#include <sound_pressure.h>
-#include <temperature.h>
+#include <chips/lps25hb.h>
+#include <chips/tsl2561.h>
+#include <sensors/ambient_light.h>
+#include <sensors/humidity.h>
+#include <sensors/ninedof.h>
+#include <sensors/proximity.h>
+#include <sensors/sound_pressure.h>
+#include <sensors/temperature.h>
 #include <timer.h>
 #include <tock.h>
-#include <tsl2561.h>
 
 static tock_timer_t timer;
 static bool light          = false;
