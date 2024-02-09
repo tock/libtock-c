@@ -1,0 +1,24 @@
+#pragma once
+
+#include <tock.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Read the temperature sensor synchronously.
+//
+// ## Arguments
+//
+// - `temperature`: Set to the temperature value in hundredths of degrees
+//   centigrade.
+//
+// ## Return Value
+//
+// A returncode indicating whether the temperature read was completed
+// successfully.
+int libtocks_temperature_read(int* temperature);
+
+#ifdef __cplusplus
+}
+#endif
