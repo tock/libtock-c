@@ -6,27 +6,20 @@
 extern "C" {
 #endif
 
-#define DRIVER_NUM_TEMPERATURE 0x60000
 
-// check if temperature sensor exists
-bool temperature_exists(void);
 
-// units: temperature in hundredths of degrees centigrade.
-
-// function to be called when the temperature measurement is finished
+// Function signature for temperature data callback.
 //
-// callback       - pointer to function to be called
-// callback_args  - pointer to data provided to the callback
-int temperature_set_callback (subscribe_upcall callback, void* callback_args);
-
-// initiate an ambient temperature measurement used both for synchronous and asynchronous readings
-int temperature_read(void);
+// - `arg1` (`int`): Returncode indicating status from sampling the sensor.
+// - `arg2` (`int`): Temperature reading in hundredths of degrees centigrade.
+typedef void (*temperature_callback)(returncode_t, int);
 
 
-// initiate a synchronous ambient temperature measurement
-//
-// temperature     - pointer/address where the result of the temperature reading should be stored
-int temperature_read_sync (int* temperature);
+
+// Initiate an ambient temperature measurement and return results via the `cb`.
+returncode_t temperature_read(temperature_callback cb);
+
+
 
 #ifdef __cplusplus
 }

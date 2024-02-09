@@ -17,7 +17,7 @@ extern "C" {
 //
 // A returncode indicating whether the temperature read was completed
 // successfully.
-int libtocks_temperature_read(int* temperature);
+returncode_t libtocksync_temperature_read(int* temperature);
 
 #ifdef __cplusplus
 }

@@ -19,8 +19,8 @@ static void temp_cb(returncode_t ret, int temperature) {
 }
 
 
-int libtocks_temperature_read(int* temperature) {
-  int err;
+returncode_t libtocksync_temperature_read(int* temperature) {
+  returncode_t err;
   result.fired = false;
 
   err = temperature_read(temp_cb);
