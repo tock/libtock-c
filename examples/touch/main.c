@@ -24,8 +24,7 @@ static void touch_event (int status, int x, int y, void *ud __attribute__ ((unus
   printf("(%d): %d y %d\n", status, x, y);
 }
 
-static void multi_touch_event (int num_touches, int data2 __attribute__ ((unused)), int data3 __attribute__ (
-                                 (unused)), void *ud __attribute__ ((unused))) {
+static void multi_touch_event (int num_touches, int dropped_events, void *ud __attribute__ ((unused))) {
   for (int i = 0; i < num_touches; i++) {
     unsigned char id, status;
     unsigned short x, y;
@@ -47,11 +46,9 @@ static void multi_touch_event (int num_touches, int data2 __attribute__ ((unused
       default:
         printf("error ");
     }
-    printf("(%d): %d y %d, ", status, x, y);
+    printf("(%d): x %d y %d, ", status, x, y);
   }
-  printf("\n");
-  // ack the multi touch event and enable the next event
-  multi_touch_next();
+  printf("dropped %d\n", dropped_events);
 }
 
 int main(void) {
