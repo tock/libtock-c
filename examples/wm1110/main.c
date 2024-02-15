@@ -72,7 +72,7 @@ int main(void)
     //hal_pwr_init( );
     printf("\nbefore initalize lora\n");
 
-    hal_gpio_init_out( LR1110_SPI_NSS_PIN, HAL_GPIO_SET );
+    //hal_gpio_init_out( LR1110_SPI_NSS_PIN, HAL_GPIO_SET );
     hal_gpio_init_in( LR1110_BUSY_PIN, HAL_GPIO_PULL_MODE_NONE, HAL_GPIO_IRQ_MODE_OFF, NULL );
     hal_gpio_init_in( LR1110_IRQ_PIN, HAL_GPIO_PULL_MODE_DOWN, HAL_GPIO_IRQ_MODE_RISING, NULL );
     hal_gpio_init_out( LR1110_NRESER_PIN, HAL_GPIO_SET );
