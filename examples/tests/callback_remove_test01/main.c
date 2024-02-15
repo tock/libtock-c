@@ -54,4 +54,6 @@ int main(void) {
   if (callback_fired == false) {
     printf("[SUCCESS] The callback was successfully canceled\n");
   }
+
+  return 0;
 }

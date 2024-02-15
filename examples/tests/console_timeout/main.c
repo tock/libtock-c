@@ -26,6 +26,8 @@ static void timer_cb(int   result __attribute__ ((unused)),
                      int   _z __attribute__ ((unused)),
                      void* ud __attribute__ ((unused))) {
   getnstr_abort();
+
+  exit(0);
 }
 
 int main(void) {
@@ -37,4 +39,8 @@ int main(void) {
 
   // Generate a timeout to abort the receive call.
   timer_in(5000, timer_cb, NULL, &t);
+
+  while (1) {
+    yield();
+  }
 }

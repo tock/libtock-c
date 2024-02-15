@@ -23,5 +23,8 @@ int main(void) {
   int ret = getnstr_async(buf, 61, getnstr_cb, NULL);
   if (ret != RETURNCODE_SUCCESS) {
     printf("[LONG] Error doing UART receive: %i\n", ret);
+    return -1;
   }
+
+  return 0;
 }

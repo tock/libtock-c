@@ -139,4 +139,8 @@ int main (void) {
     .type = BLE_UUID_TYPE_BLE
   };
   simple_adv_service(&adv_uuid);
+
+  while (1) {
+    yield();
+  }
 }

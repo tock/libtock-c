@@ -15,5 +15,7 @@ int main(void) {
   button_subscribe(button_callback, NULL);
   button_enable_interrupt(0);
 
-  return 0;
+  while (1) {
+    yield();
+  }
 }

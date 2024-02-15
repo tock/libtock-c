@@ -113,4 +113,8 @@ int main (void) {
   // Advertise the UART service
   ble_uuid_t adv_uuid = {0x0001, BLE_UUID_TYPE_VENDOR_BEGIN};
   simple_adv_service(&adv_uuid);
+
+  while (1) {
+    yield();
+  }
 }

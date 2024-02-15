@@ -101,6 +101,10 @@ int main(void) {
       printf("Failed to bind to socket %d\n", result);
       break;
   }
-  /* Tock keeps the app alive waiting for callbacks after
-   * returning from main, so no need to busy wait */
+  // Note: Prior to 2.0, libtock-c kept apps alive in an implicit busy loop.
+  // Since 2.0, apps must now explicitly include their own event loop to
+  // avoid termination.
+  while (1) {
+    yield();
+  }
 }

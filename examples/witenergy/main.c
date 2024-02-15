@@ -613,4 +613,8 @@ int main (void) {
   err_code = ble_db_discovery_init(db_disc_handler);
   ble_db_discovery_evt_register(&_oort_info_service_uuid);
   ble_db_discovery_evt_register(&_oort_sensor_service_uuid);
+
+  while (1) {
+    yield();
+  }
 }

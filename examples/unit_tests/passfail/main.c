@@ -17,5 +17,8 @@ static bool test_fail(void) {
 int main(void) {
   unit_test_fun tests[6] = { TEST(pass), TEST(pass), TEST(pass), TEST(fail), TEST(fail), TEST(pass) };
   unit_test_runner(tests, 6, 300, "org.tockos.unit_test");
-  return 0;
+
+  while (1) {
+    yield();
+  }
 }

@@ -101,9 +101,7 @@ int main(void) {
       printf("Failed to bind to socket %d\n", result);
       break;
   }
-  /* Tock keeps the app alive waiting for callbacks after
-   * returning from main, so no need to busy wait
-   * However, this app tests receiving for 10 seconds
+  /* This app tests receiving for 10 seconds
    * then closing the connection, so we include a busy wait for that
    * reason. */
   delay_ms(30000);

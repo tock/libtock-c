@@ -54,5 +54,8 @@ int main(void) {
   // of this app.
   ipc_register_service_callback("org.tockos.tutorials.ipc.rng", ipc_callback,
                                 NULL);
-  return 0;
+
+  while (1) {
+    yield();
+  }
 }

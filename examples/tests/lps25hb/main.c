@@ -18,8 +18,10 @@ int main (void) {
 
   if (rc < 0) {
     printf("Error getting pressure: %d\n", rc);
+    return rc;
   } else {
     // Print the pressure value
     printf("\tValue(%u ubar) [0x%X]\n\n", pressure, pressure);
+    return 0;
   }
 }
