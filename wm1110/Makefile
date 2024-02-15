@@ -16,6 +16,8 @@ VPATH += :$(WM1110_DIR)/$(WM1110_DIR_NAME)/src
 
 CFLAGS += "-I$(WM1110_DIR)/$(WM1110_DIR_NAME)/src"
 
+CFLAGS += -DREGION_US_915 -DRP2_101
+
 
 # List all C and Assembly files
 $(LIBNAME)_SRCS  := $(CSRCS)
