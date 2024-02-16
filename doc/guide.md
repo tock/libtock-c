@@ -12,15 +12,16 @@ driver.
 - `[category]`: The general type of the system call.
 
 
-## Internal APIs
+## Syscall APIs
 
-All direct system calls must be wrapped in simple functions.
+All supported system calls (i.e., command, allow, subscribe, etc.) for a
+particular driver must be wrapped in simple functions.
 
 | Characteristic   | Value                                           |
 |------------------|-------------------------------------------------|
-| Location         | `libtock/[category]/internal`                   |
-| Source File Name | `libtock/[category]/internal/[name].c`          |
-| Header File Name | `libtock/[category]/internal/[name]_internal.h` |
+| Location         | `libtock/[category]/syscalls`                   |
+| Source File Name | `libtock/[category]/syscalls/[name]_syscalls.c` |
+| Header File Name | `libtock/[category]/syscalls/[name]_syscalls.h` |
 
 ### Upcalls
 
@@ -56,44 +57,44 @@ The signature is:
 
 - Read-Only Allow:
     ```c
-    int set_roallow(const uint8_t* buffer, uint32_t len);
+    int set_readonly_allow(const uint8_t* buffer, uint32_t len);
     ```
 
 - Read-Write Allow:
     ```c
-    int set_rwallow(uint8_t* buffer, uint32_t len);
+    int set_readwrite_allow(uint8_t* buffer, uint32_t len);
     ```
 
 - Userspace Read Allow:
     ```c
-    int set_urallow(uint8_t* buffer, uint32_t len);
+    int set_userspace_read_allow(uint8_t* buffer, uint32_t len);
     ```
 
 If only one allow is supported, the function name must be
-`[name]_set_[type]allow`.
+`[name]_set_[type]_allow`.
 
 If more than one allow is supported, the function names must start with
-`[name]_set_[type]allow_` followed by a description of what the allow is used
+`[name]_set_[type]_allow_` followed by a description of what the allow is used
 for.
 
 #### Example:
 
 ```c
-returncode_t [name]_set_roallow_[desc](const uint8_t* buffer, uint32_t len) {
+returncode_t [name]_set_readonly_allow_[desc](const uint8_t* buffer, uint32_t len) {
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_[NAME], 0, (void*) buffer, len);
   return tock_allow_ro_return_to_returncode(aval);
 }
 ```
 
 ```c
-returncode_t [name]_set_rwallow_[desc](uint8_t* buffer, uint32_t len) {
+returncode_t [name]_set_readwrite_allow_[desc](uint8_t* buffer, uint32_t len) {
   allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_[NAME], 0, (void*) buffer, len);
   return tock_allow_rw_return_to_returncode(aval);
 }
 ```
 
 ```c
-returncode_t [name]_set_urallow_[desc](uint8_t* buffer, uint32_t len) {
+returncode_t [name]_set_userspace_read_allow_[desc](uint8_t* buffer, uint32_t len) {
   allow_userspace_r_return_t aval = allow_userspace_read(DRIVER_NUM_[NAME], 0, (void*) buffer, len);
   return tock_allow_userspace_r_return_to_returncode(aval);
 }
@@ -175,7 +176,7 @@ Define an external function for applications to use to run the asynchronous
 operation:
 
 ```c
-int sensor_read(sensor_callback cb) {
+returncode_t sensor_read(sensor_callback cb) {
   int ret;
 
   ret = sensor_set_upcall(sensor_temp_upcall, cb);
@@ -220,11 +221,11 @@ static void sensor_cb(returncode_t ret, int val) {
 }
 ```
 
-Define the external function in the `libtocks_` name space for the sync
+Define the external function in the `libtocksync_` name space for the sync
 operation:
 
 ```c
-int libtocks_sensor_read(int* val) {
+returncode_t libtocksync_sensor_read(int* val) {
   int err;
   result.fired = false;
 
