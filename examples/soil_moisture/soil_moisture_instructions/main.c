@@ -22,18 +22,17 @@ int main(void) {
   int width  = u8g2_GetDisplayWidth(&u8g2);
   int height = u8g2_GetDisplayHeight(&u8g2);
 
-  u8g2_SetFont(&u8g2, u8g2_font_helvR08_tf);
+  u8g2_SetFont(&u8g2, u8g2_font_helvR14_tf);
   u8g2_SetFontPosCenter(&u8g2);
 
   int count = 0;
 
   // while (1) {
 
-  uint32_t sensor = 43;
 
     u8g2_ClearBuffer(&u8g2);
 
-    snprintf(buf, 20, "Soil Moisture: %lu %%", sensor);
+    snprintf(buf, 20, "Water Me!");
 
     int strwidth = u8g2_GetUTF8Width(&u8g2, buf);
 
