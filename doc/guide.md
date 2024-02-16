@@ -30,7 +30,7 @@ Each supported upcall must have its own function.
 The signature is:
 
 ```c
-returncode_t set_upcall(subscribe_upcall callback, void* callback_args);
+returncode_t set_upcall(subscribe_upcall callback, void* opaque);
 ```
 
 If only one upcall is supported, the function name must be `[name]_set_upcall`.
@@ -42,8 +42,8 @@ If more than one upcall is supported, the function names must start with
 #### Example:
 
 ```c
-returncode_t [name]_set_upcall(subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t sval = subscribe(DRIVER_NUM_[NAME], 0, callback, callback_args);
+returncode_t [name]_set_upcall(subscribe_upcall callback, void* opaque) {
+  subscribe_return_t sval = subscribe(DRIVER_NUM_[NAME], 0, callback, opaque);
   return tock_subscribe_return_to_returncode(sval);
 }
 ```
@@ -166,7 +166,7 @@ Define a upcall function to be passed to the kernel:
 static void sensor_temp_upcall(int                          ret,
                                int                          val,
                                __attribute__ ((unused)) int unused0,
-                               void*                        ud) {
+                               void*                        opaque) {
   sensor_callback cb = (sensor_callback) ud;
   cb(ret, val);
 }
