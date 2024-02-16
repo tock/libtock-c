@@ -1,8 +1,12 @@
 #pragma once
 
-#include <stddef.h>
+#include "tock.h"
 
-#define BUZZER_DRIVER   0x90000
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 
 #define NOTE_B0  31
 #define NOTE_C1  33
@@ -94,6 +98,15 @@
 #define NOTE_D8  4699
 #define NOTE_DS8 4978
 
-int buzzer_exists (void);
-int tone_sync (size_t frequency_hz, size_t duration_ms);
-int tone (size_t frequency_hz, size_t duration_ms, void (*tone_done)(void));
+// Function signature for buzzer done callbacks.
+typedef void (*libtock_buzzer_done_callback)(void);
+
+// Play a tone and call a callback when the tone finishes.
+//
+// The tone will play at the frequency specified for the duration.
+returncode_t libtock_buzzer_tone(uint32_t frequency_hz, uint32_t duration_ms, libtock_buzzer_done_callback cb);
+
+
+#ifdef __cplusplus
+}
+#endif

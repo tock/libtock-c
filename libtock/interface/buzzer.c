@@ -1,48 +1,25 @@
-#include "buzzer.h"
 #include "tock.h"
 
-// Internal callback for faking synchronous reads
-static void callback_sync (__attribute__ ((unused)) int unused,
-                           __attribute__ ((unused)) int unused1,
-                           __attribute__ ((unused)) int unused2,
-                           void*                        ud) {
-  *(bool*)ud = true;
+#include "buzzer.h"
+#include "buzzer_syscalls.h"
+
+
+
+static void libtock_buzzer_temp_upcall(__attribute__ ((unused)) int arg0,
+                                       __attribute__ ((unused)) int arg1,
+                                       __attribute__ ((unused)) int arg2,
+                                       void *                       opaque) {
+  libtock_buzzer_done_callback cb = (libtock_buzzer_done_callback) opaque;
+  cb();
 }
 
-static void callback(__attribute__ ((unused)) int unused,
-                     __attribute__ ((unused)) int unused1,
-                     __attribute__ ((unused)) int unused2,
-                     void*                        ud) {
-  ((void (*)(void)) ud)();
-}
+returncode_t libtock_buzzer_tone(uint32_t frequency_hz, uint32_t duration_ms, libtock_buzzer_done_callback cb) {
 
-int buzzer_exists (void) {
-  return driver_exists(BUZZER_DRIVER);
-}
+  returncode_t ret;
 
-int tone_sync (size_t frequency_hz, size_t duration_ms) {
-  bool done = false;
-  subscribe_return_t sval = subscribe(BUZZER_DRIVER, 0, callback_sync, &done);
-  if (!sval.success) {
-    return tock_status_to_returncode(sval.status);
-  }
+  ret = libtock_buzzer_set_upcall(libtock_buzzer_temp_upcall, cb);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  syscall_return_t cval = command(BUZZER_DRIVER, 1, frequency_hz, duration_ms);
-  if (cval.type != TOCK_SYSCALL_SUCCESS) {
-    return tock_command_return_novalue_to_returncode(cval);
-  }
-
-  // Wait for tone to finish.
-  yield_for(&done);
-  return RETURNCODE_SUCCESS;
-}
-
-int tone (size_t frequency_hz, size_t duration_ms, void (*tone_done)(void)) {
-  subscribe_return_t sval = subscribe(BUZZER_DRIVER, 0, callback, tone_done);
-  if (!sval.success) {
-    return tock_status_to_returncode(sval.status);
-  }
-
-  syscall_return_t cval = command(BUZZER_DRIVER, 1, frequency_hz, duration_ms);
-  return tock_command_return_novalue_to_returncode(cval);
+  ret = libtock_buzzer_command_tone(frequency_hz, duration_ms);
+  return ret;
 }
