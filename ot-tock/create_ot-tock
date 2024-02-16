@@ -2,10 +2,26 @@
 
 ## NOTE: this script expects to be invoked from the ot-tock base directory. ## 
 
+set -e 
 # Create build directory and invoke CMake to create and execute build system. We specify that
 # the platform used will be external (Tock specific). For now, we specify the multiple
 # instance flag. This may change in future iterations of this script.
-mkdir -p build && cd build && cmake .. -DOT_PLATFORM=external -DOT_MULTIPLE_INSTANCE="multiple instances" -Wno-dev  && cmake --build . --target openthread-ftd && cd .. 
+ARGS="-DOT_APP_CLI=OFF -DOT_APP_NCP=OFF -DOT_PLATFORM=external -DOT_FULL_LOGS=ON -DOT_JOINER=ON"
+
+# specify mtd or ftd
+THREAD_TYPE=mtd
+
+# if THREAD_TYPE is mtd add -DOT_MTD=ON -DOT_FTD=OFF to ARGS
+if [ "$THREAD_TYPE" = "mtd" ]; then
+	ARGS+=" -DOT_MTD=ON -DOT_FTD=OFF"
+fi
+
+# if THREAD_TYPE is ftd add -DOT_MTD=OFF -DOT_FTD=ON to ARGS
+if [ "$THREAD_TYPE" = "ftd" ]; then
+	ARGS+=" -DOT_MTD=OFF -DOT_FTD=ON"
+fi
+
+mkdir -p build && cd build && cmake .. $ARGS -Wno-dev  && cmake --build . --target openthread-$THREAD_TYPE && cd .. 
 
 # Specify the directory containing the .a files
 library_directory="build/openthread"
@@ -16,7 +32,7 @@ library_directory="build/openthread"
 TEMPLATE_BUILD_DIR="build/cortex-m4"
 DST_DIR="build/lib"
 
-libs=("libopenthread-ftd" "libmbedx509" "libmbedcrypto" "libmbedtls" "libtcplp-ftd")
+libs=("libopenthread" "libmbedx509" "libmbedcrypto" "libmbedtls" "libtcplp")
 for lib in "${libs[@]}"; do
 	mkdir -p "build/lib/$lib/$TEMPLATE_BUILD_DIR"
 done
@@ -24,18 +40,18 @@ done
 # Copy each static library from the openthread build to the Tock external library directory
 
 # libopenthread-ftd
-cp $library_directory/src/core/libopenthread-ftd.a $DST_DIR/libopenthread-ftd/build/cortex-m4
+cp $library_directory/src/core/libopenthread-$THREAD_TYPE.a $DST_DIR/libopenthread/build/cortex-m4/libopenthread.a
 
 # libmbedx509
-cp $library_directory/third_party/mbedtls/repo/library/libmbedx509.a $DST_DIR/libmbedx509/build/cortex-m4
+cp $library_directory/third_party/mbedtls/repo/library/libmbedx509.a $DST_DIR/libmbedx509/build/cortex-m4/libmbedx509.a
 
 # libmbedcrypto
-cp $library_directory/third_party/mbedtls/repo/library/libmbedcrypto.a $DST_DIR/libmbedcrypto/build/cortex-m4
+cp $library_directory/third_party/mbedtls/repo/library/libmbedcrypto.a $DST_DIR/libmbedcrypto/build/cortex-m4/libmbedcrypto.a
 
 # libmedtls
-cp $library_directory/third_party/mbedtls/repo/library/libmbedtls.a $DST_DIR/libmbedtls/build/cortex-m4
+cp $library_directory/third_party/mbedtls/repo/library/libmbedtls.a $DST_DIR/libmbedtls/build/cortex-m4/libmbedtls.a
 
 # libtcplp
-cp $library_directory/third_party/tcplp/libtcplp-ftd.a $DST_DIR/libtcplp-ftd/build/cortex-m4
+cp $library_directory/third_party/tcplp/libtcplp-$THREAD_TYPE.a $DST_DIR/libtcplp/build/cortex-m4/libtcplp.a
 
 
