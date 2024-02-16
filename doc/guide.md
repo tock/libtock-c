@@ -23,6 +23,17 @@ particular driver must be wrapped in simple functions.
 | Source File Name | `libtock/[category]/syscalls/[name]_syscalls.c` |
 | Header File Name | `libtock/[category]/syscalls/[name]_syscalls.h` |
 
+### Header File
+
+The `[name]_syscalls.h` file must contain a `#define` called `DRIVER_NUM_[NAME]`
+with the driver number.
+
+#### Example:
+
+```c
+#define DRIVER_NUM_[NAME] 0x00000
+```
+
 ### Upcalls
 
 Each supported upcall must have its own function.
