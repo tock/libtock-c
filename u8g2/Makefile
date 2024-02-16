@@ -21,5 +21,8 @@ $(LIBNAME)_SRCS := $(filter-out $(LIB_SRC_DIR)/csrc/u8g2_buffer.c,$($(LIBNAME)_S
 override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
 override CPPFLAGS += -I$(LIB_SRC_DIR)/csrc
 
+# Avoid failing in CI due to warnings in the library.
+override CPPFLAGS_$(LIBNAME) += -Wno-error
+
 # Include the rules to build the library.
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
