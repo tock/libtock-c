@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
             - PAN ID: 0xabcd
         - configure ip addr (ifconfig up cmd)
         - start thread network (thread start cmd) */
-    setNetworkConfiguration(instance);
+    // setNetworkConfiguration(instance);
 
     /* Start the Thread network interface (CLI cmd > ifconfig up) */
     otIp6SetEnabled(instance, true);
@@ -36,16 +36,10 @@ int main(int argc, char *argv[])
     /* Start the Thread stack (CLI cmd > thread start) */
     otThreadSetEnabled(instance, true);
     printf("completed tread start\n");
-    // otLinkModeConfig config = otThreadGetLinkMode(instance);
-    // assert(config.mDeviceType);
+    otLinkModeConfig config = otThreadGetLinkMode(instance);
+    assert(config.mDeviceType);
 
-    otOperationalDataset currDataset;
-    assert(otDatasetGetActive(instance, &currDataset) == 0);
-    // print private security key of currDataset
-    for (int i = 0; i < 16; i++) {
-        printf("[val]: %x ", currDataset.mNetworkKey.m8[i]);
-    }
-    printf("\n");
+    // otError apple = otThreadBecomeRouter(instance);
 
     for(;;)
     {
@@ -67,7 +61,7 @@ int main(int argc, char *argv[])
  */
 void setNetworkConfiguration(otInstance *aInstance)
 {
-    // static char          aNetworkName[] = "OTCodelab";
+    static char          aNetworkName[] = "OTCodelab";
     otOperationalDataset aDataset;
 
     memset(&aDataset, 0, sizeof(otOperationalDataset));
@@ -77,10 +71,10 @@ void setNetworkConfiguration(otInstance *aInstance)
      *     Network Name, Mesh Local Prefix, Extended PAN ID, PAN ID, Delay Timer,
      *     Channel, Channel Mask Page 0, Network Key, PSKc, Security Policy
      */
-    // aDataset.mActiveTimestamp.mSeconds             = 1;
-    // aDataset.mActiveTimestamp.mTicks               = 0;
-    // aDataset.mActiveTimestamp.mAuthoritative       = false;
-    // aDataset.mComponents.mIsActiveTimestampPresent = true;
+    aDataset.mActiveTimestamp.mSeconds             = 1;
+    aDataset.mActiveTimestamp.mTicks               = 0;
+    aDataset.mActiveTimestamp.mAuthoritative       = false;
+    aDataset.mComponents.mIsActiveTimestampPresent = true;
 
     /* Set Channel to 26 */
     aDataset.mChannel                      = 26;
@@ -91,9 +85,9 @@ void setNetworkConfiguration(otInstance *aInstance)
     aDataset.mComponents.mIsPanIdPresent = true;
 
     /* Set Extended Pan ID to C0DE1AB5C0DE1AB5 */
-    // uint8_t extPanId[OT_EXT_PAN_ID_SIZE] = {0xC0, 0xDE, 0x1A, 0xB5, 0xC0, 0xDE, 0x1A, 0xB5};
-    // memcpy(aDataset.mExtendedPanId.m8, extPanId, sizeof(aDataset.mExtendedPanId));
-    // aDataset.mComponents.mIsExtendedPanIdPresent = true;
+    uint8_t extPanId[OT_EXT_PAN_ID_SIZE] = {0xC0, 0xDE, 0x1A, 0xB5, 0xC0, 0xDE, 0x1A, 0xB5};
+    memcpy(aDataset.mExtendedPanId.m8, extPanId, sizeof(aDataset.mExtendedPanId));
+    aDataset.mComponents.mIsExtendedPanIdPresent = true;
 
     /* Set network key to 00112233445566778899aabbccddeeff */
     uint8_t key[OT_NETWORK_KEY_SIZE] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
@@ -102,18 +96,15 @@ void setNetworkConfiguration(otInstance *aInstance)
     aDataset.mComponents.mIsNetworkKeyPresent = true;
 
     /* Set Network Name to OTCodelab */
-    // size_t length = strlen(aNetworkName);
-    // assert(length <= OT_NETWORK_NAME_MAX_SIZE);
-    // memcpy(aDataset.mNetworkName.m8, aNetworkName, length);
-    // aDataset.mComponents.mIsNetworkNamePresent = true;
+    size_t length = strlen(aNetworkName);
+    assert(length <= OT_NETWORK_NAME_MAX_SIZE);
+    memcpy(aDataset.mNetworkName.m8, aNetworkName, length);
+    aDataset.mComponents.mIsNetworkNamePresent = true;
 
-    otError error = otDatasetSetActive(aInstance, &aDataset);
-    printf("error: %d\n", error);
-    assert(error == 0);
-
-    // /* Set the router selection jitter to override the 2 minute default.
-    //    CLI cmd > routerselectionjitter 20
-    //    Warning: For demo purposes only - not to be used in a real product */
-    // uint8_t jitterValue = 20;
-    // otThreadSetRouterSelectionJitter(aInstance, jitterValue);
+    otDatasetSetActive(aInstance, &aDataset);
+    /* Set the router selection jitter to override the 2 minute default.
+       CLI cmd > routerselectionjitter 20
+       Warning: For demo purposes only - not to be used in a real product */
+    uint8_t jitterValue = 20;
+    otThreadSetRouterSelectionJitter(aInstance, jitterValue);
 }

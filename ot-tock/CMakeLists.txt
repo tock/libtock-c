@@ -35,5 +35,12 @@ project(openthread_dummy)
 
 add_subdirectory(openthread)
 
-set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(ot-config INTERFACE
+    OPENTHREAD_PLATFORM_CORE_CONFIG_FILE="openthread-core-tock-config.h"
+    # OPENTHREAD_CORE_CONFIG_PLATFORM_CHECK_FILE="openthread-core-cc2538-config-check.h"
+)
+target_include_directories(ot-config INTERFACE
+    ${PROJECT_SOURCE_DIR}/platform/platform-tock
+)
 
+set(DIR ${CMAKE_CURRENT_SOURCE_DIR})

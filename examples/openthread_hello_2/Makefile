@@ -8,10 +8,10 @@ CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/ot-tock/openthread/include
 CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/ot-tock/openthread/src/core
 
 # This structure is somewhat cumbersome, but is necessary to follow libtock-c's library import system.
-EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/ot-tock/build/lib/libopenthread
+EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/ot-tock/build/lib/libopenthread-ftd
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/ot-tock/build/lib/libmbedcrypto
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/ot-tock/build/lib/libmbedx509
-EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/ot-tock/build/lib/libtcplp
+EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/ot-tock/build/lib/libtcplp-ftd
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/ot-tock/build/lib/libmbedtls
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/ot-tock/platform/platform-tock
 
