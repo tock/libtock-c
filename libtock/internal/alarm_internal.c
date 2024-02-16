@@ -1,6 +1,7 @@
 #include "internal/alarm.h"
 
 int alarm_internal_subscribe(subscribe_upcall cb, void *userdata) {
+  // printf("syscall to set alarm...\n");
   subscribe_return_t sval = subscribe(DRIVER_NUM_ALARM, 0, cb, userdata);
   return tock_subscribe_return_to_returncode(sval);
 }

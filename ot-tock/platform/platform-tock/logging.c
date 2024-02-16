@@ -11,5 +11,16 @@ OT_TOOL_WEAK void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const 
     OT_UNUSED_VARIABLE(aLogLevel);
     OT_UNUSED_VARIABLE(aLogRegion);
     OT_UNUSED_VARIABLE(aFormat);
+
+
+    va_list args;
+
+    va_start(args, aFormat);
+
+        vprintf(aFormat, args);
+        printf("\n");
+
+
+    va_end(args);
 }
 #endif
