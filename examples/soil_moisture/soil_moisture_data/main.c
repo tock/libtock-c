@@ -5,6 +5,7 @@
 
 #include <timer.h>
 #include <screen.h>
+#include <ipc.h>
 
 #include <u8g2-tock.h>
 #include <u8g2.h>
@@ -13,37 +14,69 @@
 
 u8g2_t u8g2;
 
-char buf[20];
+int display_width ;
+  int display_height;
 
-int main(void) {
+size_t svc_num = 0;
 
-  u8g2_tock_init(&u8g2);
+char ipc_buf[64] __attribute__((aligned(64)));
 
-  int width  = u8g2_GetDisplayWidth(&u8g2);
-  int height = u8g2_GetDisplayHeight(&u8g2);
 
-  u8g2_SetFont(&u8g2, u8g2_font_helvR08_tf);
-  u8g2_SetFontPosCenter(&u8g2);
-
-  int count = 0;
-
-  // while (1) {
-
-  uint32_t sensor = 43;
+static void show_moisture(uint32_t reading) {
 
     u8g2_ClearBuffer(&u8g2);
 
-    snprintf(buf, 20, "Soil Moisture: %lu %%", sensor);
+    char buf[20];
+    snprintf(buf, 20, "Soil Moisture: %lu %%", reading);
 
     int strwidth = u8g2_GetUTF8Width(&u8g2, buf);
 
-    int y_center = height / 2;
-    int x        = max((width / 2) - (strwidth / 2), 0);
+    int y_center = display_height / 2;
+    int x        = max((display_width / 2) - (strwidth / 2), 0);
 
     u8g2_DrawStr(&u8g2, x, y_center, buf);
     u8g2_SendBuffer(&u8g2);
 
-    count += 1;
-    delay_ms(1000);
-  // }
+
+}
+
+
+static void ipc_callback(__attribute__ ((unused)) int pid,
+                           __attribute__ ((unused)) int len,
+                           __attribute__ ((unused)) int arg2,
+                          __attribute__ ((unused))  void* ud) {
+
+  uint32_t* moisture_buf = (uint32_t*) ipc_buf;
+  uint32_t moisture_reading = moisture_buf[0];
+  show_moisture(moisture_reading);
+
+}
+
+
+
+int main(void) {
+  int err;
+
+  u8g2_tock_init(&u8g2);
+
+   display_width  = u8g2_GetDisplayWidth(&u8g2);
+   display_height = u8g2_GetDisplayHeight(&u8g2);
+
+  u8g2_SetFont(&u8g2, u8g2_font_helvR08_tf);
+  u8g2_SetFontPosCenter(&u8g2);
+
+delay_ms(1000);
+
+
+  err = ipc_discover("soil_moisture_sensor", &svc_num);
+  if (err < 0) {
+    printf("No soil moisture service\n");
+    return -1;
+  }
+
+  ipc_register_client_callback(svc_num, ipc_callback, NULL);
+  ipc_share(svc_num, ipc_buf, 64);
+  ipc_notify_service(svc_num);
+
+  while(1) yield();
 }
