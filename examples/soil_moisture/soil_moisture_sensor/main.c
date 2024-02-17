@@ -9,6 +9,7 @@
 #include <ipc.h>
 #include <tock.h>
 
+tock_timer_t timer;
 
 struct sensor_client {
   int pid;
@@ -17,6 +18,8 @@ struct sensor_client {
 
 struct sensor_client clients[10];
 int client_count = 0;
+
+int reference_voltage;
 
 static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
   uint8_t* buffer = (uint8_t*) buf;
@@ -33,17 +36,20 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
 
 
 
-static uint32_t take_measurement(int reference_voltage) {
+static uint32_t take_measurement(int ref) {
   uint16_t samples[30];
+
+  gpio_set(0);
+
   int err = adc_sample_buffer_sync(0, 25, samples, 30);
   if (err != RETURNCODE_SUCCESS) {
     printf("Error sampling ADC: %d\n", err);
     return -1;
   }
 
-  for (int i=0; i<30; i++) {
-    printf("sample: %i\n", samples[i]);
-  }
+  // for (int i=0; i<30; i++) {
+  //   printf("sample: %i\n", samples[i]);
+  // }
 
   uint32_t total = 0;
   for (int i=0; i<30; i++) {
@@ -51,24 +57,48 @@ static uint32_t take_measurement(int reference_voltage) {
   }
 
   uint32_t average = total / 30;
-  uint32_t voltage_mv = (average * reference_voltage) / ((1<<16)-1);
+  uint32_t voltage_mv = (average * ref) / ((1<<16)-1);
+
+
+  gpio_clear(0);
 
   return voltage_mv;
 }
 
+static void timer_upcall(__attribute__ ((unused)) int temp,
+                        __attribute__ ((unused)) int unused,
+                        __attribute__ ((unused)) int unused1,
+                        __attribute__ ((unused))  void* ud) {
+  uint32_t voltage_mv = take_measurement(reference_voltage);
+
+  // printf("voltage: %lu\n", voltage_mv);
+  // printf("voltage %ld.%ldV\n", voltage_mv / 1000, voltage_mv % 1000);
+
+  for (int i=0; i<client_count; i++) {
+
+    uint32_t* moisture_buf = (uint32_t*) clients[i].buffer;
+    moisture_buf[0] = voltage_mv;
+    ipc_notify_client(clients[i].pid);
+  }
+}
+
 
 int main(void) {
+  int err;
   printf("[Soil Moisture] Sensor App\n");
 
   // Check if ADC driver exists.
   if (!adc_exists()) {
-    printf("No ADC driver!\n");
+    printf("[Soil Moisture] No ADC driver!\n");
     return -1;
   }
 
-  ipc_register_service_callback("soil.moisture.sensor", ipc_callback, NULL);
+ err = ipc_register_service_callback("soil_moisture_sensor", ipc_callback, NULL);
+ if (err != RETURNCODE_SUCCESS) {
+  printf("Could not register %i ?\n", err);
+ }
 
-  int reference_voltage = adc_get_reference_voltage();
+  reference_voltage = adc_get_reference_voltage();
   if (reference_voltage > 0) {
     printf("ADC reference voltage %d.%dV\n", reference_voltage / 1000, reference_voltage % 1000);
   } else {
@@ -76,13 +106,8 @@ int main(void) {
     printf("ADC no reference voltage, assuming 3.3V\n");
   }
 
-  gpio_set(0);
 
-
-  uint32_t voltage_mv = take_measurement(reference_voltage);
-
-  printf("voltage: %lu\n", voltage_mv);
-  printf("voltage %ld.%ldV\n", voltage_mv / 1000, voltage_mv % 1000);
+  timer_every(1000,timer_upcall,NULL,&timer);
 
   return 0;
 }
