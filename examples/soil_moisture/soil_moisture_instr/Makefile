@@ -6,7 +6,7 @@ TOCK_USERLAND_BASE_DIR = ../../..
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
 
-APP_HEAP_SIZE := 20000
+APP_HEAP_SIZE := 5000
 
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/u8g2
 
