@@ -52,16 +52,11 @@ static void ipc_callback(__attribute__ ((unused)) int pid,
   uint32_t* moisture_buf = (uint32_t*) ipc_buf;
   uint32_t moisture_reading = moisture_buf[0];
 
-
-    if (moisture_reading < 2000) {
+    if (moisture_reading < 500) {
       water_me();
-
     } else {
       all_good();
     }
-
-
-
 }
 
 

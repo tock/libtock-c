@@ -26,8 +26,10 @@ static void show_moisture(uint32_t reading) {
 
     u8g2_ClearBuffer(&u8g2);
 
-    char buf[20];
-    snprintf(buf, 20, "Soil Moisture: %lu %%", reading);
+    char buf[30];
+    uint32_t whole = reading / 10;
+    uint32_t decimal = reading % 10;
+    snprintf(buf, 30, "Soil Moisture: %lu.%01lu%%", whole, decimal);
 
     int strwidth = u8g2_GetUTF8Width(&u8g2, buf);
 
@@ -57,7 +59,13 @@ static void ipc_callback(__attribute__ ((unused)) int pid,
 int main(void) {
   int err;
 
-  u8g2_tock_init(&u8g2);
+  printf("[Soil Moisture Data] Distribute data\n");
+
+  err = u8g2_tock_init(&u8g2);
+  if (err) {
+    printf("Could not init screen\n");
+    return -2;
+  }
 
    display_width  = u8g2_GetDisplayWidth(&u8g2);
    display_height = u8g2_GetDisplayHeight(&u8g2);
@@ -65,8 +73,8 @@ int main(void) {
   u8g2_SetFont(&u8g2, u8g2_font_helvR08_tf);
   u8g2_SetFontPosCenter(&u8g2);
 
-delay_ms(1000);
-
+  u8g2_ClearBuffer(&u8g2);
+  u8g2_SendBuffer(&u8g2);
 
   err = ipc_discover("soil_moisture_sensor", &svc_num);
   if (err < 0) {
@@ -74,9 +82,12 @@ delay_ms(1000);
     return -1;
   }
 
-  ipc_register_client_callback(svc_num, ipc_callback, NULL);
-  ipc_share(svc_num, ipc_buf, 64);
-  ipc_notify_service(svc_num);
+  err = ipc_register_client_callback(svc_num, ipc_callback, NULL);
+  if (err) {printf("ipc_register_client_callback\n"); return -3;}
+  err = ipc_share(svc_num, ipc_buf, 64);
+  if (err) {printf("ipc_share\n"); return -4;}
+  err = ipc_notify_service(svc_num);
+  if (err) {printf("ipc_notify_service\n"); return -5;}
 
   while(1) yield();
 }

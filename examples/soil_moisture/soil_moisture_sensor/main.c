@@ -21,6 +21,8 @@ int client_count = 0;
 
 int reference_voltage;
 
+uint32_t reading_count = 0;
+
 static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
   uint8_t* buffer = (uint8_t*) buf;
 
@@ -59,8 +61,26 @@ static uint32_t take_measurement(int ref) {
   uint32_t average = total / 30;
   uint32_t voltage_mv = (average * ref) / ((1<<16)-1);
 
-  uint32_t soil = ((2480000 / voltage_mv) - 720) / 100;
+  reading_count += 1;
 
+
+  // vcc
+// 2.546
+// 1.350
+//
+// gpio
+// 2.093
+// 1.045
+//
+// -0.0954x + 199.71
+// -(9542/10000)x + 1997
+
+  // uint32_t soil = ((2480000 / voltage_mv) - 720) / 100;
+  uint32_t soil = 1797 - ((8111 * voltage_mv) / 10000);
+
+  printf("[Soil Moisture Sensor] Reading #%lu\n", reading_count);
+  printf("  voltage %ld.%03ldV\n", voltage_mv / 1000, voltage_mv % 1000);
+  printf("  soil: %lu.%lu%%\n\n", soil/10, soil%10);
 
   gpio_clear(0);
 
@@ -71,15 +91,12 @@ static void timer_upcall(__attribute__ ((unused)) int temp,
                         __attribute__ ((unused)) int unused,
                         __attribute__ ((unused)) int unused1,
                         __attribute__ ((unused))  void* ud) {
-  uint32_t voltage_mv = take_measurement(reference_voltage);
+  uint32_t moisture_percent = take_measurement(reference_voltage);
 
-  // printf("voltage: %lu\n", voltage_mv);
-  // printf("voltage %ld.%ldV\n", voltage_mv / 1000, voltage_mv % 1000);
-
+  // Copy in to each IPC app's shared buffer.
   for (int i=0; i<client_count; i++) {
-
     uint32_t* moisture_buf = (uint32_t*) clients[i].buffer;
-    moisture_buf[0] = voltage_mv;
+    moisture_buf[0] = moisture_percent;
     ipc_notify_client(clients[i].pid);
   }
 }
@@ -102,14 +119,14 @@ int main(void) {
 
   reference_voltage = adc_get_reference_voltage();
   if (reference_voltage > 0) {
-    printf("ADC reference voltage %d.%dV\n", reference_voltage / 1000, reference_voltage % 1000);
+    printf("ADC reference voltage %d.%03dV\n", reference_voltage / 1000, reference_voltage % 1000);
   } else {
     reference_voltage = 3300;
     printf("ADC no reference voltage, assuming 3.3V\n");
   }
 
 
-  timer_every(1000,timer_upcall,NULL,&timer);
+  timer_every(5000,timer_upcall,NULL,&timer);
 
   return 0;
 }
