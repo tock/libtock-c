@@ -82,14 +82,13 @@ uint8_t u8x8_d_ssd1306_128x64_noname(u8x8_t *u8x8, uint8_t msg, __attribute__ ((
   {
     case U8X8_MSG_DISPLAY_SETUP_MEMORY: {
 
-      size_t width, height;
+      size_t width = 0, height = 0;
       screen_get_resolution(&width, &height);
 
       u8x8_ssd1306_128x64_noname_display_info.tile_width = width/8;
       u8x8_ssd1306_128x64_noname_display_info.tile_height = height/8;
       u8x8_ssd1306_128x64_noname_display_info.pixel_width = width;
       u8x8_ssd1306_128x64_noname_display_info.pixel_height = height;
-
 
       u8x8_d_helper_display_setup_memory(u8x8, &u8x8_ssd1306_128x64_noname_display_info);
       break;
@@ -102,7 +101,10 @@ uint8_t u8x8_d_ssd1306_128x64_noname(u8x8_t *u8x8, uint8_t msg, __attribute__ ((
 
 // Initialize the u8g2 library for Tock use. Call this before using the rest of
 // the library.
-void u8g2_tock_init(u8g2_t *u8g2) {
+int u8g2_tock_init(u8g2_t *u8g2) {
+  if (!driver_exists(DRIVER_NUM_SCREEN)) {
+    return -1;
+  }
 
   // Since we use syscalls mostly don't need this. Just need to setup
   // display_info.
@@ -110,11 +112,16 @@ void u8g2_tock_init(u8g2_t *u8g2) {
 
   // Allocate the buffer for the screen.
   size_t screen_bytes = (u8g2_GetU8x8(u8g2)->display_info->pixel_width * u8g2_GetU8x8(u8g2)->display_info->pixel_height) / 8;
+  if (screen_bytes == 0) {
+    return -1;
+  }
   uint8_t* buf = (uint8_t*) calloc(1, screen_bytes);
+
   // Setup the u8g2 struct.
   uint8_t tile_buf_height = u8g2_GetU8x8(u8g2)->display_info->tile_height;
   u8g2_SetupBuffer(u8g2, buf, tile_buf_height, u8g2_ll_hvline_vertical_top_lsb, U8G2_R0);
 
+  return 0;
 }
 
 // Clear buffer since we don't include u8g2_buffer.c in the library.
