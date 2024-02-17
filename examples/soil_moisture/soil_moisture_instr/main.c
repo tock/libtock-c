@@ -12,23 +12,23 @@
 
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
+size_t svc_num = 0;
+char ipc_buf[64] __attribute__((aligned(64)));
+
 u8g2_t u8g2;
 
   int display_width ;
   int display_height;
 
-size_t svc_num = 0;
-char ipc_buf[64] __attribute__((aligned(64)));
+
 
 
 
 static void water_me(void) {
   u8g2_ClearBuffer(&u8g2);
-  static int count=0;
 
   char buf[20];
-  snprintf(buf, 20, "Water Me! %i", count);
-  count+=1;
+  snprintf(buf, 20, "Water Me!");
 
   int strwidth = u8g2_GetUTF8Width(&u8g2, buf);
 
@@ -53,12 +53,12 @@ static void ipc_callback(__attribute__ ((unused)) int pid,
   uint32_t moisture_reading = moisture_buf[0];
 
 
-  if (moisture_reading < 2000) {
-    water_me();
+    if (moisture_reading < 2000) {
+      water_me();
 
-  } else {
-    all_good();
-  }
+    } else {
+      all_good();
+    }
 
 
 
