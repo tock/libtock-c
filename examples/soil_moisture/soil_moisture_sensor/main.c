@@ -59,10 +59,12 @@ static uint32_t take_measurement(int ref) {
   uint32_t average = total / 30;
   uint32_t voltage_mv = (average * ref) / ((1<<16)-1);
 
+  uint32_t soil = ((2480000 / voltage_mv) - 720) / 100;
+
 
   gpio_clear(0);
 
-  return voltage_mv;
+  return soil;
 }
 
 static void timer_upcall(__attribute__ ((unused)) int temp,
