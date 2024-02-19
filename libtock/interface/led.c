@@ -1,21 +1,18 @@
 #include "led.h"
+#include "led_syscalls.h"
 
-int led_count(int* count) {
-  syscall_return_t rval = command(DRIVER_NUM_LEDS, 0, 0, 0);
-  return tock_command_return_u32_to_returncode(rval, (uint32_t*) count);
+returncode_t libtock_led_count(int* count) {
+  return libtock_led_command_count(count);
 }
 
-int led_on(int led_num) {
-  syscall_return_t rval = command(DRIVER_NUM_LEDS, 1, led_num, 0);
-  return tock_command_return_novalue_to_returncode(rval);
+returncode_t libtock_led_on(int led_num) {
+  return libtock_led_command_on(led_num);
 }
 
-int led_off(int led_num) {
-  syscall_return_t rval = command(DRIVER_NUM_LEDS, 2, led_num, 0);
-  return tock_command_return_novalue_to_returncode(rval);
+returncode_t libtock_led_off(int led_num) {
+  return libtock_led_command_off(led_num);
 }
 
-int led_toggle(int led_num) {
-  syscall_return_t rval = command(DRIVER_NUM_LEDS, 3, led_num, 0);
-  return tock_command_return_novalue_to_returncode(rval);
+returncode_t libtock_led_toggle(int led_num) {
+  return libtock_led_command_toggle(led_num);
 }
