@@ -1,27 +1,20 @@
 #pragma once
 
 #include "tock.h"
+#include "syscalls/usb_keyboard_hid_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define DRIVER_NUM_USBKEYBOARDHID 0x90005
+// Function signature for send done callbacks.
+//
+// - `arg1` (`returncode_t`): Status of USB keyboard HID send operation.
+typedef void (*libtock_usb_keyboard_hid_callback)(returncode_t);
 
-int usb_keyboard_hid_set_callback(subscribe_upcall callback, void* callback_args);
-int usb_keyboard_hid_set_receive_buffer(uint8_t* buffer, uint32_t len);
-int usb_keyboard_hid_set_send_buffer(uint8_t* buffer, uint32_t len);
-int usb_keyboard_hid_send(void);
-
-// Send a raw keyboard HID packet. `buffer` must be at least 64 bytes.
-int usb_keyboard_hid_send_sync(uint8_t* buffer, uint32_t len);
-
-// Send one ASCII character
-int usb_keyboard_hid_send_letter_sync(char letter);
-
-// Send an array of ASCII characters
-int usb_keyboard_hid_send_string_sync(char* str, int length);
-
+// Set the buffer to the over the USB keyboard HID interface. The callback will
+// be triggered when the send has completed.
+returncode_t libtock_usb_keyboard_hid_send(uint8_t* buffer, uint32_t len, libtock_usb_keyboard_hid_callback cb);
 
 #ifdef __cplusplus
 }
