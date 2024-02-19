@@ -128,5 +128,5 @@ int main(void) {
 
   timer_every(5000,timer_upcall,NULL,&timer);
 
-  return 0;
+  while(1) yield();
 }
