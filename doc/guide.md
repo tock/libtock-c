@@ -28,10 +28,27 @@ particular driver must be wrapped in simple functions.
 The `[name]_syscalls.h` file must contain a `#define` called `DRIVER_NUM_[NAME]`
 with the driver number.
 
+_All_ header files must be wrapped in `extern "C" { ... }` if the header file
+is used in a C++ app.
+
 #### Example:
 
 ```c
+#pragma once
+
+#include "tock.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define DRIVER_NUM_[NAME] 0x00000
+
+// Other defines and signatures go here.
+
+#ifdef __cplusplus
+}
+#endif
 ```
 
 ### Upcalls
