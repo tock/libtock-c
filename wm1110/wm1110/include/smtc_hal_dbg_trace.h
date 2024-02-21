@@ -157,14 +157,14 @@ extern "C" {
 
 #endif
 
-// #if defined (PERF_TEST_ENABLED)
-//     #define HAL_PERF_TEST_TRACE_PRINTF( ... )  hal_mcu_trace_print (  __VA_ARGS__ )
-// #else
-//     #define HAL_PERF_TEST_TRACE_PRINTF( ... )
-// #endif
+#if defined (PERF_TEST_ENABLED)
+    #define HAL_PERF_TEST_TRACE_PRINTF( ... )  hal_mcu_trace_print (  __VA_ARGS__ )
+#else
+    #define HAL_PERF_TEST_TRACE_PRINTF( ... )
+#endif
 #define HAL_PERF_TEST_TRACE_PRINTF( ... )
 
-// #define PRINTF( ... )  hal_mcu_trace_print (  __VA_ARGS__ )
+#define PRINTF( ... )  hal_mcu_trace_print (  __VA_ARGS__ )
 
 /*
  * -----------------------------------------------------------------------------

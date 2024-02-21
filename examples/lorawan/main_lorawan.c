@@ -51,7 +51,7 @@
 // #include "smtc_modem_utilities.h"
 
 #include <wm1110/wm1110.h>
-#include <timer.h>
+// #include <timer.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -71,6 +71,14 @@
  * -----------------------------------------------------------------------------
  * --- PRIVATE CONSTANTS -------------------------------------------------------
  */
+
+#define LORAWAN_REGION      SMTC_MODEM_REGION_US_915
+#define LORAWAN_CLASS       SMTC_MODEM_CLASS_A
+
+// wm1110dev parameters
+#define LORAWAN_DEVICE_EUI  "70B3D57ED00650D9"
+#define LORAWAN_JOIN_EUI    "901AB1F40E1BCC81"
+#define LORAWAN_APP_KEY     "3356A7047ECF1F2F78C72AE9B1635BC1"
 
 /*
  * -----------------------------------------------------------------------------
@@ -155,6 +163,8 @@ static void on_modem_tx_done( smtc_modem_event_txdone_status_t status );
 static void on_modem_down_data( int8_t rssi, int8_t snr, smtc_modem_event_downdata_window_t rx_window, uint8_t port,
                                 const uint8_t* payload, uint8_t size );
 
+static void on_modem_join_fail( void );
+
 /*
  * -----------------------------------------------------------------------------
  * --- PUBLIC FUNCTIONS DEFINITION ---------------------------------------------
@@ -196,7 +206,7 @@ int main( void )
         .alarm                 = on_modem_alarm,
         .almanac_update        = NULL,
         .down_data             = on_modem_down_data,
-        .join_fail             = NULL,
+        .join_fail             = on_modem_join_fail,
         .joined                = on_modem_network_joined,
         .link_status           = NULL,
         .mute                  = NULL,
@@ -228,7 +238,7 @@ int main( void )
     smtc_modem_init( modem_radio, &apps_modem_event_process ); // cause process fault
 
     /* Re-enable IRQ */
-    hal_mcu_enable_irq( );
+    // hal_mcu_enable_irq( );
 
     //HAL_DBG_TRACE_MSG( "\n" );
     //HAL_DBG_TRACE_INFO( "###### ===== LoRa Basics Modem LoRaWAN Class A/C demo application ==== ######\n\n" );
@@ -238,7 +248,7 @@ int main( void )
     apps_modem_common_display_lbm_version( );
 
     /* Configure the partial low power mode */
-    hal_mcu_partial_sleep_enable( APP_PARTIAL_SLEEP );
+    // hal_mcu_partial_sleep_enable( APP_PARTIAL_SLEEP ); // smtc function implementation is empty
 
     while( 1 )
     {
@@ -247,7 +257,9 @@ int main( void )
         uint32_t sleep_time_ms = smtc_modem_run_engine( ); // cause process fault
 
         /* go in low power */
-        // hal_mcu_set_sleep_for_ms( sleep_time_ms );
+        hal_mcu_set_sleep_for_ms( sleep_time_ms );
+
+        delay_ms(1000);
     }
 }
 
@@ -258,6 +270,8 @@ int main( void )
 
 static void on_modem_reset( uint16_t reset_count )
 {
+    printf("on_modem_reset\n");
+
     HAL_DBG_TRACE_INFO( "Application parameters:\n" );
     HAL_DBG_TRACE_INFO( "  - LoRaWAN uplink Fport = %d\n", LORAWAN_APP_PORT );
     HAL_DBG_TRACE_INFO( "  - DM report interval   = %d\n", APP_TX_DUTYCYCLE );
@@ -270,9 +284,16 @@ static void on_modem_reset( uint16_t reset_count )
 
 static void on_modem_network_joined( void )
 {
+    printf("on_modem_network_joined successful!\n");
+    
     ASSERT_SMTC_MODEM_RC( smtc_modem_alarm_start_timer( APP_TX_DUTYCYCLE ) );
 
     ASSERT_SMTC_MODEM_RC( smtc_modem_adr_set_profile( stack_id, LORAWAN_DEFAULT_DATARATE, adr_custom_list ) );
+}
+
+static void on_modem_join_fail( void )
+{
+    printf("join failed!\n");
 }
 
 static void on_modem_alarm( void )
@@ -363,6 +384,79 @@ static void send_frame( const uint8_t* buffer, const uint8_t length, bool tx_con
         HAL_DBG_TRACE_INFO( "Request uplink\n" );
         ASSERT_SMTC_MODEM_RC( smtc_modem_request_uplink( stack_id, LORAWAN_APP_PORT, tx_confirmed, buffer, length ) );
     }
+}
+
+void apps_modem_common_configure_lorawan_params( uint8_t stack_id )
+{
+    printf("apps_modem_common_configure_lorawan_params\n");
+
+    smtc_modem_return_code_t rc = SMTC_MODEM_RC_OK;
+    uint8_t dev_eui[8] = { 0 };
+    uint8_t join_eui[8]  = { 0 };
+    uint8_t app_key[16] = { 0 };
+
+    hal_hex_to_bin( LORAWAN_DEVICE_EUI, dev_eui, 8 );
+    hal_hex_to_bin( LORAWAN_JOIN_EUI, join_eui, 8 );
+    hal_hex_to_bin( LORAWAN_APP_KEY, app_key, 16 );
+
+    rc = smtc_modem_set_deveui( stack_id, dev_eui );
+    if( rc != SMTC_MODEM_RC_OK )
+    {
+        printf( "smtc_modem_set_deveui failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
+
+    rc = smtc_modem_set_joineui( stack_id, join_eui );
+    if( rc != SMTC_MODEM_RC_OK )
+    {
+        printf( "smtc_modem_set_joineui failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
+
+    rc = smtc_modem_set_nwkkey( stack_id, app_key );
+    if( rc != SMTC_MODEM_RC_OK )
+    {
+        printf( "smtc_modem_set_nwkkey failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
+
+    HAL_DBG_TRACE_INFO( "LoRaWAN parameters:\n" );
+
+    rc = smtc_modem_get_deveui( stack_id, dev_eui );
+    if( rc == SMTC_MODEM_RC_OK )
+    {
+        HAL_DBG_TRACE_ARRAY( "DevEUI", dev_eui, SMTC_MODEM_EUI_LENGTH );
+    }
+    else
+    {
+        printf( "smtc_modem_get_deveui failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
+
+    rc = smtc_modem_get_joineui( stack_id, join_eui );
+    if( rc == SMTC_MODEM_RC_OK )
+    {
+        HAL_DBG_TRACE_ARRAY( "JoinEUI", join_eui, SMTC_MODEM_EUI_LENGTH );
+    }
+    else
+    {
+        printf( "smtc_modem_get_joineui failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
+
+    rc = smtc_modem_set_class( stack_id, LORAWAN_CLASS );
+    if( rc != SMTC_MODEM_RC_OK )
+    {
+        printf( "smtc_modem_set_class failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
+
+    modem_class_to_string( LORAWAN_CLASS );
+
+    rc = smtc_modem_set_region( stack_id, LORAWAN_REGION );
+    if( rc != SMTC_MODEM_RC_OK )
+    {
+        printf( "smtc_modem_set_region failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
+
+    modem_region_to_string( LORAWAN_REGION );
+
+    /* adapt the tx power offet depending on the board */
+    rc |= smtc_modem_set_tx_power_offset_db( stack_id, smtc_board_get_tx_power_offset( ) );
 }
 
 /* --- EOF ------------------------------------------------------------------ */

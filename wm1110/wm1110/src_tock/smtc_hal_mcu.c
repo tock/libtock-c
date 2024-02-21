@@ -28,11 +28,11 @@ void hal_mcu_init( void )
     hal_pwr_init( );
     hal_flash_init( );
     hal_gpio_init( );
-    hal_rtc_init( );
+    //hal_rtc_init( );
     hal_lp_timer_init( );
     //hal_debug_init( );
     hal_spi_init( );
-    hal_rng_init( );
+    //hal_rng_init( );
 }
 
 void hal_mcu_disable_irq( void )
@@ -47,28 +47,29 @@ void hal_mcu_enable_irq( void )
 
 void hal_mcu_reset( void )
 {
-    //sd_nvic_SystemReset( );
+    // sd_nvic_SystemReset( );
 }
 
 void __attribute__( ( optimize( "O0" ) ) ) hal_mcu_wait_us( const int32_t microseconds )
 {
     // Work @64MHz
+    uint32_t dummy = 0;
     const uint32_t nb_nop = microseconds * 1000 / 171;
     for( uint32_t i = 0; i < nb_nop; i++ )
     {
         //__NOP( );
+        dummy++;
     }
 }
 void hal_mcu_wait_ms( const int32_t ms )
 {
-    for( uint32_t i = 0; i < ms; i++ )
-        hal_mcu_wait_us( 1000 );
+    delay_ms(ms);
 }
 
-void hal_mcu_partial_sleep_enable( bool enable )
-{
+// void hal_mcu_partial_sleep_enable( bool enable )
+// {
 	
-}
+// }
 
 void hal_mcu_set_sleep_for_ms( const int32_t milliseconds )
 {
@@ -100,24 +101,24 @@ void hal_mcu_set_sleep_for_ms( const int32_t milliseconds )
     } while( last_sleep_loop == false );
 }
 
-static char string[HAL_PRINT_BUFFER_SIZE];
-static void vprint( const char* fmt, va_list argp )
-{
-    if( 0 < vsprintf( string, fmt, argp ) )  // build string
-    {
-        hal_debug_init( );
-        hal_uart_tx(( uint8_t* ) string, strlen( string ) );
-        hal_debug_deinit( );
-    }
-}
+// static char string[HAL_PRINT_BUFFER_SIZE];
+// static void vprint( const char* fmt, va_list argp )
+// {
+//     if( 0 < vsprintf( string, fmt, argp ) )  // build string
+//     {
+//         hal_debug_init( );
+//         hal_uart_tx(( uint8_t* ) string, strlen( string ) );
+//         hal_debug_deinit( );
+//     }
+// }
 
-void hal_mcu_trace_print( const char* fmt, ... )
-{
-    va_list argp;
-    va_start( argp, fmt );
-    vprint( fmt, argp );
-    va_end( argp );
-}
+// void hal_mcu_trace_print( const char* fmt, ... )
+// {
+//     va_list argp;
+//     va_start( argp, fmt );
+//     vprint( fmt, argp );
+//     va_end( argp );
+// }
 
 void hal_hex_to_bin( char *input, uint8_t *dst, int len )
 {
@@ -133,11 +134,11 @@ void hal_hex_to_bin( char *input, uint8_t *dst, int len )
 	}
 }
 
-void hal_print_bin_to_hex( uint8_t *buf, uint16_t len )
-{
-    for( uint16_t i = 0; i < len; i++ )
-    {
-        PRINTF( "%02X", buf[i] );
-    }
-    PRINTF( "\r\n" );
-}
+// void hal_print_bin_to_hex( uint8_t *buf, uint16_t len )
+// {
+//     for( uint16_t i = 0; i < len; i++ )
+//     {
+//         PRINTF( "%02X", buf[i] );
+//     }
+//     PRINTF( "\r\n" );
+// }

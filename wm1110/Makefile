@@ -9,15 +9,12 @@ WM1110_DIR = $(TOCK_USERLAND_BASE_DIR)/wm1110/wm1110
 
 override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
 
-CSRCS := $(wildcard $(WM1110_DIR)/src/*.c)
+CSRCS := $(wildcard $(WM1110_DIR)/src_seeed/*.c) $(wildcard $(WM1110_DIR)/src_tock/*.c)
 
-DEPPATH += --dep-path $(WM1110_DIR)/$(WM1110_DIR_NAME)/src
-VPATH += :$(WM1110_DIR)/$(WM1110_DIR_NAME)/src
+DEPPATH += --dep-path $(WM1110_DIR)/include
+VPATH += :$(WM1110_DIR)/include
 
-CFLAGS += "-I$(WM1110_DIR)/$(WM1110_DIR_NAME)/src"
-
-CFLAGS += -DREGION_US_915 -DRP2_101
-
+override CFLAGS += -I$(WM1110_DIR)/$(WM1110_DIR_NAME)/include -DREGION_US_915 -DRP2_101
 
 # List all C and Assembly files
 $(LIBNAME)_SRCS  := $(CSRCS)
