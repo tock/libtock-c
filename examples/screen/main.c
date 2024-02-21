@@ -1,6 +1,7 @@
-#include <screen.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <display/screen.h>
 #include <timer.h>
 
 #define BUFFER_SIZE 10 * 1024

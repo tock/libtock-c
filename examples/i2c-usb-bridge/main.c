@@ -3,8 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <console.h>
-#include <i2c_master.h>
+#include <interface/console.h>
+#include <peripherals/i2c_master.h>
 
 #define DATA_LEN 64
 

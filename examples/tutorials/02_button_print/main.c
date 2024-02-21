@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <button.h>
+#include <interface/button.h>
 
 // Callback for button presses.
 //   btn_num: The index of the button associated with the callback

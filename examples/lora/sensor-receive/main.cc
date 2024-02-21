@@ -12,10 +12,6 @@
 // include the hardware abstraction layer
 #include "libtockHal.h"
 
-// Include some libtock-c helpers
-#include <humidity.h>
-#include <temperature.h>
-
 #define BUFFER_LEN 64
 
 // the entry point for the program

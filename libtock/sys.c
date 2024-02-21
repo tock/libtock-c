@@ -2,7 +2,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "console.h"
+#include "interface/console.h"
 #include "tock.h"
 
 // XXX Suppress unused parameter warnings for this file as the implementations

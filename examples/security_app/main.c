@@ -4,10 +4,10 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "console.h"
-#include "gpio.h"
-#include "led.h"
-#include "tock.h"
+#include <interface/console.h>
+#include <interface/led.h>
+#include <peripherals/gpio.h>
+#include <tock.h>
 
 typedef struct {
   uint8_t pir;

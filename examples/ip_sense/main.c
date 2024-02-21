@@ -1,13 +1,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <ambient_light.h>
-#include <humidity.h>
-#include <temperature.h>
+#include <sensors/ambient_light.h>
+#include <sensors/humidity.h>
+#include <sensors/temperature.h>
 #include <timer.h>
 
-#include <ieee802154.h>
-#include <udp.h>
+#include <net/ieee802154.h>
+#include <net/udp.h>
 
 static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
 

@@ -1,8 +1,9 @@
-#include <screen.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <display/screen.h>
+#include <sensor/touch.h>
 #include <timer.h>
-#include <touch.h>
 
 static void touch_event (int status, int x, int y, void *ud __attribute__ ((unused))) {
   switch (status) {

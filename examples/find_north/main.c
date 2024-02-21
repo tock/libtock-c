@@ -1,8 +1,8 @@
 #include <math.h>
 #include <stdio.h>
 
-#include <led.h>
-#include <ninedof.h>
+#include <interface/led.h>
+#include <sensors/ninedof.h>
 
 int main(void) {
   int x, y, z;

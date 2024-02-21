@@ -4,43 +4,33 @@
 #include "tock.h"
 #include "usb_keyboard_hid.h"
 
-struct usb_keyboard_hid_data {
-  bool fired;
-  int callback_type;
-};
 
-static struct usb_keyboard_hid_data result = { .fired = false };
 
-// Internal callback for faking synchronous reads
 static void usb_keyboard_hid_upcall(int                          callback_type,
                                     __attribute__ ((unused)) int unused1,
                                     __attribute__ ((unused)) int unused2,
-                                    void*                        ud) {
-  struct usb_keyboard_hid_data* data = (struct usb_keyboard_hid_data*) ud;
-  data->callback_type = callback_type;
-  data->fired         = true;
+                                    void*                        opaque) {
+  usb_keyboard_hid_callback cb = (usb_keyboard_hid_callback) opaque;
+  cb();
 }
 
 
-int usb_keyboard_hid_set_callback(subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t sval = subscribe(DRIVER_NUM_USBKEYBOARDHID, 0, callback, callback_args);
-  return tock_subscribe_return_to_returncode(sval);
+
+
+returncode_t libtock_usb_keyboard_hid_send(uint8_t* buffer, uint32_t len, usb_keyboard_hid_callback cb) {
+  returncode_t err;
+  result.fired = false;
+
+  err = libtock_usb_keyboard_hid_set_upcall(usb_keyboard_hid_upcall, (void*) cb);
+  if (err < 0) return err;
+
+  err = libtock_usb_keyboard_hid_set_readwrite_allow_send_buffer(buffer, len);
+  if (err < 0) return err;
+
+  err = libtock_usb_keyboard_hid_command_send(); // Sometimes returns ERESERVE (but everything keeps working??)
+  return err;
 }
 
-int usb_keyboard_hid_set_receive_buffer(uint8_t* buffer, uint32_t len) {
-  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_USBKEYBOARDHID, 1, (void*) buffer, len);
-  return tock_allow_rw_return_to_returncode(aval);
-}
-
-int usb_keyboard_hid_set_send_buffer(uint8_t* buffer, uint32_t len) {
-  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_USBKEYBOARDHID, 1, (void*) buffer, len);
-  return tock_allow_rw_return_to_returncode(aval);
-}
-
-int usb_keyboard_hid_send(void) {
-  syscall_return_t cval = command(DRIVER_NUM_USBKEYBOARDHID, 1, 0, 0);
-  return tock_command_return_novalue_to_returncode(cval);
-}
 
 int usb_keyboard_hid_send_sync(uint8_t* buffer, uint32_t len) {
   int err;
@@ -66,7 +56,7 @@ int usb_keyboard_hid_send_sync(uint8_t* buffer, uint32_t len) {
 
 
 
-static int to_hid_keycode(char c, uint8_t* modifier, uint8_t* key)
+static int libtock_to_hid_keycode(char c, uint8_t* modifier, uint8_t* key)
 {
   uint8_t shift = 2;  // KB_MODIFIER_LEFT_SHIFT = 2
 

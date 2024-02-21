@@ -5,7 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <console.h>
+#include <interface/console.h>
 
 char hello[] = "Hello World!\r\n";
 

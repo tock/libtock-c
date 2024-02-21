@@ -4,8 +4,8 @@
 // button is pressed, the first LED is toggled. If the third button is pressed,
 // the third LED is toggled.
 
-#include <button.h>
-#include <led.h>
+#include <interface/button.h>
+#include <interface/led.h>
 
 // Callback for button presses.
 //   btn_num: The index of the button associated with the callback

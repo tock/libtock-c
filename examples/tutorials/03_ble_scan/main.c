@@ -8,7 +8,7 @@
 // Included in the libnrfserialization.a library.
 #include <simple_ble.h>
 
-#include <led.h>
+#include <interface/led.h>
 
 /*******************************************************************************
  * BLE

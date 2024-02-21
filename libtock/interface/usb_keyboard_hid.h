@@ -8,6 +8,11 @@ extern "C" {
 
 #define DRIVER_NUM_USBKEYBOARDHID 0x90005
 
+
+// Function signature for send done callbacks.
+typedef void (*usb_keyboard_hid_callback)(void);
+
+
 int usb_keyboard_hid_set_callback(subscribe_upcall callback, void* callback_args);
 int usb_keyboard_hid_set_receive_buffer(uint8_t* buffer, uint32_t len);
 int usb_keyboard_hid_set_send_buffer(uint8_t* buffer, uint32_t len);

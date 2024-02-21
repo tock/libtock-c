@@ -1,6 +1,7 @@
-#include <ipc.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <kernel/ipc.h>
 #include <timer.h>
 
 // Every 500 ms use the RNG service to randomly select an LED to turn on or
