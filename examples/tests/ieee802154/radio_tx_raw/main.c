@@ -12,6 +12,8 @@
 // destination address.
 
 #define BUF_SIZE 3
+
+// Generic ACK packet for demonstration purposes
 char packet[BUF_SIZE] = {2, 0, 1};
 bool toggle = true;
 
@@ -23,7 +25,7 @@ int main(void) {
   ieee802154_up();
   while (1) {
     led_toggle(0);
-    int err = ieee802154_send_direct(
+    int err = ieee802154_send_raw(
                           packet,
                           BUF_SIZE);
     if (err == RETURNCODE_SUCCESS) {

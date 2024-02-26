@@ -229,11 +229,11 @@ int ieee802154_send(unsigned short addr,
 // Sends an IEEE 802.15.4 frame synchronously. This is an alternative and contemporary
 // to the `ieee802154_send` function. This provides an interface for userprocesses to
 // form a frame (including headers, security, CRC etc) entirely in the userprocess. 
-// `ieee802154_send_direct` then takes this formed frame buffer and passes the frame
+// `ieee802154_send_raw` then takes this formed frame buffer and passes the frame
 // to the 15.4 capsule which sends the buffer (without altering the frame).
 // `payload` (in): Buffer containing the desired frame payload.
 // `len` (in): Length of frame payload.
-int ieee802154_send_direct(const char *     payload,
+int ieee802154_send_raw(const char *     payload,
                     unsigned char    len);
 
 // Maximum size required of a buffer to contain the IEEE 802.15.4 frame data

@@ -6,4 +6,4 @@ radio_ack: Sends packets, using a printf to signal whether they were
 radio_rx: Receives packets only.
 radio_rxtx: Sends and receives packets.
 radio_tx: Sends packets only.
-radio_tx_direct: Send packets fully formed by userprocess. This example sends an ACK packet. For forming headers, use the generic `ieee802154_send(..)` method. 
+radio_tx_raw: Send packets fully formed by userprocess. This example sends an ACK packet. For forming headers, use the generic `ieee802154_send(..)` method. 

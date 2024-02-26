@@ -42,8 +42,8 @@ const int COMMAND_GET_KEY       = 23;
 const int COMMAND_ADD_KEY       = 24;
 const int COMMAND_REMOVE_KEY    = 25;
 
-const int COMMAND_SEND        = 26;
-const int COMMAND_SEND_DIRECT = 27;
+const int COMMAND_SEND     = 26;
+const int COMMAND_SEND_RAW = 27;
 
 
 // Temporary buffer used for some commands where the system call interface
@@ -411,7 +411,7 @@ int ieee802154_send(unsigned short   addr,
   return RETURNCODE_SUCCESS;
 }
 
-int ieee802154_send_direct(
+int ieee802154_send_raw(
   const char *  payload,
   unsigned char len) {
   // Setup parameters in ALLOW_RO_TX
@@ -425,7 +425,7 @@ int ieee802154_send_direct(
   if (!sub.success) return tock_status_to_returncode(sub.status);
 
   // Issue the send command and wait for the transmission to be done.
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SEND_DIRECT, 0, 0);
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SEND_RAW, 0, 0);
   int ret = tock_command_return_novalue_to_returncode(com);
   if (ret < 0) return ret;
 
