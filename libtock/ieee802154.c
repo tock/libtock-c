@@ -42,7 +42,9 @@ const int COMMAND_GET_KEY       = 23;
 const int COMMAND_ADD_KEY       = 24;
 const int COMMAND_REMOVE_KEY    = 25;
 
-const int COMMAND_SEND = 26;
+const int COMMAND_SEND     = 26;
+const int COMMAND_SEND_RAW = 27;
+
 
 // Temporary buffer used for some commands where the system call interface
 // parameters / return codes are not enough te contain the required data.
@@ -408,6 +410,36 @@ int ieee802154_send(unsigned short   addr,
 
   return RETURNCODE_SUCCESS;
 }
+
+int ieee802154_send_raw(
+  const char *  payload,
+  unsigned char len) {
+  // Setup parameters in ALLOW_RO_TX
+  allow_ro_return_t ro = allow_readonly(RADIO_DRIVER, ALLOW_RO_TX, (void *) payload, len);
+  if (!ro.success) return tock_status_to_returncode(ro.status);
+
+  // Subscribe to the transmit callback
+  bool tx_done = false;
+  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_TX,
+                                     tx_done_callback, (void *) &tx_done);
+  if (!sub.success) return tock_status_to_returncode(sub.status);
+
+  // Issue the send command and wait for the transmission to be done.
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SEND_RAW, 0, 0);
+  int ret = tock_command_return_novalue_to_returncode(com);
+  if (ret < 0) return ret;
+
+  yield_for(&tx_done);
+  if (tx_result != RETURNCODE_SUCCESS) {
+    return tx_result;
+  } else if (tx_acked == 0) {
+    return RETURNCODE_ENOACK;
+  }
+
+  return RETURNCODE_SUCCESS;
+}
+
+
 
 // Internal callback for receive
 static void rx_done_callback(__attribute__ ((unused)) int pans,
