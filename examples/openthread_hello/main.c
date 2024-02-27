@@ -2,6 +2,8 @@
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
 #include <openthread/thread.h>
+#include <timer.h>
+
 
 static void setNetworkConfiguration(otInstance *aInstance);
 
@@ -26,7 +28,7 @@ int main(int argc, char *argv[])
         - configure ip addr (ifconfig up cmd)
         - start thread network (thread start cmd) */
     setNetworkConfiguration(instance);
-
+otThreadSetChildTimeout(instance, 10);
     /* Start the Thread network interface (CLI cmd > ifconfig up) */
     otIp6SetEnabled(instance, true);
     printf("complted ipv6\n");
@@ -52,10 +54,9 @@ int main(int argc, char *argv[])
         /* Until the platform library files are implemented, this will not
         be called. With the empty platform files, the Instance() constructor 
         that is called within the otInstanceInit function hangs. */
-        // printf("looping...\n");
         otTaskletsProcess(instance);
         otSysProcessDrivers(instance); 
-        yield();    
+        yield();
     }
 
     return 0;
