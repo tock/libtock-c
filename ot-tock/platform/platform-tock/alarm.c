@@ -14,10 +14,7 @@ static alarm_t alarm_micro;
 
 
 static void callback(int now, int interval, int arg2, void *aInstance) {
-    // printf("callback called\n");
-    // printf("an alarm is firing! NOW: %lu -- INTERVAL %lu\n", now, interval);
     otPlatAlarmMilliFired(aInstance);
-    // alarm_cancel(&alarm);
 }
 
 // convert ms to physical clock ticks
@@ -43,8 +40,8 @@ void otPlatAlarmMilliStartAt(otInstance *aInstance, uint32_t aT0, uint32_t aDt){
     }
     
     // inputs aT0, aDt are in ms, but libtock call must be in clock ticks
-    uint32_t ref = milliToTicks(aT0);
-    uint32_t dt = milliToTicks(aDt);
+    uint32_t ref = otPlatAlarmMilliGetNow();
+    uint32_t dt = milliToTicks(5000);
     // printf("***************************\n");    
     // printf("CURRENT TIME: %lu\n", otPlatAlarmMilliGetNow());
     // printf("*****************************alarm: setting alarm %lums after %lums.\n",  aDt, aT0);

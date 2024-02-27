@@ -3,63 +3,150 @@
 #include <ieee802154.h>
 #include <openthread/platform/radio.h>
 #include <stdio.h>
+// #include <openthread/platform/alarm-milli.h>
 
-// Some functions require returning pointer to an otRadioFrame (TODO)
-static otRadioFrame tempTransmitBuffer;
-uint8_t mPsdu[OT_RADIO_FRAME_MAX_SIZE];
-static otRadioCaps tempRadioCaps = OT_RADIO_CAPS_NONE;
+static uint8_t tx_mPsdu[OT_RADIO_FRAME_MAX_SIZE];
+static uint8_t rx_mPsdu[OT_RADIO_FRAME_MAX_SIZE];
+static ieee802154_rxbuf rx_buf;
+
+char frame_a[IEEE802154_FRAME_LEN];
+char frame_b[IEEE802154_FRAME_LEN];
+char frame_c[IEEE802154_FRAME_LEN];
+
+bool rx_lock = false;
+
+static otRadioFrame transmitFrame = {
+    .mPsdu = tx_mPsdu,
+    .mLength = OT_RADIO_FRAME_MAX_SIZE
+};
+
+static otRadioFrame receiveFrame = {
+    .mPsdu = rx_mPsdu,
+    .mLength = OT_RADIO_FRAME_MAX_SIZE
+};
+
+static void rx_callback(__attribute__ ((unused)) int   pans,
+                     __attribute__ ((unused)) int   dst_addr,
+                     __attribute__ ((unused)) int   src_addr,
+                     __attribute__ ((unused)) void* aInstance) {   
+    printf("rx_callback\n");
+      ieee802154_unallow_rx_buf();
+    
+    int offset = 1;
+    rx_lock = true;
+    printf("Pending RX frames: %d\n", rx_buf[0]);
+    for (int i = 0; i < rx_buf[0]; i++){
+
+    // int payload_offset = ieee802154_frame_get_payload_offset(packet_rx);
+    // int payload_length = ieee802154_frame_get_payload_length(packet_rx);
+    int payload_offset = rx_buf[offset];
+    int payload_length = rx_buf[offset+1];
+    int mic_len = rx_buf[offset+2];
+
+    printf("payload_offset: %d\n", payload_offset);
+    printf("payload_length: %d\n", payload_length);
+    printf("mic_len: %d\n", mic_len);
+
+    // MIC len is sometimes 2, sometimes 4 bytes
+    receiveFrame.mInfo.mRxInfo.mTimestamp = otPlatAlarmMilliGetNow(aInstance) * 1000;
+    receiveFrame.mInfo.mRxInfo.mRssi = -50;
+    receiveFrame.mLength = payload_length+payload_offset+mic_len;
+    receiveFrame.mInfo.mRxInfo.mLqi = 0x7f;
+    printf("THE RECEIVE LENGTH IS %d\n", receiveFrame.mLength);
+    // copy packet_rx into receiveFrame.Psdu
+    for (int i = 0; i < (receiveFrame.mLength); i++) {
+        receiveFrame.mPsdu[i] = rx_buf[i+3+offset];
+    }
+        printf("psdu: ");
+    for (int i = 0; i < receiveFrame.mLength; i++) {
+        if (i % 8 == 0) printf("\n");
+        printf("%x ", receiveFrame.mPsdu[i]);
+        }
+    printf("\n");
+
+
+    otPlatRadioReceiveDone(aInstance, &receiveFrame, OT_ERROR_NONE);
+    /*
+    
+    state of world as of 2/27 -- parent req / resp work because they are not encrypted
+    parsing encrypted is different (due to mic being included). We need to somehow 
+    convey this data from / across the capsule to here. This should resolve the issue 
+    with joining. 
+    
+    */
+  
+    // // print all fields in received frame struct
+    // printf("received frame: \n");
+    // printf("length: %d\n", receiveFrame.mLength);
+
+                            // assert(0);
+
+
+    // if (mic_len == 4) {
+    //     assert(0);
+    // }
+    offset+=IEEE802154_FRAME_LEN;
+    }
+
+    rx_buf[0] = 0;
+    rx_lock = false;
+}
 
 void otPlatRadioGetIeeeEui64(otInstance *aInstance, uint8_t *aIeeeEui64) {
-    // TODO
+    // TODO HARDCODED FOR NOW... think about this
     OT_UNUSED_VARIABLE(aInstance);
-    aIeeeEui64[0] = 0x18;
-    aIeeeEui64[1] = 0xb4;
-    aIeeeEui64[2] = 0x30;
-    aIeeeEui64[3] = 0x00;
-    aIeeeEui64[4] = 0xff;
-    aIeeeEui64[5] = 0xff;
-    aIeeeEui64[6] = 0xff;
-    aIeeeEui64[7] = 0xff;
+    aIeeeEui64[0] = 0xf4;
+    aIeeeEui64[1] = 0xce;
+    aIeeeEui64[2] = 0x36;
+    aIeeeEui64[3] = 0x67;
+    aIeeeEui64[4] = 0x13;
+    aIeeeEui64[5] = 0x12;
+    aIeeeEui64[6] = 0x3f;
+    aIeeeEui64[7] = 0xa6;
 }
 
 void otPlatRadioSetPanId(otInstance *aInstance, uint16_t aPanid) {
-    // TODO
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
     ieee802154_set_pan(aPanid);
+    ieee802154_config_commit();
 }
 
 void otPlatRadioSetExtendedAddress(otInstance *aInstance, const otExtAddress *aExtAddress) {
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
+    // printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
 
-    int retCode = ieee802154_set_address_long((unsigned char*) aExtAddress);
+    // convert aExtAddress to be big endian in temp variable
+    otExtAddress temp;
+    for (int i = 0; i < 8; i++) {
+        temp.m8[i] = aExtAddress->m8[7-i];
+    }
+
+
+    int retCode = ieee802154_set_address_long((unsigned char*) &temp);
     assert(retCode==0);
     // print aExtAddress in hex values 
-    for (int i = 0; i < 8; i++) {
+    for (int i = 8; i > 0; i--) {
         printf("[addr] %x ", aExtAddress->m8[i]);
     }
     if (retCode != 0) printf("Error setting long address");
 }
 
+// [addr] ee [addr] 68 [addr] bf [addr] 21 [addr] 2b [addr] c7 [addr] e0 [addr] 8a [D] SubMac--------: RadioExtAddress: 8ae0c72b21bf68ee
+
 void otPlatRadioSetShortAddress(otInstance *aInstance, uint16_t aShortAddress) {
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
+    ieee802154_set_address(aShortAddress);
+        ieee802154_config_commit();
 
-    int retCode = ieee802154_set_address(aShortAddress);
-    if (retCode != 0) printf("Error setting address");
 }
 
 bool otPlatRadioIsEnabled(otInstance *aInstance) {
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
-
     return ieee802154_is_up();
 }
 
 otError otPlatRadioEnable(otInstance *aInstance) {
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
 
     int retCode = ieee802154_up();
     if (retCode == 0)
@@ -72,7 +159,6 @@ otError otPlatRadioEnable(otInstance *aInstance) {
 
 otError otPlatRadioDisable(otInstance *aInstance) {
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
 
     int retCode = ieee802154_down();
 
@@ -87,14 +173,30 @@ otError otPlatRadioDisable(otInstance *aInstance) {
 otError otPlatRadioSleep(otInstance *aInstance) {
     // TODO: There is no sleep function.
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
     return OT_ERROR_NONE;
 }
 
 otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel) {
+
+    if (rx_lock) {
+        return OT_ERROR_BUSY;
+    }
     // TODO
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
+    
+    // switch to channel TODO
+
+    // if (aChannel != 26) {
+    //     return OT_ERROR_NONE;
+    // }
+
+    receiveFrame.mChannel = 26;
+
+    // Start receiving
+    unsigned int packet_len = 1+(IEEE802154_FRAME_LEN*3);
+    int retCode = ieee802154_receive(rx_callback, &rx_buf, packet_len, aInstance);
+
+
     // otPlatRadioReceiveDone()
     return OT_ERROR_NONE;
 }
@@ -102,25 +204,35 @@ otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel) {
 otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
     // TODO
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
+    // For some reason, the frame length is 2 bytes longer than the actual frame length
+    // this is corrected here. I have looked within openthread as to why this is 
+    // happening, but I cannot find the source of the problem. This "magic number"
+    // fix is not ideal, but fixes the issue.
+    printf("send trans buf\n");
 
-    // // print transmitted psdu in aFrame
-    // for (int i = 0; i < aFrame->mLength; i++) {
-    //     printf("[psdu]: %x \n", aFrame->mPsdu[i]);
-    // }
     aFrame->mLength = aFrame->mLength-2;
-    ieee802154_send_direct(aFrame->mPsdu, aFrame->mLength);
+
+    if (aFrame->mChannel != 26) {
+            otPlatRadioTxDone(aInstance, aFrame, NULL, OT_ERROR_NONE);
+
+        return OT_ERROR_NONE;
+    }
+    // Send the frame, and check if it was successful
+    int send_result =  ieee802154_send_direct(aFrame->mPsdu, aFrame->mLength);
+    
+    // Send direct does support ACK so no ACK is also considered a successful transmission
+    if (send_result != RETURNCODE_SUCCESS && send_result != RETURNCODE_ENOACK){
+        return OT_ERROR_FAILED;
+    }
+
     otPlatRadioTxDone(aInstance, aFrame, NULL, OT_ERROR_NONE);
-    printf("**********************frame len %d\n", aFrame->mLength);
     return OT_ERROR_NONE;
 }
 
 otRadioFrame *otPlatRadioGetTransmitBuffer(otInstance *aInstance) {
-    // TODO
+    printf("get trans buf\n");
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
-    tempTransmitBuffer.mPsdu = mPsdu;
-    return &tempTransmitBuffer;
+    return &transmitFrame;
 }
 
 int8_t otPlatRadioGetRssi(otInstance *aInstance) {
@@ -133,14 +245,14 @@ int8_t otPlatRadioGetRssi(otInstance *aInstance) {
 otRadioCaps otPlatRadioGetCaps(otInstance *aInstance) {
     // TODO: This is temporarily saying there are no capabilities.
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
-    return tempRadioCaps;
+    return (otRadioCaps)(OT_RADIO_CAPS_CSMA_BACKOFF);
 }
 
 bool otPlatRadioGetPromiscuous(otInstance *aInstance) {
-    // TODO
+    // Tock sets its radio to promiscuous mode by default. OT will not
+    // operate when the radio is in promiscuous mode. We return false 
+    // here, but this is not true.
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
     return false;
 }
 
