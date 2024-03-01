@@ -40,8 +40,8 @@ void otPlatAlarmMilliStartAt(otInstance *aInstance, uint32_t aT0, uint32_t aDt){
     }
     
     // inputs aT0, aDt are in ms, but libtock call must be in clock ticks
-    uint32_t ref = otPlatAlarmMilliGetNow();
-    uint32_t dt = milliToTicks(5000);
+    uint32_t ref = milliToTicks(aT0);
+    uint32_t dt = milliToTicks(aDt);
     // printf("***************************\n");    
     // printf("CURRENT TIME: %lu\n", otPlatAlarmMilliGetNow());
     // printf("*****************************alarm: setting alarm %lums after %lums.\n",  aDt, aT0);

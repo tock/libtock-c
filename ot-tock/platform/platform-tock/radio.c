@@ -5,15 +5,16 @@
 #include <stdio.h>
 // #include <openthread/platform/alarm-milli.h>
 
+#define ACK_SIZE 3
 static uint8_t tx_mPsdu[OT_RADIO_FRAME_MAX_SIZE];
 static uint8_t rx_mPsdu[OT_RADIO_FRAME_MAX_SIZE];
+static uint8_t ack_mPSdu[ACK_SIZE] = {0x02, 0x00, 0x00};
 static ieee802154_rxbuf rx_buf;
+
 
 char frame_a[IEEE802154_FRAME_LEN];
 char frame_b[IEEE802154_FRAME_LEN];
 char frame_c[IEEE802154_FRAME_LEN];
-
-bool rx_lock = false;
 
 static otRadioFrame transmitFrame = {
     .mPsdu = tx_mPsdu,
@@ -25,6 +26,13 @@ static otRadioFrame receiveFrame = {
     .mLength = OT_RADIO_FRAME_MAX_SIZE
 };
 
+static otRadioFrame ackFrame = {
+    .mPsdu = ack_mPSdu,
+    .mLength = 3
+};
+
+int rx_count=0;
+int trans_count=0;
 static void rx_callback(__attribute__ ((unused)) int   pans,
                      __attribute__ ((unused)) int   dst_addr,
                      __attribute__ ((unused)) int   src_addr,
@@ -32,13 +40,20 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
     printf("rx_callback\n");
       ieee802154_unallow_rx_buf();
     
-    int offset = 1;
-    rx_lock = true;
-    printf("Pending RX frames: %d\n", rx_buf[0]);
-    for (int i = 0; i < rx_buf[0]; i++){
+    int offset = 2;    
+    // | head active # | tail active # | frame 0 | frame 1 | ... | frame n |
+
+    char* head_index = &rx_buf[0];
+    char* tail_index = &rx_buf[1];
+    printf("start head_index: %d\n", *head_index);
+    printf("start tail_index: %d\n", *tail_index);
+    offset += *head_index * IEEE802154_FRAME_LEN;
+
+    while (*head_index != *tail_index) {
 
     // int payload_offset = ieee802154_frame_get_payload_offset(packet_rx);
     // int payload_length = ieee802154_frame_get_payload_length(packet_rx);
+    printf("offset val %d\n", offset);
     int payload_offset = rx_buf[offset];
     int payload_length = rx_buf[offset+1];
     int mic_len = rx_buf[offset+2];
@@ -49,13 +64,14 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
 
     // MIC len is sometimes 2, sometimes 4 bytes
     receiveFrame.mInfo.mRxInfo.mTimestamp = otPlatAlarmMilliGetNow(aInstance) * 1000;
-    receiveFrame.mInfo.mRxInfo.mRssi = -50;
+    receiveFrame.mInfo.mRxInfo.mRssi = 50;
     receiveFrame.mLength = payload_length+payload_offset+mic_len;
     receiveFrame.mInfo.mRxInfo.mLqi = 0x7f;
-    printf("THE RECEIVE LENGTH IS %d\n", receiveFrame.mLength);
+    // printf("THE RECEIVE LENGTH IS %d\n", receiveFrame.mLength);
     // copy packet_rx into receiveFrame.Psdu
     for (int i = 0; i < (receiveFrame.mLength); i++) {
         receiveFrame.mPsdu[i] = rx_buf[i+3+offset];
+        rx_buf[i+3+offset] = 0;
     }
         printf("psdu: ");
     for (int i = 0; i < receiveFrame.mLength; i++) {
@@ -64,8 +80,17 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
         }
     printf("\n");
 
+    *head_index = (*head_index + 1) % MAX_FRAME_COUNT;
+    offset+= IEEE802154_FRAME_LEN;
+
+    if (*head_index == 0) {
+        offset = 2;
+    }
+        printf("end head_index: %d\n", *head_index);
+        printf("end tail_index: %d\n", *tail_index);
 
     otPlatRadioReceiveDone(aInstance, &receiveFrame, OT_ERROR_NONE);
+
     /*
     
     state of world as of 2/27 -- parent req / resp work because they are not encrypted
@@ -85,11 +110,13 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
     // if (mic_len == 4) {
     //     assert(0);
     // }
-    offset+=IEEE802154_FRAME_LEN;
     }
 
-    rx_buf[0] = 0;
-    rx_lock = false;
+
+    assert(*head_index == *tail_index);
+    rx_count++;
+
+
 }
 
 void otPlatRadioGetIeeeEui64(otInstance *aInstance, uint8_t *aIeeeEui64) {
@@ -178,22 +205,19 @@ otError otPlatRadioSleep(otInstance *aInstance) {
 
 otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel) {
 
-    if (rx_lock) {
-        return OT_ERROR_BUSY;
-    }
     // TODO
     OT_UNUSED_VARIABLE(aInstance);
     
     // switch to channel TODO
 
-    // if (aChannel != 26) {
-    //     return OT_ERROR_NONE;
-    // }
+    if (aChannel != 26) {
+        return OT_ERROR_NONE;
+    }
 
     receiveFrame.mChannel = 26;
 
     // Start receiving
-    unsigned int packet_len = 1+(IEEE802154_FRAME_LEN*3);
+    unsigned int packet_len = 2+(IEEE802154_FRAME_LEN*3);
     int retCode = ieee802154_receive(rx_callback, &rx_buf, packet_len, aInstance);
 
 
@@ -217,6 +241,16 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
 
         return OT_ERROR_NONE;
     }
+
+    // print the mPsdu in byte increments 
+    printf("psdu: ");
+    for (int i = 0; i < aFrame->mLength; i++) {
+        if (i % 8 == 0) printf("\n");
+        printf("%x ", aFrame->mPsdu[i]);
+    }
+
+    printf("\n*/*/*/*/*/*/*/*/*/\n");
+
     // Send the frame, and check if it was successful
     int send_result =  ieee802154_send_direct(aFrame->mPsdu, aFrame->mLength);
     
@@ -225,7 +259,9 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
         return OT_ERROR_FAILED;
     }
 
-    otPlatRadioTxDone(aInstance, aFrame, NULL, OT_ERROR_NONE);
+    
+    otPlatRadioTxDone(aInstance, aFrame, &ackFrame, OT_ERROR_NONE);
+
     return OT_ERROR_NONE;
 }
 
@@ -347,5 +383,5 @@ int8_t otPlatRadioGetReceiveSensitivity(otInstance *aInstance) {
     // TODO
     OT_UNUSED_VARIABLE(aInstance);
     printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
-    return 0;
+    return 50;
 }
