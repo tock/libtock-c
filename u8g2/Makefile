@@ -1,11 +1,13 @@
 .PHONY: default
 default: all ;
 
+# Git hash of the library to use
+VERSION_HASH := c4f9cd9f8717661c46be16bfbcb0017d785db3c1
+
 # Base folder definitions
 TOCK_USERLAND_BASE_DIR ?= ..
 LIBNAME := u8g2
 $(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/$(LIBNAME)
-VERSION_HASH := c4f9cd9f8717661c46be16bfbcb0017d785db3c1
 LIB_SRC_DIR := $($(LIBNAME)_DIR)/u8g2-$(VERSION_HASH)
 
 # List all C and Assembly files
