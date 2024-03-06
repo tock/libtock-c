@@ -6,12 +6,11 @@
 extern "C" {
 #endif
 
-#define DRIVER_NUM_LPS25HB 0x70004
+// Callback type when a pressure reading is ready.
+typedef void (*libtock_lps25hb_callback)(returncode_t, int);
 
-int lps25hb_set_callback (subscribe_upcall callback, void* callback_args);
-int lps25hb_get_pressure (void);
-
-int lps25hb_get_pressure_sync (int* pressure);
+// Request a pressure reading delivered through the callback.
+returncode_t libtock_lps25hb_get_pressure(libtock_lps25hb_callback cb);
 
 #ifdef __cplusplus
 }
