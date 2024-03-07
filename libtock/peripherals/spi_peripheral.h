@@ -6,31 +6,43 @@
 extern "C" {
 #endif
 
-#define SPI_PERIPHERAL 0x20002
+// Function signature for SPI peripheral callback.
+//
+// - `arg1` (`returncode_t`): Status from reading/writing SPI data.
+typedef void (*libtock_spi_peripheral_callback)(returncode_t);
 
-/* SPI system calls */
-/* Get chip select always returns 0 in peripheral mode. */
-int spi_peripheral_get_chip_select(void);
 
-  /* false means sample on a leading (low to high) clock edge
-   * true means sample on a trailing (high to low) clock edge */
-int spi_peripheral_set_phase(bool phase);
-int spi_peripheral_get_phase(void);
+// Get the chip select. This will always return 0.
+returncode_t libtock_spi_peripheral_get_chip_select(uint32_t* chip_select);
 
-  /* false means an idle clock is low
-   * true means an idle clock is high. */
-int spi_peripheral_set_polarity(bool pol);
-int spi_peripheral_get_polarity(void);
+// Get the SPI phase.
+returncode_t libtock_spi_peripheral_get_phase(uint32_t* phase);
 
-/* This registers a callback for when the peripheral is selected. */
-int spi_peripheral_chip_selected(subscribe_upcall cb, bool* cond);
+// Set the SPI phase.
+returncode_t libtock_spi_peripheral_set_phase(bool phase);
 
-int spi_peripheral_read_buf(char* str, size_t len);
-int spi_peripheral_write(const char* str, size_t len, subscribe_upcall cb, bool* cond);
-int spi_peripheral_read_write(const char* write, char* read, size_t len, subscribe_upcall cb, bool* cond);
+// Get the SPI polarity.
+returncode_t libtock_spi_peripheral_get_polarity(uint32_t* polarity);
 
-int spi_peripheral_write_sync(const char* write, size_t len);
-int spi_peripheral_read_write_sync(const char* write, char* read, size_t len);
+// Set the SPI polarity.
+returncode_t libtock_spi_peripheral_set_polarity(bool polarity);
+
+// Write a buffer on the SPI bus. The callback will be triggered after it is
+// written.
+returncode_t libtock_spi_peripheral_write(const uint8_t*                         buffer,
+                                          size_t                          len,
+                                          libtock_spi_peripheral_callback cb);
+
+// Write a buffer on the SPI bus and also capture the incoming data. The
+// callback will be triggered after it is written.
+returncode_t libtock_spi_peripheral_read_write(const uint8_t*                  write,
+                                               uint8_t*                        read,
+                                               size_t                          len,
+                                               libtock_spi_peripheral_callback cb);
+
+
+
+
 
 #ifdef __cplusplus
 }
