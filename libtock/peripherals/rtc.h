@@ -1,12 +1,11 @@
 #pragma once
 
-#include "tock.h"
+#include "../tock.h"
+#include "syscalls/rtc_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define DRIVER_NUM_RTC 0x00090007
 
 #define JANUARY 1
 #define FEBRUARY 2
@@ -30,7 +29,7 @@ extern "C" {
 #define SATURDAY 6
 
 // Date structure to store date and time
-struct Date{
+typedef struct {
   int year;
   int month;
   int day;
@@ -38,28 +37,29 @@ struct Date{
   int hour;
   int minute;
   int seconds;
-};
+} libtock_rtc_date_t;
 
-// DateTime codifies Date structure into two u32 (int) numbers
-//     date: first number (year, month, day_of_the_month):
-//            - last 5 bits store the day_of_the_month
-//            - previous 4 bits store the month
-//            - previous 12 bits store the year
-//     time: second number (day_of_the_week, hour, minute, seconds):
-//            - last 6 bits store the seconds
-//            - previous 6 store the minute
-//            - previous 5 store the hour
-//            - previous 3 store the day_of_the_week
-struct DateTime{
-  int date;
-  int time;
-};
+// Function signature for get date callbacks.
+//
+// - `arg1` (`returncode_t`): Returncode indicating status.
+// - `arg2` (`libtock_rtc_date_t`): Current date.
+typedef void (*libtock_rtc_callback_date)(returncode_t, libtock_rtc_date_t);
 
-// Fetches current date from registers and writes it to get_date
-int get_date(struct Date *get_date);
+// Function signature for operation done callbacks.
+//
+// - `arg1` (`returncode_t`): Returncode indicating status.
+typedef void (*libtock_rtc_callback_done)(returncode_t);
 
-// Writes set_date into the registers
-int set_date(const struct Date *set_date);
+
+// Get the current date.
+//
+// The callback will be issued with the current date and time.
+returncode_t libtock_rtc_get_date(libtock_rtc_callback_date cb);
+
+// Set the date and time.
+//
+// The callback will be issued when the time and date have been set.
+returncode_t libtock_rtc_set_date(libtock_rtc_date_t* set_date, libtock_rtc_callback_done cb);
 
 #ifdef __cplusplus
 }
