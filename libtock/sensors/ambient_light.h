@@ -1,21 +1,23 @@
 #pragma once
 
-#include "tock.h"
+#include "../tock.h"
+#include "syscalls/ambient_light_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define DRIVER_NUM_AMBIENT_LIGHT 0x60002
+// Function signature for ambient light data callback.
+//
+// - `arg1` (`returncode_t`): Status from sampling the sensor.
+// - `arg2` (`int`): Ambient light reading in lux (lx).
+typedef void (*libtock_ambient_light_callback)(returncode_t, int);
 
-bool ambient_light_exists(void);
 
-// units: ambient light reading in lux (lx).
-
-int ambient_light_subscribe(subscribe_upcall callback, void* userdata);
-int ambient_light_start_intensity_reading(void);
-
-int ambient_light_read_intensity_sync(int* lux_value);
+// Request an ambient light reading.
+//
+// The callback will be triggered with the result in lux.
+returncode_t libtock_ambient_light_read_intensity(libtock_ambient_light_callback cb);
 
 #ifdef __cplusplus
 }
