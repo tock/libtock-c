@@ -1,32 +1,21 @@
 #pragma once
 
 #include "tock.h"
+#include "syscalls/pressure_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define DRIVER_NUM_PRESSURE 0x60008
-
-// check if pressure sensor exists
-bool pressure_exists(void);
-
-// units: pressure in hPa
-
-// function to be called when the pressure measurement is finished
+// Function signature for pressure data callback.
 //
-// callback       - pointer to function to be called
-// callback_args  - pointer to data provided to the callback
-int pressure_set_callback (subscribe_upcall callback, void* callback_args);
+// - `arg1` (`returncode_t`): Status from sampling the sensor.
+// - `arg2` (`int`): Pressure reading in hPa.
+typedef void (*libtock_pressure_callback)(returncode_t, int);
 
-// initiate a pressure measurement used both for synchronous and asynchronous readings
-int pressure_read(void);
-
-
-// initiate a synchronous pressure measurement
-//
-// pressure     - pointer/address where the result of the pressure reading should be stored
-int pressure_read_sync (int* pressure);
+// Initiate a pressure measurement and call the callback with the reading when
+// finished.
+returncode_t libtock_pressure_read(libtock_pressure_callback cb);
 
 #ifdef __cplusplus
 }
