@@ -1,8 +1,8 @@
-#include <stdlib.h>
+#include "tock.h"
 
 #include "rng.h"
-#include "rng_syscalls.h"
-#include "tock.h"
+#include "syscalls/rng_syscalls.h"
+
 
 
 // Internal upcall.
