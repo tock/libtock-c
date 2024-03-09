@@ -1,26 +1,32 @@
 #include "button.h"
+#include "button_syscalls.h"
 
-int button_subscribe(subscribe_upcall callback, void *ud) {
-  subscribe_return_t res = subscribe(DRIVER_NUM_BUTTON, 0, callback, ud);
-  return tock_subscribe_return_to_returncode(res);
+
+
+returncode_t libtock_button_count(int* count) {
+  return libtock_button_command_count(count);
 }
 
-int button_count(int* count) {
-  syscall_return_t res = command(DRIVER_NUM_BUTTON, 0, 0, 0);
-  return tock_command_return_u32_to_returncode(res, (uint32_t*) count);
+
+
+returncode_t libtock_button_read(int button_num, int* button_value) {
+  return libtock_button_command_read(button_num, button_value);
 }
 
-int button_enable_interrupt(int button_num) {
-  syscall_return_t res = command(DRIVER_NUM_BUTTON, 1, button_num, 0);
-  return tock_command_return_novalue_to_returncode(res);
+static void button_upcall(int                          btn_num,
+                          int                          val,
+                          __attribute__ ((unused)) int arg2,
+                          void *                       opaque) {
+  libtock_button_callback cb = (libtock_button_callback) opaque;
+  cb(RETURNCODE_SUCCESS, btn_num, val == 1);
 }
 
-int button_disable_interrupt(int button_num) {
-  syscall_return_t res = command(DRIVER_NUM_BUTTON, 2, button_num, 0);
-  return tock_command_return_novalue_to_returncode(res);
-}
+returncode_t libtock_button_notify_on_press(int button_num, libtock_button_callback cb) {
+  returncode_t ret;
 
-int button_read(int button_num, int* button_value) {
-  syscall_return_t res = command(DRIVER_NUM_BUTTON, 3, button_num, 0);
-  return tock_command_return_u32_to_returncode(res, (uint32_t*) button_value);
+  ret = libtock_button_set_upcall(button_upcall, cb);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  ret = libtock_button_command_enable_interrupt(button_num);
+  return ret;
 }
