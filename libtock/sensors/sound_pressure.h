@@ -6,34 +6,18 @@
 extern "C" {
 #endif
 
-#define DRIVER_NUM_SOUND_PRESSURE 0x60006
-
-// check if sound pressure sensor exists
-bool sound_pressure_exists(void);
-
-// units: sound_pressure in DB.
-
-// function to be called when the temperature measurement is finished
+// Function signature for sound pressure data callback.
 //
-// callback       - pointer to function to be called
-// callback_args  - pointer to data provided to the callback
-int sound_pressure_set_callback (subscribe_upcall callback, void* callback_args);
+// - `arg1` (`returncode_t`): Status from sampling the sensor.
+// - `arg2` (`uint8_t`): Sound pressure reading in dB.
+typedef void (*libtock_sound_pressure_callback)(returncode_t, uint8_t);
 
 
-// initiate an ambient sound_pressure measurement used both for synchronous and asynchronous readings
-int sound_pressure_read(void);
 
-// enable sound pressure sensor
-int sound_pressure_enable(void);
-
-// disable sound pressure sensor
-int sound_pressure_disable(void);
-
-
-// initiate a synchronous ambient sound_pressure measurement
+// Initiate an ambient sound pressure measurement.
 //
-// sound_pressure     - pointer/address where the result of the sound_pressure reading should be stored
-int sound_pressure_read_sync (unsigned char* sound_pressure);
+// The sound pressure reading will be returned via the callback.
+returncode_t libtock_sound_pressure_read(libtock_sound_pressure_callback cb);
 
 #ifdef __cplusplus
 }
