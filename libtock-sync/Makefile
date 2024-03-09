@@ -8,6 +8,7 @@ $(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/libtock-sync
 
 # List all C and Assembly files
 $(LIBNAME)_SRCS  := $(wildcard $($(LIBNAME)_DIR)/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/interface/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/sensors/*.c)
 
 # Need libtock headers.
