@@ -295,6 +295,7 @@ returncode_t libtock_ieee802154_receive(
                        const libtock_ieee802154_rxbuf *frame,
                        libtock_ieee802154_callback_recv_done cb);
 
+void set_receive_callback(subscribe_upcall callback, void* ud);
 // IEEE 802.15.4 received frame inspection functions. The frames are returned
 // to userspace in a particular format that might include more bytes than just
 // the raw 802.15.4 frame. In all of the below calls, `frame` is assumed to be
