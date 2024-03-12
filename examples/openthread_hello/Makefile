@@ -6,6 +6,7 @@ TOCK_USERLAND_BASE_DIR = ../..
 # Include needed header files for OpenThread library
 CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/ot-tock/openthread/include
 CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/ot-tock/openthread/src/core
+CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/ot-tock/platform/platform-tock
 
 # This structure is somewhat cumbersome, but is necessary to follow libtock-c's library import system.
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/ot-tock/build/lib/libopenthread
