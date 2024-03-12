@@ -1,6 +1,0 @@
-
-target remote localhost:2331
-
-add-symbol-file build/cortex-m4/cortex-m4.userland_debug.elf (0x40085-1)
-
-monitor reset 

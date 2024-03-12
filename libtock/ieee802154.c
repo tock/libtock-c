@@ -79,8 +79,8 @@ int ieee802154_set_address(unsigned short addr) {
 }
 
 /// @brief ENDIANNESS?
-/// @param addr_long 
-/// @return 
+/// @param addr_long
+/// @return
 int ieee802154_set_address_long(unsigned char *addr_long) {
   if (!addr_long) return RETURNCODE_EINVAL;
 
@@ -436,7 +436,6 @@ int ieee802154_send_raw(
   if (tx_result != RETURNCODE_SUCCESS) {
     return tx_result;
   } else if (tx_acked == 0) {
-    printf("complete transmission\n");
     return RETURNCODE_ENOACK;
   }
 

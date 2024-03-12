@@ -3,6 +3,8 @@
 #include<ieee802154.h>
 #include<plat.h>
 #include<openthread/platform/radio.h>
+#include <stdio.h>
+#include<openthread-system.h>
 
 static ieee802154_rxbuf rx_buf_a;
 static ieee802154_rxbuf rx_buf_b;
@@ -33,13 +35,17 @@ otTock otTockInstance = {
 };
 
 ieee802154_rxbuf* swap_shared_kernel_buf(otTock* instance) {
+    ieee802154_rxbuf* rx_buf;
+
     if (instance->kernel_rx_buf == rx_buf_a) {
         instance->kernel_rx_buf = rx_buf_b;
-        return rx_buf_a;
+        rx_buf = rx_buf_a;
     } else {
         instance->kernel_rx_buf = rx_buf_a;
-        return rx_buf_b;
+        rx_buf = rx_buf_b;
     }
+
+    return rx_buf;
 }
 
 void otSysInit(int argc, char *argv[]){
@@ -64,13 +70,13 @@ void otSysProcessDrivers(otInstance *aInstance){
     // if it has, we will call otPlatRadioReceiveDone to pass the data to openthread
     if (usr_rx_buffer.new){
 
-        printf("\n\nthere is new data to process\n");
+        // printf("\n\nthere is new data to process\n");
         int offset;
 
         while(usr_rx_buffer.read_index != usr_rx_buffer.write_index){
             offset = usr_rx_buffer.read_index * IEEE802154_FRAME_LEN;
 
-            printf("top of copy\n");
+            // printf("top of copy\n");
             char* rx_buf = usr_rx_buffer.buffer;
             int payload_offset = rx_buf[offset];
             int payload_length = rx_buf[offset+1];
@@ -86,14 +92,14 @@ void otSysProcessDrivers(otInstance *aInstance){
                 receiveFrame.mPsdu[i] = rx_buf[i+3+offset];
             }
 
-            for (int i = 0; i < receiveFrame.mLength; i++) {
-               if (i % 8 == 0) printf("\n");
-                 printf("%x ", receiveFrame.mPsdu[i]);       
-                      }
+            // for (int i = 0; i < receiveFrame.mLength; i++) {
+            //    if (i % 8 == 0) printf("\n");
+            //      printf("%x ", receiveFrame.mPsdu[i]);       
+            //           }
 
-            printf("start receive done\n");
+            // printf("start receive done\n");
             otPlatRadioReceiveDone(aInstance, &receiveFrame, OT_ERROR_NONE);
-            printf("complete receive done\n");
+            // printf("complete receive done\n");
 
             usr_rx_buffer.read_index++;
             if (usr_rx_buffer.read_index == 6){
@@ -114,7 +120,7 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
     // userprocess ring buffer 
 
     
-    printf("\n\nrx_callback\n");
+    // printf("\n\nrx_callback\n");
 
     char* rx_buf = swap_shared_kernel_buf(&otTockInstance);
     reset_ring_buf(rx_buf_b, 2+(IEEE802154_FRAME_LEN*3), rx_callback, NULL);
@@ -131,20 +137,20 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
         int mic_len = rx_buf[offset+2];
         int receive_frame_length = payload_length+payload_offset+mic_len;
 
-        printf("payload_offset: %d\n", payload_offset);
-        printf("payload_length: %d\n", payload_length);
-        printf("mic_len: %d\n", mic_len);
+        // printf("payload_offset: %d\n", payload_offset);
+        // printf("payload_length: %d\n", payload_length);
+        // printf("mic_len: %d\n", mic_len);
 
         int ring_buffer_offset = usr_rx_buffer.write_index * IEEE802154_FRAME_LEN;
 
-        printf("ring_buffer_offset: %d\n", ring_buffer_offset);
-        printf("offset: %d\n", offset);
+        // printf("ring_buffer_offset: %d\n", ring_buffer_offset);
+        // printf("offset: %d\n", offset);
 
         for (int i = 0; i < (receive_frame_length+3); i++) {
             usr_rx_buffer.buffer[ring_buffer_offset+i] = rx_buf[i+offset];
             rx_buf[i+offset] = 0;
-            if (i % 8 == 0) printf("\n");
-            printf("%x ", usr_rx_buffer.buffer[ring_buffer_offset+i]);
+            // if (i % 8 == 0) printf("\n");
+            // printf("%x ", usr_rx_buffer.buffer[ring_buffer_offset+i]);
             
         }
 
@@ -167,11 +173,20 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
 }
 
 
-void otTockStartReceive(uint8_t aChannel) {
-    printf("otTockStartReceive\n");
+otError otTockStartReceive(uint8_t aChannel) {
+    // printf("otTockStartReceive\n");
     if (aChannel != 26) {
-        return;
+        return OT_ERROR_NONE;
     }
-    ieee802154_receive(rx_callback, otTockInstance.kernel_rx_buf, (2+IEEE802154_FRAME_LEN*3), NULL);
+    int res = ieee802154_receive(rx_callback, otTockInstance.kernel_rx_buf, (2+IEEE802154_FRAME_LEN*3), NULL);
+
+    otError result = OT_ERROR_NONE;
+
+    if (res != 0) {
+        result = OT_ERROR_FAILED;
+    }
+
+    return result;
+
 }
 

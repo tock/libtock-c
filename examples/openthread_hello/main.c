@@ -2,23 +2,19 @@
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
 #include <openthread/thread.h>
+#include <openthread-system.h>
+#include <openthread/tasklet.h>
 #include <timer.h>
 #include <stdio.h>
-#include<plat.h>
-
+#include <plat.h>
+#include <string.h>
 
 static void setNetworkConfiguration(otInstance *aInstance);
 
 
-int main(int argc, char *argv[])
+int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
-    printf("Hello, OpenThread0!\n");
-    size_t   otInstanceBufferLength = 0;
-    uint8_t *otInstanceBuffer       = NULL;
-
     otInstance *instance;
-
-    printf("Hello, OpenThread!\n");
     instance = otInstanceInitSingle();
     assert(instance);
 

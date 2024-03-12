@@ -93,7 +93,7 @@ void otSysProcessDrivers(otInstance *aInstance);
  */
 extern void otSysEventSignalPending(void);
 
-void otTockStartReceive(uint8_t aChannel);
+otError otTockStartReceive(uint8_t aChannel);
 
 
 #ifdef __cplusplus
