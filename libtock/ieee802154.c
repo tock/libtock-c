@@ -436,6 +436,7 @@ int ieee802154_send_raw(
   if (tx_result != RETURNCODE_SUCCESS) {
     return tx_result;
   } else if (tx_acked == 0) {
+    printf("complete transmission\n");
     return RETURNCODE_ENOACK;
   }
 
@@ -472,7 +473,6 @@ int ieee802154_receive_sync(const ieee802154_rxbuf *frame) {
 bool ieee802154_unallow_rx_buf(void) {
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, NULL, 0);
 
-  command(RADIO_DRIVER, 28, NULL, NULL );
   return rw.success;
 }
 
