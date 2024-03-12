@@ -3,9 +3,12 @@
 #include <openthread/instance.h>
 #include <openthread/thread.h>
 #include <timer.h>
+#include <stdio.h>
+#include<plat.h>
 
 
 static void setNetworkConfiguration(otInstance *aInstance);
+
 
 int main(int argc, char *argv[])
 {
@@ -54,6 +57,7 @@ otThreadSetChildTimeout(instance, 10);
         /* Until the platform library files are implemented, this will not
         be called. With the empty platform files, the Instance() constructor 
         that is called within the otInstanceInit function hangs. */
+        // printf("loop...\n");
         otTaskletsProcess(instance);
         otSysProcessDrivers(instance); 
         yield();

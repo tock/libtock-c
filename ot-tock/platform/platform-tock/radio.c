@@ -3,121 +3,183 @@
 #include <ieee802154.h>
 #include <openthread/platform/radio.h>
 #include <stdio.h>
+#include <plat.h>
 // #include <openthread/platform/alarm-milli.h>
 
 #define ACK_SIZE 3
+
 static uint8_t tx_mPsdu[OT_RADIO_FRAME_MAX_SIZE];
-static uint8_t rx_mPsdu[OT_RADIO_FRAME_MAX_SIZE];
+static uint8_t rx_mPsdu_a[OT_RADIO_FRAME_MAX_SIZE];
+static uint8_t rx_mPsdu_b[OT_RADIO_FRAME_MAX_SIZE];
+static uint8_t rx_mPsdu_c[OT_RADIO_FRAME_MAX_SIZE];
+static ieee802154_rxbuf rx_buf_a;
+static ieee802154_rxbuf rx_buf_b;
+
+
 static uint8_t ack_mPSdu[ACK_SIZE] = {0x02, 0x00, 0x00};
-static ieee802154_rxbuf rx_buf;
-
-
-char frame_a[IEEE802154_FRAME_LEN];
-char frame_b[IEEE802154_FRAME_LEN];
-char frame_c[IEEE802154_FRAME_LEN];
 
 static otRadioFrame transmitFrame = {
     .mPsdu = tx_mPsdu,
     .mLength = OT_RADIO_FRAME_MAX_SIZE
 };
 
-static otRadioFrame receiveFrame = {
-    .mPsdu = rx_mPsdu,
+static otRadioFrame receiveFrameA = {
+    .mPsdu = rx_mPsdu_a,
     .mLength = OT_RADIO_FRAME_MAX_SIZE
 };
+
+static otRadioFrame receiveFrameB = {
+    .mPsdu = rx_mPsdu_b,
+    .mLength = OT_RADIO_FRAME_MAX_SIZE
+};
+
+static otRadioFrame receiveFrameC = {
+    .mPsdu = rx_mPsdu_c,
+    .mLength = OT_RADIO_FRAME_MAX_SIZE
+};
+
+static otRadioFrame* receive_frames[3] = {&receiveFrameA, &receiveFrameB, &receiveFrameC};
+static int recv_ind = 0;
 
 static otRadioFrame ackFrame = {
     .mPsdu = ack_mPSdu,
     .mLength = 3
 };
 
+
 int rx_count=0;
 int trans_count=0;
-static void rx_callback(__attribute__ ((unused)) int   pans,
-                     __attribute__ ((unused)) int   dst_addr,
-                     __attribute__ ((unused)) int   src_addr,
-                     __attribute__ ((unused)) void* aInstance) {   
-    printf("rx_callback\n");
-      ieee802154_unallow_rx_buf();
+bool buf_a = true;
+
+// static void rx_callback(__attribute__ ((unused)) int   pans,
+//                      __attribute__ ((unused)) int   dst_addr,
+//                      __attribute__ ((unused)) int   src_addr,
+//                      __attribute__ ((unused)) ring_buffer* usr_rx_buffer) {   
+//     // the purpose of this function will be to take the kernel data and transfer to the 
+//     // userprocess ring buffer 
+
     
-    int offset = 2;    
-    // | head active # | tail active # | frame 0 | frame 1 | ... | frame n |
+//     printf("\n\nrx_callback\n");
+//     // ieee802154_unallow_rx_buf();
 
-    char* head_index = &rx_buf[0];
-    char* tail_index = &rx_buf[1];
-    printf("start head_index: %d\n", *head_index);
-    printf("start tail_index: %d\n", *tail_index);
-    offset += *head_index * IEEE802154_FRAME_LEN;
+//     char* rx_buf;
+//     if (buf_a) {
+//         // printf("buf_a\n");
+//         buf_a = false;
+//         reset_ring_buf(rx_buf_b, 2+(IEEE802154_FRAME_LEN*3), rx_callback, usr_rx_buffer);
 
-    while (*head_index != *tail_index) {
+//         rx_buf = rx_buf_a;
 
-    // int payload_offset = ieee802154_frame_get_payload_offset(packet_rx);
-    // int payload_length = ieee802154_frame_get_payload_length(packet_rx);
-    printf("offset val %d\n", offset);
-    int payload_offset = rx_buf[offset];
-    int payload_length = rx_buf[offset+1];
-    int mic_len = rx_buf[offset+2];
+//     } else {
+//         // printf("buf_b\n");
 
-    printf("payload_offset: %d\n", payload_offset);
-    printf("payload_length: %d\n", payload_length);
-    printf("mic_len: %d\n", mic_len);
+//         buf_a = true;
+//         reset_ring_buf(rx_buf_a, 2+(IEEE802154_FRAME_LEN*3), rx_callback, usr_rx_buffer);
+//         rx_buf = rx_buf_b;
+//     }
 
-    // MIC len is sometimes 2, sometimes 4 bytes
-    receiveFrame.mInfo.mRxInfo.mTimestamp = otPlatAlarmMilliGetNow(aInstance) * 1000;
-    receiveFrame.mInfo.mRxInfo.mRssi = 50;
-    receiveFrame.mLength = payload_length+payload_offset+mic_len;
-    receiveFrame.mInfo.mRxInfo.mLqi = 0x7f;
-    // printf("THE RECEIVE LENGTH IS %d\n", receiveFrame.mLength);
-    // copy packet_rx into receiveFrame.Psdu
-    for (int i = 0; i < (receiveFrame.mLength); i++) {
-        receiveFrame.mPsdu[i] = rx_buf[i+3+offset];
-        rx_buf[i+3+offset] = 0;
-    }
-        printf("psdu: ");
-    for (int i = 0; i < receiveFrame.mLength; i++) {
-        if (i % 8 == 0) printf("\n");
-        printf("%x ", receiveFrame.mPsdu[i]);
-        }
-    printf("\n");
+//     int a = MAX_RING_BUFFER_PACKETS;
 
-    *head_index = (*head_index + 1) % MAX_FRAME_COUNT;
-    offset+= IEEE802154_FRAME_LEN;
+//     char* head_index = &rx_buf[0];
+//     char* tail_index = &rx_buf[1];
 
-    if (*head_index == 0) {
-        offset = 2;
-    }
-        printf("end head_index: %d\n", *head_index);
-        printf("end tail_index: %d\n", *tail_index);
+//     // printf("head_index: %d\n", *head_index);
+//     // printf("tail_index: %d\n", *tail_index);
 
-    otPlatRadioReceiveDone(aInstance, &receiveFrame, OT_ERROR_NONE);
+//     int offset = 2 + *head_index * IEEE802154_FRAME_LEN;    
+//     // | head active # | tail active # | frame 0 | frame 1 | ... | frame n |
 
-    /*
+//     while (*head_index != *tail_index) {
+//     int payload_offset = rx_buf[offset];
+//     int payload_length = rx_buf[offset+1];
+//     int mic_len = rx_buf[offset+2];
+//     int receive_frame_length = payload_length+payload_offset+mic_len;
+
+//     printf("payload_offset: %d\n", payload_offset);
+//     printf("payload_length: %d\n", payload_length);
+//     printf("mic_len: %d\n", mic_len);
+
+//     // otRadioFrame* receiveFrame = receive_frames[recv_ind];
+
+//     // MIC len is sometimes 2, sometimes 4 bytes
+//     // receiveFrame.mInfo.mRxInfo.mTimestamp = otPlatAlarmMilliGetNow(aInstance) * 1000;
+//     // receiveFrame->mInfo.mRxInfo.mRssi = 50;
+//     // receiveFrame->mLength = payload_length+payload_offset+mic_len;
+//     // receiveFrame->mInfo.mRxInfo.mTimestamp = 0;
+//     // receiveFrame->mInfo.mRxInfo.mLqi = 0x7f;
+//     // printf("THE RECEIVE LENGTH IS %d\n", receiveFrame.mLength);
+//     // copy packet_rx into receiveFrame.Psdu
+//     int ring_buffer_offset = usr_rx_buffer->write_index * IEEE802154_FRAME_LEN;
+
+//     for (int i = 0; i < (receive_frame_length+3); i++) {
+//         usr_rx_buffer->buffer[ring_buffer_offset+i] = rx_buf[i+offset];
+//         rx_buf[i+3+offset] = 0;
+//     }
+
+//     usr_rx_buffer->new = true;
+//     printf("user_rx_buffer.new %d\n", usr_rx_buffer->new);
+//     usr_rx_buffer->write_index++;
+//     if (usr_rx_buffer->write_index == 6) {
+//         usr_rx_buffer->write_index = 0;
+//     }
+
+//     //     printf("psdu: ");
+//     // for (int i = 0; i < 5; i++) {
+//     //     if (i % 8 == 0) printf("\n");
+//     //     printf("%x ", receiveFrame->mPsdu[i]);
+//     //     }
+//     // printf("\n");
+
+//     *head_index = (*head_index + 1) % MAX_FRAME_COUNT;
+//     offset+= IEEE802154_FRAME_LEN;
+
+//     if (*head_index == 0) {
+//         offset = 2;
+//     }
+
+//     // if (curr_top < STACK_SIZE) {
+//     //     instance_stack[curr_top] = aInstance;
+//     //     frame_stack[curr_top] = &receiveFrame;
+//     //     curr_top++;
+//     // } else {
+//     //     printf("stack full\n");
+//     // }
+
+//     recv_ind++;
+//     if (recv_ind == 3) {
+//         recv_ind = 0;
+//     }
+//     // printf("completed receive\n");
+//     // otPlatRadioReceiveDone(aInstance, receiveFrame, OT_ERROR_NONE);
+//     // printf("complete done\n");
+//     // printf("head index %d\n", *head_index);
+//     // printf("tail index %d\n", *tail_index);
+
+//     /*
     
-    state of world as of 2/27 -- parent req / resp work because they are not encrypted
-    parsing encrypted is different (due to mic being included). We need to somehow 
-    convey this data from / across the capsule to here. This should resolve the issue 
-    with joining. 
+//     state of world as of 2/27 -- parent req / resp work because they are not encrypted
+//     parsing encrypted is different (due to mic being included). We need to somehow 
+//     convey this data from / across the capsule to here. This should resolve the issue 
+//     with joining. 
     
-    */
+//     */
   
-    // // print all fields in received frame struct
-    // printf("received frame: \n");
-    // printf("length: %d\n", receiveFrame.mLength);
+//     // // print all fields in received frame struct
+//     // printf("received frame: \n");
+//     // printf("length: %d\n", receiveFrame.mLength);
 
-                            // assert(0);
-
-
-    // if (mic_len == 4) {
-    //     assert(0);
-    // }
-    }
+//                             // assert(0);
 
 
-    assert(*head_index == *tail_index);
-    rx_count++;
+//     // if (mic_len == 4) {
+//     //     assert(0);
+//     // }
+//     }
 
 
-}
+//     assert(*head_index == *tail_index);
+
+// }
 
 void otPlatRadioGetIeeeEui64(otInstance *aInstance, uint8_t *aIeeeEui64) {
     // TODO HARDCODED FOR NOW... think about this
@@ -204,7 +266,6 @@ otError otPlatRadioSleep(otInstance *aInstance) {
 }
 
 otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel) {
-
     // TODO
     OT_UNUSED_VARIABLE(aInstance);
     
@@ -214,11 +275,24 @@ otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel) {
         return OT_ERROR_NONE;
     }
 
-    receiveFrame.mChannel = 26;
+    
+    receive_frames[recv_ind]->mChannel = 26;
 
     // Start receiving
     unsigned int packet_len = 2+(IEEE802154_FRAME_LEN*3);
-    int retCode = ieee802154_receive(rx_callback, &rx_buf, packet_len, aInstance);
+
+    ieee802154_rxbuf* rx_buf;
+
+    if (buf_a) {
+        rx_buf = rx_buf_a;
+    } else {
+        rx_buf = rx_buf_b;
+    }
+
+    otTockStartReceive(aChannel);
+
+    // printf("Receive called\n");
+    // ieee802154_receive(rx_callback, rx_buf, packet_len, usr_ring_buffer);
 
 
     // otPlatRadioReceiveDone()
@@ -232,7 +306,6 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
     // this is corrected here. I have looked within openthread as to why this is 
     // happening, but I cannot find the source of the problem. This "magic number"
     // fix is not ideal, but fixes the issue.
-    printf("send trans buf\n");
 
     aFrame->mLength = aFrame->mLength-2;
 
@@ -243,13 +316,13 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
     }
 
     // print the mPsdu in byte increments 
-    printf("psdu: ");
-    for (int i = 0; i < aFrame->mLength; i++) {
-        if (i % 8 == 0) printf("\n");
-        printf("%x ", aFrame->mPsdu[i]);
-    }
+    // printf("psdu: ");
+    // for (int i = 0; i < aFrame->mLength; i++) {
+    //     if (i % 8 == 0) printf("\n");
+    //     printf("%x ", aFrame->mPsdu[i]);
+    // }
 
-    printf("\n*/*/*/*/*/*/*/*/*/\n");
+    // printf("\n*/*/*/*/*/*/*/*/*/\n");
 
     // Send the frame, and check if it was successful
     int send_result =  ieee802154_send_direct(aFrame->mPsdu, aFrame->mLength);
@@ -274,7 +347,7 @@ otRadioFrame *otPlatRadioGetTransmitBuffer(otInstance *aInstance) {
 int8_t otPlatRadioGetRssi(otInstance *aInstance) {
     // TODO
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
+    // printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
     return 0;
 }
 
@@ -382,6 +455,6 @@ otError otPlatRadioSetCcaEnergyDetectThreshold(otInstance *aInstance, int8_t aTh
 int8_t otPlatRadioGetReceiveSensitivity(otInstance *aInstance) {
     // TODO
     OT_UNUSED_VARIABLE(aInstance);
-    printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
+    // printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
     return 50;
 }
