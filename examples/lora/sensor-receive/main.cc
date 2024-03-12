@@ -54,16 +54,19 @@ int main(void) {
     // Ensure there are no pending callbacks
     yield_no_wait();
 
+    bzero(buffer, BUFFER_LEN);
     state = radio->receive((uint8_t*)buffer, BUFFER_LEN);
 
     if (state == RADIOLIB_ERR_NONE) {
       // the packet was successfully transmitted
-      printf("success!: %s\r\n", buffer);
-
-      // wait for a second before transmitting again
-      hal->delay(1000);
+      printf("%s\r\n", buffer);
+    } else if (state == RADIOLIB_ERR_RX_TIMEOUT) {
+      // The operation just timed out, let's try again
     } else {
       printf("failed, code %d\r\n", state);
+
+      // wait for five seconds before trying again
+      hal->delay(5 * 1000);
     }
   }
 
