@@ -10,7 +10,7 @@ extern "C" {
 
 // Function signature for temperature data callback.
 //
-// - `arg1` (`int`): Returncode indicating status from sampling the sensor.
+// - `arg1` (`returncode_t`): Status from sampling the sensor.
 // - `arg2` (`int`): Temperature reading in hundredths of degrees centigrade.
 typedef void (*libtock_temperature_callback)(returncode_t, int);
 
