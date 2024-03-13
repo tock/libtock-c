@@ -14,7 +14,7 @@
 #define BUF_SIZE 60
 char packet[BUF_SIZE];
 bool toggle = true;
-unsigned char addr[8] = {0,1,2,3,4,5,6,7};
+unsigned char addr[8] = {0, 1, 2, 3, 4, 5, 6, 7};
 
 int main(void) {
   int i;
@@ -25,7 +25,7 @@ int main(void) {
   ieee802154_set_address_long(*addr);
   ieee802154_set_pan(0xABCD);
   ieee802154_config_commit();
-  //ieee802154_up();
+  // ieee802154_up();
   while (1) {
     led_toggle(0);
     int err = ieee802154_send(0x0802,
