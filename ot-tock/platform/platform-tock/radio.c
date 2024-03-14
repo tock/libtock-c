@@ -126,7 +126,7 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
     return OT_ERROR_NONE;
   }
 
-  int send_result =  ieee802154_send_direct((char*) aFrame->mPsdu, aFrame->mLength);
+  int send_result =  ieee802154_send_raw((char*) aFrame->mPsdu, aFrame->mLength);
 
   // Send direct does support ACK so no ACK is also considered a successful transmission
   if (send_result != RETURNCODE_SUCCESS && send_result != RETURNCODE_ENOACK) {
