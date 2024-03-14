@@ -29,14 +29,14 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   setNetworkConfiguration(instance);
 
   // set child timeout to 10 seconds(helpful for testing attachment issues)
-  otThreadSetChildTimeout(instance, 10);
+  // otThreadSetChildTimeout(instance, 10);
 
-  /* Start the Thread network interface (CLI cmd > ifconfig up) */
+  /* Start the Thread network interface (CLI cmd -> ifconfig up) */
   otIp6SetEnabled(instance, true);
 
   // Initialize UDP socket TODO (see guide: https://openthread.io/codelabs/openthread-apis#7)
 
-  /* Start the Thread stack (CLI cmd > thread start) */
+  /* Start the Thread stack (CLI cmd -> thread start) */
   otThreadSetEnabled(instance, true);
 
   for ( ;;) {
