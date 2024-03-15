@@ -3,6 +3,10 @@
 #include "tock.h"
 #include "screen_syscalls.h"
 
+bool libtock_screen_exists(void) {
+  return driver_exists(DRIVER_NUM_SCREEN);
+}
+
 returncode_t libtock_screen_set_upcall(subscribe_upcall cb, void* opaque) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_SCREEN, 0, cb, userdata);
   return tock_subscribe_return_to_returncode(sval);
