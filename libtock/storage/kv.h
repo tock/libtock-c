@@ -6,28 +6,32 @@
 extern "C" {
 #endif
 
-int kv_set_callback(subscribe_upcall callback, void* callback_args);
+// Function signature for KV get callbacks.
+//
+// - `arg1` (`returncode_t`): Status of kv operation.
+// - `arg2` (`int`): Length of get.
+typedef void (*libtock_kv_callback_get)(returncode_t, int);
 
-int kv_set_key_buffer(const uint8_t* buffer, uint32_t len);
-int kv_set_input_buffer(const uint8_t* buffer, uint32_t len);
-int kv_set_output_buffer(uint8_t* buffer, uint32_t len);
+// Function signature for KV callbacks.
+//
+// - `arg1` (`returncode_t`): Status of kv operation.
+typedef void (*libtock_kv_callback_done)(returncode_t);
 
-/*
- * Check that the KV system exists
- */
-int kv_check_status(void);
 
-int kv_get(void);
-int kv_set(void);
-int kv_add(void);
-int kv_update(void);
-int kv_delete(void);
+returncode_t libtock_kv_get(const uint8_t* key_buffer, uint32_t key_len, uint8_t* ret_buffer, uint32_t ret_len,
+                            libtock_kv_callback_get cb);
 
-int kv_get_sync(const uint8_t* key_buffer, uint32_t key_len, uint8_t* ret_buffer, uint32_t ret_len, uint32_t* value_len);
-int kv_set_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len);
-int kv_add_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len);
-int kv_update_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len);
-int kv_delete_sync(const uint8_t* key_buffer, uint32_t key_len);
+returncode_t libtock_kv_set(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len,
+                            libtock_kv_callback_done cb);
+
+returncode_t libtock_kv_add(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len,
+                            libtock_kv_callback_done cb);
+
+returncode_t libtock_kv_update(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len,
+                               libtock_kv_callback_done cb);
+
+returncode_t libtock_kv_delete(const uint8_t* key_buffer, uint32_t key_len, libtock_kv_callback_done cb);
+
 
 #ifdef __cplusplus
 }

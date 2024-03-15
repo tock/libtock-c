@@ -1,196 +1,85 @@
 #include "kv.h"
+#include "syscalls/kv_syscalls.h"
 
-#define DRIVER_NUM_KV_SYSTEM 0x50003
 
-#define TOCK_KV_CB           0
+static void kv_upcall_get( int                          err,
+                           int                          length,
+                           __attribute__ ((unused)) int unused2,
+                           void*                        opaque) {
 
-#define TOCK_KV_KEY_BUF      0
-#define TOCK_KV_INPUT_BUF    1
-#define TOCK_KV_OUTPUT_BUF   0
-
-#define TOCK_KV_CHECK_PRESENT   0
-#define TOCK_KV_GET             1
-#define TOCK_KV_SET             2
-#define TOCK_KV_DELETE          3
-#define TOCK_KV_ADD             4
-#define TOCK_KV_UPDATE          5
-
-int kv_set_callback(subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t sval = subscribe(DRIVER_NUM_KV_SYSTEM, TOCK_KV_CB, callback, callback_args);
-  return tock_subscribe_return_to_returncode(sval);
+  libtock_kv_callback_get cb = (libtock_kv_callback_get) opaque;
+  cb(tock_status_to_returncode(err), length);
 }
 
-int kv_set_key_buffer(const uint8_t* buffer, uint32_t len) {
-  allow_ro_return_t aval = allow_readonly(DRIVER_NUM_KV_SYSTEM, TOCK_KV_KEY_BUF, (void*) buffer, len);
-  return tock_allow_ro_return_to_returncode(aval);
+
+static void kv_upcall_done( int                          err,
+                            __attribute__ ((unused)) int length,
+                            __attribute__ ((unused)) int unused2,
+                            void*                        opaque) {
+
+  libtock_kv_callback_done cb = (libtock_kv_callback_done) opaque;
+  cb(tock_status_to_returncode(err));
 }
 
-int kv_set_input_buffer(const uint8_t* buffer, uint32_t len) {
-  allow_ro_return_t aval = allow_readonly(DRIVER_NUM_KV_SYSTEM, TOCK_KV_INPUT_BUF, (void*) buffer, len);
-  return tock_allow_ro_return_to_returncode(aval);
+returncode_t libtock_kv_get(const uint8_t* key_buffer, uint32_t key_len, uint8_t* ret_buffer, uint32_t ret_len,
+                            libtock_kv_callback_get cb) {
+  returncode_t err;
+
+  err = libtock_kv_set_upcall(kv_upcall_get, cb);
+  if (err != RETURNCODE_SUCCESS) return err;
+
+  err = libtock_kv_readonly_allow_key_buffer(key_buffer, key_len);
+  if (err != RETURNCODE_SUCCESS) return err;
+
+  err = libtock_kv_readwrite_allow_output_buffer(ret_buffer, ret_len);
+  if (err != RETURNCODE_SUCCESS) return err;
+
+  err = libtock_kv_command_get();
+  return err;
 }
 
-int kv_set_output_buffer(uint8_t* buffer, uint32_t len) {
-  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_KV_SYSTEM, TOCK_KV_OUTPUT_BUF, (void*) buffer, len);
-  return tock_allow_rw_return_to_returncode(aval);
-}
+static returncode_t kv_insert(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer,
+                              uint32_t val_len, returncode_t (*op_fn)(void), libtock_kv_callback_done cb){
+  returncode_t err;
 
-int kv_check_status(void) {
-  syscall_return_t cval = command(DRIVER_NUM_KV_SYSTEM, TOCK_KV_CHECK_PRESENT, 0, 0);
-  return tock_command_return_novalue_to_returncode(cval);
-}
+  err = libtock_kv_set_upcall(kv_upcall_done, cb);
+  if (err != RETURNCODE_SUCCESS) return err;
 
-int kv_get(void) {
-  syscall_return_t cval = command(DRIVER_NUM_KV_SYSTEM, TOCK_KV_GET, 0, 0);
-  return tock_command_return_novalue_to_returncode(cval);
-}
+  err = libtock_kv_readonly_allow_key_buffer(key_buffer, key_len);
+  if (err != RETURNCODE_SUCCESS) return err;
 
-int kv_set(void) {
-  syscall_return_t cval = command(DRIVER_NUM_KV_SYSTEM, TOCK_KV_SET, 0, 0);
-  return tock_command_return_novalue_to_returncode(cval);
-}
-
-int kv_delete(void) {
-  syscall_return_t cval = command(DRIVER_NUM_KV_SYSTEM, TOCK_KV_DELETE, 0, 0);
-  return tock_command_return_novalue_to_returncode(cval);
-}
-
-int kv_add(void) {
-  syscall_return_t cval = command(DRIVER_NUM_KV_SYSTEM, TOCK_KV_ADD, 0, 0);
-  return tock_command_return_novalue_to_returncode(cval);
-}
-
-int kv_update(void) {
-  syscall_return_t cval = command(DRIVER_NUM_KV_SYSTEM, TOCK_KV_UPDATE, 0, 0);
-  return tock_command_return_novalue_to_returncode(cval);
-}
-
-struct kv_data {
-  bool fired;
-  int err;
-  int length;
-};
-
-static struct kv_data result = { .fired = false };
-
-// Internal callback for faking synchronous reads
-static void kv_upcall( int                          err,
-                       int                          length,
-                       __attribute__ ((unused)) int unused2,
-                       void*                        ud) {
-  struct kv_data* data = (struct kv_data*) ud;
-  data->fired  = true;
-  data->err    = tock_status_to_returncode(err);
-  data->length = length;
-}
-
-int kv_get_sync(const uint8_t* key_buffer, uint32_t key_len, uint8_t* ret_buffer, uint32_t ret_len,
-                uint32_t* value_len) {
-  int err;
-  result.fired = false;
-
-  err = kv_set_callback(kv_upcall, (void*) &result);
-  if (err < 0) return err;
-
-  err = kv_set_key_buffer(key_buffer, key_len);
-  if (err < 0) return err;
-
-  err = kv_set_output_buffer(ret_buffer, ret_len);
-  if (err < 0) return err;
-
-  err = kv_get();
-  if (err < 0) return err;
-
-  // Wait for the callback.
-  yield_for(&result.fired);
-
-  // Retrieve the buffers.
-  err = kv_set_output_buffer(NULL, 0);
-  if (err < 0) return err;
-
-  err = kv_set_key_buffer(NULL, 0);
-  if (err < 0) return err;
-
-  if (result.err < 0) {
-    return result.err;
-  }
-
-  // Return the length of the retrieved value.
-  *value_len = result.length;
-
-  return RETURNCODE_SUCCESS;
-}
-
-static int kv_insert_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer,
-                          uint32_t val_len, int (*op_fn)(void)){
-  int err;
-  result.fired = false;
-
-  err = kv_set_callback(kv_upcall, (void*) &result);
-  if (err < 0) return err;
-
-  err = kv_set_key_buffer(key_buffer, key_len);
-  if (err < 0) return err;
-
-  err = kv_set_input_buffer(val_buffer, val_len);
-  if (err < 0) return err;
+  err = libtock_kv_readonly_allow_input_buffer(val_buffer, val_len);
+  if (err != RETURNCODE_SUCCESS) return err;
 
   // Do the requested set/add/update operation.
   err = op_fn();
-  if (err < 0) return err;
-
-  // Wait for the callback.
-  yield_for(&result.fired);
-
-  // Retrieve the buffers.
-  err = kv_set_output_buffer(NULL, 0);
-  if (err < 0) return err;
-
-  err = kv_set_key_buffer(NULL, 0);
-  if (err < 0) return err;
-
-  if (result.err < 0) {
-    return result.err;
-  }
-
-  return RETURNCODE_SUCCESS;
+  return err;
 }
 
-int kv_set_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len) {
-  return kv_insert_sync(key_buffer, key_len, val_buffer, val_len, kv_set);
+returncode_t libtock_kv_set(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len,
+                            libtock_kv_callback_done cb) {
+  return kv_insert(key_buffer, key_len, val_buffer, val_len, libtock_kv_command_set, cb);
 }
 
-int kv_add_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len) {
-  return kv_insert_sync(key_buffer, key_len, val_buffer, val_len, kv_add);
+returncode_t libtock_kv_add(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len,
+                            libtock_kv_callback_done cb) {
+  return kv_insert(key_buffer, key_len, val_buffer, val_len, libtock_kv_command_add, cb);
 }
 
-int kv_update_sync(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len) {
-  return kv_insert_sync(key_buffer, key_len, val_buffer, val_len, kv_update);
+returncode_t libtock_kv_update(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer, uint32_t val_len,
+                               libtock_kv_callback_done cb) {
+  return kv_insert(key_buffer, key_len, val_buffer, val_len, libtock_kv_command_update, cb);
 }
 
-int kv_delete_sync(const uint8_t* key_buffer, uint32_t key_len) {
-  int err;
-  result.fired = false;
+returncode_t libtock_kv_delete(const uint8_t* key_buffer, uint32_t key_len, libtock_kv_callback_done cb) {
+  returncode_t err;
 
-  err = kv_set_callback(kv_upcall, (void*) &result);
-  if (err < 0) return err;
+  err = libtock_kv_set_upcall(kv_upcall_done, cb);
+  if (err != RETURNCODE_SUCCESS) return err;
 
-  err = kv_set_key_buffer(key_buffer, key_len);
-  if (err < 0) return err;
+  err = libtock_kv_readonly_allow_key_buffer(key_buffer, key_len);
+  if (err != RETURNCODE_SUCCESS) return err;
 
-  err = kv_delete();
-  if (err < 0) return err;
-
-  // Wait for the callback.
-  yield_for(&result.fired);
-
-  // Retrieve the buffers.
-  err = kv_set_key_buffer(NULL, 0);
-  if (err < 0) return err;
-
-  if (result.err < 0) {
-    return result.err;
-  }
-
-  return RETURNCODE_SUCCESS;
+  err = libtock_kv_command_delete();
+  return err;
 }
