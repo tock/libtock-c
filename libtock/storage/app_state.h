@@ -42,7 +42,6 @@ extern "C" {
 
 
 
-
 // Declare an application state structure
 //
 // This macro does a little extra bookkeeping, however it should look
@@ -62,9 +61,9 @@ extern "C" {
   _type _app_state_flash;                                             \
   _type _identifier;                                                  \
   void* _app_state_flash_pointer = NULL;                              \
-  void* _app_state_ram_pointer = &_identifier;                        \
-  size_t _app_state_size = sizeof(_type);                             \
-  bool _app_state_inited = false;
+  void* _app_state_ram_pointer   = &_identifier;                        \
+  size_t _app_state_size         = sizeof(_type);                             \
+  bool _app_state_inited         = false;
 
 
 // Function signature save done callbacks.
@@ -77,7 +76,6 @@ extern void* _app_state_flash_pointer;
 extern void* _app_state_ram_pointer;
 extern size_t _app_state_size;
 extern bool _app_state_inited;
-
 
 
 
