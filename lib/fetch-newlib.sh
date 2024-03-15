@@ -24,7 +24,7 @@ for MIRROR in ${MIRRORS[@]}; do
   URL=$MIRROR/$ZIP_FILE
   echo "Fetching newlib from ${MIRROR}..."
   echo "  Fetching ${URL}..."
-  wget -q "$URL" && (echo "$NEWLIB_SHA $ZIP_FILE" | sha256sum -c)
+  wget -O $ZIP_FILE "$URL" && (echo "$NEWLIB_SHA $ZIP_FILE" | sha256sum -c)
   if [ $? -ne 0 ]; then
     echo "  WARNING: Fetching newlib from mirror $MIRROR failed!" >&2
   else

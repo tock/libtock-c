@@ -26,7 +26,7 @@ for MIRROR in ${MIRRORS[@]}; do
   URL=$MIRROR/$ZIP_FILE
   echo "Fetching libc++ from ${MIRROR}..."
   echo "  Fetching ${URL}..."
-  wget -q "$URL" && (echo "$GCC_SHA $ZIP_FILE" | sha256sum -c)
+  wget -O $ZIP_FILE  "$URL" && (echo "$GCC_SHA $ZIP_FILE" | sha256sum -c)
   if [ $? -ne 0 ]; then
     echo "  WARNING: Fetching libc++ from mirror $MIRROR failed!" >&2
   else
