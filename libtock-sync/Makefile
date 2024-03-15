@@ -10,6 +10,7 @@ $(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/libtock-sync
 $(LIBNAME)_SRCS  := $(wildcard $($(LIBNAME)_DIR)/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/interface/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/sensors/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/storage/*.c)
 
 # Need libtock headers.
 override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
