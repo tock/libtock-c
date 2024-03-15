@@ -23,7 +23,7 @@ returncode_t libtocksync_temperature_read(int* temperature) {
   returncode_t err;
   result.fired = false;
 
-  err = temperature_read(temp_cb);
+  err = libtock_temperature_read(temp_cb);
   if (err != RETURNCODE_SUCCESS) return err;
 
   // Wait for the callback.
