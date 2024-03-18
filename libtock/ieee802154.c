@@ -450,7 +450,7 @@ static void rx_done_callback(__attribute__ ((unused)) int pans,
   *((bool*) ud) = true;
 }
 
-int ieee802154_receive_sync(const char *frame, unsigned char len) {
+int ieee802154_receive_sync(const ieee802154_rxbuf *frame, unsigned char len) {
   // Provide the buffer to the kernel
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, len);
   if (!rw.success) return tock_status_to_returncode(rw.status);
@@ -468,17 +468,27 @@ int ieee802154_receive_sync(const char *frame, unsigned char len) {
 // must be called before accessing the contents of the "allowed" receive buffer
 bool ieee802154_unallow_rx_buf(void) {
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, NULL, 0);
+
   return rw.success;
 }
 
-int ieee802154_receive(subscribe_upcall callback,
-                       const char *     frame,
-                       unsigned char    len) {
+bool reset_ring_buf(const ieee802154_rxbuf* frame, unsigned int len, subscribe_upcall callback, void* ud) {
+  allow_rw_return_t rw   = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, len);
+  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_RX, callback, ud);
+
+  return rw.success && sub.success;
+}
+
+int ieee802154_receive(subscribe_upcall        callback,
+                       const ieee802154_rxbuf* frame,
+                       unsigned int            len,
+                       void*                   ud) {
+
   // Provide the buffer to the kernel
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, len);
   if (!rw.success) return tock_status_to_returncode(rw.status);
 
-  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_RX, callback, NULL);
+  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_RX, callback, ud);
   return tock_subscribe_return_to_returncode(sub);
 }
 

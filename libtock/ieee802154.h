@@ -237,16 +237,20 @@ int ieee802154_send_raw(const char *     payload,
                     unsigned char    len);
 
 // Maximum size required of a buffer to contain the IEEE 802.15.4 frame data
-// passed to userspace from the kernel. Consists of 2 extra bytes followed by
+// passed to userspace from the kernel. Consists of 3 extra bytes followed by
 // the whole IEEE 802.15.4 MTU, which is 127 bytes.
-#define IEEE802154_FRAME_LEN 129
+#define IEEE802154_FRAME_LEN 130
+
+#define MAX_FRAME_COUNT 3
+
+typedef char ieee802154_rxbuf[2+(IEEE802154_FRAME_LEN*3)];
 
 // Waits synchronously for an IEEE 802.15.4 frame.
 // `frame` (in): Buffer in which to put the full IEEE 802.15.4 frame data. Note
 //   that the data written might include more than just the IEEE 802.15.4 frame itself.
 //   Use `ieee802154_frame_get_*` to interact with the resulting frame.
 // `len` (in): The size of the buffer into which the frame will be placed.
-int ieee802154_receive_sync(const char *frame, unsigned char len);
+int ieee802154_receive_sync(const ieee802154_rxbuf *frame, unsigned char len);
 
 // Waits asynchronously for an IEEE 802.15.4 frame. Only waits for one frame.
 // To receive more, subscribe to this event again after processing one.
@@ -261,8 +265,9 @@ int ieee802154_receive_sync(const char *frame, unsigned char len);
 // `dst_addr`: (addressing mode << 16) | (short address if address is short else 0)
 // `src_addr`: (addressing mode << 16) | (short address if address is short else 0)
 int ieee802154_receive(subscribe_upcall callback,
-                       const char *frame,
-                       unsigned char len);
+                       const ieee802154_rxbuf *frame,
+                       unsigned int len,
+                       void* ud);
 
 // IEEE 802.15.4 received frame inspection functions. The frames are returned
 // to userspace in a particular format that might include more bytes than just
@@ -327,6 +332,14 @@ bool ieee802154_frame_get_src_pan(const char *frame,
 
 // Unallow any allowed rx buffer by allowing a null pointer.
 bool ieee802154_unallow_rx_buf(void);
+
+/// Resets the ring buffer shared with the kernel to either be disabled or prepared for the next 
+/// received packet. To disable the ring buffer, the user should pass a NULL value to the `frame`
+/// and `callback` arguments. To prepare for the next received packets, the caller should pass the
+/// relevant buffer/callback to the `frame` and  `callback` arguments. Note, this function clears
+/// all pending RX upcalls.
+bool reset_ring_buf(const ieee802154_rxbuf* frame, unsigned int len, subscribe_upcall callback, void* ud);
+
 #ifdef __cplusplus
 }
 #endif
