@@ -3,9 +3,9 @@
 #include <openthread/platform/flash.h>
 #include <string.h>
 
-const uint32_t SWAP_SIZE = 10000;
-uint8_t swapPart0[10000];
-uint8_t swapPart1[10000];
+const uint32_t SWAP_SIZE = 512;
+uint8_t swapPart0[512];
+uint8_t swapPart1[512];
 
 // NOTE: This is just a temporary version of this file. OpenThread will
 // not operate properly if it is unable to "save" the state. This provides

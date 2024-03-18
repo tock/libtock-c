@@ -6,12 +6,11 @@
 #include <openthread/platform/radio.h>
 #include <plat.h>
 #include <stdio.h>
-#include <stdio.h>
 
 static ieee802154_rxbuf rx_buf_a;
 static ieee802154_rxbuf rx_buf_b;
 
-static char buf[780];
+static char buf[130*3];
 ring_buffer usr_rx_buffer = {
   .buffer      = buf,
   .write_index = 0,
