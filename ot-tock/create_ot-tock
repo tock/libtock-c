@@ -6,7 +6,7 @@ set -e
 # Create build directory and invoke CMake to create and execute build system. We specify that
 # the platform used will be external (Tock specific). For now, we specify the multiple
 # instance flag. This may change in future iterations of this script.
-ARGS="-DOT_APP_CLI=OFF -DOT_APP_NCP=OFF -DOT_PLATFORM=external -DOT_FULL_LOGS=ON -DOT_JOINER=ON"
+ARGS="-DOT_APP_CLI=OFF -DOT_APP_NCP=OFF -DOT_PLATFORM=external -DOT_FULL_LOGS=ON -DOT_JOINER=OFF"
 
 # specify mtd or ftd
 THREAD_TYPE=mtd
