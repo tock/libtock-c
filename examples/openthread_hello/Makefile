@@ -25,12 +25,8 @@ EXTERN_LIBS += $(OT_TOCK_LIB_DIR)/libmbedtls
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/ot-tock/platform/platform-tock
 
 # Arbitrarily set this for now. We will need to revisit these values.
-APP_HEAP_SIZE:= 15000
-STACK_SIZE:=15000
-
-
-
-
+#APP_HEAP_SIZE:=5000
+#STACK_SIZE:=5000
 
 C_SRCS := main.c
 
