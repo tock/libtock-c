@@ -446,7 +446,7 @@ static void rx_done_callback(__attribute__ ((unused)) int pans,
                              __attribute__ ((unused)) int dst_addr,
                              __attribute__ ((unused)) int src_addr,
                              void*                        ud) {
-  ieee802154_unallow_rx_buf();
+  reset_ring_buf(NULL, NULL, NULL);
   *((bool*) ud) = true;
 }
 
@@ -468,12 +468,12 @@ int ieee802154_receive_sync(const ieee802154_rxbuf *frame) {
 // must be called before accessing the contents of the "allowed" receive buffer
 bool ieee802154_unallow_rx_buf(void) {
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, NULL, 0);
-
   return rw.success;
 }
 
 bool reset_ring_buf(const ieee802154_rxbuf* frame, subscribe_upcall callback, void* ud) {
-  allow_rw_return_t rw   = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, (frame) ? IEEE802154_RING_BUFFER_LEN : 0);
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame,
+                                         (frame) ? IEEE802154_RING_BUFFER_LEN : 0);
   subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_RX, callback, ud);
   return rw.success && sub.success;
 }
@@ -481,8 +481,8 @@ bool reset_ring_buf(const ieee802154_rxbuf* frame, subscribe_upcall callback, vo
 char* ieee802154_read_next_frame(const ieee802154_rxbuf* frame) {
   if (!frame) return NULL;
 
-  char *rx_buf = (char *) frame;
-  int read_index = rx_buf[0];
+  char *rx_buf    = (char *) frame;
+  int read_index  = rx_buf[0];
   int write_index = rx_buf[1];
   if (read_index == write_index) {
     return NULL;
@@ -599,11 +599,13 @@ static bool ieee802154_get_addressing(uint16_t     frame_control,
 // Utility function to obtain the frame control field from a frame
 static void ieee802154_get_frame_control(const char *frame, uint16_t *frame_control) {
   if (!frame || !frame_control) return;
-  *frame_control = ((uint16_t) frame[IEEE802154_FRAME_META_LEN]) | (((uint16_t) frame[IEEE802154_FRAME_META_LEN+1]) << 8);
+  *frame_control = ((uint16_t) frame[IEEE802154_FRAME_META_LEN]) |
+                   (((uint16_t) frame[IEEE802154_FRAME_META_LEN + 1]) << 8);
 }
 
 // Utility function to obtain the address offset from a frame
-static void ieee802154_get_addr_offset(const char *frame, uint16_t *addr_offset, uint16_t *frame_control, const uint16_t *SEQ_SUPPRESSED) {
+static void ieee802154_get_addr_offset(const char *frame, uint16_t *addr_offset, uint16_t *frame_control,
+                                       const uint16_t *SEQ_SUPPRESSED) {
   if (!frame || !addr_offset || !frame_control || !SEQ_SUPPRESSED) return;
   *addr_offset =  ((*frame_control & *SEQ_SUPPRESSED) ? 2 : 3) + IEEE802154_FRAME_META_LEN;
 }
@@ -612,7 +614,7 @@ addr_mode_t ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const char * 
                                           __attribute__ ((unused)) unsigned short *short_addr,
                                           __attribute__ ((unused)) unsigned char * long_addr) {
   if (!frame) return ADDR_NONE;
-  
+
   uint16_t frame_control;
   ieee802154_get_frame_control(frame, &frame_control);
 
@@ -648,7 +650,7 @@ addr_mode_t ieee802154_frame_get_src_addr(__attribute__ ((unused)) const char * 
                                           __attribute__ ((unused)) unsigned short *short_addr,
                                           __attribute__ ((unused)) unsigned char * long_addr) {
   if (!frame) return ADDR_NONE;
-  
+
   uint16_t frame_control;
   ieee802154_get_frame_control(frame, &frame_control);
 
@@ -719,7 +721,7 @@ bool ieee802154_frame_get_src_pan(__attribute__ ((unused)) const char *    frame
 
   uint16_t frame_control;
   ieee802154_get_frame_control(frame, &frame_control);
-  
+
   bool dst_pan_present, src_pan_present, src_pan_dropped;
   addr_mode_t dst_mode, src_mode;
   if (!ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
