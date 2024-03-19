@@ -238,12 +238,16 @@ int ieee802154_send_raw(const char *     payload,
 
 // Maximum size required of a buffer to contain the IEEE 802.15.4 frame data
 // passed to userspace from the kernel. Consists of 3 extra bytes followed by
-// the whole IEEE 802.15.4 MTU, which is 127 bytes.
-#define IEEE802154_FRAME_LEN 130
+// the whole IEEE 802.15.4 MTU, which is 127 bytes. The packet is of the following
+// form: | data_offset | data_len | mic_len | 15.4 frame |
+#define IEEE802154_FRAME_META_LEN 3
+#define IEEE802154_FRAME_LEN (IEEE802154_FRAME_META_LEN + 127)
 
-#define MAX_FRAME_COUNT 3
+#define IEEE802154_RING_BUF_META_LEN 2
+#define IEEE802154_MAX_RING_BUF_FRAMES 3
+#define IEEE802154_RING_BUFFER_LEN (IEEE802154_RING_BUF_META_LEN + IEEE802154_MAX_RING_BUF_FRAMES * IEEE802154_FRAME_LEN)
 
-typedef char ieee802154_rxbuf[2+(IEEE802154_FRAME_LEN*3)];
+typedef char ieee802154_rxbuf[IEEE802154_RING_BUFFER_LEN];
 
 // Waits synchronously for an IEEE 802.15.4 frame.
 // `frame` (in): Buffer in which to put the full IEEE 802.15.4 frame data. Note
@@ -333,12 +337,18 @@ bool ieee802154_frame_get_src_pan(const char *frame,
 // Unallow any allowed rx buffer by allowing a null pointer.
 bool ieee802154_unallow_rx_buf(void);
 
-/// Resets the ring buffer shared with the kernel to either be disabled or prepared for the next 
-/// received packet. To disable the ring buffer, the user should pass a NULL value to the `frame`
-/// and `callback` arguments. To prepare for the next received packets, the caller should pass the
-/// relevant buffer/callback to the `frame` and  `callback` arguments. Note, this function clears
-/// all pending RX upcalls.
+char* ieee802154_read_next_frame(const ieee802154_rxbuf* frame);
+
+// Resets the ring buffer shared with the kernel to either be disabled or prepared for the next 
+// received packet. To disable the ring buffer, the user should pass a NULL value to the `frame`
+// and `callback` arguments. To prepare for the next received packets, the caller should pass the
+// relevant buffer/callback to the `frame` and  `callback` arguments. Note, this function clears
+// all pending RX upcalls.
 bool reset_ring_buf(const ieee802154_rxbuf* frame, unsigned int len, subscribe_upcall callback, void* ud);
+
+// void ieee802154_frame_get_frame_control(const char *frame, uint16_t *frame_control);
+
+// void ieee802154_frame_get_addr_offset(const char *frame, uint16_t *addr_offset, uint16_t *frame_control, const uint16_t *SEQ_SUPPRESSED);
 
 #ifdef __cplusplus
 }
