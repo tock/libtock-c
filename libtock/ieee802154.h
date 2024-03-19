@@ -253,15 +253,13 @@ typedef char ieee802154_rxbuf[IEEE802154_RING_BUFFER_LEN];
 // `frame` (in): Buffer in which to put the full IEEE 802.15.4 frame data. Note
 //   that the data written might include more than just the IEEE 802.15.4 frame itself.
 //   Use `ieee802154_frame_get_*` to interact with the resulting frame.
-// `len` (in): The size of the buffer into which the frame will be placed.
-int ieee802154_receive_sync(const ieee802154_rxbuf *frame, unsigned char len);
+int ieee802154_receive_sync(const ieee802154_rxbuf *frame);
 
 // Waits asynchronously for an IEEE 802.15.4 frame. Only waits for one frame.
 // To receive more, subscribe to this event again after processing one.
 // `callback` (in): Callback to call when a frame is received.
 // `frame` (in): Buffer in which to put the full IEEE 802.15.4 frame data. See
 //   `ieee802154_receive_sync` for more details.
-// `len` (in): The size of the buffer into which the frame will be placed.
 //
 // The callback will receive three arguments containing information about the header
 // of the received frame:
@@ -270,7 +268,6 @@ int ieee802154_receive_sync(const ieee802154_rxbuf *frame, unsigned char len);
 // `src_addr`: (addressing mode << 16) | (short address if address is short else 0)
 int ieee802154_receive(subscribe_upcall callback,
                        const ieee802154_rxbuf *frame,
-                       unsigned int len,
                        void* ud);
 
 // IEEE 802.15.4 received frame inspection functions. The frames are returned
@@ -344,7 +341,7 @@ char* ieee802154_read_next_frame(const ieee802154_rxbuf* frame);
 // and `callback` arguments. To prepare for the next received packets, the caller should pass the
 // relevant buffer/callback to the `frame` and  `callback` arguments. Note, this function clears
 // all pending RX upcalls.
-bool reset_ring_buf(const ieee802154_rxbuf* frame, unsigned int len, subscribe_upcall callback, void* ud);
+bool reset_ring_buf(const ieee802154_rxbuf* frame, subscribe_upcall callback, void* ud);
 
 // void ieee802154_frame_get_frame_control(const char *frame, uint16_t *frame_control);
 
