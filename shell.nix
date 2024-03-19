@@ -33,27 +33,27 @@ let
 
   elf2tab = pkgs.rustPlatform.buildRustPackage rec {
     name = "elf2tab-${version}";
-    version = "0.11.0";
+    version = "0.12.0";
 
     src = pkgs.fetchFromGitHub {
       owner = "tock";
       repo = "elf2tab";
       rev = "v${version}";
-      sha256 = "sha256-cjDFi9vaD9O2oVtGAapvvHrA+yUe17teoVzTso2enpI=";
+      sha256 = "sha256-+VeWLBI6md399Oaumt4pJrOkm0Nz7fmpXN2TjglUE34=";
     };
 
-    cargoSha256 = "sha256-KGPp6Dx1aUX8XILfV8kbiXKinoBVkEmBRxD9mWrsVNk=";
+    cargoSha256 = "sha256-UHAwk1fBcabRqy7VMhz4aoQuIur+MQshDOhC7KFyGm4=";
   };
 in
   pkgs.mkShell {
     name = "tock-dev";
 
     buildInputs = with pkgs; [
-      nrf-command-line-tools
       elf2tab
       gcc-arm-embedded
       python3Full
       tockloader
+      openocd
     ] ++ (lib.optionals withUnfreePkgs [
       segger-jlink
       tockloader.nrf-command-line-tools
@@ -84,6 +84,9 @@ in
       '' else ""}
 
       # TODO: This should be patched into the rpath of the respective libraries!
-      export LD_LIBRARY_PATH=${pkgs.libusb}/lib:${pkgs.segger-jlink}/lib:$LD_LIBRARY_PATH
+      export LD_LIBRARY_PATH=${pkgs.libusb}/lib:$LD_LIBRARY_PATH
+      ${if (withUnfreePkgs) then ''
+      export LD_LIBRARY_PATH=${pkgs.segger-jlink}/lib:$LD_LIBRARY_PATH
+      '' else ""}
     '';
   }
