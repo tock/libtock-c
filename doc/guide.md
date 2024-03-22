@@ -58,19 +58,20 @@ Each supported upcall must have its own function.
 The signature is:
 
 ```c
-returncode_t set_upcall(subscribe_upcall callback, void* opaque);
+returncode_t libtock_[name]_set_upcall(subscribe_upcall callback, void* opaque);
 ```
 
 If only one upcall is supported, the function name must be `[name]_set_upcall`.
 
 If more than one upcall is supported, the function names must start with
-`[name]_set_upcall_` followed by a description of what the upcall is used for.
+`libtock_[name]_set_upcall_` followed by a description of what the upcall is
+used for.
 
 
 #### Example:
 
 ```c
-returncode_t [name]_set_upcall(subscribe_upcall callback, void* opaque) {
+returncode_t libtock_[name]_set_upcall(subscribe_upcall callback, void* opaque) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_[NAME], 0, callback, opaque);
   return tock_subscribe_return_to_returncode(sval);
 }
@@ -85,44 +86,44 @@ The signature is:
 
 - Read-Only Allow:
     ```c
-    int set_readonly_allow(const uint8_t* buffer, uint32_t len);
+    int libtock_[name]_set_readonly_allow(const uint8_t* buffer, uint32_t len);
     ```
 
 - Read-Write Allow:
     ```c
-    int set_readwrite_allow(uint8_t* buffer, uint32_t len);
+    int libtock_[name]_set_readwrite_allow(uint8_t* buffer, uint32_t len);
     ```
 
 - Userspace Read Allow:
     ```c
-    int set_userspace_read_allow(uint8_t* buffer, uint32_t len);
+    int libtock_[name]_set_userspace_read_allow(uint8_t* buffer, uint32_t len);
     ```
 
 If only one allow is supported, the function name must be
-`[name]_set_[type]_allow`.
+`libtock_[name]_set_[type]_allow`.
 
 If more than one allow is supported, the function names must start with
-`[name]_set_[type]_allow_` followed by a description of what the allow is used
-for.
+`libtock_[name]_set_[type]_allow_` followed by a description of what the allow
+is used for.
 
 #### Example:
 
 ```c
-returncode_t [name]_set_readonly_allow_[desc](const uint8_t* buffer, uint32_t len) {
+returncode_t libtock_[name]_set_readonly_allow_[desc](const uint8_t* buffer, uint32_t len) {
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_[NAME], 0, (void*) buffer, len);
   return tock_allow_ro_return_to_returncode(aval);
 }
 ```
 
 ```c
-returncode_t [name]_set_readwrite_allow_[desc](uint8_t* buffer, uint32_t len) {
+returncode_t libtock_[name]_set_readwrite_allow_[desc](uint8_t* buffer, uint32_t len) {
   allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_[NAME], 0, (void*) buffer, len);
   return tock_allow_rw_return_to_returncode(aval);
 }
 ```
 
 ```c
-returncode_t [name]_set_userspace_read_allow_[desc](uint8_t* buffer, uint32_t len) {
+returncode_t libtock_[name]_set_userspace_read_allow_[desc](uint8_t* buffer, uint32_t len) {
   allow_userspace_r_return_t aval = allow_userspace_read(DRIVER_NUM_[NAME], 0, (void*) buffer, len);
   return tock_allow_userspace_r_return_to_returncode(aval);
 }
@@ -135,16 +136,16 @@ Each supported command must have its own function.
 The signature is:
 
 ```c
-returncode_t command(<arguments>);
+returncode_t libtock_[name]_command_[desc](<arguments>);
 ```
 
-For every command, the function names must start with `[name]_command_` followed
-by a description of what the command is used for.
+For every command, the function names must start with `libtock_[name]_command_`
+followed by a description of what the command is used for.
 
 ### Example:
 
 ```c
-returncode_t [name]_command_[desc](void) {
+returncode_t libtock_[name]_command_[desc](void) {
   syscall_return_t cval = command(DRIVER_NUM_[NAME], 1, 0, 0);
   return tock_command_return_novalue_to_returncode(cval);
 }
@@ -158,13 +159,13 @@ There must be a function to check for syscall driver existence.
 Signature:
 
 ```
-bool [name]_exists(void);
+bool libtock_[name]_exists(void);
 ```
 
 Example:
 
 ```c
-bool [name]_exists(void) {
+bool libtock_[name]_exists(void) {
   return driver_exists(DRIVER_NUM_[NAME]);
 }
 ```
@@ -174,18 +175,43 @@ bool [name]_exists(void) {
 
 All common system call operations should have asynchronous versions.
 
+These asynchronous APIs must not use or include any internal/global state.
+
 | Characteristic   | Value                         |
 |------------------|-------------------------------|
 | Location         | `libtock/[category]`          |
 | Source File Name | `libtock/[category]/[name].c` |
 | Header File Name | `libtock/[category]/[name].h` |
 
-For example, a sensor read operation should look like this:
+### Defining a Callback for Asynchronous Operations
+
+For every type of callback the system call can generate, the library must have a
+function signature defined as a type. The format is:
+
+```c
+typedef void (*libtock_[name]_callback_[desc])(returncode_t, int);
+```
+
+### Functions for Operations
+
+Every operation the libtock library should expose must be defined. The return
+type should generally be `returncode_t`. As these are asynchronous operations,
+they should have the last argument be a callback function pointer.
+
+```c
+returncode_t libtock_[name]_[desc](<arguments>, libtock_[name]_callback_[desc] cb);
+```
+
+### Example
+
+
+For example, a library called "sensor" with a sensor read operation should look
+like this:
 
 Define a suitable callback for the library:
 
 ```c
-typedef void (*sensor_callback)(returncode_t, int);
+typedef void (*libtock_sensor_callback_reading)(returncode_t, int);
 ```
 
 Define a upcall function to be passed to the kernel:
@@ -195,7 +221,7 @@ static void sensor_temp_upcall(int                          ret,
                                int                          val,
                                __attribute__ ((unused)) int unused0,
                                void*                        opaque) {
-  sensor_callback cb = (sensor_callback) ud;
+  libtock_sensor_callback_reading cb = (libtock_sensor_callback_reading) opaque;
   cb(ret, val);
 }
 ```
@@ -204,13 +230,13 @@ Define an external function for applications to use to run the asynchronous
 operation:
 
 ```c
-returncode_t sensor_read(sensor_callback cb) {
-  int ret;
+returncode_t libtock_sensor_read(libtock_sensor_callback_reading cb) {
+  returncode_t ret;
 
-  ret = sensor_set_upcall(sensor_temp_upcall, cb);
+  ret = libtock_sensor_set_upcall(sensor_temp_upcall, cb);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  ret = sensor_command_read();
+  ret = libtock_sensor_command_read();
   return ret;
 }
 ```
@@ -257,7 +283,7 @@ returncode_t libtocksync_sensor_read(int* val) {
   int err;
   result.fired = false;
 
-  err = sensor_read(sensor_cb);
+  err = libtock_sensor_read(sensor_cb);
   if (err != RETURNCODE_SUCCESS) return err;
 
   // Wait for the callback.
