@@ -14,7 +14,8 @@ static void callback(int __attribute__((unused)) now, int __attribute__((unused)
   otPlatAlarmMilliFired(aInstance);
 }
 
-// convert ms to physical clock ticks
+// convert ms to physical clock ticks (this should be done using the timer_in method,
+// but this works in the meantime)
 static uint32_t milliToTicks(uint32_t milli) {
   uint32_t frequency;
   alarm_internal_frequency(&frequency);
@@ -22,6 +23,7 @@ static uint32_t milliToTicks(uint32_t milli) {
 }
 
 void otPlatAlarmMilliStartAt(otInstance *aInstance, uint32_t aT0, uint32_t aDt){
+  // printf("Starting alarm at %d, with interval %d\n", aT0, aDt);
   OT_UNUSED_VARIABLE(aInstance);
   // TODO: this implementation for the alarm is temporary. Future implementation
   // should use the `timer_in` functionality to set the alarm.
@@ -52,6 +54,9 @@ void otPlatAlarmMilliStop(otInstance *aInstance) {
 }
 
 uint32_t otPlatAlarmMilliGetNow(void) {
+  // TODO: there is a bug in this implementation causing the timer value to 
+  // wrap around 500,000 milliseconds. This may be an issue with the 
+  // `gettimeasticks` function or in the logic here.
   struct timeval tv;
   gettimeasticks(&tv, NULL);    // second arg is unused
 

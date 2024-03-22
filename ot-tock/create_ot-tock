@@ -3,10 +3,12 @@
 ## NOTE: this script expects to be invoked from the ot-tock base directory. ## 
 
 set -e 
+
 # Create build directory and invoke CMake to create and execute build system. We specify that
 # the platform used will be external (Tock specific). For now, we specify the multiple
-# instance flag. This may change in future iterations of this script.
-ARGS="-DOT_APP_CLI=OFF -DOT_APP_NCP=OFF -DOT_PLATFORM=external -DOT_FULL_LOGS=ON -DOT_JOINER=OFF"
+# instance flag. This may change in future iterations of this script. The logs are currently disabled
+# to decrease code size.
+ARGS="-DOT_APP_CLI=OFF -DOT_APP_NCP=OFF -DOT_PLATFORM=external -DOT_FULL_LOGS=OFF -DOT_JOINER=OFF"
 
 # specify mtd or ftd
 THREAD_TYPE=mtd
@@ -37,7 +39,7 @@ for lib in "${libs[@]}"; do
 	mkdir -p "lib/$lib/$TEMPLATE_BUILD_DIR"
 done
 
-# Copy each static library from the openthread build to the Tock external library directory
+# Copy each static library from the openthread build to the Tock external library directory #
 
 # libopenthread-ftd
 cp -f $library_directory/src/core/libopenthread-$THREAD_TYPE.a $DST_DIR/libopenthread/build/cortex-m4/libopenthread.a

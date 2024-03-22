@@ -2,8 +2,6 @@
 #define PLAT_H
 #include<stdbool.h>
 
-#define MAX_RING_BUFFER_PACKETS 6;
-
 typedef struct {
     char *buffer;
     int write_index;
