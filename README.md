@@ -118,7 +118,7 @@ Prerequisites
    the LLVM clang compiler. If you have a compatible clang toolchain, you can
    add `CLANG=1` to the make command to use clang instead of the default GCC.
 
-       $ make RISCV=1 CLANG=1
+       $ make CLANG=1
 
    This support is only included for RISC-V targets as Cortex-M targets require
    the FDPIC support only present in GCC.
