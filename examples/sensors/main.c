@@ -1,8 +1,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <chips/lps25hb.h>
-#include <chips/tsl2561.h>
 #include <sensors/ambient_light.h>
 #include <sensors/humidity.h>
 #include <sensors/ninedof.h>
@@ -14,8 +12,6 @@
 
 static tock_timer_t timer;
 static bool light          = false;
-static bool tsl2561        = false;
-static bool lps25hb        = false;
 static bool temperature    = false;
 static bool humidity       = false;
 static bool ninedof        = false;
@@ -29,8 +25,6 @@ static void timer_fired(__attribute__ ((unused)) int   arg0,
                         __attribute__ ((unused)) int   arg2,
                         __attribute__ ((unused)) void* ud) {
   int lite = 0;
-  int tsl2561_lux = 0;
-  int lps25hb_pressure = 0;
   int temp = 0;
   unsigned humi = 0;
   int ninedof_accel_x = 0, ninedof_accel_y = 0, ninedof_accel_z = 0;
@@ -41,8 +35,6 @@ static void timer_fired(__attribute__ ((unused)) int   arg0,
 
   /* *INDENT-OFF* */
   if (light)          ambient_light_read_intensity_sync(&lite);
-  if (tsl2561)        tsl2561_get_lux_sync(&tsl2561_lux);
-  if (lps25hb)        lps25hb_get_pressure_sync(&lps25hb_pressure);
   if (temperature)    temperature_read_sync(&temp);
   if (humidity)       humidity_read_sync(&humi);
   if (ninedof_accel)  ninedof_read_acceleration_sync(&ninedof_accel_x, &ninedof_accel_y, &ninedof_accel_z);
@@ -52,8 +44,6 @@ static void timer_fired(__attribute__ ((unused)) int   arg0,
   if (sound_pressure) sound_pressure_read_sync(&sound_pressure_reading);
 
   if (light)          printf("Amb. Light: Light Intensity: %d\n", lite);
-  if (tsl2561)        printf("TSL2561:    Light:           %d lux\n", tsl2561_lux);
-  if (lps25hb)        printf("LPS25HB:    Pressure:        %d\n", lps25hb_pressure);
   if (temperature)    printf("Temperature:                 %d deg C\n", temp/100);
   if (humidity)       printf("Humidity:                    %u%%\n", humi/100);
   if (ninedof_accel)  printf("Acceleration: X: %d Y: %d Z: %d\n", ninedof_accel_x, ninedof_accel_y, ninedof_accel_z);
@@ -74,8 +64,6 @@ int main(void) {
 
   /* *INDENT-OFF* */
   light          = driver_exists(DRIVER_NUM_AMBIENT_LIGHT);
-  tsl2561        = driver_exists(DRIVER_NUM_TSL2561);
-  lps25hb        = driver_exists(DRIVER_NUM_LPS25HB);
   temperature    = driver_exists(DRIVER_NUM_TEMPERATURE);
   humidity       = driver_exists(DRIVER_NUM_HUMIDITY);
   ninedof        = driver_exists(DRIVER_NUM_NINEDOF);
@@ -92,8 +80,6 @@ int main(void) {
 
   /* *INDENT-OFF* */
   if (light)          printf("[Sensors]   Sampling Ambient Light sensor.\n");
-  if (tsl2561)        printf("[Sensors]   Sampling TSL2561 Light sensor.\n");
-  if (lps25hb)        printf("[Sensors]   Sampling LPS25HB pressure sensor.\n");
   if (temperature)    printf("[Sensors]   Sampling Temperature sensor.\n");
   if (humidity)       printf("[Sensors]   Sampling Humidity sensor.\n");
   if (ninedof_accel)  printf("[Sensors]   Sampling Accelerometer.\n");
