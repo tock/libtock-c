@@ -159,7 +159,6 @@ int yield_check_tasks(void) {
 
 
 void yield(void) {
-  // printf("we are in yield\n");
   if (yield_check_tasks()) {
     return;
   } else {

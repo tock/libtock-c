@@ -278,8 +278,6 @@ returncode_t libtock_ieee802154_send_raw(const uint8_t *     payload,
 // Type for the 15.4 ring buffer.
 typedef uint8_t libtock_ieee802154_rxbuf[libtock_ieee802154_RING_BUFFER_LEN];
 
-// Function definition for ieee802154_receive_sync
-int ieee802154_receive_sync(const ieee802154_rxbuf *frame, unsigned char len);
 // Waits asynchronously for an IEEE 802.15.4 frame. Only waits for one frame.
 // To receive more, subscribe to this event again after processing one.
 // `callback` (in): Callback to call when a frame is received.

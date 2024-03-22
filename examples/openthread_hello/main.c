@@ -1,31 +1,38 @@
 #include <assert.h>
 
-#include <openthread/message.h>
-#include <openthread/udp.h>
-
 #include <openthread-system.h>
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
-// #include "utils/code_utils.h"
+#include <openthread/ip6.h>
+#include <openthread/message.h>
 #include <openthread/tasklet.h>
 #include <openthread/thread.h>
+#include <openthread/udp.h>
 #include <plat.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <timer.h>
 
-static void setNetworkConfiguration(otInstance *aInstance);
 #define UDP_PORT 1212
-static const char UDP_DEST_ADDR[] = "ff03::1";
-static const char UDP_PAYLOAD[]   = "Hello OpenThread World from Tock!";
+// static const char UDP_DEST_ADDR[] = "ff03::1";
+// static const char UDP_PAYLOAD[]   = "Hello OpenThread World from Tock!";
 static otUdpSocket sUdpSocket;
 
+// helper utility demonstrating network config setup
+static void setNetworkConfiguration(otInstance *aInstance);
 
-void handleUdpReceive(void *aContext, otMessage *aMessage,
-                      const otMessageInfo *aMessageInfo);
+// callback for Thread state change events
+static void stateChangeCallback(uint32_t flags, void *context);
 
+/* helper utilities for handling UDP (setup, sending, and receiving) */
 static void initUdp(otInstance *aInstance);
-static void sendUdp(otInstance *aInstance);
+// static void sendUdp(otInstance *aInstance);
+static void handleUdpReceive(void *aContext, otMessage *aMessage,
+                             const otMessageInfo *aMessageInfo);
+
+// helper utility to print ip address
+static void print_ip_addr(otInstance *instance);
 
 int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
@@ -44,13 +51,18 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
 
   setNetworkConfiguration(instance);
 
-  // set child timeout to 10 seconds(helpful for testing attachment issues)
-  otThreadSetChildTimeout(instance, 30);
+  // set child timeout to 60 seconds
+  otThreadSetChildTimeout(instance, 60);
 
   /* Start the Thread network interface (CLI cmd -> ifconfig up) */
   otIp6SetEnabled(instance, true);
+
+  otSetStateChangedCallback(instance, stateChangeCallback, instance);
+
+  print_ip_addr(instance);
+
+  // Initialize UDP socket (see guide: https://openthread.io/codelabs/openthread-apis#7)
   initUdp(instance);
-  // Initialize UDP socket TODO (see guide: https://openthread.io/codelabs/openthread-apis#7)
 
   /* Start the Thread stack (CLI cmd -> thread start) */
   otThreadSetEnabled(instance, true);
@@ -59,8 +71,10 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
     otTaskletsProcess(instance);
     otSysProcessDrivers(instance);
     yield();
-    sendUdp(instance);
 
+    // uncommenting this will spam multicast udp packets
+    // to demonstrate the udp send functionality
+    // sendUdp(instance);
   }
 
   return 0;
@@ -104,42 +118,80 @@ void initUdp(otInstance *aInstance)
   otUdpBind(aInstance, &sUdpSocket, &listenSockAddr, OT_NETIF_THREAD);
 }
 
+
 /**
  * Send a UDP datagram
  */
-void sendUdp(otInstance *aInstance)
-{
-  otError error = OT_ERROR_NONE;
-  otMessage *   message;
-  otMessageInfo messageInfo;
-  otIp6Address destinationAddr;
+/*
+   void sendUdp(otInstance *aInstance)
+   {
+   otError error = OT_ERROR_NONE;
+   otMessage *   message;
+   otMessageInfo messageInfo;
+   otIp6Address destinationAddr;
 
-  memset(&messageInfo, 0, sizeof(messageInfo));
+   memset(&messageInfo, 0, sizeof(messageInfo));
 
-  otIp6AddressFromString(UDP_DEST_ADDR, &destinationAddr);
-  messageInfo.mPeerAddr = destinationAddr;
-  messageInfo.mPeerPort = UDP_PORT;
+   otIp6AddressFromString(UDP_DEST_ADDR, &destinationAddr);
+   messageInfo.mPeerAddr = destinationAddr;
+   messageInfo.mPeerPort = UDP_PORT;
 
-  message = otUdpNewMessage(aInstance, NULL);
-  assert(message != NULL);
-  // otEXPECT_ACTION(message != NULL, error = OT_ERROR_NO_BUFS);
+   message = otUdpNewMessage(aInstance, NULL);
+   assert(message != NULL);
+   // otEXPECT_ACTION(message != NULL, error = OT_ERROR_NO_BUFS);
 
-  error = otMessageAppend(message, UDP_PAYLOAD, sizeof(UDP_PAYLOAD));
-  // otEXPECT(error == OT_ERROR_NONE);
-  assert(error == OT_ERROR_NONE);
+   error = otMessageAppend(message, UDP_PAYLOAD, sizeof(UDP_PAYLOAD));
+   // otEXPECT(error == OT_ERROR_NONE);
+   assert(error == OT_ERROR_NONE);
 
-  error = otUdpSend(aInstance, &sUdpSocket, message, &messageInfo);
+   error = otUdpSend(aInstance, &sUdpSocket, message, &messageInfo);
 
-// NOTE: we currently do not free the otMessage if there is an error.
-// we need to add this (TODO)
-}
+   // NOTE: we currently do not free the otMessage if there is an error.
+   // we need to add this (TODO)
+   }*/
+
 
 void handleUdpReceive(void *aContext, otMessage *aMessage,
                       const otMessageInfo *aMessageInfo)
 {
   OT_UNUSED_VARIABLE(aContext);
-  OT_UNUSED_VARIABLE(aMessage);
   OT_UNUSED_VARIABLE(aMessageInfo);
+  char buf[150];
+  int length;
 
-  printf("RECEIVED UDP PACKET!\n");
+  printf("enter\n");
+  printf("Received UDP packet [%d bytes] from ", otMessageGetLength(aMessage) - otMessageGetOffset(aMessage));
+  const otIp6Address sender_addr = aMessageInfo->mPeerAddr;
+  otIp6AddressToString(&sender_addr, buf, sizeof(buf));
+  printf(" %s ", buf);
+
+  length      = otMessageRead(aMessage, otMessageGetOffset(aMessage), buf, sizeof(buf) - 1);
+  buf[length] = '\n';
+
+  for (int i = 0; i < length; i++) {
+    printf("%c", buf[i]);
+  }
+
+  printf("\n");
+
+}
+
+static void stateChangeCallback(uint32_t flags, void *context)
+{
+  otInstance *instance = (otInstance *)context;
+  if (flags & OT_CHANGED_THREAD_ROLE && otThreadGetDeviceRole(instance) == OT_DEVICE_ROLE_CHILD) {
+    printf("Successfully attached to Thread network as a child.\n");
+  }
+}
+
+static void print_ip_addr(otInstance *instance){
+  char addr_string[64];
+  const otNetifAddress *unicastAddrs = otIp6GetUnicastAddresses(instance);
+
+  for (const otNetifAddress *addr = unicastAddrs; addr; addr = addr->mNext) {
+    const otIp6Address ip6_addr = addr->mAddress;
+    otIp6AddressToString(&ip6_addr, addr_string, sizeof(addr_string));
+    printf("%s\n", addr_string);
+  }
+
 }
