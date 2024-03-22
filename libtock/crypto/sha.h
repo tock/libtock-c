@@ -1,20 +1,32 @@
 #pragma once
 
-#include "tock.h"
+#include "../tock.h"
+#include "syscalls/sha_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int sha_set_callback (subscribe_upcall callback, void* callback_args);
+// Function signature for SHA hash callback.
+//
+// - `arg1` (`returncode_t`): Status from computing the hash.
+typedef void (*libtock_sha_callback_hash)(returncode_t);
 
-int sha_set_data_buffer(uint8_t* buffer, uint32_t len);
-int sha_set_dest_buffer(uint8_t* buffer, uint32_t len);
+typedef enum {
+	LIBTOCK_SHA256 = 0,
+	LIBTOCK_SHA384 = 1,
+	LIBTOCK_SHA512 = 2,
+} libtock_sha_algorithm_t;
 
-int sha_set_algorithm(uint8_t hash);
-int sha_run(void);
-int sha_update(void);
-int sha_finish(void);
+
+
+// Compute a SHA hash over `input_buffer` and store the hash in `hash_buffer`.
+//
+// The callback will be called when the hash is available.
+returncode_t libtock_sha_simple_hash(libtock_sha_algorithm_t hash_type,
+	uint8_t* input_buffer, uint32_t input_length,
+	uint8_t* hash_buffer, uint32_t hash_length,
+	libtock_sha_callback_hash cb);
 
 #ifdef __cplusplus
 }
