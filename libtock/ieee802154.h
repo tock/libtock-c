@@ -3,6 +3,22 @@
 #include "tock.h"
 
 /* IEEE 802.15.4 system call interface */
+// The libtock-c IEEE 802.15.4 driver consists of a set of system calls 
+// and data types to interface with the kernel. To receive, the user process
+// must provide a ring buffer to the kernel of the type `ieee802154_rxbuf`.
+// Upon receiving a frame, the kernel will write the frame into the ring buffer
+// and schedule an upcall that is to be be handled by the userprocess. Before 
+// reading the frame, the userprocess must call `reset_ring_buffer` to 
+// unallow the ring buffer and unsubscribe upcalls (so as to clear pending upcalls).
+// The userprocess can then read the frame from the ring buffer and process it.
+// Given the non-deterministic nature of upcalls, the userprocess must carefully
+// handle receiving upcalls. There exists a risk of dropping 15.4 packets while
+// reading from the ring buffer (as the ring buffer is unallowed while reading).
+// This can be handled by utilizing two ring buffers and alternating which 
+// belongs to the kernel and which is being read from. An example of this can be 
+// found in libtock-c/ot-tock/platform/platform-tock/system.c. Alternatively, 
+// the user can also utilize a single ring buffer if dropped frames may be permissible
+// (see libtock-c/examples/tests/ieee802154/radio_rx/main.c for an example of this).
 
 #ifdef __cplusplus
 extern "C" {
@@ -237,23 +253,34 @@ int ieee802154_send_raw(const char *     payload,
                     unsigned char    len);
 
 // Maximum size required of a buffer to contain the IEEE 802.15.4 frame data
-// passed to userspace from the kernel. Consists of 2 extra bytes followed by
-// the whole IEEE 802.15.4 MTU, which is 127 bytes.
-#define IEEE802154_FRAME_LEN 129
+// passed to userspace from the kernel. Consists of 3 extra bytes followed by
+// the whole IEEE 802.15.4 MTU, which is 127 bytes. The packet is of the following
+// form: | data_offset | data_len | mic_len | 15.4 frame |
+#define IEEE802154_FRAME_META_LEN 3
+#define IEEE802154_FRAME_LEN (IEEE802154_FRAME_META_LEN + 127)
+
+// Size of the ring buffer expected by the kernel. The ring buffer is of the following 
+// form: | read index | write index | frame 1 | frame 2 | ... | frame n |.
+// Dependent on the application, the number of frames contained in the ring buffer
+// can be increased or decreased by changing the value of IEEE802154_MAX_RING_BUF_FRAMES.
+#define IEEE802154_RING_BUF_META_LEN 2
+#define IEEE802154_MAX_RING_BUF_FRAMES 3
+#define IEEE802154_RING_BUFFER_LEN (IEEE802154_RING_BUF_META_LEN + IEEE802154_MAX_RING_BUF_FRAMES * IEEE802154_FRAME_LEN)
+
+// Type for the 15.4 ring buffer.
+typedef char ieee802154_rxbuf[IEEE802154_RING_BUFFER_LEN];
 
 // Waits synchronously for an IEEE 802.15.4 frame.
 // `frame` (in): Buffer in which to put the full IEEE 802.15.4 frame data. Note
 //   that the data written might include more than just the IEEE 802.15.4 frame itself.
 //   Use `ieee802154_frame_get_*` to interact with the resulting frame.
-// `len` (in): The size of the buffer into which the frame will be placed.
-int ieee802154_receive_sync(const char *frame, unsigned char len);
+int ieee802154_receive_sync(const ieee802154_rxbuf *frame);
 
 // Waits asynchronously for an IEEE 802.15.4 frame. Only waits for one frame.
 // To receive more, subscribe to this event again after processing one.
 // `callback` (in): Callback to call when a frame is received.
 // `frame` (in): Buffer in which to put the full IEEE 802.15.4 frame data. See
 //   `ieee802154_receive_sync` for more details.
-// `len` (in): The size of the buffer into which the frame will be placed.
 //
 // The callback will receive three arguments containing information about the header
 // of the received frame:
@@ -261,8 +288,8 @@ int ieee802154_receive_sync(const char *frame, unsigned char len);
 // `dst_addr`: (addressing mode << 16) | (short address if address is short else 0)
 // `src_addr`: (addressing mode << 16) | (short address if address is short else 0)
 int ieee802154_receive(subscribe_upcall callback,
-                       const char *frame,
-                       unsigned char len);
+                       const ieee802154_rxbuf *frame,
+                       void* ud);
 
 // IEEE 802.15.4 received frame inspection functions. The frames are returned
 // to userspace in a particular format that might include more bytes than just
@@ -327,6 +354,19 @@ bool ieee802154_frame_get_src_pan(const char *frame,
 
 // Unallow any allowed rx buffer by allowing a null pointer.
 bool ieee802154_unallow_rx_buf(void);
+
+// Reads the next frame from the ring buffer. If the ring buffer is empty,
+// returns NULL. The pointer returned points to the first index of the
+// received frame.
+char* ieee802154_read_next_frame(const ieee802154_rxbuf* frame);
+
+// Resets the ring buffer shared with the kernel to either be disabled or prepared for the next 
+// received packet. To disable the ring buffer, the user should pass a NULL value to the `frame`
+// and `callback` arguments. To prepare for the next received packets, the caller should pass the
+// relevant buffer/callback to the `frame` and  `callback` arguments. Note, this function clears
+// all pending RX upcalls.
+bool reset_ring_buf(const ieee802154_rxbuf* frame, subscribe_upcall callback, void* ud);
+
 #ifdef __cplusplus
 }
 #endif
