@@ -10,7 +10,8 @@
 static ieee802154_rxbuf rx_buf_a;
 static ieee802154_rxbuf rx_buf_b;
 
-static char buf[130*3];
+#define USER_RX_BUF_FRAME_COUNT 3
+static char buf[IEEE802154_FRAME_LEN * USER_RX_BUF_FRAME_COUNT];
 ring_buffer usr_rx_buffer = {
   .buffer      = buf,
   .write_index = 0,
@@ -27,21 +28,26 @@ static otRadioFrame receiveFrame = {
 typedef struct otTock {
   ring_buffer* usr_rx_buffer;
   ieee802154_rxbuf* kernel_rx_buf;
+  otInstance* instance;
 } otTock;
 
 typedef struct otTock otTock;
 otTock otTockInstance = {
   .usr_rx_buffer = &usr_rx_buffer,
-  .kernel_rx_buf = &rx_buf_a
+  .kernel_rx_buf = &rx_buf_a,
+  .instance      = NULL,
 };
 
-ieee802154_rxbuf* swap_shared_kernel_buf(otTock* instance);
+// Helper utility to provide a new ring buffer to the kernel and 
+// return the ring buffer previously held by the kernel
+static ieee802154_rxbuf* swap_shared_kernel_buf(otTock* instance);
+
 static void rx_callback(__attribute__ ((unused)) int   pans,
                         __attribute__ ((unused)) int   dst_addr,
                         __attribute__ ((unused)) int   src_addr,
                         __attribute__ ((unused)) void* _ud);
 
-ieee802154_rxbuf* swap_shared_kernel_buf(otTock* instance) {
+static ieee802154_rxbuf* swap_shared_kernel_buf(otTock* instance) {
   ieee802154_rxbuf* rx_buf;
 
   if (instance->kernel_rx_buf == &rx_buf_a) {
@@ -52,7 +58,7 @@ ieee802154_rxbuf* swap_shared_kernel_buf(otTock* instance) {
     rx_buf = &rx_buf_b;
   }
 
-  reset_ring_buf(instance->kernel_rx_buf, (2 + IEEE802154_FRAME_LEN * 3), rx_callback, NULL);
+  reset_ring_buf(instance->kernel_rx_buf, rx_callback, NULL);
   return rx_buf;
 }
 
@@ -67,45 +73,36 @@ bool otSysPseudoResetWasRequested(void) {
   return false;
 }
 
-void otSysProcessDrivers(otInstance *aInstance){
-  // here we handle everything needed to do for libtock openthread
-  // this will primarily be inovlving the radio receive
-
-  // check if new data was received since last call
-
-  // the general design I am currently envisioning involves the rx_callback
-  // simply taking the data and placing it into a userprocess ring buffer
-
-  // here we will see if the ring buffer has changed since the last time we checked
-  // if it has, we will call otPlatRadioReceiveDone to pass the data to openthread
+void otSysProcessDrivers(otInstance *aInstance){  
+  // If new data exists, we copy the data from the returned kernel
+  // ring buffer into the user space ring buffer
   if (usr_rx_buffer.new) {
-
-    // printf("\n\nthere is new data to process\n");
     int offset;
 
+    // loop through data until all new data is read
     while (usr_rx_buffer.read_index != usr_rx_buffer.write_index) {
       offset = usr_rx_buffer.read_index * IEEE802154_FRAME_LEN;
-
-      // printf("top of copy\n");
       char* rx_buf       = usr_rx_buffer.buffer;
       int payload_offset = rx_buf[offset];
       int payload_length = rx_buf[offset + 1];
       int mic_len        = rx_buf[offset + 2];
 
-      receiveFrame.mInfo.mRxInfo.mTimestamp = otPlatAlarmMilliGetNow() * 1000;
+      // this does not seem necessary since we implement the csma backoff in the radio driver
+      // receiveFrame.mInfo.mRxInfo.mTimestamp = otPlatAlarmMilliGetNow() * 1000;
       receiveFrame.mInfo.mRxInfo.mRssi      = 50;
-      receiveFrame.mLength = payload_length + payload_offset + mic_len;
+      receiveFrame.mLength = payload_length + payload_offset + mic_len - 1;
       receiveFrame.mInfo.mRxInfo.mTimestamp = 0;
       receiveFrame.mInfo.mRxInfo.mLqi       = 0x7f;
 
+      // copy data
       for (int i = 0; i < receiveFrame.mLength + 3; i++) {
         receiveFrame.mPsdu[i] = rx_buf[i + 3 + offset];
       }
 
+      // notify openthread instance that 
       otPlatRadioReceiveDone(aInstance, &receiveFrame, OT_ERROR_NONE);
-
       usr_rx_buffer.read_index++;
-      if (usr_rx_buffer.read_index == 6) {
+      if (usr_rx_buffer.read_index == USER_RX_BUF_FRAME_COUNT) {
         usr_rx_buffer.read_index = 0;
       }
     }
@@ -120,8 +117,12 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
                         __attribute__ ((unused)) int   src_addr,
                         __attribute__ ((unused)) void* _ud) {
 
-  char* rx_buf = swap_shared_kernel_buf(&otTockInstance)[0];
+  /* It is important to avoid sync operations that yield (i.e. printf)
+  /* as this may cause a new upcall to be handled and data to be received 
+  /* out of order and/or lost. */
 
+  char* rx_buf = swap_shared_kernel_buf(&otTockInstance)[0];
+  
   char* head_index = &rx_buf[0];
   char* tail_index = &rx_buf[1];
 
@@ -134,40 +135,46 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
     int mic_len        = rx_buf[offset + 2];
 
     int receive_frame_length = payload_length + payload_offset + mic_len;
-
     int ring_buffer_offset = usr_rx_buffer.write_index * IEEE802154_FRAME_LEN;
 
-    for (int i = 0; i < (receive_frame_length + 3); i++) {
+    for (int i = 0; i < (receive_frame_length); i++) {
       usr_rx_buffer.buffer[ring_buffer_offset + i] = rx_buf[i + offset];
       rx_buf[i + offset] = 0;
-      // if (i % 8 == 0) printf("\n");
-      // printf("%x ", usr_rx_buffer.buffer[ring_buffer_offset+i]);
-
     }
 
     usr_rx_buffer.new = true;
     usr_rx_buffer.write_index++;
-    if (usr_rx_buffer.write_index == 6) {
+    if (usr_rx_buffer.write_index == USER_RX_BUF_FRAME_COUNT) {
       usr_rx_buffer.write_index = 0;
     }
 
-    *head_index = (*head_index + 1) % MAX_FRAME_COUNT;
+    *head_index = (*head_index + 1) % IEEE802154_MAX_RING_BUF_FRAMES;
     offset     += IEEE802154_FRAME_LEN;
 
     if (*head_index == 0) {
       offset = 2;
     }
   }
+
   assert(*head_index == *tail_index);
 
+  // We must notify the otSysProcessDrivers that there is new data
+  // to process. Otherwise, the otSysProcessDrivers will not be called
+  // until the next iteration of the main loop (which is non-deterministic
+  // since the main loop may yield before calling otSysProcessDrivers again).
+  otSysProcessDrivers(otTockInstance.instance);
 }
 
 
-otError otTockStartReceive(uint8_t aChannel) {
+otError otTockStartReceive(uint8_t aChannel, otInstance *aInstance) {
+  if (otTockInstance.instance == NULL) {
+    otTockInstance.instance = aInstance;
+  }
   if (aChannel != 26) {
     return OT_ERROR_NONE;
   }
-  int res = ieee802154_receive(rx_callback, otTockInstance.kernel_rx_buf, (2 + IEEE802154_FRAME_LEN * 3), NULL);
+
+  int res = ieee802154_receive(rx_callback, otTockInstance.kernel_rx_buf, NULL);
 
   otError result = OT_ERROR_NONE;
 
@@ -176,5 +183,4 @@ otError otTockStartReceive(uint8_t aChannel) {
   }
 
   return result;
-
 }

@@ -276,8 +276,6 @@ typedef char ieee802154_rxbuf[IEEE802154_RING_BUFFER_LEN];
 //   Use `ieee802154_frame_get_*` to interact with the resulting frame.
 int ieee802154_receive_sync(const ieee802154_rxbuf *frame);
 
-// Function definition for ieee802154_receive_sync
-int ieee802154_receive_sync(const ieee802154_rxbuf *frame, unsigned char len);
 // Waits asynchronously for an IEEE 802.15.4 frame. Only waits for one frame.
 // To receive more, subscribe to this event again after processing one.
 // `callback` (in): Callback to call when a frame is received.

@@ -78,9 +78,6 @@ int ieee802154_set_address(unsigned short addr) {
   return tock_command_return_novalue_to_returncode(com);
 }
 
-/// @brief ENDIANNESS?
-/// @param addr_long
-/// @return
 int ieee802154_set_address_long(unsigned char *addr_long) {
   if (!addr_long) return RETURNCODE_EINVAL;
 
@@ -471,7 +468,6 @@ int ieee802154_receive_sync(const ieee802154_rxbuf *frame) {
 // must be called before accessing the contents of the "allowed" receive buffer
 bool ieee802154_unallow_rx_buf(void) {
   allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, NULL, 0);
-
   return rw.success;
 }
 

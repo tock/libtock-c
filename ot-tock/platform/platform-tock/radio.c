@@ -8,14 +8,16 @@
 
 #define ACK_SIZE 3
 
-static uint8_t tx_mPsdu[OT_RADIO_FRAME_MAX_SIZE];
-static uint8_t ack_mPSdu[ACK_SIZE] = {0x02, 0x00, 0x00};
 
+static uint8_t tx_mPsdu[OT_RADIO_FRAME_MAX_SIZE];
 static otRadioFrame transmitFrame = {
   .mPsdu   = tx_mPsdu,
   .mLength = OT_RADIO_FRAME_MAX_SIZE
 };
 
+// nrf52840 ACK on transmit is currently unimplemented. We fake this 
+// for now by always saying the sent packet was ACKed by the receiver.
+static uint8_t ack_mPSdu[ACK_SIZE] = {0x02, 0x00, 0x00};
 static otRadioFrame ackFrame = {
   .mPsdu   = ack_mPSdu,
   .mLength = 3
@@ -106,35 +108,37 @@ otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel) {
     return OT_ERROR_NONE;
   }
 
-  otError result = otTockStartReceive(aChannel);
+  otError result = otTockStartReceive(aChannel, aInstance);
   return result;
 }
 
 otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
-  // TODO
   OT_UNUSED_VARIABLE(aInstance);
   // For some reason, the frame length is 2 bytes longer than the actual frame length
   // this is corrected here. I have looked within openthread as to why this is
   // happening, but I cannot find the source of the problem. This "magic number"
   // fix is not ideal, but fixes the issue.
-
   aFrame->mLength = aFrame->mLength - 2;
 
+  // since we do not support channel switching, if the channel is not 26, we fake 
+  // the result and tell openthread that we "sent" the packet successfully when
+  // in actuality we do not.
   if (aFrame->mChannel != 26) {
     otPlatRadioTxDone(aInstance, aFrame, NULL, OT_ERROR_NONE);
-
     return OT_ERROR_NONE;
   }
 
+  // send raw will yield_for until the transmission completes
   int send_result =  ieee802154_send_raw((char*) aFrame->mPsdu, aFrame->mLength);
 
-  // Send direct does support ACK so no ACK is also considered a successful transmission
+  // nrf52840 does not currently support ACK so no ACK is also considered a successful transmission
   if (send_result != RETURNCODE_SUCCESS && send_result != RETURNCODE_ENOACK) {
     return OT_ERROR_FAILED;
   }
 
+  // notify openthread that transmission is completed, faking the ACK value
+  // with the ackFrame (see comment at the top of this file for more information)
   otPlatRadioTxDone(aInstance, aFrame, &ackFrame, OT_ERROR_NONE);
-
   return OT_ERROR_NONE;
 }
 
@@ -144,20 +148,24 @@ otRadioFrame *otPlatRadioGetTransmitBuffer(otInstance *aInstance) {
 }
 
 int8_t otPlatRadioGetRssi(otInstance *aInstance) {
-  // TODO
+  // TODO this is hardcoded to be -50 dbm currently. This will
+  // result in the link quality indicator (LQI) to be excellent
   OT_UNUSED_VARIABLE(aInstance);
   // printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
   return -50;
 }
 
 otRadioCaps otPlatRadioGetCaps(otInstance *aInstance) {
-  // TODO: This is temporarily saying there are no capabilities.
+  // TODO: Keeping this here as a placeholder to think 
+  // more about what capabilites we want to define for openthread.
+  // Currently, we implement CSMA-CA backoff in the radio driver,
+  // but we may add the security capability.
   OT_UNUSED_VARIABLE(aInstance);
   return (otRadioCaps)(OT_RADIO_CAPS_CSMA_BACKOFF);
 }
 
 bool otPlatRadioGetPromiscuous(otInstance *aInstance) {
-  // Tock sets its radio to promiscuous mode by default. OT will not
+  // TODO Tock sets its radio to promiscuous mode by default. OT will not
   // operate when the radio is in promiscuous mode. We return false
   // here, but this is not true.
   OT_UNUSED_VARIABLE(aInstance);
@@ -265,7 +273,8 @@ otError otPlatRadioSetCcaEnergyDetectThreshold(otInstance *aInstance, int8_t aTh
 }
 
 int8_t otPlatRadioGetReceiveSensitivity(otInstance *aInstance) {
-  // TODO
+  // TODO this is hardcoded to be -50 dbm currently. This will
+  // result in the link quality indicator (LQI) to be excellent
   OT_UNUSED_VARIABLE(aInstance);
   // printf("%s:%d in %s\n", __FILE__, __LINE__, __func__);
   return -50;

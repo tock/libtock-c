@@ -1,10 +1,14 @@
-.PHONY: clean
+.PHONY: clean 
+
 
 clean::
 	cd $(TOCK_USERLAND_BASE_DIR)/ot-tock/platform/platform-tock && rm -rf build
 	make -C $(TOCK_USERLAND_BASE_DIR)/ot-tock clean
 
 ../../ot-tock/platform/platform-tock/build/cortex-m4/platform-tock.a:
+	make -C $(TOCK_USERLAND_BASE_DIR)/ot-tock/platform/platform-tock
+
+platform-tock: $(wildcard $(TOCK_USERLAND_BASE_DIR)/ot-tock/platform/platform-tock/*.c)
 	make -C $(TOCK_USERLAND_BASE_DIR)/ot-tock/platform/platform-tock
 
 $(TOCK_USERLAND_BASE_DIR)/ot-tock/lib/libtcplp/build/cortex-m4/libtcplp.a: 
@@ -21,4 +25,3 @@ $(TOCK_USERLAND_BASE_DIR)/ot-tock/lib/libmbedtls/build/cortex-m4/libmbedtls.a:
 
 $(TOCK_USERLAND_BASE_DIR)/ot-tock/lib/libmbedcrypto/build/cortex-m4/libmbedcrypto.a:
 	cd $(TOCK_USERLAND_BASE_DIR)/ot-tock && ./create_ot-tock
-
