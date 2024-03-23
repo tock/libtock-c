@@ -2,45 +2,44 @@
 
 #include "gpio.h"
 #include "tock.h"
+#include "syscalls/gpio_async_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define DRIVER_NUM_GPIO_ASYNC 0x80003
+// Function signature for async gpio interrupts
+//
+// - `arg1` (`uint32_t`): Port number of the pin that interrupted.
+// - `arg2` (`uint32_t`): Pin number of the pin that interrupted.
+// - `arg3` (`bool`): If the value is high (true) or low (false).
+typedef void (*libtock_gpio_async_callback_interrupt)(uint32_t, uint32_t, bool);
 
-// Callback for operation done events.
-// int arg1: callback type
-// int arg2: optional value
-// int arg3: unused
-int gpio_async_set_callback (subscribe_upcall callback, void* callback_args);
+// Function signature for GPIO async callback.
+//
+// - `arg1` (`returncode_t`): Status of the command operation.
+// - `arg2` (`bool`): On a read if the value is high (true) or low (false).
+typedef void (*libtock_gpio_async_callback_command)(returncode_t, bool);
 
-// Callback for when GPIO interrupts occur.
-// int arg1: port number
-// int arg2: pin number
-// int arg3: unused
-int gpio_async_interrupt_callback(subscribe_upcall callback, void* callback_args);
+returncode_t libtock_gpio_async_set_interrupt_callback(libtock_gpio_async_callback_interrupt cb);
 
-int gpio_async_make_output(uint32_t port, uint8_t pin);
-int gpio_async_set(uint32_t port, uint8_t pin);
-int gpio_async_clear(uint32_t port, uint8_t pin);
-int gpio_async_toggle(uint32_t port, uint8_t pin);
-int gpio_async_make_input(uint32_t port, uint8_t pin, GPIO_InputMode_t pin_config);
-int gpio_async_read(uint32_t port, uint8_t pin);
-int gpio_async_enable_interrupt(uint32_t port, uint8_t pin, GPIO_InterruptMode_t irq_config);
-int gpio_async_disable_interrupt(uint32_t port, uint8_t pin);
-int gpio_async_disable(uint32_t port, uint8_t pin);
+returncode_t libtock_gpio_async_make_output(uint32_t port, uint8_t pin, libtock_gpio_async_callback_command cb);
 
-// Synchronous Versions
-int gpio_async_make_output_sync(uint32_t port, uint8_t pin);
-int gpio_async_set_sync(uint32_t port, uint8_t pin);
-int gpio_async_clear_sync(uint32_t port, uint8_t pin);
-int gpio_async_toggle_sync(uint32_t port, uint8_t pin);
-int gpio_async_make_input_sync(uint32_t port, uint8_t pin, GPIO_InputMode_t pin_config);
-int gpio_async_read_sync(uint32_t port, uint8_t pin);
-int gpio_async_enable_interrupt_sync(uint32_t port, uint8_t pin, GPIO_InterruptMode_t irq_config);
-int gpio_async_disable_interrupt_sync(uint32_t port, uint8_t pin);
-int gpio_async_disable_sync(uint32_t port, uint8_t pin);
+returncode_t libtock_gpio_async_clear(uint32_t port, uint8_t pin, libtock_gpio_async_callback_command cb);
+
+returncode_t libtock_gpio_async_set(uint32_t port, uint8_t pin, libtock_gpio_async_callback_command cb);
+
+returncode_t libtock_gpio_async_toggle(uint32_t port, uint8_t pin, libtock_gpio_async_callback_command cb);
+
+returncode_t libtock_gpio_async_make_input(uint32_t port, uint8_t pin, libtock_gpio_input_mode_t pin_config, libtock_gpio_async_callback_command cb);
+
+returncode_t libtock_gpio_async_read(uint32_t port, uint8_t pin, libtock_gpio_async_callback_command cb);
+
+returncode_t libtock_gpio_async_enable_interrupt(uint32_t port, uint8_t pin, libtock_gpio_interrupt_mode_t irq_config, libtock_gpio_async_callback_command cb);
+
+returncode_t libtock_gpio_async_disable_interrupt(uint32_t port, uint8_t pin, libtock_gpio_async_callback_command cb);
+
+returncode_t libtock_gpio_async_disable(uint32_t port, uint8_t pin, libtock_gpio_async_callback_command cb);
 
 #ifdef __cplusplus
 }
