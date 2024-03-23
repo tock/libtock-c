@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <ambient_light.h>
+#include <libtock-sync/sensors/ambient_light.h>
 #include <timer.h>
 #include <tock.h>
 
@@ -10,7 +10,7 @@ int main (void) {
   while (1) {
     // Start a light measurement
     int lux;
-    int ret = ambient_light_read_intensity_sync(&lux);
+    int ret = libtocksync_ambient_light_read_intensity(&lux);
     if (ret == RETURNCODE_ENODEVICE) {
       printf("ERROR: No ambient light sensor on this board.\n");
     } else if (ret < 0) {
