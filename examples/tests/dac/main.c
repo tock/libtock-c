@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <dac.h>
+#include <libtock/peripherals/dac.h>
 #include <timer.h>
 #include <tock.h>
 
@@ -18,11 +18,11 @@ uint16_t sine_samples[100] = {
 };
 
 int main(void) {
-  int ret;
+  returncode_t ret;
 
-  printf("[DAC] Sine test app\n");
+  printf("[TEST] DAC: Sine test app\n");
 
-  ret = dac_initialize();
+  ret = libtock_dac_initialize();
   if (ret != RETURNCODE_SUCCESS) {
     printf("ERROR initializing DAC\n");
     return 1;
@@ -30,7 +30,7 @@ int main(void) {
 
   while (1) {
     for (int i = 0; i < 100; i++) {
-      ret = dac_set_value(sine_samples[i]);
+      ret = libtock_dac_set_value(sine_samples[i]);
       if (ret != RETURNCODE_SUCCESS) {
         printf("ERROR setting DAC value\n");
         return 1;
