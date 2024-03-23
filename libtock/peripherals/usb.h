@@ -1,31 +1,24 @@
 #pragma once
 
-#include "tock.h"
+#include "../tock.h"
+#include "syscalls/usb_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define DRIVER_NUM_USB 0x20005
-
-// Does the driver exist?
-int usb_exists(void);
-
-// Register a callback to receive asynchronous results
+// Function signature for USB callback.
 //
-// The callback will receive these parameters, in order:
-//    status: SUCCESS if all inputs are valid, else EINVAL
-int usb_subscribe(subscribe_upcall, void *);
+// - `arg1` (`returncode_t`): Status from attaching USB. SUCCESS if all inputs
+//   are valid, else EINVAL.
+typedef void (*libtock_usb_callback_attached)(returncode_t);
 
-// Enable the USB controller and attach to the bus
+// Enable the USB controller and attach to the bus.
 //
-// Returns EINVAL if usb_subscribe() has not previously been called to register a callback.
-// Returns SUCCESS if the callback is present and will be used
-// to report completion of this operation.
-//
-int usb_enable_and_attach_async(void);
-
-int usb_enable_and_attach(void);
+// Returns `EINVAL` if usb_subscribe() has not previously been called to
+// register a callback. Returns `SUCCESS` if the callback is present and will be
+// used to report completion of this operation.
+returncode_t libtock_usb_enable_and_attach(libtock_usb_callback_attached cb);
 
 #ifdef __cplusplus
 }
