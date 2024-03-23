@@ -10,40 +10,32 @@ struct sha_data {
 static struct sha_data result = {.fired = false};
 
 static void sha_cb_hash(returncode_t ret) {
-  result.fired  = true;
-  result.ret    = ret;
+  result.fired = true;
+  result.ret   = ret;
 }
 
 
 
-
-
 returncode_t libtocksync_sha_simple_hash(libtock_sha_algorithm_t hash_type,
-  uint8_t* input_buffer, uint32_t input_length,
-  uint8_t* hash_buffer, uint32_t hash_length) {
-
+                                         uint8_t* input_buffer, uint32_t input_length,
+                                         uint8_t* hash_buffer, uint32_t hash_length) {
 
   returncode_t ret;
-
-
-
 
   result.fired = false;
 
   ret = libtock_sha_simple_hash(hash_type, input_buffer, input_length, hash_buffer, hash_length, sha_cb_hash);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-
   // Wait for the callback.
   yield_for(&result.fired);
   if (result.ret != RETURNCODE_SUCCESS) return result.ret;
 
-   err = libtock_sha_readonly_allow_data_buffer(NULL, 0);
-   if (ret != RETURNCODE_SUCCESS) return ret;
+  ret = libtock_sha_readonly_allow_data_buffer(NULL, 0);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-   err = libtock_sha_readwrite_allow_destination_buffer(NULL, 0);
-   if (ret != RETURNCODE_SUCCESS) return ret;
-
+  ret = libtock_sha_readwrite_allow_destination_buffer(NULL, 0);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
   return RETURNCODE_SUCCESS;
 

@@ -15,7 +15,7 @@ bool libtock_sha_exists(void) {
 }
 
 returncode_t libtock_sha_set_upcall(subscribe_upcall callback, void* opaque) {
-  subscribe_return_t sval = subscribe(DRIVER_NUM_SHA, TOCK_SHA_CB, callback, callback_args);
+  subscribe_return_t sval = subscribe(DRIVER_NUM_SHA, TOCK_SHA_CB, callback, opaque);
   return tock_subscribe_return_to_returncode(sval);
 }
 

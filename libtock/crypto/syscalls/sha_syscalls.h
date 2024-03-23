@@ -8,6 +8,8 @@ extern "C" {
 
 #define DRIVER_NUM_SHA 0x40005
 
+bool libtock_sha_exists(void);
+
 returncode_t libtock_sha_set_upcall(subscribe_upcall callback, void* opaque);
 
 returncode_t libtock_sha_readonly_allow_data_buffer(uint8_t* buffer, uint32_t len);
