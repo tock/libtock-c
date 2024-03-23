@@ -1,7 +1,7 @@
 #include <stdio.h>
+#include <string.h>
 
-#include <console.h>
-#include <sha.h>
+#include <libtock-sync/crypto/sha.h>
 
 #define DATA_LEN 256
 #define DEST_LEN 32
@@ -9,43 +9,22 @@
 uint8_t data_buf[DATA_LEN] = "A language empowering everyone to build reliable and efficient software.";
 uint8_t dest_buf[DEST_LEN];
 
-static void sha_cb(__attribute__((unused)) int    result,
-                   __attribute__ ((unused)) int   digest,
-                   __attribute__ ((unused)) int   unused,
-                   __attribute__ ((unused)) void* userdata) {
-  int i;
+int main(void) {
+  returncode_t ret;
+  printf("[TEST] SHA\r\n");
 
-  printf("Operation complete\r\n");
-
-  for (i = 0; i < DEST_LEN; i++) {
-    printf("%d: 0x%x\r\n", i, dest_buf[i]);
+  if (!libtock_sha_exists()) {
+    printf("No SHA driver.\n");
+    return -2;
   }
 
-}
-
-int main(void) {
-  printf("[TEST] SHA Example Test\r\n");
-
-  // Set SHA256 as the algorithm
-  sha_set_algorithm(0);
-
-  printf("Loading in the data buf...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, sha_set_data_buffer(data_buf, DATA_LEN));
-  printf("   done\r\n");
-
-  printf("Setting up the dest buf...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, sha_set_dest_buffer(dest_buf, DEST_LEN));
-  printf("   done\r\n");
-
-  printf("Setting up the callback...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, sha_set_callback(sha_cb, NULL));
-  printf("   done\r\n");
-
-  printf("Running SHA...\r\n");
-  sha_run();
-  printf("   done\r\n");
-
-  yield();
+  ret = libtocksync_sha_simple_hash(LIBTOCK_SHA256,
+    data_buf, strlen((char*) data_buf),
+    dest_buf, DEST_LEN);
+  if (ret != RETURNCODE_SUCCESS) {
+    printf("Unable to compute SHA.\n");
+    return -1;
+  }
 
   return 0;
 }
