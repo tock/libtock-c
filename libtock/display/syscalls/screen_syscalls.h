@@ -12,7 +12,7 @@ extern "C" {
 returncode_t libtock_screen_set_upcall(subscribe_upcall cb, void* opaque);
 
 // Allow a buffer used to write the screen.
-returncode_t libtock_screen_readonly_allow(const void* ptr, size_t size);
+returncode_t libtock_screen_set_readonly_allow(const void* ptr, size_t size);
 
 // Get the number of supported resolutions.
 returncode_t libtock_screen_command_get_supported_resolutions(uint32_t* resolutions);

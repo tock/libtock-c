@@ -33,7 +33,7 @@ static void screen_cb_format(returncode_t ret, libtock_screen_format_t format) {
   result_format.format = format;
   result_format.fired  = true;
 }
-static void screen_cb_rotation(returncode_t ret, int rotation) {
+static void screen_cb_rotation(returncode_t ret, libtock_screen_rotation_t rotation) {
   result_rotation.ret      = ret;
   result_rotation.rotation = rotation;
   result_rotation.fired    = true;
@@ -157,7 +157,7 @@ returncode_t libtocksync_screen_fill(uint8_t* buffer, int buffer_len, size_t col
   yield_for(&result.fired);
   if (result.ret != RETURNCODE_SUCCESS) return result.ret;
 
-  ret = libtock_screen_readonly_allow(NULL, 0);
+  ret = libtock_screen_set_readonly_allow(NULL, 0);
   return ret;
 }
 
@@ -173,6 +173,6 @@ returncode_t libtocksync_screen_write(uint8_t* buffer, int buffer_len, size_t le
   yield_for(&result.fired);
   if (result.ret != RETURNCODE_SUCCESS) return result.ret;
 
-  ret = libtock_screen_readonly_allow(NULL, 0);
+  ret = libtock_screen_set_readonly_allow(NULL, 0);
   return ret;
 }

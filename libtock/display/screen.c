@@ -1,7 +1,6 @@
 #include <stdlib.h>
 
 #include "screen.h"
-#include "syscalls/screen_syscalls.h"
 
 
 
@@ -210,7 +209,7 @@ returncode_t libtock_screen_fill(uint8_t* buffer, int buffer_len, size_t color, 
   ret = screen_set_color(buffer, buffer_len, 0, color);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  ret = libtock_screen_readonly_allow(buffer, buffer_len);
+  ret = libtock_screen_set_readonly_allow(buffer, buffer_len);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   ret = libtock_screen_set_upcall(screen_callback_done, cb);
@@ -223,7 +222,7 @@ returncode_t libtock_screen_fill(uint8_t* buffer, int buffer_len, size_t color, 
 returncode_t libtock_screen_write(uint8_t* buffer, int buffer_len, size_t length, libtock_screen_callback_done cb) {
   returncode_t ret;
 
-  ret = libtock_screen_readonly_allow(buffer, buffer_len);
+  ret = libtock_screen_set_readonly_allow(buffer, buffer_len);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   ret = libtock_screen_set_upcall(screen_callback_done, cb);

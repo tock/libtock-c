@@ -3,6 +3,7 @@
 #pragma once
 
 #include "tock.h"
+#include "syscalls/screen_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {

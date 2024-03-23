@@ -12,7 +12,7 @@ returncode_t libtock_screen_set_upcall(subscribe_upcall cb, void* opaque) {
   return tock_subscribe_return_to_returncode(sval);
 }
 
-returncode_t libtock_screen_readonly_allow(const void* ptr, size_t size) {
+returncode_t libtock_screen_set_readonly_allow(const void* ptr, size_t size) {
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_SCREEN, 0, ptr, size);
   return tock_allow_ro_return_to_returncode(aval);
 }
