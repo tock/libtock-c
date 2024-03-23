@@ -1,5 +1,4 @@
-#include "analog_comparator.h"
-#include "tock.h"
+#include "analog_comparator_syscalls.h"
 
 bool libtock_analog_comparator_exists(void) {
   return driver_exists(DRIVER_NUM_ANALOG_COMPARATOR);
@@ -29,5 +28,3 @@ returncode_t libtock_analog_comparator_command_count(uint32_t* count) {
   syscall_return_t cval = command(DRIVER_NUM_ANALOG_COMPARATOR, 4, 0, 0);
   return tock_command_return_u32_to_returncode(cval, count);
 }
-
-
