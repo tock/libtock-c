@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tock.h"
+#include "syscalls/proximity_syscalls.h"
 
 #ifdef _cplusplus
 extern "C" {

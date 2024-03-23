@@ -1,8 +1,4 @@
-#include <sensors/proximity.h>
-#include <tock.h>
-
 #include "proximity.h"
-
 
 struct data {
   bool fired;

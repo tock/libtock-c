@@ -1,6 +1,4 @@
 #include "proximity.h"
-#include "syscalls/proximity_syscalls.h"
-#include "tock.h"
 
 // Internal callback for faking synchronous reads
 static void proximity_cb(int                         proximity,
