@@ -1,5 +1,3 @@
-#include <crypto/syscalls/sha_syscalls.h>
-
 #include "sha.h"
 
 struct sha_data {
@@ -13,8 +11,6 @@ static void sha_cb_hash(returncode_t ret) {
   result.fired = true;
   result.ret   = ret;
 }
-
-
 
 returncode_t libtocksync_sha_simple_hash(libtock_sha_algorithm_t hash_type,
                                          uint8_t* input_buffer, uint32_t input_length,
@@ -31,12 +27,11 @@ returncode_t libtocksync_sha_simple_hash(libtock_sha_algorithm_t hash_type,
   yield_for(&result.fired);
   if (result.ret != RETURNCODE_SUCCESS) return result.ret;
 
-  ret = libtock_sha_readonly_allow_data_buffer(NULL, 0);
+  ret = libtock_sha_set_readonly_allow_data_buffer(NULL, 0);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  ret = libtock_sha_readwrite_allow_destination_buffer(NULL, 0);
+  ret = libtock_sha_set_readwrite_allow_destination_buffer(NULL, 0);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   return RETURNCODE_SUCCESS;
-
 }
