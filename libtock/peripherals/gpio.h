@@ -6,39 +6,61 @@
 extern "C" {
 #endif
 
-#define GPIO_DRIVER_NUM 0x4
-
-// GPIO pins exposed to userspace are defined in platform definitions. The index
-// of each pin in the array corresponds to the value of GPIO_Pin_t in userspace.
-// For example, on imix board, pin8's GPIO_Pin_t value is 6.
-typedef uint32_t GPIO_Pin_t;
-
-typedef enum {
-  PullNone=0,
-  PullUp,
-  PullDown,
-} GPIO_InputMode_t;
+// Function signature for gpio interrupts
+//
+// - `arg1` (`uint32_t`): Pin number of the pin that interrupted.
+// - `arg2` (`bool`): If the value is high (true) or low (false).
+typedef void (*libtock_gpio_callback_interrupt)(uint32_t, bool);
 
 typedef enum {
-  Change=0,
-  RisingEdge,
-  FallingEdge,
-} GPIO_InterruptMode_t;
+  libtock_pull_none=0,
+  libtock_pull_up,
+  libtock_pull_down,
+} libtock_gpio_input_mode_t;
+
+typedef enum {
+  libtock_change=0,
+  libtock_rising_edge,
+  libtock_falling_edge,
+} libtock_gpio_interrupt_mode_t;
 
 // Returns the number of GPIO pins configured on the board.
-int gpio_count(int* count);
+returncode_t libtock_gpio_count(int* count);
 
-bool gpio_exists(void);
-int gpio_enable_output(GPIO_Pin_t pin);
-int gpio_set(GPIO_Pin_t pin);
-int gpio_clear(GPIO_Pin_t pin);
-int gpio_toggle(GPIO_Pin_t pin);
-int gpio_enable_input(GPIO_Pin_t pin, GPIO_InputMode_t pin_config);
-int gpio_read(GPIO_Pin_t pin, int* pin_value);
-int gpio_enable_interrupt(GPIO_Pin_t pin, GPIO_InterruptMode_t irq_config);
-int gpio_disable_interrupt(GPIO_Pin_t pin);
-int gpio_disable(GPIO_Pin_t pin);
-int gpio_interrupt_callback(subscribe_upcall callback, void* callback_args);
+// Set the callback function that is called when a GPIO interrupt fires.
+returncode_t libtock_gpio_set_interrupt_callback(libtock_gpio_callback_interrupt cb);
+
+// Set the pin as an input.
+//
+// `pin_config` configures the pin with a pull up, pull down, or neither.
+returncode_t libtock_gpio_enable_input(uint32_t pin, libtock_gpio_input_mode_t pin_config);
+
+// Set the pin as an output.
+returncode_t libtock_gpio_enable_output(uint32_t pin);
+
+// Set the pin high.
+returncode_t libtock_gpio_set(uint32_t pin);
+
+// Set the pin low.
+returncode_t libtock_gpio_clear(uint32_t pin);
+
+// Toggle the pin.
+returncode_t libtock_gpio_toggle(uint32_t pin);
+
+// Read the state of an input pin.
+returncode_t libtock_gpio_read(uint32_t pin, int* pin_value);
+
+// Enable interrupts for the pin.
+//
+// The callback function needs to be set via
+// `libtock_gpio_set_interrupt_callback()`.
+returncode_t libtock_gpio_enable_interrupt(uint32_t pin, libtock_gpio_interrupt_mode_t irq_config);
+
+// Disable interrupts for the pin.
+returncode_t libtock_gpio_disable_interrupt(uint32_t pin);
+
+// Completely disable the pin allowing it to go into its lowest power mode.
+returncode_t libtock_gpio_disable(uint32_t pin);
 
 #ifdef __cplusplus
 }

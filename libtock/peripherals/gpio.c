@@ -1,60 +1,54 @@
 #include "gpio.h"
+#include "syscalls/gpio_syscalls.h"
 
-bool gpio_exists(void) {
-  return driver_exists(GPIO_DRIVER_NUM);
+static void gpio_upcall(int                          pin_number,
+                        int                          pin_level,
+                        __attribute__ ((unused)) int unused2,
+                        void*                        opaque) {
+  libtock_gpio_callback_interrupt cb = (libtock_gpio_callback_interrupt) opaque;
+  cb((uint32_t) pin_number, pin_level == 1);
 }
 
-int gpio_enable_output(GPIO_Pin_t pin) {
-  syscall_return_t rval = command(GPIO_DRIVER_NUM, 1, pin, 0);
-  return tock_command_return_novalue_to_returncode(rval);
+returncode_t libtock_gpio_count(int* count) {
+  return libtock_gpio_command_count((uint32_t*) count);
 }
 
-int gpio_set(GPIO_Pin_t pin) {
-  syscall_return_t rval = command(GPIO_DRIVER_NUM, 2, pin, 0);
-  return tock_command_return_novalue_to_returncode(rval);
+returncode_t libtock_gpio_set_interrupt_callback(libtock_gpio_callback_interrupt cb)  {
+  return libtock_gpio_set_upcall(gpio_upcall, cb);
 }
 
-int gpio_clear(GPIO_Pin_t pin) {
-  syscall_return_t rval = command(GPIO_DRIVER_NUM, 3, pin, 0);
-  return tock_command_return_novalue_to_returncode(rval);
+returncode_t libtock_gpio_enable_input(uint32_t pin, libtock_gpio_input_mode_t pin_config) {
+  return libtock_gpio_command_enable_input(pin, (uint32_t) pin_config);
 }
 
-int gpio_toggle(GPIO_Pin_t pin) {
-  syscall_return_t rval = command(GPIO_DRIVER_NUM, 4, pin, 0);
-  return tock_command_return_novalue_to_returncode(rval);
+returncode_t libtock_gpio_enable_output(uint32_t pin){
+  return libtock_gpio_command_enable_output(pin);
 }
 
-int gpio_enable_input(GPIO_Pin_t pin, GPIO_InputMode_t pin_config) {
-  syscall_return_t rval = command(GPIO_DRIVER_NUM, 5, pin, pin_config);
-  return tock_command_return_novalue_to_returncode(rval);
+returncode_t libtock_gpio_set(uint32_t pin) {
+  return libtock_gpio_command_set(pin);
 }
 
-int gpio_read(GPIO_Pin_t pin, int* pin_value) {
-  syscall_return_t rval = command(GPIO_DRIVER_NUM, 6, pin, 0);
-  return tock_command_return_u32_to_returncode(rval, (uint32_t*) pin_value);
+returncode_t libtock_gpio_clear(uint32_t pin) {
+  return libtock_gpio_command_clear(pin);
 }
 
-int gpio_enable_interrupt(GPIO_Pin_t pin, GPIO_InterruptMode_t irq_config) {
-  syscall_return_t rval = command(GPIO_DRIVER_NUM, 7, pin, irq_config);
-  return tock_command_return_novalue_to_returncode(rval);
+returncode_t libtock_gpio_toggle(uint32_t pin) {
+  return libtock_gpio_command_toggle(pin);
 }
 
-int gpio_disable_interrupt(GPIO_Pin_t pin) {
-  syscall_return_t rval = command(GPIO_DRIVER_NUM, 8, pin, 0);
-  return tock_command_return_novalue_to_returncode(rval);
+returncode_t libtock_gpio_read(uint32_t pin, int* pin_value) {
+  return libtock_gpio_command_read(pin, (uint32_t*) pin_value);
 }
 
-int gpio_disable(GPIO_Pin_t pin) {
-  syscall_return_t rval = command(GPIO_DRIVER_NUM, 9, pin, 0);
-  return tock_command_return_novalue_to_returncode(rval);
+returncode_t libtock_gpio_enable_interrupt(uint32_t pin, libtock_gpio_interrupt_mode_t irq_config) {
+  return libtock_gpio_command_enable_interrupt(pin, (uint32_t) irq_config);
 }
 
-int gpio_count(int* count) {
-  syscall_return_t rval = command(GPIO_DRIVER_NUM, 10, 0, 0);
-  return tock_command_return_u32_to_returncode(rval, (uint32_t*) count);
+returncode_t libtock_gpio_disable_interrupt(uint32_t pin) {
+  return libtock_gpio_command_disable_interrupt(pin);
 }
 
-int gpio_interrupt_callback(subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t sval = subscribe(GPIO_DRIVER_NUM, 0, callback, callback_args);
-  return tock_subscribe_return_to_returncode(sval);
+returncode_t libtock_gpio_disable(uint32_t pin) {
+  return libtock_gpio_command_disable(pin);
 }
