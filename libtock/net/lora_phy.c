@@ -1,166 +1,80 @@
 #include "lora_phy.h"
 
-int lora_phy_set_rate(int rate) {
-  syscall_return_t cval = command(DRIVER_NUM_LORAPHY_SPI, 5, rate, 0);
-  return tock_command_return_novalue_to_returncode(cval);
+static void lora_phy_spi_upcall(__attribute__ ((unused)) int unused0,
+                                __attribute__ ((unused)) int unused1,
+                                __attribute__ ((unused)) int unused2,
+                                void*                        opaque) {
+  libtock_lora_phy_callback_spi cb = (libtock_lora_phy_callback_spi) opaque;
+  cb(RETURNCODE_SUCCESS);
 }
 
-int lora_phy_get_rate(void) {
-  syscall_return_t cval = command(DRIVER_NUM_LORAPHY_SPI, 6, 0, 0);
-  return tock_command_return_novalue_to_returncode(cval);
+returncode_t libtock_lora_phy_write(const uint8_t*                buf,
+                                    uint32_t                      len,
+                                    libtock_lora_phy_callback_spi cb) {
+  returncode_t ret;
+
+  ret = libtock_lora_phy_set_readonly_allow_master_write_buffer(buf, len);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  ret = libtock_lora_phy_set_upcall_spi(lora_phy_spi_upcall, cb);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  ret = libtock_lora_phy_command_read_write(len);
+  return ret;
 }
 
-int lora_phy_set_phase(bool phase) {
-  syscall_return_t cval = command(DRIVER_NUM_LORAPHY_SPI, 7, (unsigned char)phase, 0);
-  return tock_command_return_novalue_to_returncode(cval);
+returncode_t libtock_lora_phy_read_write(const uint8_t*                write,
+                                         uint8_t*                      read,
+                                         uint32_t                      len,
+                                         libtock_lora_phy_callback_spi cb) {
+  returncode_t ret;
+
+  ret = libtock_lora_phy_set_readwrite_allow_master_read_buffer(read, len);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  return libtock_lora_phy_write(write, len, cb);
 }
 
-int lora_phy_get_phase(void) {
-  syscall_return_t cval = command(DRIVER_NUM_LORAPHY_SPI, 8, 0, 0);
-  return tock_command_return_novalue_to_returncode(cval);
+static void lora_phy_gpio_upcall( int                          pin_number,
+                                  int                          val,
+                                  __attribute__ ((unused)) int unused2,
+                                  void*                        opaque) {
+  libtock_gpio_callback_interrupt cb = (libtock_gpio_callback_interrupt) opaque;
+  cb(pin_number, val == 1);
 }
 
-int lora_phy_set_polarity(bool pol) {
-  syscall_return_t cval = command(DRIVER_NUM_LORAPHY_SPI, 9, (unsigned char)pol, 0);
-  return tock_command_return_novalue_to_returncode(cval);
+returncode_t libtock_lora_phy_gpio_enable_output(uint32_t pin) {
+  return libtock_lora_phy_gpio_command_enable_output(pin);
 }
 
-int lora_phy_get_polarity(void) {
-  syscall_return_t cval = command(DRIVER_NUM_LORAPHY_SPI, 10, 0, 0);
-  return tock_command_return_novalue_to_returncode(cval);
+returncode_t libtock_lora_phy_gpio_set(uint32_t pin) {
+  return libtock_lora_phy_gpio_command_set(pin);
 }
 
-int lora_phy_set_callback(subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t sval = subscribe(DRIVER_NUM_LORAPHY_SPI, 0, callback, callback_args);
-  return tock_subscribe_return_to_returncode(sval);
+returncode_t libtock_lora_phy_gpio_clear(uint32_t pin) {
+  return libtock_lora_phy_gpio_command_clear(pin);
 }
 
-int lora_phy_set_master_write_buffer(const uint8_t* buffer, uint32_t len) {
-  allow_ro_return_t aval = allow_readonly(DRIVER_NUM_LORAPHY_SPI, 0, (const void*) buffer, len);
-  return tock_allow_ro_return_to_returncode(aval);
+returncode_t libtock_lora_phy_gpio_toggle(uint32_t pin){
+  return libtock_lora_phy_gpio_command_toggle(pin);
 }
 
-int lora_phy_set_master_read_buffer(uint8_t* buffer, uint32_t len) {
-  allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_LORAPHY_SPI, 0, (void*) buffer, len);
-  return tock_allow_rw_return_to_returncode(aval);
+returncode_t libtock_lora_phy_gpio_enable_input(uint32_t pin, libtock_gpio_input_mode_t pin_config){
+  return libtock_lora_phy_gpio_command_enable_input(pin, (uint32_t) pin_config);
 }
 
-static void lora_phy_upcall(__attribute__ ((unused)) int   unused0,
-                            __attribute__ ((unused)) int   unused1,
-                            __attribute__ ((unused)) int   unused2,
-                            __attribute__ ((unused)) void* ud) {
-  *((bool*)ud) = true;
+returncode_t libtock_lora_phy_gpio_read(uint32_t pin, int* pin_value){
+  return libtock_lora_phy_gpio_command_read(pin, (uint32_t*) pin_value);
 }
 
-int lora_phy_write(const char* buf,
-                   size_t len,
-                   subscribe_upcall cb, bool* cond) {
-  int ret = 0;
-
-  ret = lora_phy_set_master_write_buffer((const uint8_t*) buf, len);
-  if (ret != RETURNCODE_SUCCESS) {
-    return ret;
-  }
-
-  ret = lora_phy_set_callback(cb, cond);
-  if (ret != RETURNCODE_SUCCESS) {
-    return ret;
-  }
-
-  syscall_return_t cval = command(DRIVER_NUM_LORAPHY_SPI, 2, len, 0);
-  return tock_command_return_novalue_to_returncode(cval);
+returncode_t libtock_lora_phy_gpio_enable_interrupt(uint32_t pin, libtock_gpio_interrupt_mode_t irq_config){
+  return libtock_lora_phy_gpio_command_enable_interrupt(pin, (uint32_t) irq_config);
 }
 
-int lora_phy_read_write(const char* write,
-                        char* read,
-                        size_t len,
-                        subscribe_upcall cb, bool* cond) {
-  int ret = 0;
-
-  ret = lora_phy_set_master_read_buffer((uint8_t*) read, len);
-  if (ret != RETURNCODE_SUCCESS) {
-    return ret;
-  }
-
-  return lora_phy_write(write, len, cb, cond);
+returncode_t libtock_lora_phy_gpio_disable_interrupt(uint32_t pin){
+  return libtock_lora_phy_gpio_command_disable_interrupt(pin);
 }
 
-int lora_phy_write_sync(const char* write,
-                        size_t      len) {
-  bool cond = false;
-  int ret   = 0;
-
-  ret = lora_phy_set_master_read_buffer(NULL, 0);
-  if (ret != RETURNCODE_SUCCESS) {
-    return ret;
-  }
-
-  int err = lora_phy_write(write, len, lora_phy_upcall, &cond);
-  if (err < 0) return err;
-
-  yield_for(&cond);
-  return RETURNCODE_SUCCESS;
-}
-
-int lora_phy_read_write_sync(const char* write,
-                             char*       read,
-                             size_t      len) {
-  bool cond = false;
-  int ret   = 0;
-
-  ret = lora_phy_set_master_read_buffer(NULL, 0);
-  if (ret != RETURNCODE_SUCCESS) {
-    return ret;
-  }
-
-  int err = lora_phy_read_write(write, read, len, lora_phy_upcall, &cond);
-  if (err < 0) return err;
-
-  yield_for(&cond);
-  return RETURNCODE_SUCCESS;
-}
-
-int lora_phy_gpio_enable_output(GPIO_Pin_t pin) {
-  syscall_return_t rval = command(DRIVER_NUM_LORAPHY_GPIO, 1, pin, 0);
-  return tock_command_return_novalue_to_returncode(rval);
-}
-
-int lora_phy_gpio_set(GPIO_Pin_t pin) {
-  syscall_return_t rval = command(DRIVER_NUM_LORAPHY_GPIO, 2, pin, 0);
-  return tock_command_return_novalue_to_returncode(rval);
-}
-
-int lora_phy_gpio_clear(GPIO_Pin_t pin) {
-  syscall_return_t rval = command(DRIVER_NUM_LORAPHY_GPIO, 3, pin, 0);
-  return tock_command_return_novalue_to_returncode(rval);
-}
-
-int lora_phy_gpio_toggle(GPIO_Pin_t pin) {
-  syscall_return_t rval = command(DRIVER_NUM_LORAPHY_GPIO, 4, pin, 0);
-  return tock_command_return_novalue_to_returncode(rval);
-}
-
-int lora_phy_gpio_enable_input(GPIO_Pin_t pin, GPIO_InputMode_t pin_config) {
-  syscall_return_t rval = command(DRIVER_NUM_LORAPHY_GPIO, 5, pin, pin_config);
-  return tock_command_return_novalue_to_returncode(rval);
-}
-
-int lora_phy_gpio_read(GPIO_Pin_t pin, int* pin_value) {
-  syscall_return_t rval = command(DRIVER_NUM_LORAPHY_GPIO, 6, pin, 0);
-  return tock_command_return_u32_to_returncode(rval, (uint32_t*) pin_value);
-}
-
-int lora_phy_gpio_enable_interrupt(GPIO_Pin_t pin, GPIO_InterruptMode_t irq_config) {
-  syscall_return_t rval = command(DRIVER_NUM_LORAPHY_GPIO, 7, pin, irq_config);
-  return tock_command_return_novalue_to_returncode(rval);
-}
-
-int lora_phy_gpio_disable_interrupt(GPIO_Pin_t pin) {
-  syscall_return_t rval = command(DRIVER_NUM_LORAPHY_GPIO, 8, pin, 0);
-  return tock_command_return_novalue_to_returncode(rval);
-}
-
-int lora_phy_gpio_interrupt_callback(subscribe_upcall callback, void* callback_args) {
-  subscribe_return_t sval = subscribe(DRIVER_NUM_LORAPHY_GPIO, 0, callback, callback_args);
-  return tock_subscribe_return_to_returncode(sval);
+returncode_t libtock_lora_phy_gpio_set_callback(libtock_gpio_callback_interrupt cb) {
+  return libtock_lora_phy_gpio_command_interrupt_callback(lora_phy_gpio_upcall, cb);
 }
