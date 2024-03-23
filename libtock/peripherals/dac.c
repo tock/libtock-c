@@ -1,12 +1,9 @@
 #include "dac.h"
-#include "tock.h"
 
-int dac_initialize(void) {
-  syscall_return_t res = command(DRIVER_NUM_DAC, 1, 0, 0);
-  return tock_command_return_novalue_to_returncode(res);
+returncode_t libtock_dac_initialize(void) {
+  return libtock_dac_command_initialize();
 }
 
-int dac_set_value(uint32_t value) {
-  syscall_return_t res = command(DRIVER_NUM_DAC, 2, value, 0);
-  return tock_command_return_novalue_to_returncode(res);
+returncode_t libtock_dac_set_value(uint32_t value) {
+  return libtock_dac_command_set_value(value);
 }
