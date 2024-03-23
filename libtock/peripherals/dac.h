@@ -1,18 +1,17 @@
 #pragma once
 
-#include "tock.h"
+#include "../tock.h"
+#include "syscalls/dac_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define DRIVER_NUM_DAC 0x6
+// Initialize the Digital-to-Analog converter.
+returncode_t libtock_dac_initialize(void);
 
-// Initialize and enable the DAC.
-int dac_initialize(void);
-
-// Set the DAC to a value.
-int dac_set_value(uint32_t value);
+// Set the level for the DAC.
+returncode_t libtock_dac_set_value(uint32_t value);
 
 #ifdef __cplusplus
 }
