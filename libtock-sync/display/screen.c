@@ -1,5 +1,5 @@
-#include <tock.h>
 #include <display/screen.h>
+#include <tock.h>
 
 #include "screen.h"
 
@@ -25,18 +25,18 @@ struct screen_rotation result_rotation;
 
 
 static void screen_cb_done(returncode_t ret) {
-  result.ret = ret;
+  result.ret   = ret;
   result.fired = true;
 }
 static void screen_cb_format(returncode_t ret, libtock_screen_format_t format) {
-  result_format.ret = ret;
+  result_format.ret    = ret;
   result_format.format = format;
-  result_format.fired = true;
+  result_format.fired  = true;
 }
 static void screen_cb_rotation(returncode_t ret, int rotation) {
-  result_rotation.ret = ret;
+  result_rotation.ret      = ret;
   result_rotation.rotation = rotation;
-  result_rotation.fired = true;
+  result_rotation.fired    = true;
 }
 
 
@@ -100,7 +100,7 @@ returncode_t libtocksync_screen_get_pixel_format(libtock_screen_format_t* format
 
 
 
-returncode_t libtocksync_screen_get_rotation(int* rotation) {
+returncode_t libtocksync_screen_get_rotation(libtock_screen_rotation_t* rotation) {
   returncode_t ret;
 
   result_rotation.fired = false;
@@ -116,7 +116,7 @@ returncode_t libtocksync_screen_get_rotation(int* rotation) {
   return RETURNCODE_SUCCESS;
 }
 
-returncode_t libtocksync_screen_set_rotation(int rotation) {
+returncode_t libtocksync_screen_set_rotation(libtock_screen_rotation_t rotation) {
   returncode_t ret;
 
   result.fired = false;
