@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tock.h>
+#include <libtock/interface/button.h>
 
 #ifdef __cplusplus
 extern "C" {

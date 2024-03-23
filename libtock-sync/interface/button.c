@@ -1,7 +1,4 @@
-#include <interface/button.h>
-
 #include "button.h"
-
 
 struct data {
   bool fired;
