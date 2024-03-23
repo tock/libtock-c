@@ -1,9 +1,5 @@
 #include <ctype.h>
 
-#include <interface/syscalls/usb_keyboard_hid_syscalls.h>
-#include <interface/usb_keyboard_hid.h>
-#include <tock.h>
-
 #include "usb_keyboard_hid.h"
 
 
