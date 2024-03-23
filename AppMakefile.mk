@@ -32,6 +32,10 @@ include $(TOCK_USERLAND_BASE_DIR)/Precompiled.mk
 # library when needed.
 include $(TOCK_USERLAND_BASE_DIR)/libtock/Makefile
 
+# Include the libtock-sync Makefile. Adds rules that will rebuild the core
+# libtock-sync library when needed.
+include $(TOCK_USERLAND_BASE_DIR)/libtock-sync/Makefile
+
 # Connection to the Tock kernel. Apps need the ability to be loaded onto a
 # board, and that method is board-specific. So for now, we have the TOCK_BOARD
 # variable which selects one and we include the appropriate Makefile-app from
