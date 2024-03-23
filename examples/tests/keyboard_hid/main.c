@@ -1,36 +1,31 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <button.h>
-#include <usb_keyboard_hid.h>
+#include <libtock-sync/interface/button.h>
+#include <libtock-sync/interface/usb_keyboard_hid.h>
 
-
-// Callback for button presses.
-//   btn_num: The index of the button associated with the callback
-//   val: 1 if pressed, 0 if depressed
-static void button_callback(__attribute__ ((unused)) int   btn_num,
-                            __attribute__ ((unused)) int   val,
-                            __attribute__ ((unused)) int   arg2,
-                            __attribute__ ((unused)) void *ud) {
-
-  char message[] = "Hi from Tock!";
-  int ret;
-
-  ret = usb_keyboard_hid_send_string_sync(message, strlen(message));
-  if (ret < 0) {
-    printf("ERROR sending string with USB keyboard HID: %i\n", ret);
-  }
-}
+char message[] = "Hi from Tock!";
 
 int main(void) {
-  int err;
+  returncode_t ret;
+  printf("[TEST] USB Keyboard HID\n");
 
-  err = button_subscribe(button_callback, NULL);
-  if (err < 0) return err;
-
-  button_enable_interrupt(0);
+  if (!libtock_usb_keyboard_hid_exists()) {
+    printf("No USB keyboard HID on this board!\n");
+    return -2;
+  }
 
   while (1) {
-    yield();
+    ret = libtocksync_button_wait_for_press(0);
+    if (ret != RETURNCODE_SUCCESS) {
+      printf("Could not wait for button presses.\n");
+      return -3;
+    }
+
+    ret = libtocksync_usb_keyboard_hid_send_string(message, strlen(message));
+    if (ret != RETURNCODE_SUCCESS) {
+      printf("ERROR sending string with USB keyboard HID: %i\n", ret);
+      return -4;
+    }
   }
 }
