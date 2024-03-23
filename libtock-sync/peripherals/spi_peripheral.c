@@ -1,5 +1,5 @@
-
 #include <peripherals/spi_peripheral.h>
+#include <peripherals/syscalls/spi_peripheral_syscalls.h>
 
 #include "spi_peripheral.h"
 
@@ -13,8 +13,8 @@ static struct spi_peripheral_data result = { .fired = false };
 
 
 static void cb(returncode_t ret) {
-    result.fired = true;
-    result.ret = ret;
+  result.fired = true;
+  result.ret   = ret;
 }
 
 
@@ -39,7 +39,7 @@ returncode_t libtocksync_spi_peripheral_read_write(const uint8_t* write,
   returncode_t err;
   result.fired = false;
 
-  int err = libtock_spi_peripheral_read_write(write, read, len, cb);
+  err = libtock_spi_peripheral_read_write(write, read, len, cb);
   if (err != RETURNCODE_SUCCESS) return err;
 
   yield_for(&result.fired);
@@ -47,7 +47,7 @@ returncode_t libtocksync_spi_peripheral_read_write(const uint8_t* write,
 
   err = libtock_spi_peripheral_allow_readonly_write(NULL, 0);
   if (err != RETURNCODE_SUCCESS) return err;
-  err = libtock_spi_peripheral_allow_readonly_read_write(NULL, 0);
+  err = libtock_spi_peripheral_allow_readwrite_read(NULL, 0);
   if (err != RETURNCODE_SUCCESS) return err;
 
   return err;

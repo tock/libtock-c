@@ -1,10 +1,4 @@
-#pragma once
-
-#include "tock.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "spi_peripheral_syscalls.h"
 
 bool libtock_spi_peripheral_exists(void) {
   return driver_exists(DRIVER_NUM_SPI_PERIPHERAL);
@@ -54,7 +48,3 @@ returncode_t libtock_spi_peripheral_command_get_polarity(uint32_t* polarity) {
   syscall_return_t cval = command(DRIVER_NUM_SPI_PERIPHERAL, 6, 0, 0);
   return tock_command_return_u32_to_returncode(cval, polarity);
 }
-
-#ifdef __cplusplus
-}
-#endif
