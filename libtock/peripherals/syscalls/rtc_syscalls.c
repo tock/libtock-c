@@ -11,7 +11,7 @@ returncode_t libtock_rtc_set_upcall(subscribe_upcall callback, void* opaque) {
 }
 
 returncode_t libtock_rtc_command_get_date(void) {
-  syscall_return_t sval = command(DRIVER_NUM_RTC, 1, 0, 0);
+  syscall_return_t cval = command(DRIVER_NUM_RTC, 1, 0, 0);
   return tock_command_return_novalue_to_returncode(cval);
 }
 

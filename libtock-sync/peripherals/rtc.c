@@ -1,5 +1,5 @@
-#include <tock.h>
 #include <peripherals/rtc.h>
+#include <tock.h>
 
 struct rtc_date_data {
   bool fired;
@@ -11,20 +11,20 @@ struct rtc_done_data {
   returncode_t ret;
 };
 
-static struct rtc_date_data result = { .fired = false };
+static struct rtc_date_data result      = { .fired = false };
 static struct rtc_done_data result_done = { .fired = false };
 
 
 
 static void rtc_date_cb(returncode_t ret, libtock_rtc_date_t date) {
   result.fired = true;
-  result.ret = ret;
-  result.date = date;
+  result.ret   = ret;
+  result.date  = date;
 }
 
 static void rtc_done_cb(returncode_t ret) {
   result_done.fired = true;
-  result_done.ret = ret;
+  result_done.ret   = ret;
 }
 
 
