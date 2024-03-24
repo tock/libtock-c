@@ -1,7 +1,6 @@
 #pragma once
 
 #include "tock.h"
-#include "sdcard_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
