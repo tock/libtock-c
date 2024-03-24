@@ -23,12 +23,12 @@ static void screen_callback(int   status,
 static uint8_t *buffer   = NULL;
 static size_t buffer_len = 0;
 
-static int screen_subscribe (subscribe_upcall cb, void *userdata) {
+int screen_subscribe (subscribe_upcall cb, void *userdata) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_SCREEN, 0, cb, userdata);
   return tock_subscribe_return_to_returncode(sval);
 }
 
-static int screen_allow (const void* ptr, size_t size) {
+int screen_allow (const void* ptr, size_t size) {
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_SCREEN, 0, ptr, size);
   return tock_allow_ro_return_to_returncode(aval);
 }

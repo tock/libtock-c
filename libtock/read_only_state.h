@@ -23,6 +23,8 @@ extern "C" {
 //   |-------------------------|
 #define READ_ONLY_STATEBUFFER_LEN (4 * 4 + 4 * 4 + 8 * 4)
 
+bool read_only_state_exists(void);
+
 // Get the latest version of the read only state supported by the kernel.
 int read_only_state_get_version(void);
 

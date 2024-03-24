@@ -42,13 +42,15 @@ const int COMMAND_GET_KEY       = 23;
 const int COMMAND_ADD_KEY       = 24;
 const int COMMAND_REMOVE_KEY    = 25;
 
-const int COMMAND_SEND = 26;
+const int COMMAND_SEND     = 26;
+const int COMMAND_SEND_RAW = 27;
+
 
 // Temporary buffer used for some commands where the system call interface
 // parameters / return codes are not enough te contain the required data.
 unsigned char BUF_CFG[27];
 
-bool ieee802154_driver_is_present(void) {
+bool ieee802154_driver_exists(void) {
   return driver_exists(RADIO_DRIVER);
 }
 
@@ -409,18 +411,48 @@ int ieee802154_send(unsigned short   addr,
   return RETURNCODE_SUCCESS;
 }
 
+int ieee802154_send_raw(
+  const char *  payload,
+  unsigned char len) {
+  // Setup parameters in ALLOW_RO_TX
+  allow_ro_return_t ro = allow_readonly(RADIO_DRIVER, ALLOW_RO_TX, (void *) payload, len);
+  if (!ro.success) return tock_status_to_returncode(ro.status);
+
+  // Subscribe to the transmit callback
+  bool tx_done = false;
+  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_TX,
+                                     tx_done_callback, (void *) &tx_done);
+  if (!sub.success) return tock_status_to_returncode(sub.status);
+
+  // Issue the send command and wait for the transmission to be done.
+  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SEND_RAW, 0, 0);
+  int ret = tock_command_return_novalue_to_returncode(com);
+  if (ret < 0) return ret;
+
+  yield_for(&tx_done);
+  if (tx_result != RETURNCODE_SUCCESS) {
+    return tx_result;
+  } else if (tx_acked == 0) {
+    return RETURNCODE_ENOACK;
+  }
+
+  return RETURNCODE_SUCCESS;
+}
+
+
+
 // Internal callback for receive
 static void rx_done_callback(__attribute__ ((unused)) int pans,
                              __attribute__ ((unused)) int dst_addr,
                              __attribute__ ((unused)) int src_addr,
                              void*                        ud) {
-  ieee802154_unallow_rx_buf();
+  reset_ring_buf(NULL, NULL, NULL);
   *((bool*) ud) = true;
 }
 
-int ieee802154_receive_sync(const char *frame, unsigned char len) {
+int ieee802154_receive_sync(const ieee802154_rxbuf *frame) {
   // Provide the buffer to the kernel
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, len);
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, IEEE802154_RING_BUFFER_LEN);
   if (!rw.success) return tock_status_to_returncode(rw.status);
 
   // Subscribe to the received callback
@@ -439,14 +471,38 @@ bool ieee802154_unallow_rx_buf(void) {
   return rw.success;
 }
 
-int ieee802154_receive(subscribe_upcall callback,
-                       const char *     frame,
-                       unsigned char    len) {
+bool reset_ring_buf(const ieee802154_rxbuf* frame, subscribe_upcall callback, void* ud) {
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame,
+                                         (frame) ? IEEE802154_RING_BUFFER_LEN : 0);
+  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_RX, callback, ud);
+  return rw.success && sub.success;
+}
+
+char* ieee802154_read_next_frame(const ieee802154_rxbuf* frame) {
+  if (!frame) return NULL;
+
+  char *rx_buf    = (char *) frame;
+  int read_index  = rx_buf[0];
+  int write_index = rx_buf[1];
+  if (read_index == write_index) {
+    return NULL;
+  }
+  rx_buf[0]++;
+  if (rx_buf[0] >= IEEE802154_MAX_RING_BUF_FRAMES) {
+    rx_buf[0] = 0;
+  }
+  return &rx_buf[IEEE802154_RING_BUF_META_LEN + (read_index * IEEE802154_FRAME_LEN)];
+}
+
+int ieee802154_receive(subscribe_upcall        callback,
+                       const ieee802154_rxbuf* frame,
+                       void*                   ud) {
+
   // Provide the buffer to the kernel
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, len);
+  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, IEEE802154_RING_BUFFER_LEN);
   if (!rw.success) return tock_status_to_returncode(rw.status);
 
-  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_RX, callback, NULL);
+  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_RX, callback, ud);
   return tock_subscribe_return_to_returncode(sub);
 }
 
@@ -540,11 +596,28 @@ static bool ieee802154_get_addressing(uint16_t     frame_control,
   return true;
 }
 
+// Utility function to obtain the frame control field from a frame
+static void ieee802154_get_frame_control(const char *frame, uint16_t *frame_control) {
+  if (!frame || !frame_control) return;
+  *frame_control = ((uint16_t) frame[IEEE802154_FRAME_META_LEN]) |
+                   (((uint16_t) frame[IEEE802154_FRAME_META_LEN + 1]) << 8);
+}
+
+// Utility function to obtain the address offset from a frame
+static void ieee802154_get_addr_offset(const char *frame, uint16_t *addr_offset, uint16_t *frame_control,
+                                       const uint16_t *SEQ_SUPPRESSED) {
+  if (!frame || !addr_offset || !frame_control || !SEQ_SUPPRESSED) return;
+  *addr_offset =  ((*frame_control & *SEQ_SUPPRESSED) ? 2 : 3) + IEEE802154_FRAME_META_LEN;
+}
+
 addr_mode_t ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const char *    frame,
                                           __attribute__ ((unused)) unsigned short *short_addr,
                                           __attribute__ ((unused)) unsigned char * long_addr) {
   if (!frame) return ADDR_NONE;
-  uint16_t frame_control = ((uint16_t) frame[2]) | (((uint16_t) frame[3]) << 8);
+
+  uint16_t frame_control;
+  ieee802154_get_frame_control(frame, &frame_control);
+
   bool dst_pan_present, src_pan_present, src_pan_dropped;
   addr_mode_t dst_mode, src_mode;
   if (!ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
@@ -554,7 +627,9 @@ addr_mode_t ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const char * 
 
   // The addressing fields are after the sequence number, which can be ommitted
   const uint16_t SEQ_SUPPRESSED = 0x0100;
-  int addr_offset = (frame_control & SEQ_SUPPRESSED) ? 4 : 5;
+  uint16_t addr_offset;
+  ieee802154_get_addr_offset(frame, &addr_offset, &frame_control, &SEQ_SUPPRESSED);
+
   if (dst_pan_present) addr_offset += 2;
 
   if (dst_mode == ADDR_SHORT && short_addr) {
@@ -575,7 +650,10 @@ addr_mode_t ieee802154_frame_get_src_addr(__attribute__ ((unused)) const char * 
                                           __attribute__ ((unused)) unsigned short *short_addr,
                                           __attribute__ ((unused)) unsigned char * long_addr) {
   if (!frame) return ADDR_NONE;
-  uint16_t frame_control = ((uint16_t) frame[2]) | (((uint16_t) frame[3]) << 8);
+
+  uint16_t frame_control;
+  ieee802154_get_frame_control(frame, &frame_control);
+
   bool dst_pan_present, src_pan_present, src_pan_dropped;
   addr_mode_t dst_mode, src_mode;
   if (!ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
@@ -585,7 +663,9 @@ addr_mode_t ieee802154_frame_get_src_addr(__attribute__ ((unused)) const char * 
 
   // The addressing fields are after the sequence number, which can be ommitted
   const uint16_t SEQ_SUPPRESSED = 0x0100;
-  int addr_offset = (frame_control & SEQ_SUPPRESSED) ? 4 : 5;
+  uint16_t addr_offset;
+  ieee802154_get_addr_offset(frame, &addr_offset, &frame_control, &SEQ_SUPPRESSED);
+
   if (dst_pan_present) addr_offset += 2;
   if (dst_mode == ADDR_SHORT) {
     addr_offset += 2;
@@ -611,7 +691,10 @@ addr_mode_t ieee802154_frame_get_src_addr(__attribute__ ((unused)) const char * 
 bool ieee802154_frame_get_dst_pan(__attribute__ ((unused)) const char *    frame,
                                   __attribute__ ((unused)) unsigned short *pan) {
   if (!frame) return false;
-  uint16_t frame_control = ((uint16_t) frame[2]) | (((uint16_t) frame[3]) << 8);
+
+  uint16_t frame_control;
+  ieee802154_get_frame_control(frame, &frame_control);
+
   bool dst_pan_present, src_pan_present, src_pan_dropped;
   addr_mode_t dst_mode, src_mode;
   if (!ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
@@ -621,7 +704,8 @@ bool ieee802154_frame_get_dst_pan(__attribute__ ((unused)) const char *    frame
 
   // The addressing fields are after the sequence number, which can be ommitted
   const uint16_t SEQ_SUPPRESSED = 0x0100;
-  int addr_offset = (frame_control & SEQ_SUPPRESSED) ? 4 : 5;
+  uint16_t addr_offset;
+  ieee802154_get_addr_offset(frame, &addr_offset, &frame_control, &SEQ_SUPPRESSED);
 
   if (dst_pan_present && pan) {
     *pan = ((unsigned short) frame[addr_offset]) |
@@ -634,7 +718,10 @@ bool ieee802154_frame_get_dst_pan(__attribute__ ((unused)) const char *    frame
 bool ieee802154_frame_get_src_pan(__attribute__ ((unused)) const char *    frame,
                                   __attribute__ ((unused)) unsigned short *pan) {
   if (!frame) return false;
-  uint16_t frame_control = ((uint16_t) frame[2]) | (((uint16_t) frame[3]) << 8);
+
+  uint16_t frame_control;
+  ieee802154_get_frame_control(frame, &frame_control);
+
   bool dst_pan_present, src_pan_present, src_pan_dropped;
   addr_mode_t dst_mode, src_mode;
   if (!ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
@@ -644,7 +731,8 @@ bool ieee802154_frame_get_src_pan(__attribute__ ((unused)) const char *    frame
 
   // The addressing fields are after the sequence number, which can be ommitted
   const uint16_t SEQ_SUPPRESSED = 0x0100;
-  int addr_offset = (frame_control & SEQ_SUPPRESSED) ? 4 : 5;
+  uint16_t addr_offset;
+  ieee802154_get_addr_offset(frame, &addr_offset, &frame_control, &SEQ_SUPPRESSED);
 
   if (src_pan_dropped) {
     // We can assume that the destination pan is present.

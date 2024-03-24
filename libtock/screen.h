@@ -27,6 +27,10 @@ extern "C" {
 int screen_init (size_t len);
 uint8_t * screen_buffer (void);
 
+// syscalls
+int screen_subscribe (subscribe_upcall cb, void *userdata);
+int screen_allow (const void* ptr, size_t size);
+
 // query
 bool screen_setup_enabled (void);
 int screen_get_supported_resolutions (int* resolutions);

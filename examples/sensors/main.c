@@ -110,5 +110,7 @@ int main(void) {
   // Setup periodic timer to sample the sensors.
   timer_in(1000, timer_fired, NULL, &timer);
 
-  return 0;
+  while (1) {
+    yield();
+  }
 }

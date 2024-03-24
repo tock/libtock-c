@@ -81,4 +81,8 @@ int main(void) {
   }
   printf("Starting spi_peripheral_transfer.\n");
   spi_peripheral_chip_selected(selected_cb, NULL);
+
+  while (1) {
+    yield();
+  }
 }

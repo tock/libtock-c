@@ -72,7 +72,7 @@ int main(void) {
   }
   ;
 
-  if (ieee802154_driver_is_present()) {
+  if (ieee802154_driver_exists()) {
     ieee802154_set_address(49138); // Corresponds to the dst mac addr set in kernel
     ieee802154_set_pan(0xABCD);
     ieee802154_config_commit();
@@ -101,9 +101,7 @@ int main(void) {
       printf("Failed to bind to socket %d\n", result);
       break;
   }
-  /* Tock keeps the app alive waiting for callbacks after
-   * returning from main, so no need to busy wait
-   * However, this app tests receiving for 10 seconds
+  /* This app tests receiving for 10 seconds
    * then closing the connection, so we include a busy wait for that
    * reason. */
   delay_ms(30000);

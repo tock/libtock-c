@@ -38,4 +38,6 @@ int main(void) {
   }
 
   printf("%u steps occurred.\n", steps);
+
+  return 0;
 }

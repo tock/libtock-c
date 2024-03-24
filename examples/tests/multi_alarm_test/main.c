@@ -41,4 +41,8 @@ int main(void) {
     td->led = i;
     timer_in(spacing * (i + 1), start_cb, td, &td->timer);
   }
+
+  while (1) {
+    yield();
+  }
 }

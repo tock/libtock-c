@@ -1,7 +1,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <assert.h>
 
 #include <button.h>
 #include <timer.h>

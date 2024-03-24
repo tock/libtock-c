@@ -41,5 +41,8 @@ int main(void)
   if (err < RETURNCODE_SUCCESS) {
     printf("ble_start_passive_scan, error: %s\r\n", tock_strrcode(static_cast<returncode_t>(err)));
   }
-  return 0;
+
+  while (1) {
+    yield();
+  }
 }

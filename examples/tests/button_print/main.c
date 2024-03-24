@@ -32,5 +32,7 @@ int main(void) {
   // Enable the button interrupt
   button_enable_interrupt(0);
 
-  return 0;
+  while (1) {
+    yield();
+  }
 }

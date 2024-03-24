@@ -67,4 +67,8 @@ int main (void) {
 
   // Scan for advertisements.
   simple_ble_scan_start();
+
+  while (1) {
+    yield();
+  }
 }

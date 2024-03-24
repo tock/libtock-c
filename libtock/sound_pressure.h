@@ -8,6 +8,9 @@ extern "C" {
 
 #define DRIVER_NUM_SOUND_PRESSURE 0x60006
 
+// check if sound pressure sensor exists
+bool sound_pressure_exists(void);
+
 // units: sound_pressure in DB.
 
 // function to be called when the temperature measurement is finished
@@ -17,7 +20,7 @@ extern "C" {
 int sound_pressure_set_callback (subscribe_upcall callback, void* callback_args);
 
 
-// initiate an ambient sound_pressure measurement used both for syncronous and asyncronous readings
+// initiate an ambient sound_pressure measurement used both for synchronous and asynchronous readings
 int sound_pressure_read(void);
 
 // enable sound pressure sensor
@@ -27,7 +30,7 @@ int sound_pressure_enable(void);
 int sound_pressure_disable(void);
 
 
-// initiate a syncronous ambient sound_pressure measurement
+// initiate a synchronous ambient sound_pressure measurement
 //
 // sound_pressure     - pointer/address where the result of the sound_pressure reading should be stored
 int sound_pressure_read_sync (unsigned char* sound_pressure);

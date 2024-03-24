@@ -203,7 +203,7 @@ static void program_new_secret(void) {
     }
 
     // only record alphanumeric characters
-    if (isalnum(c)) {
+    if (isalnum((int) c)) {
       newkey[i] = c;
       i++;
 

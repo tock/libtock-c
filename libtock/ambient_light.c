@@ -15,6 +15,10 @@ static void ambient_light_upcall(int intensity,
   result->fired     = true;
 }
 
+bool ambient_light_exists(void) {
+  return driver_exists(DRIVER_NUM_AMBIENT_LIGHT);
+}
+
 int ambient_light_read_intensity_sync(int* lux_value) {
   int err;
   ambient_light_data_t result = {0};
