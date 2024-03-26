@@ -1,5 +1,4 @@
-#include <peripherals/rtc.h>
-#include <tock.h>
+#include "rtc.h"
 
 struct rtc_date_data {
   bool fired;

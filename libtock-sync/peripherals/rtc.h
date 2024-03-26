@@ -1,6 +1,8 @@
 #pragma once
 
 #include <tock.h>
+#include <libtock/peripherals/rtc.h>
+
 
 #ifdef __cplusplus
 extern "C" {
