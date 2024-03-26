@@ -110,6 +110,16 @@ int tock_allow_ro_return_to_returncode(allow_ro_return_t allow_return) {
   }
 }
 
+int tock_allow_userspace_r_return_to_returncode(allow_userspace_r_return_t allow_return) {
+  // If the allow was successful, easily return SUCCESS.
+  if (allow_return.success) {
+    return RETURNCODE_SUCCESS;
+  } else {
+    // Not success, so return the proper returncode.
+    return tock_status_to_returncode(allow_return.status);
+  }
+}
+
 void yield_for(bool *cond) {
   while (!*cond) {
     yield();
