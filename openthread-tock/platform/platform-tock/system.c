@@ -118,8 +118,8 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
                         __attribute__ ((unused)) void* _ud) {
 
   /* It is important to avoid sync operations that yield (i.e. printf)
-  /* as this may cause a new upcall to be handled and data to be received 
-  /* out of order and/or lost. */
+     as this may cause a new upcall to be handled and data to be received 
+     out of order and/or lost. */
 
   char* rx_buf = swap_shared_kernel_buf(&otTockInstance)[0];
   
