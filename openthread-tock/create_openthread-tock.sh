@@ -1,8 +1,11 @@
 #! /bin/bash
 
-## NOTE: this script expects to be invoked from the ot-tock base directory. ## 
+## NOTE: this script expects to be invoked from the openthread-tock base directory. ## 
 
 set -e 
+TOCK_BASE_DIR=..
+
+git submodule update --init --remote ../openthread-tock/openthread/
 
 # Create build directory and invoke CMake to create and execute build system. We specify that
 # the platform used will be external (Tock specific). For now, we specify the multiple

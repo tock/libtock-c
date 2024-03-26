@@ -16,7 +16,7 @@
 // reading from the ring buffer (as the ring buffer is unallowed while reading).
 // This can be handled by utilizing two ring buffers and alternating which 
 // belongs to the kernel and which is being read from. An example of this can be 
-// found in libtock-c/ot-tock/platform/platform-tock/system.c. Alternatively, 
+// found in libtock-c/openthread-tock/platform/platform-tock/system.c. Alternatively, 
 // the user can also utilize a single ring buffer if dropped frames may be permissible
 // (see libtock-c/examples/tests/ieee802154/radio_rx/main.c for an example of this).
 
