@@ -4,7 +4,7 @@ LIB_DIR=lib
 
 all:
 	echo AVA!!!
-	./create_ot-tock
+	./create_openthread-tock.sh
 
 clean:
 	rm -rf build
