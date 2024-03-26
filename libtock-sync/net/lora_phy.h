@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tock.h>
-#include <net/lora_phy.h>
+#include <libtock/net/lora_phy.h>
 
 #ifdef __cplusplus
 extern "C" {

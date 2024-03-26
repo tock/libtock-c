@@ -19,9 +19,6 @@ returncode_t libtocksync_lora_phy_write(const uint8_t* write,
   result.fired = false;
   returncode_t ret;
 
-  ret = libtock_lora_phy_set_master_read_buffer(NULL, 0);
-  if (ret != RETURNCODE_SUCCESS) return ret;
-
   ret = libtock_lora_phy_write(write, len, lora_phy_spi_cb);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
