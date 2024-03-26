@@ -15,7 +15,7 @@ bool libtock_app_state_exists(void);
 returncode_t libtock_app_state_set_upcall(subscribe_upcall cb, void* opaque);
 
 // Share the buffer with the app state driver.
-returncode_t libtock_app_state_readonly_allow(const void* ptr, size_t size);
+returncode_t libtock_app_state_set_readonly_allow(const uint8_t* ptr, uint32_t size);
 
 // Tell the driver to write the buffer to the flash storage.
 returncode_t libtock_app_state_command_save(uint32_t flash_pointer);

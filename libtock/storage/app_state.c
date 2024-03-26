@@ -1,8 +1,7 @@
 #include <string.h>
 
 #include "app_state.h"
-#include "syscalls/app_state_syscalls.h"
-#include "tock.h"
+
 
 // Internal callback for synchronous interfaces
 static void app_state_upcall(__attribute__ ((unused)) int callback_type,
@@ -17,7 +16,7 @@ static void app_state_upcall(__attribute__ ((unused)) int callback_type,
 static returncode_t app_state_init(void) {
   returncode_t ret;
 
-  ret = libtock_app_state_readonly_allow(_app_state_ram_pointer, _app_state_size);
+  ret = libtock_app_state_set_readonly_allow(_app_state_ram_pointer, _app_state_size);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Check that we have a region to use for this.

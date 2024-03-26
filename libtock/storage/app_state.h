@@ -39,7 +39,7 @@ extern "C" {
 #endif
 
 #include "tock.h"
-
+#include "syscalls/app_state_syscalls.h"
 
 
 // Declare an application state structure
