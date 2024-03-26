@@ -1,31 +1,13 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <internal/nonvolatile_storage.h>
+#include <libtock-sync/storage/nonvolatile_storage.h>
 
 static int test_all(void);
 static int test(uint8_t *readbuf, uint8_t *writebuf, size_t size, size_t offset, size_t len);
 
-static bool done = false;
-
-static void read_done(int                            length,
-                      __attribute__ ((unused)) int   arg1,
-                      __attribute__ ((unused)) int   arg2,
-                      __attribute__ ((unused)) void* ud) {
-  printf("\tFinished read! %i\n", length);
-  done = true;
-}
-
-static void write_done(int                            length,
-                       __attribute__ ((unused)) int   arg1,
-                       __attribute__ ((unused)) int   arg2,
-                       __attribute__ ((unused)) void* ud) {
-  printf("\tFinished write! %i\n", length);
-  done = true;
-}
-
 int main (void) {
-  printf("[Nonvolatile Storage] Test App\n");
+  printf("[TEST] Nonvolatile Storage\n");
 
   int r = test_all();
   if (r == 0) {
@@ -39,7 +21,7 @@ int main (void) {
 
 static int test_all(void) {
   int num_bytes;
-  nonvolatile_storage_internal_get_number_bytes(&num_bytes);
+  libtock_nonvolatile_storage_get_number_bytes((uint32_t*) &num_bytes);
   printf("Have %i bytes of nonvolatile storage\n", num_bytes);
 
   int r;
@@ -61,53 +43,25 @@ static int test_all(void) {
 
 static int test(uint8_t *readbuf, uint8_t *writebuf, size_t size, size_t offset, size_t len) {
   int ret;
+  int length_written, length_read;
 
   printf("Test with size %d ...\n", size);
-
-  ret = nonvolatile_storage_internal_read_buffer(readbuf, size);
-  if (ret != RETURNCODE_SUCCESS) {
-    printf("\tERROR setting read buffer\n");
-    return ret;
-  }
-
-  ret = nonvolatile_storage_internal_write_buffer(writebuf, size);
-  if (ret != RETURNCODE_SUCCESS) {
-    printf("\tERROR setting write buffer\n");
-    return ret;
-  }
-
-  // Setup callbacks
-  ret = nonvolatile_storage_internal_read_done_subscribe(read_done, NULL);
-  if (ret != RETURNCODE_SUCCESS) {
-    printf("\tERROR setting read done callback\n");
-    return ret;
-  }
-
-  ret = nonvolatile_storage_internal_write_done_subscribe(write_done, NULL);
-  if (ret != RETURNCODE_SUCCESS) {
-    printf("\tERROR setting write done callback\n");
-    return ret;
-  }
 
   for (size_t i = 0; i < len; i++) {
     writebuf[i] = i;
   }
 
-  done = false;
-  ret  = nonvolatile_storage_internal_write(offset, len);
-  if (ret != 0) {
+  ret = libtocksync_nonvolatile_storage_write(offset, len, writebuf, size, &length_written);
+  if (ret != RETURNCODE_SUCCESS) {
     printf("\tERROR calling write\n");
     return ret;
   }
-  yield_for(&done);
 
-  done = false;
-  ret  = nonvolatile_storage_internal_read(offset, len);
-  if (ret != 0) {
+  ret = libtocksync_nonvolatile_storage_read(offset, len, writebuf, size, &length_read);
+  if (ret != RETURNCODE_SUCCESS) {
     printf("\tERROR calling read\n");
     return ret;
   }
-  yield_for(&done);
 
   for (size_t i = 0; i < len; i++) {
     if (readbuf[i] != writebuf[i]) {
