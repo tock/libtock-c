@@ -15,7 +15,7 @@ bool libtock_rng_exists(void);
 //
 // - buffer: pointer to uint8_t array to store randomness
 // - len: length of buffer.
-returncode_t libtock_rng_allow_readwrite(uint8_t* buf, uint32_t len);
+returncode_t libtock_rng_set_allow_readwrite(uint8_t* buf, uint32_t len);
 
 // Registers an upcall function that is called when requested randomness is
 // obtained or provided buffer is full.

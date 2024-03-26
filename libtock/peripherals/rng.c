@@ -21,7 +21,7 @@ returncode_t libtock_rng_get_random_bytes(uint8_t* buf, uint32_t len, uint32_t n
   ret = libtock_rng_set_upcall(rng_upcall, cb);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  ret = libtock_rng_allow_readwrite(buf, len);
+  ret = libtock_rng_set_allow_readwrite(buf, len);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   ret = libtock_rng_command_get_random(num);

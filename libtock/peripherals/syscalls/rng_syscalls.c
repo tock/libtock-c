@@ -1,14 +1,10 @@
-#include <stdlib.h>
-
-#include "tock.h"
-
 #include "rng_syscalls.h"
 
 bool libtock_rng_exists(void) {
   return driver_exists(DRIVER_NUM_RNG);
 }
 
-returncode_t libtock_rng_allow_readwrite(uint8_t* buf, uint32_t len) {
+returncode_t libtock_rng_set_allow_readwrite(uint8_t* buf, uint32_t len) {
   allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_RNG, 0, (void*) buf, len);
   return tock_allow_rw_return_to_returncode(aval);
 }
