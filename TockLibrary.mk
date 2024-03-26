@@ -99,12 +99,12 @@ $$($(LIBNAME)_BUILDDIR)/$(1):
 	$$(TRACE_DIR)
 	$$(Q)mkdir -p $$@
 
-$$($(LIBNAME)_BUILDDIR)/$(1)/%.o: %.c | $$($(LIBNAME)_BUILDDIR)/$(1) newlib-$$(NEWLIB_VERSION_$(1))
+$$($(LIBNAME)_BUILDDIR)/$(1)/%.o: %.c | $$($(LIBNAME)_BUILDDIR)/$(1) $$(TOCK_LIBC_FOLDER_$(1))
 	$$(TRACE_CC)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(CPPFLAGS_$(LIBNAME)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(CPPFLAGS_$(LIBNAME)) -c -o $$@ $$<
 
-$$($(LIBNAME)_BUILDDIR)/$(1)/%.o: %.S | $$($(LIBNAME)_BUILDDIR)/$(1) newlib-$$(NEWLIB_VERSION_$(1))
+$$($(LIBNAME)_BUILDDIR)/$(1)/%.o: %.S | $$($(LIBNAME)_BUILDDIR)/$(1) $$(TOCK_LIBC_FOLDER_$(1))
 	$$(TRACE_AS)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(AS) $$(ASFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
@@ -126,7 +126,7 @@ $(LIBNAME)_OBJS_$(1) += $$(patsubst %.cxx,$$($(LIBNAME)_BUILDDIR)/$(1)/%.o,$$(fi
 # $$(info $(LIBNAME)_OBJS_$(1): $$($(LIBNAME)_OBJS_$(1)))
 # $$(info =====================================================)
 
-$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME).a: $$($(LIBNAME)_OBJS_$(1)) | $$($(LIBNAME)_BUILDDIR)/$(1) newlib-$$(NEWLIB_VERSION_$(1))
+$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME).a: $$($(LIBNAME)_OBJS_$(1)) | $$($(LIBNAME)_BUILDDIR)/$(1) $$(TOCK_LIBC_FOLDER_$(1))
 	$$(TRACE_AR)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(AR) rc $$@ $$^
 	$$(Q)$$(TOOLCHAIN_$(1))$$(RANLIB) $$@

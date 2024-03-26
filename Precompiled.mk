@@ -30,10 +30,16 @@ $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231:
 $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120:
 	cd $(TOCK_USERLAND_BASE_DIR)/lib; ./fetch-newlib.sh 4.3.0.20230120
 
-# Helper rule to specify newlib as a dependency in the libtock-c build system.
-newlib-4.2.0.20211231: | $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
+# Target to download and extract newlib.
+$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5:
+	cd $(TOCK_USERLAND_BASE_DIR)/lib; ./fetch-picolib.sh 1.8.5
 
-newlib-4.3.0.20230120: | $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
+# Helper rule to specify newlib as a dependency in the libtock-c build system.
+libtock-newlib-4.2.0.20211231: | $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
+
+libtock-newlib-4.3.0.20230120: | $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
+
+libtock-picolib-1.8.5: | $(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5
 
 # newlib 4.2.0.20211231
 
@@ -66,6 +72,22 @@ $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/riscv/riscv64-unknow
 $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
 $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
 $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
+
+# picolib 1.8.5
+
+$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5
+$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5
+$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5
+$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5
+$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5
+$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5
+
+$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5
+$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5
+$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5
+$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5
+$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5
+$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-1.8.5
 
 
 ################################################################################

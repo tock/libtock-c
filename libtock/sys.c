@@ -54,6 +54,7 @@ int _fstat(int fd, struct stat *st)
   st->st_mode = S_IFCHR;
   return 0;
 }
+
 int _lseek(int fd, uint32_t offset, int whence)
 {
   return 0;
@@ -85,3 +86,13 @@ caddr_t _sbrk(int incr)
   }
   return (caddr_t) ret.data;
 }
+
+
+// FOR PICOLIB
+int fstat(int fd, struct stat *st) { return _fstat(fd, st); }
+int isatty(int fd) { return _isatty(fd); }
+int read(int fd, void *buf, uint32_t count) { return _read(fd, buf, count); }
+int write(int fd, const void *buf, uint32_t count) { return _write(fd, buf, count); }
+int lseek(int fd, uint32_t offset, int whence) { return _lseek(fd, offset, whence); }
+int close(int fd) { return _close(fd); }
+caddr_t sbrk(int incr) { return _sbrk(incr); }
