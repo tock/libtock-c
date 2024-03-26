@@ -14,9 +14,9 @@ returncode_t libtock_nonvolatile_storage_set_upcall_read_done(subscribe_upcall c
 
 returncode_t libtock_nonvolatile_storage_set_upcall_write_done(subscribe_upcall cb, void *opaque);
 
-returncode_t libtock_nonvolatile_storage_allow_readwrite_read_buffer(uint8_t* buffer, uint32_t len);
+returncode_t libtock_nonvolatile_storage_set_allow_readwrite_read_buffer(uint8_t* buffer, uint32_t len);
 
-returncode_t libtock_nonvolatile_storage_allow_readonly_write_buffer(uint8_t* buffer, uint32_t len);
+returncode_t libtock_nonvolatile_storage_set_allow_readonly_write_buffer(uint8_t* buffer, uint32_t len);
 
 returncode_t libtock_nonvolatile_storage_command_get_number_bytes(uint32_t* number_bytes);
 

@@ -14,12 +14,12 @@ returncode_t libtock_nonvolatile_storage_set_upcall_write_done(subscribe_upcall 
   return tock_subscribe_return_to_returncode(sval);
 }
 
-returncode_t libtock_nonvolatile_storage_allow_readwrite_read_buffer(uint8_t* buffer, uint32_t len) {
+returncode_t libtock_nonvolatile_storage_set_allow_readwrite_read_buffer(uint8_t* buffer, uint32_t len) {
   allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_NONVOLATILE_STORAGE, 0, (void*) buffer, len);
   return tock_allow_rw_return_to_returncode(aval);
 }
 
-returncode_t libtock_nonvolatile_storage_allow_readonly_write_buffer(uint8_t* buffer, uint32_t len) {
+returncode_t libtock_nonvolatile_storage_set_allow_readonly_write_buffer(uint8_t* buffer, uint32_t len) {
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_NONVOLATILE_STORAGE, 0, (void*) buffer, len);
   return tock_allow_ro_return_to_returncode(aval);
 }
