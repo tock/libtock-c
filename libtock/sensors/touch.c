@@ -1,9 +1,6 @@
 #include <stdlib.h>
 
 #include "touch.h"
-#include "touch_syscalls.h"
-
-
 
 static void single_touch_upcall(int                          status,
                                 int                          xy,
@@ -34,8 +31,6 @@ static void gesture_upcall(int                          gesture,
 
   cb(RETURNCODE_SUCCESS, gesture);
 }
-
-
 
 returncode_t libtock_touch_get_number_of_touches(int* touches) {
   return libtock_touch_command_get_number_of_touches((uint32_t*) touches);
@@ -98,12 +93,9 @@ returncode_t libtock_touch_allocate_multi_touch_buffer(int max_touches, libtock_
   }
 }
 
-
-
 returncode_t libtock_touch_get_gestures(libtock_touch_gesture_callback cb) {
   return libtock_touch_set_upcall_gesture(gesture_upcall, cb);
 }
-
 
 returncode_t multi_touch_next(void) {
   return libtock_touch_command_multi_touch_next();

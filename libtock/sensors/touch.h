@@ -1,8 +1,7 @@
-// Touch Panel Library
-
 #pragma once
 
 #include "tock.h"
+#include "syscalls/touch_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,10 +30,6 @@ typedef void (*libtock_touch_multi_touch_callback)(returncode_t, int, int, int);
 typedef void (*libtock_touch_gesture_callback)(returncode_t, int);
 
 
-
-
-
-
 #define TOUCH_STATUS_RELEASED 0
 #define TOUCH_STATUS_PRESSED 1
 #define TOUCH_STATUS_MOVED 2
@@ -47,7 +42,6 @@ typedef void (*libtock_touch_gesture_callback)(returncode_t, int);
 #define GESTURE_SWIPE_RIGHT 4
 #define GESTURE_ZOOM_IN 5
 #define GESTURE_ZOOM_OUT 6
-
 
 
 typedef struct __attribute__((__packed__)) {
@@ -65,8 +59,6 @@ typedef struct __attribute__((__packed__)) {
 // | id (u8) | status (u8) | x (u16)          | y (u16)          | size (u8) | pressure (u8) |          ...
 // +---------+-------------+------------------+------------------+-----------+---------------+--------- ...
 // | Touch 0                                                                                 | Touch 1  ...
-
-
 
 
 
@@ -90,7 +82,6 @@ returncode_t multi_touch_next(void);
 returncode_t libtock_touch_read_touch_from_buffer(libtock_touch_event_t* buffer, int index,
   uint8_t *id, uint8_t *status, uint8_t *x, uint8_t *y,
   uint8_t *size, uint8_t *pressure);
-
 
 #ifdef __cplusplus
 }
