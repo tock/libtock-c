@@ -1,7 +1,7 @@
 # Makefile for user application
 
 # Specify this directory relative to the current application.
-TOCK_USERLAND_BASE_DIR = ../..
+TOCK_USERLAND_BASE_DIR = ../../..
 
 #build_openthread:
 #	cd $(TOCK_USERLAND_BASE_DIR)/openthread-tock && ./create_openthread-tock.sh

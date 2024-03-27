@@ -3,7 +3,6 @@
 LIB_DIR=lib
 
 all:
-	echo AVA!!!
 	./create_openthread-tock.sh
 
 clean:

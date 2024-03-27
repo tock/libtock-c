@@ -1,12 +1,29 @@
 #! /bin/bash
 
-## NOTE: this script expects to be invoked from the openthread-tock base directory. ## 
+
+normal=$(tput sgr0)
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+
+# This script expects to execut in the libtock-c/openthread-tock directory. Confirm this is true.
+current_directory=$(basename "$(pwd)")
+if [ "$current_directory" != "openthread-tock" ]; then
+    echo "${red}Error: The create_openthread-tock script must be invoked\
+	    in the 'openthread-tock' directory. Exiting.${normal}"
+    exit
+fi
+
+
+# Confirm that the git submodule has been checked out.
+git submodule status -- openthread >/dev/null 2>&1
+
+if [ $? -ne 0 ]; then
+    echo "${red}Error: git submodule 'openthread' not found.${normal}" 
+    echo "To checkout the submodule, use the command ${green}$ git submodule update --init -- openthread${normal}"
+    exit 
+fi
 
 set -e 
-TOCK_BASE_DIR=..
-
-git submodule update --init --remote ../openthread-tock/openthread/
-
 # Create build directory and invoke CMake to create and execute build system. We specify that
 # the platform used will be external (Tock specific). For now, we specify the multiple
 # instance flag. This may change in future iterations of this script. The logs are currently disabled

@@ -1,7 +1,3 @@
-.PHONY: default
-default: all ;
-
-$(info Makefile)
 # Makefile for openthread-tock platform library
 TOCK_USERLAND_BASE_DIR ?= ../../..
 
