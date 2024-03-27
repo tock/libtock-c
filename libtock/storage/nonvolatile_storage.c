@@ -1,7 +1,5 @@
 #include "nonvolatile_storage.h"
 
-
-
 static void write_done(int                          length,
                        __attribute__ ((unused)) int arg1,
                        __attribute__ ((unused)) int arg2,
@@ -18,13 +16,9 @@ static void read_done(int                          length,
   cb(RETURNCODE_SUCCESS, length);
 }
 
-
-
 returncode_t libtock_nonvolatile_storage_get_number_bytes(uint32_t* number_bytes) {
   return libtock_nonvolatile_storage_command_get_number_bytes(number_bytes);
 }
-
-
 
 returncode_t libtock_nonvolatile_storage_write(uint32_t offset, uint32_t length, uint8_t* buffer,
                                                uint32_t buffer_length, libtock_nonvolatile_storage_callback_write cb) {

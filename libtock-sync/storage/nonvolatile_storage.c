@@ -1,6 +1,5 @@
 #include "nonvolatile_storage.h"
 
-
 struct nv_data {
   bool fired;
   returncode_t ret;
@@ -20,8 +19,6 @@ static void read_cb(returncode_t ret, int length) {
   result.ret    = ret;
   result.length = length;
 }
-
-
 
 returncode_t libtocksync_nonvolatile_storage_write(uint32_t offset, uint32_t length, uint8_t* buffer,
                                                    uint32_t buffer_length, int* length_written) {
