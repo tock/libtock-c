@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tock.h>
+#include <libtock/tock.h>
 #include <libtock/crypto/sha.h>
 
 #ifdef __cplusplus

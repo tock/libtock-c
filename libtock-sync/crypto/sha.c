@@ -15,7 +15,6 @@ static void sha_cb_hash(returncode_t ret) {
 returncode_t libtocksync_sha_simple_hash(libtock_sha_algorithm_t hash_type,
                                          uint8_t* input_buffer, uint32_t input_length,
                                          uint8_t* hash_buffer, uint32_t hash_length) {
-
   returncode_t ret;
 
   result.fired = false;
