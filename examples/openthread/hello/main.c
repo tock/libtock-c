@@ -15,21 +15,30 @@
 #include <timer.h>
 
 #define UDP_PORT 1212
-// static const char UDP_DEST_ADDR[] = "ff03::1";
-// static const char UDP_PAYLOAD[]   = "Hello OpenThread World from Tock!";
+#define ENABLE_UDP_SEND 0
+#define ENABLE_UDP_RECEIVE 1
+
+#if ENABLE_UDP_SEND
+static const char UDP_DEST_ADDR[] = "ff03::1";
+static const char UDP_PAYLOAD[]   = "Hello OpenThread World from Tock!";
+static void sendUdp(otInstance *aInstance);
+#endif
+
+#if ENABLE_UDP_RECEIVE
+static void handleUdpReceive(void *aContext, otMessage *aMessage,
+                             const otMessageInfo *aMessageInfo);
+#endif 
+
+#if ENABLE_UDP_RECEIVE || ENABLE_UDP_SEND
 static otUdpSocket sUdpSocket;
+static void initUdp(otInstance *aInstance);
+#endif
 
 // helper utility demonstrating network config setup
 static void setNetworkConfiguration(otInstance *aInstance);
 
 // callback for Thread state change events
 static void stateChangeCallback(uint32_t flags, void *context);
-
-/* helper utilities for handling UDP (setup, sending, and receiving) */
-static void initUdp(otInstance *aInstance);
-// static void sendUdp(otInstance *aInstance);
-static void handleUdpReceive(void *aContext, otMessage *aMessage,
-                             const otMessageInfo *aMessageInfo);
 
 // helper utility to print ip address
 static void print_ip_addr(otInstance *instance);
@@ -61,8 +70,10 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
 
   print_ip_addr(instance);
 
+  #if ENABLE_UDP_RECEIVE || ENABLE_UDP_SEND
   // Initialize UDP socket (see guide: https://openthread.io/codelabs/openthread-apis#7)
   initUdp(instance);
+  #endif
 
   /* Start the Thread stack (CLI cmd -> thread start) */
   otThreadSetEnabled(instance, true);
@@ -72,9 +83,9 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
     otSysProcessDrivers(instance);
     yield();
 
-    // uncommenting this will spam multicast udp packets
-    // to demonstrate the udp send functionality
-    // sendUdp(instance);
+    #if ENABLE_UDP_SEND
+    sendUdp(instance);
+    #endif
   }
 
   return 0;
@@ -105,6 +116,7 @@ void setNetworkConfiguration(otInstance *aInstance)
 
 }
 
+#if ENABLE_UDP_RECEIVE || ENABLE_UDP_SEND
 void initUdp(otInstance *aInstance)
 {
   otSockAddr listenSockAddr;
@@ -117,40 +129,41 @@ void initUdp(otInstance *aInstance)
   otUdpOpen(aInstance, &sUdpSocket, handleUdpReceive, aInstance);
   otUdpBind(aInstance, &sUdpSocket, &listenSockAddr, OT_NETIF_THREAD);
 }
+#endif
 
-
+#if ENABLE_UDP_SEND
 /**
  * Send a UDP datagram
  */
-/*
-   void sendUdp(otInstance *aInstance)
-   {
-   otError error = OT_ERROR_NONE;
-   otMessage *   message;
-   otMessageInfo messageInfo;
-   otIp6Address destinationAddr;
+void sendUdp(otInstance *aInstance)
+{
+  otError error = OT_ERROR_NONE;
+  otMessage *   message;
+  otMessageInfo messageInfo;
+  otIp6Address destinationAddr;
 
-   memset(&messageInfo, 0, sizeof(messageInfo));
+  memset(&messageInfo, 0, sizeof(messageInfo));
 
-   otIp6AddressFromString(UDP_DEST_ADDR, &destinationAddr);
-   messageInfo.mPeerAddr = destinationAddr;
-   messageInfo.mPeerPort = UDP_PORT;
+  otIp6AddressFromString(UDP_DEST_ADDR, &destinationAddr);
+  messageInfo.mPeerAddr = destinationAddr;
+  messageInfo.mPeerPort = UDP_PORT;
 
-   message = otUdpNewMessage(aInstance, NULL);
-   assert(message != NULL);
-   // otEXPECT_ACTION(message != NULL, error = OT_ERROR_NO_BUFS);
+  message = otUdpNewMessage(aInstance, NULL);
+  assert(message != NULL);
+  // otEXPECT_ACTION(message != NULL, error = OT_ERROR_NO_BUFS);
 
-   error = otMessageAppend(message, UDP_PAYLOAD, sizeof(UDP_PAYLOAD));
-   // otEXPECT(error == OT_ERROR_NONE);
-   assert(error == OT_ERROR_NONE);
+  error = otMessageAppend(message, UDP_PAYLOAD, sizeof(UDP_PAYLOAD));
+  // otEXPECT(error == OT_ERROR_NONE);
+  assert(error == OT_ERROR_NONE);
 
-   error = otUdpSend(aInstance, &sUdpSocket, message, &messageInfo);
+  error = otUdpSend(aInstance, &sUdpSocket, message, &messageInfo);
 
-   // NOTE: we currently do not free the otMessage if there is an error.
-   // we need to add this (TODO)
-   }*/
+  // NOTE: we currently do not free the otMessage if there is an error.
+  // we need to add this (TODO)
+}
+#endif
 
-
+#if ENABLE_UDP_RECEIVE
 void handleUdpReceive(void *aContext, otMessage *aMessage,
                       const otMessageInfo *aMessageInfo)
 {
@@ -159,7 +172,6 @@ void handleUdpReceive(void *aContext, otMessage *aMessage,
   char buf[150];
   int length;
 
-  printf("enter\n");
   printf("Received UDP packet [%d bytes] from ", otMessageGetLength(aMessage) - otMessageGetOffset(aMessage));
   const otIp6Address sender_addr = aMessageInfo->mPeerAddr;
   otIp6AddressToString(&sender_addr, buf, sizeof(buf));
@@ -175,12 +187,34 @@ void handleUdpReceive(void *aContext, otMessage *aMessage,
   printf("\n");
 
 }
+#endif
 
 static void stateChangeCallback(uint32_t flags, void *context)
 {
   otInstance *instance = (otInstance *)context;
-  if (flags & OT_CHANGED_THREAD_ROLE && otThreadGetDeviceRole(instance) == OT_DEVICE_ROLE_CHILD) {
-    printf("Successfully attached to Thread network as a child.\n");
+  if (!(flags & OT_CHANGED_THREAD_ROLE)) {
+    return;
+  }
+
+  switch (otThreadGetDeviceRole(instance)) {
+    case OT_DEVICE_ROLE_DISABLED:
+      printf("[State Change] - Disabled.\n");
+      break;
+    case OT_DEVICE_ROLE_DETACHED:
+      printf("[State Change] - Detached.\n");
+      break;
+    case OT_DEVICE_ROLE_CHILD:
+      printf("[State Change] - Child.\n");
+      printf("Successfully attached to Thread network as a child.\n");
+      break;
+    case OT_DEVICE_ROLE_ROUTER:
+      printf("[State Change] - Router.\n");
+      break;
+    case OT_DEVICE_ROLE_LEADER:
+      printf("[State Change] - Leader.\n");
+      break;
+    default:
+      break;
   }
 }
 
