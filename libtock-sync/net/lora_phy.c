@@ -1,7 +1,5 @@
 #include "lora_phy.h"
 
-
-
 struct lora_phy_spi_data {
   bool fired;
   returncode_t ret;
@@ -29,7 +27,6 @@ returncode_t libtocksync_lora_phy_write(const uint8_t* write,
 returncode_t libtocksync_lora_phy_read_write(const uint8_t* write,
                                              uint8_t*       read,
                                              uint32_t       len) {
-
   result.fired = false;
   returncode_t ret;
 
@@ -38,5 +35,4 @@ returncode_t libtocksync_lora_phy_read_write(const uint8_t* write,
 
   yield_for(&result.fired);
   return result.ret;
-
 }
