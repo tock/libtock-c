@@ -1,7 +1,7 @@
 #pragma once
 
 #include "tock.h"
-#include "crc_syscalls.h"
+#include "syscalls/crc_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tock.h>
-#include <libtock/crc.h>
+#include <libtock/tock.h>
+#include <libtock/peripherals/crc.h>
 
 #ifdef __cplusplus
 extern "C" {
