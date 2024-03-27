@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tock.h>
+#include <libtock/tock.h>
 #include <libtock/storage/nonvolatile_storage.h>
 
 #ifdef __cplusplus
