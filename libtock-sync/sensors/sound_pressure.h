@@ -1,6 +1,7 @@
 #pragma once
 
-#include <tock.h>
+#include <libtock/tock.h>
+#include <libtock/sensors/sound_pressure.h>
 
 #ifdef __cplusplus
 extern "C" {

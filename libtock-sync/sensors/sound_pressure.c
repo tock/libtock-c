@@ -1,6 +1,3 @@
-#include <sensors/sound_pressure.h>
-#include <tock.h>
-
 #include "sound_pressure.h"
 
 struct sound_pressure_data {
