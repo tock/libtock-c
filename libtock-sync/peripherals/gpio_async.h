@@ -1,8 +1,8 @@
 #pragma once
 
-#include <tock.h>
-#include <peripherals/gpio.h>
-#include <peripherals/gpio_async.h>
+#include <libtock/tock.h>
+#include <libtock/peripherals/gpio.h>
+#include <libtock/peripherals/gpio_async.h>
 
 #ifdef __cplusplus
 extern "C" {

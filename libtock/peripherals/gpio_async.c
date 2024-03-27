@@ -1,7 +1,4 @@
 #include "gpio_async.h"
-#include "syscalls/gpio_async_syscalls.h"
-
-
 
 static void gpio_async_upcall_interrupt( int                          pin_number,
                                          int                          value,
@@ -19,12 +16,9 @@ static void gpio_async_upcall_command(__attribute__ ((unused)) int unused1,
   cb(RETURNCODE_SUCCESS, value);
 }
 
-
 returncode_t libtock_gpio_async_set_interrupt_callback(libtock_gpio_async_callback_interrupt cb) {
   return libtock_gpio_async_set_upcall_interrupt(gpio_async_upcall_interrupt, cb);
 }
-
-
 
 static returncode_t gpio_async_operation(uint32_t port, uint8_t pin, libtock_gpio_async_callback_command cb,
                                          returncode_t (*op)(uint32_t, uint8_t)) {
@@ -36,8 +30,6 @@ static returncode_t gpio_async_operation(uint32_t port, uint8_t pin, libtock_gpi
   ret = op(port, pin);
   return ret;
 }
-
-
 
 returncode_t libtock_gpio_async_make_output(uint32_t port, uint8_t pin, libtock_gpio_async_callback_command cb) {
   return gpio_async_operation(port, pin, cb, libtock_gpio_async_command_make_output);
