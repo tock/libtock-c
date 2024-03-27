@@ -8,6 +8,9 @@ extern "C" {
 
 #define DRIVER_NUM_SCREEN 0x90001
 
+// Check if the screen driver exists.
+bool libtock_screen_exists(void);
+
 // Set the upcall for screen upcalls.
 returncode_t libtock_screen_set_upcall(subscribe_upcall cb, void* opaque);
 

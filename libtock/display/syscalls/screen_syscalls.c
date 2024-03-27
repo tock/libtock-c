@@ -5,7 +5,7 @@ bool libtock_screen_exists(void) {
 }
 
 returncode_t libtock_screen_set_upcall(subscribe_upcall cb, void* opaque) {
-  subscribe_return_t sval = subscribe(DRIVER_NUM_SCREEN, 0, cb, userdata);
+  subscribe_return_t sval = subscribe(DRIVER_NUM_SCREEN, 0, cb, opaque);
   return tock_subscribe_return_to_returncode(sval);
 }
 
@@ -21,12 +21,12 @@ returncode_t libtock_screen_command_get_supported_resolutions(uint32_t* resoluti
 
 returncode_t libtock_screen_command_get_supported_resolution(uint32_t index, uint32_t* width, uint32_t* height) {
   syscall_return_t cval = command(DRIVER_NUM_SCREEN, 12, index, 0);
-  return tock_command_return_u32_u32_to_returncode(cval, width, height)
+  return tock_command_return_u32_u32_to_returncode(cval, width, height);
 }
 
 returncode_t libtock_screen_command_get_resolution(uint32_t* width, uint32_t* height) {
   syscall_return_t cval = command(DRIVER_NUM_SCREEN, 23, 0, 0);
-  return tock_command_return_u32_u32_to_returncode(cval, width, height)
+  return tock_command_return_u32_u32_to_returncode(cval, width, height);
 }
 
 returncode_t libtock_screen_command_set_resolution(uint32_t width, uint32_t height) {
@@ -85,8 +85,8 @@ returncode_t libtock_screen_command_set_rotation(uint32_t rotation) {
 }
 
 returncode_t libtock_screen_command_set_frame(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
-  uint32_t arg1 = ((x & 0xFFFF) << 16) | (y & 0xFFFF);
-  uint32_t arg2 = ((width & 0xFFFF) << 16) | (height & 0xFFFF);
+  uint32_t arg1         = ((x & 0xFFFF) << 16) | (y & 0xFFFF);
+  uint32_t arg2         = ((width & 0xFFFF) << 16) | (height & 0xFFFF);
   syscall_return_t cval = command(DRIVER_NUM_SCREEN, 100, arg1, arg2);
   return tock_command_return_novalue_to_returncode(cval);
 }
