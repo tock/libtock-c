@@ -1,12 +1,8 @@
 #include "button.h"
 
-
-
 returncode_t libtock_button_count(int* count) {
   return libtock_button_command_count(count);
 }
-
-
 
 returncode_t libtock_button_read(int button_num, int* button_value) {
   return libtock_button_command_read(button_num, button_value);
