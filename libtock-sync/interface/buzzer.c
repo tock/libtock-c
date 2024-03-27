@@ -1,5 +1,3 @@
-#include <interface/buzzer.h>
-
 #include "buzzer.h"
 
 struct data {
@@ -12,7 +10,6 @@ static struct data result = { .fired = false };
 static void buzzer_cb(void) {
   result.fired = true;
 }
-
 
 returncode_t libtocksync_buzzer_tone(uint32_t frequency_hz, uint32_t duration_ms) {
   int err;

@@ -1,12 +1,11 @@
 #pragma once
 
 #include "tock.h"
+#include "syscalls/buzzer_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
 
 #define NOTE_B0  31
 #define NOTE_C1  33
@@ -105,7 +104,6 @@ typedef void (*libtock_buzzer_done_callback)(void);
 //
 // The tone will play at the frequency specified for the duration.
 returncode_t libtock_buzzer_tone(uint32_t frequency_hz, uint32_t duration_ms, libtock_buzzer_done_callback cb);
-
 
 #ifdef __cplusplus
 }

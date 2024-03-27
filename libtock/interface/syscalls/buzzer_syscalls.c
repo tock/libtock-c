@@ -1,8 +1,4 @@
-#include "tock.h"
-
 #include "buzzer_syscalls.h"
-
-
 
 bool libtock_buzzer_exists(void) {
   return driver_exists(DRIVER_NUM_BUZZER);
