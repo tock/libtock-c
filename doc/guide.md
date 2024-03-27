@@ -11,6 +11,17 @@ driver.
 - `[name]`: String which identifies the system call driver.
 - `[category]`: The general type of the system call.
 
+The categories are:
+
+- `crypto`: Cryptography interfaces.
+- `display`: Screens and other displays.
+- `interface`: Human-computer interfaces.
+- `kernel`: Tock-specific kernel-level drivers.
+- `net`: Networking drivers.
+- `peripherals`: Interfaces for chip peripherals.
+- `sensors`: Sensors.
+- `storage`: Various storage drivers.
+
 
 ## Syscall APIs
 
@@ -183,6 +194,29 @@ These asynchronous APIs must not use or include any internal/global state.
 | Source File Name | `libtock/[category]/[name].c` |
 | Header File Name | `libtock/[category]/[name].h` |
 
+### Header Files
+
+The `[name].h` header file must look like:
+
+```c
+#pragma once
+
+#include "tock.h"
+#include "syscalls/[name]_syscalls.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Function signatures go here.
+
+#ifdef __cplusplus
+}
+#endif
+```
+
+The `[name].h` header file must include the syscalls header.
+
 ### Defining a Callback for Asynchronous Operations
 
 For every type of callback the system call can generate, the library must have a
@@ -250,6 +284,29 @@ Most system call interfaces will want to provide a synchronous API as well.
 | Location         | `libtock-sync/[category]`          |
 | Source File Name | `libtock-sync/[category]/[name].c` |
 | Header File Name | `libtock-sync/[category]/[name].h` |
+
+### Header Files
+
+The libtock-sync `[name].h` header file must look like:
+
+```c
+#pragma once
+
+#include <libtock/tock.h>
+#include <libtock/[category]/[name].h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Function signatures go here.
+
+#ifdef __cplusplus
+}
+#endif
+```
+
+### Synchronous APIs
 
 For our sensor example:
 
