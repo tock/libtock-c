@@ -6,7 +6,7 @@ typedef struct {
   bool fired;
 } ambient_light_data_t;
 
-ambient_light_data_t result = {.fired = false};
+static ambient_light_data_t result = {.fired = false};
 
 // callback for synchronous reads
 static void ambient_light_callback(returncode_t ret, int intensity) {
