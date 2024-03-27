@@ -16,10 +16,10 @@
 #include <unistd.h>
 
 #include <console.h>
-#include <gpio.h>
+#include <libtock/peripherals/gpio.h>
 #include <led.h>
 #include <timer.h>
-#include <tock.h>
+#include <libtock/tock.h>
 
 int callback_count = 0;
 // callback for timers
@@ -37,7 +37,7 @@ static void timer_cb (__attribute__ ((unused)) int   arg0,
 static void gpio_output(void) {
   printf("Periodically toggling pin\n");
 
-  gpio_enable_output(0);
+  libtock_gpio_enable_output(0);
   // Start repeating timer
   static bool resume = 0;
   tock_timer_t timer;
@@ -46,7 +46,7 @@ static void gpio_output(void) {
   while (1) {
     yield_for(&resume);
     resume = 0;
-    gpio_toggle(0);
+    libtock_gpio_toggle(0);
   }
 }
 
@@ -59,7 +59,7 @@ static void gpio_input(void) {
 
   // set userspace pin 0 as input and start repeating timer
   // pin is configured with a pull-down resistor, so it should read 0 as default
-  gpio_enable_input(0, PullDown);
+  libtock_gpio_enable_input(0, libtock_pull_down);
   tock_timer_t timer;
   static bool resume = 0;
   timer_every(500, timer_cb, &resume, &timer);
@@ -67,7 +67,7 @@ static void gpio_input(void) {
   while (1) {
     // print pin value
     int pin_val;
-    gpio_read(0, &pin_val);
+    libtock_gpio_read(0, &pin_val);
     printf("\tValue(%d)\n", pin_val);
     yield_for(&resume);
     resume = 0;
@@ -77,11 +77,10 @@ static void gpio_input(void) {
 // **************************************************
 // GPIO interrupt example
 // **************************************************
-static void gpio_cb (__attribute__ ((unused)) int pin_num,
-                     __attribute__ ((unused)) int arg2,
-                     __attribute__ ((unused)) int arg3,
-                     void*                        userdata) {
-  *((bool*) userdata) = true;
+static bool gpio_interrupt_fired = false;
+static void gpio_cb (__attribute__ ((unused)) uint32_t pin_num,
+                     __attribute__ ((unused)) bool arg2) {
+  gpio_interrupt_fired = true;
 }
 
 static void gpio_interrupt(void) {
@@ -89,16 +88,16 @@ static void gpio_interrupt(void) {
   printf("Jump pin high to test\n");
 
   // set callback for GPIO interrupts
-  static bool resume = 0;
-  gpio_interrupt_callback(gpio_cb, &resume);
+  libtock_gpio_set_interrupt_callback(gpio_cb);
 
   // set userspace pin 0 as input and enable interrupts on it
-  gpio_enable_input(0, PullDown);
-  gpio_enable_interrupt(0, Change);
+  libtock_gpio_enable_input(0, libtock_pull_down);
+  libtock_gpio_enable_interrupt(0, libtock_change);
 
+  gpio_interrupt_fired = false;
   while (1) {
-    yield_for(&resume);
-    resume = 0;
+    yield_for(&gpio_interrupt_fired);
+    gpio_interrupt_fired = false;
     printf("\tGPIO Interrupt!\n");
   }
 }
