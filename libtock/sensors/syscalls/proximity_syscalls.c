@@ -1,5 +1,4 @@
 #include "proximity_syscalls.h"
-#include "tock.h"
 
 bool libtock_proximity_exists(void) {
   return driver_exists(DRIVER_NUM_PROXIMITY);
