@@ -1,6 +1,3 @@
-#include <display/screen.h>
-#include <tock.h>
-
 #include "screen.h"
 
 struct screen_done {
@@ -23,7 +20,6 @@ struct screen_format result_format;
 struct screen_rotation result_rotation;
 
 
-
 static void screen_cb_done(returncode_t ret) {
   result.ret   = ret;
   result.fired = true;
@@ -39,8 +35,6 @@ static void screen_cb_rotation(returncode_t ret, libtock_screen_rotation_t rotat
   result_rotation.fired    = true;
 }
 
-
-
 returncode_t libtocksync_screen_set_brightness(uint32_t brightness) {
   returncode_t ret;
 
@@ -53,8 +47,6 @@ returncode_t libtocksync_screen_set_brightness(uint32_t brightness) {
   yield_for(&result.fired);
   return result.ret;
 }
-
-
 
 returncode_t libtocksync_screen_invert_on(void) {
   returncode_t ret;
@@ -98,8 +90,6 @@ returncode_t libtocksync_screen_get_pixel_format(libtock_screen_format_t* format
   return RETURNCODE_SUCCESS;
 }
 
-
-
 returncode_t libtocksync_screen_get_rotation(libtock_screen_rotation_t* rotation) {
   returncode_t ret;
 
@@ -129,8 +119,6 @@ returncode_t libtocksync_screen_set_rotation(libtock_screen_rotation_t rotation)
   return result.ret;
 }
 
-
-
 returncode_t libtocksync_screen_set_frame(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
   returncode_t ret;
 
@@ -143,7 +131,6 @@ returncode_t libtocksync_screen_set_frame(uint16_t x, uint16_t y, uint16_t width
   yield_for(&result.fired);
   return result.ret;
 }
-
 
 returncode_t libtocksync_screen_fill(uint8_t* buffer, int buffer_len, size_t color) {
   returncode_t ret;

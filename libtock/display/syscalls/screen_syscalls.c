@@ -1,6 +1,3 @@
-#include <stdlib.h>
-
-#include "tock.h"
 #include "screen_syscalls.h"
 
 bool libtock_screen_exists(void) {

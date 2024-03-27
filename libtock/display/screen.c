@@ -2,8 +2,6 @@
 
 #include "screen.h"
 
-
-
 static void screen_callback_done(int                          status,
                                  __attribute__ ((unused)) int data1,
                                  __attribute__ ((unused)) int data2,

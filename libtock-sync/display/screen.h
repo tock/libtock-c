@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tock.h>
-#include <display/screen.h>
+#include <libtock/tock.h>
+#include <libtock/display/screen.h>
 
 #ifdef __cplusplus
 extern "C" {

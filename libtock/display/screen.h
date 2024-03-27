@@ -1,5 +1,3 @@
-// Screen API
-
 #pragma once
 
 #include "tock.h"
