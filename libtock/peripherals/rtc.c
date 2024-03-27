@@ -1,8 +1,4 @@
-#include "tock.h"
-
 #include "rtc.h"
-#include "syscalls/rtc_syscalls.h"
-
 
 // DateTime codifies Date structure into two u32 (int) numbers
 //     date: first number (year, month, day_of_the_month):
@@ -53,8 +49,6 @@ returncode_t libtock_rtc_get_date(libtock_rtc_callback_date cb) {
   ret = libtock_rtc_command_get_date();
   return ret;
 }
-
-
 
 returncode_t libtock_rtc_set_date(libtock_rtc_date_t* set_date, libtock_rtc_callback_done cb) {
   uint32_t date = set_date->year * (1 << 9) + set_date->month * (1 << 5) + set_date->day;

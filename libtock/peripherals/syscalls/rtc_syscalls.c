@@ -1,5 +1,4 @@
 #include "rtc_syscalls.h"
-#include "tock.h"
 
 bool libtock_rtc_exists(void) {
   return driver_exists(DRIVER_NUM_RTC);
