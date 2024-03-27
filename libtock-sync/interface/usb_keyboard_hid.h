@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tock.h>
+#include <libtock/tock.h>
 #include <libtock/interface/usb_keyboard_hid.h>
 
 #ifdef __cplusplus

@@ -10,8 +10,6 @@ struct usb_keyboard_hid_result {
 
 struct usb_keyboard_hid_result result = {.fired = false};
 
-
-
 static void usb_keyboard_hil_cb(returncode_t ret) {
   result.fired = true;
   result.ret   = ret;
@@ -32,10 +30,7 @@ returncode_t libtocksync_usb_keyboard_hid_send(uint8_t* buffer, uint32_t len) {
   return err;
 }
 
-
-
-static int to_hid_keycode(char c, uint8_t* modifier, uint8_t* key)
-{
+static int to_hid_keycode(char c, uint8_t* modifier, uint8_t* key) {
   uint8_t shift = 2;  // KB_MODIFIER_LEFT_SHIFT = 2
 
   // Clear modifier.
@@ -154,8 +149,6 @@ static int to_hid_keycode(char c, uint8_t* modifier, uint8_t* key)
   }
   return -1;
 }
-
-
 
 returncode_t libtocksync_usb_keyboard_hid_send_letter(char letter) {
   uint8_t modifier;
