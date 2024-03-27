@@ -1,8 +1,6 @@
 #include <math.h>
 #include <stdio.h>
 
-#include <sensors/ninedof.h>
-
 #include "ninedof.h"
 
 struct ninedof_data {

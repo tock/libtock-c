@@ -1,11 +1,11 @@
 #pragma once
 
 #include "tock.h"
+#include "syscalls/ninedof_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 // Function signature for ninedof data callbacks. This callback is general for
 // the different 9-DOF sensors.

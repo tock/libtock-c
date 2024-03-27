@@ -1,6 +1,4 @@
 #include "ninedof.h"
-#include "syscalls/ninedof_syscalls.h"
-
 
 // internal callback for faking synchronous reads
 static void ninedof_upcall(int x, int y, int z, void* opaque) {
