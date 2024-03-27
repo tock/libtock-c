@@ -1,5 +1,4 @@
 #include "dac.h"
-#include "syscalls/dac_syscalls.h"
 
 returncode_t libtock_dac_initialize(void) {
   return libtock_dac_command_initialize();
