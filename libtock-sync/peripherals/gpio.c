@@ -1,7 +1,4 @@
-#include <peripherals/gpio.h>
-
 #include "gpio.h"
-
 
 struct gpio_data {
   bool fired;
@@ -11,13 +8,11 @@ struct gpio_data {
 
 static struct gpio_data result = { .fired = false };
 
-
 static void cb(uint32_t pin, bool value) {
   result.fired = true;
   result.pin   = pin;
   result.value = value;
 }
-
 
 static returncode_t wait_until(uint32_t pin, libtock_gpio_input_mode_t pin_config, libtock_gpio_interrupt_mode_t mode) {
   returncode_t ret;
@@ -44,7 +39,6 @@ static returncode_t wait_until(uint32_t pin, libtock_gpio_input_mode_t pin_confi
   }
   return RETURNCODE_SUCCESS;
 }
-
 
 returncode_t libtocksync_gpio_wait_until_high(uint32_t pin, libtock_gpio_input_mode_t pin_config) {
   return wait_until(pin, pin_config, libtock_rising_edge);
