@@ -1,7 +1,4 @@
 #include "pressure_syscalls.h"
-#include "tock.h"
-
-
 
 bool libtock_pressure_exists(void) {
   return driver_exists(DRIVER_NUM_PRESSURE);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tock.h"
+#include "syscalls/pressure_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {

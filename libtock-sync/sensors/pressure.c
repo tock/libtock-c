@@ -1,6 +1,3 @@
-#include <sensors/pressure.h>
-#include <tock.h>
-
 #include "pressure.h"
 
 struct pressure_data {
@@ -11,13 +8,11 @@ struct pressure_data {
 
 static struct pressure_data result = { .fired = false };
 
-
 static void pressure_cb(returncode_t ret, int pressure) {
   result.pressure = pressure;
   result.fired    = true;
   result.ret      = ret;
 }
-
 
 returncode_t libtocksync_pressure_read(int* pressure) {
   returncode_t err;

@@ -1,8 +1,4 @@
 #include "pressure.h"
-#include "syscalls/pressure_syscalls.h"
-#include "tock.h"
-
-
 
 static void pressure_upcall(int                          pressure,
                             __attribute__ ((unused)) int unused,
@@ -11,7 +7,6 @@ static void pressure_upcall(int                          pressure,
   libtock_pressure_callback cb = (libtock_pressure_callback) opaque;
   cb(RETURNCODE_SUCCESS, pressure);
 }
-
 
 returncode_t libtock_pressure_read(libtock_pressure_callback cb) {
   returncode_t err;
