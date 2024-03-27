@@ -1,6 +1,3 @@
-#include <sensors/ambient_light.h>
-#include <tock.h>
-
 #include "ambient_light.h"
 
 typedef struct {

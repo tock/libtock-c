@@ -1,8 +1,4 @@
 #include "ambient_light.h"
-#include "ambient_light_syscalls.h"
-#include "tock.h"
-
-
 
 // callback for synchronous reads
 static void ambient_light_upcall(int intensity,
@@ -11,8 +7,6 @@ static void ambient_light_upcall(int intensity,
   libtock_ambient_light_callback cb = (libtock_ambient_light_callback) opaque;
   cb(RETURNCODE_SUCCESS, intensity);
 }
-
-
 
 returncode_t libtock_ambient_light_read_intensity(libtock_ambient_light_callback cb) {
   returncode_t err;

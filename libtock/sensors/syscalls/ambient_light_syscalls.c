@@ -1,7 +1,4 @@
 #include "ambient_light_syscalls.h"
-#include "tock.h"
-
-
 
 bool libtock_ambient_light_exists(void) {
   return driver_exists(DRIVER_NUM_AMBIENT_LIGHT);
