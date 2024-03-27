@@ -1,9 +1,4 @@
-#include "tock.h"
-
 #include "rng.h"
-#include "syscalls/rng_syscalls.h"
-
-
 
 // Internal upcall.
 static void rng_upcall(__attribute__ ((unused)) int callback_type,
@@ -13,7 +8,6 @@ static void rng_upcall(__attribute__ ((unused)) int callback_type,
   libtock_rng_callback cb = (libtock_rng_callback) opaque;
   cb(RETURNCODE_SUCCESS, received);
 }
-
 
 returncode_t libtock_rng_get_random_bytes(uint8_t* buf, uint32_t len, uint32_t num, libtock_rng_callback cb) {
   returncode_t ret;
