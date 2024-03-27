@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tock.h>
-#include <storage/kv.h>
+#include <libtock/tock.h>
+#include <libtock/storage/kv.h>
 
 #ifdef __cplusplus
 extern "C" {

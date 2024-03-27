@@ -1,6 +1,4 @@
 #include "kv.h"
-#include "syscalls/kv_syscalls.h"
-
 
 static void kv_upcall_get( int                          err,
                            int                          length,
