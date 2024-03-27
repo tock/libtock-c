@@ -1,7 +1,5 @@
 #include "aes_syscalls.h"
 
-#define DRIVER_NUM_AES 0x40006
-
 #define TOCK_AES_CB           0
 
 #define TOCK_AES_KEY_BUF      0

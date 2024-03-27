@@ -6,6 +6,8 @@
 extern "C" {
 #endif
 
+#define DRIVER_NUM_AES 0x40006
+
 bool libtock_aes_exists(void);
 
 returncode_t libtock_aes_set_upcall(subscribe_upcall callback, void* opaque);
