@@ -6,7 +6,7 @@ typedef struct {
   bool fired;
 } humidity_result_t;
 
-humidity_result_t result = {.fired = false};
+static humidity_result_t result = {.fired = false};
 
 // callback for synchronous reads
 static void humidity_callback(returncode_t ret, int humidity) {
