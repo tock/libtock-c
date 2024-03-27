@@ -1,7 +1,5 @@
 #include "hmac_syscalls.h"
 
-#define DRIVER_NUM_HMAC 0x40003
-
 #define TOCK_HMAC_CB       0
 
 #define TOCK_HMAC_KEY_BUF      0

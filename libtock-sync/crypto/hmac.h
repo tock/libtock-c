@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tock.h>
-#include <crypto/hmac.h>
+#include <libtock/tock.h>
+#include <libtock/crypto/hmac.h>
 
 #ifdef __cplusplus
 extern "C" {

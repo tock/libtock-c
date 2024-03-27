@@ -12,13 +12,10 @@ static void hmac_cb_hmac(returncode_t ret) {
   result.ret   = ret;
 }
 
-
-
 returncode_t libtocksync_hmac_simple(libtock_hmac_algorithm_t hmac_type,
                                      uint8_t* key_buffer, uint32_t key_length,
                                      uint8_t* input_buffer, uint32_t input_length,
                                      uint8_t* hmac_buffer, uint32_t hmac_length) {
-
   returncode_t ret;
 
   result.fired = false;
@@ -41,5 +38,4 @@ returncode_t libtocksync_hmac_simple(libtock_hmac_algorithm_t hmac_type,
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   return RETURNCODE_SUCCESS;
-
 }
