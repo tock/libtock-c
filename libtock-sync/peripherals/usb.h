@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tock.h>
-#include <peripherals/usb.h>
+#include <libtock/tock.h>
+#include <libtock/peripherals/usb.h>
 
 #ifdef __cplusplus
 extern "C" {
