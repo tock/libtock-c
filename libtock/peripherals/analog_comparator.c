@@ -1,7 +1,4 @@
-#include "tock.h"
-
 #include "analog_comparator.h"
-#include "syscalls/analog_comparator_syscalls.h"
 
 returncode_t libtock_analog_comparator_count(int* count) {
   return libtock_analog_comparator_command_count((uint32_t*) count);
