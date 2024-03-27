@@ -34,13 +34,12 @@
 //     if (ret != 0) prinrf("ERROR(%i): Could not write back to flash.\n", ret);
 //   }
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "tock.h"
 #include "syscalls/app_state_syscalls.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Declare an application state structure
 //

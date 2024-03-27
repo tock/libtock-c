@@ -30,7 +30,6 @@ static returncode_t app_state_init(void) {
   return RETURNCODE_SUCCESS;
 }
 
-
 returncode_t libtock_app_state_load(void) {
   if (!_app_state_inited) {
     int err;
