@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tock.h"
+#include "syscalls/gpio_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
