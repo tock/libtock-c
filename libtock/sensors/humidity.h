@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tock.h"
+#include "syscalls/humidity_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,6 +1,3 @@
-#include <sensors/humidity.h>
-#include <tock.h>
-
 #include "humidity.h"
 
 typedef struct {
