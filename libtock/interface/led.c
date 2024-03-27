@@ -1,5 +1,4 @@
 #include "led.h"
-#include "led_syscalls.h"
 
 returncode_t libtock_led_count(int* count) {
   return libtock_led_command_count(count);
