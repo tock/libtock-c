@@ -1,8 +1,4 @@
-#include <peripherals/spi_peripheral.h>
-#include <peripherals/syscalls/spi_peripheral_syscalls.h>
-
 #include "spi_peripheral.h"
-
 
 struct spi_peripheral_data {
   bool fired;
@@ -16,7 +12,6 @@ static void cb(returncode_t ret) {
   result.fired = true;
   result.ret   = ret;
 }
-
 
 returncode_t libtocksync_spi_peripheral_write(const uint8_t* write,
                                               size_t         len) {

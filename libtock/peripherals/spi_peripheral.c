@@ -1,6 +1,4 @@
 #include "spi_peripheral.h"
-#include "syscalls/spi_peripheral_syscalls.h"
-
 
 // Return the chip select. This will always return 0.
 returncode_t libtock_spi_peripheral_get_chip_select(uint32_t* chip_select){
@@ -26,8 +24,6 @@ returncode_t libtock_spi_peripheral_get_polarity(uint32_t* polarity){
 returncode_t libtock_spi_peripheral_set_polarity(bool polarity){
   return libtock_spi_peripheral_command_set_polarity(polarity);
 }
-
-
 
 static void spi_peripheral_upcall(__attribute__ ((unused)) int unused0,
                                   __attribute__ ((unused)) int unused1,

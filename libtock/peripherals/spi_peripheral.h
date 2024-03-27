@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tock.h"
+#include "syscalls/spi_peripheral_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,10 +40,6 @@ returncode_t libtock_spi_peripheral_read_write(const uint8_t*                  w
                                                uint8_t*                        read,
                                                size_t                          len,
                                                libtock_spi_peripheral_callback cb);
-
-
-
-
 
 #ifdef __cplusplus
 }
