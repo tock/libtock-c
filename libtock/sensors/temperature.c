@@ -1,9 +1,4 @@
-#include "tock.h"
-
-#include "syscalls/temperature_syscalls.h"
 #include "temperature.h"
-
-
 
 // Internal upcall for passing to the syscall driver.
 static void temperature_upcall(int                          temp,
@@ -13,8 +8,6 @@ static void temperature_upcall(int                          temp,
   libtock_temperature_callback cb = (libtock_temperature_callback) opaque;
   cb(RETURNCODE_SUCCESS, temp);
 }
-
-
 
 returncode_t libtock_temperature_read(libtock_temperature_callback cb) {
   returncode_t ret;

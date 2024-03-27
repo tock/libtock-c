@@ -1,5 +1,3 @@
-#include "tock.h"
-
 #include "temperature_syscalls.h"
 
 bool libtock_temperature_exists(void) {

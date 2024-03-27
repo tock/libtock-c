@@ -1,7 +1,4 @@
-#include <sensors/temperature.h>
-
 #include "temperature.h"
-
 
 struct data {
   bool fired;
@@ -11,13 +8,11 @@ struct data {
 
 static struct data result = { .fired = false };
 
-
 static void temp_cb(returncode_t ret, int temperature) {
   result.temp   = temperature;
   result.fired  = true;
   result.result = ret;
 }
-
 
 returncode_t libtocksync_temperature_read(int* temperature) {
   returncode_t err;
