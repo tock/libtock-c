@@ -31,14 +31,16 @@ cmake_minimum_required (VERSION 3.7)
 # Compile for ARM
 include(arm-none-eabi.cmake)
 
-project(openthread_dummy)
+project(openthread-tock)
 
 add_subdirectory(openthread)
 
+# this config file is platform specific to Tock and has compile defined 
+# constants that will impact the openthread build system
 target_compile_definitions(ot-config INTERFACE
     OPENTHREAD_PLATFORM_CORE_CONFIG_FILE="openthread-core-tock-config.h"
-    # OPENTHREAD_CORE_CONFIG_PLATFORM_CHECK_FILE="openthread-core-cc2538-config-check.h"
 )
+
 target_include_directories(ot-config INTERFACE
     ${PROJECT_SOURCE_DIR}/platform/platform-tock
 )
