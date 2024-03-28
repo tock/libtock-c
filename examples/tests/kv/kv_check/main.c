@@ -1,13 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <console.h>
-#include <kv.h>
+#include <libtock/storage/kv.h>
 
 int main(void) {
-  printf("[KV] Check for Key-Value Support\n");
+  printf("[TEST] Check for Key-Value Support\n");
 
-  if (kv_check_status() == RETURNCODE_SUCCESS) {
+  if (libtock_kv_exists()) {
     printf("Key-Value support is enabled.\n");
     tock_exit(0);
   } else {
