@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <console.h>
-#include <kv.h>
+#include <libtock-sync/interface/console.h>
+#include <libtock-sync/storage/kv.h>
+#include <libtock/interface/console.h>
 
 #define KEY_LEN  64
 #define DATA_LEN 64
@@ -13,6 +14,13 @@ uint8_t data_buf[DATA_LEN];
 uint8_t value_buf[DATA_LEN];
 
 char read_buf[DATA_LEN];
+
+static int getch(void) {
+  uint8_t buffer[1];
+  int number_read;
+  libtocksync_console_read(buffer, 1, &number_read);
+  return buffer[0];
+}
 
 static int get_command(void) {
   int idx = 0;
@@ -58,7 +66,7 @@ static int find_end(int start) {
 int main(void) {
   int ret;
 
-  printf("[KV Interactive] Text interface to KV store\n");
+  printf("[TEST] Text interface to KV store\n");
   printf("\n");
   printf("Please enter a command: get, set/add/update, or delete\n");
   printf("   get <key>\n");
@@ -86,7 +94,7 @@ int main(void) {
 
       printf("Getting %s\n", key_buf);
 
-      ret = kv_get_sync(key_buf, key_len, data_buf, DATA_LEN, &value_len);
+      ret = libtocksync_kv_get(key_buf, key_len, data_buf, DATA_LEN, &value_len);
       if (ret < 0) {
         printf("Could not get key: %i\n", ret);
       } else {
@@ -117,7 +125,7 @@ int main(void) {
 
       printf("Setting %s=%s\n", key_buf, value_buf);
 
-      ret = kv_set_sync(key_buf, key_len, value_buf, value_len);
+      ret = libtocksync_kv_set(key_buf, key_len, value_buf, value_len);
       if (ret < 0) {
         printf("Error setting key %i\n", ret);
       } else {
@@ -144,7 +152,7 @@ int main(void) {
 
       printf("Adding %s=%s\n", key_buf, value_buf);
 
-      ret = kv_add_sync(key_buf, key_len, value_buf, value_len);
+      ret = libtocksync_kv_add(key_buf, key_len, value_buf, value_len);
       if (ret < 0) {
         printf("Error adding key %i\n", ret);
       } else {
@@ -171,7 +179,7 @@ int main(void) {
 
       printf("Updating %s=%s\n", key_buf, value_buf);
 
-      ret = kv_update_sync(key_buf, key_len, value_buf, value_len);
+      ret = libtocksync_kv_update(key_buf, key_len, value_buf, value_len);
       if (ret < 0) {
         printf("Error updating key %i\n", ret);
       } else {
@@ -188,7 +196,7 @@ int main(void) {
 
       printf("Deleting %s\n", key_buf);
 
-      ret = kv_delete_sync(key_buf, key_len);
+      ret = libtocksync_kv_delete(key_buf, key_len);
       if (ret < 0) {
         printf("Could not delete key: %i\n", ret);
       } else {
