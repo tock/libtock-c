@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <kv.h>
-#include <unit_test.h>
+#include <libtock-sync/services/unit_test.h>
+#include <libtock-sync/storage/kv.h>
 
 #define KEY_LEN  200
 #define DATA_LEN 3000
@@ -14,8 +14,8 @@ uint8_t value_buf[DATA_LEN];
 
 
 static bool test_exists(void) {
-  int ret = kv_check_status();
-  CHECK(ret == RETURNCODE_SUCCESS);
+  bool ret = libtock_kv_exists();
+  CHECK(ret == true);
   return true;
 }
 
@@ -30,10 +30,10 @@ static bool test_set_get(void) {
   }
 
   // If key exists this should fail.
-  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = libtocksync_kv_set(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS || ret == RETURNCODE_ENOSUPPORT);
 
-  ret = kv_get_sync(key_buf, strlen(key), data_buf, DATA_LEN, &value_len);
+  ret = libtocksync_kv_get(key_buf, strlen(key), data_buf, DATA_LEN, &value_len);
   CHECK(ret == RETURNCODE_SUCCESS);
 
   return true;
@@ -49,10 +49,10 @@ static bool test_set_set(void) {
     value_buf[i] = (uint8_t) i;
   }
 
-  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = libtocksync_kv_set(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS || ret == RETURNCODE_ENOSUPPORT);
 
-  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = libtocksync_kv_set(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_ENOSUPPORT);
 
   return true;
@@ -68,10 +68,10 @@ static bool test_set_delete(void) {
     value_buf[i] = (uint8_t) i;
   }
 
-  ret = kv_set_sync(key_buf, strlen(key), value_buf, value_len);
+  ret = libtocksync_kv_set(key_buf, strlen(key), value_buf, value_len);
   CHECK(ret == RETURNCODE_SUCCESS || ret == RETURNCODE_ENOSUPPORT);
 
-  ret = kv_delete_sync(key_buf, strlen(key));
+  ret = libtocksync_kv_delete(key_buf, strlen(key));
   CHECK(ret == RETURNCODE_ENOSUPPORT);
 
   return true;
