@@ -12,11 +12,11 @@ bool libtock_kv_exists(void);
 
 returncode_t libtock_kv_set_upcall(subscribe_upcall callback, void* opaque);
 
-returncode_t libtock_kv_readonly_allow_key_buffer(const uint8_t* buffer, uint32_t len);
+returncode_t libtock_kv_set_readonly_allow_key_buffer(const uint8_t* buffer, uint32_t len);
 
-returncode_t libtock_kv_readonly_allow_input_buffer(const uint8_t* buffer, uint32_t len);
+returncode_t libtock_kv_set_readonly_allow_input_buffer(const uint8_t* buffer, uint32_t len);
 
-returncode_t libtock_kv_readwrite_allow_output_buffer(uint8_t* buffer, uint32_t len);
+returncode_t libtock_kv_set_readwrite_allow_output_buffer(uint8_t* buffer, uint32_t len);
 
 returncode_t libtock_kv_command_get(void);
 

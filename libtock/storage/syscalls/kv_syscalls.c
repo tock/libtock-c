@@ -21,17 +21,17 @@ returncode_t libtock_kv_set_upcall(subscribe_upcall callback, void* opaque) {
   return tock_subscribe_return_to_returncode(sval);
 }
 
-returncode_t libtock_kv_readonly_allow_key_buffer(const uint8_t* buffer, uint32_t len) {
+returncode_t libtock_kv_set_readonly_allow_key_buffer(const uint8_t* buffer, uint32_t len) {
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_KV, TOCK_KV_KEY_BUF, (void*) buffer, len);
   return tock_allow_ro_return_to_returncode(aval);
 }
 
-returncode_t libtock_kv_readonly_allow_input_buffer(const uint8_t* buffer, uint32_t len) {
+returncode_t libtock_kv_set_readonly_allow_input_buffer(const uint8_t* buffer, uint32_t len) {
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_KV, TOCK_KV_INPUT_BUF, (void*) buffer, len);
   return tock_allow_ro_return_to_returncode(aval);
 }
 
-returncode_t libtock_kv_readwrite_allow_output_buffer(uint8_t* buffer, uint32_t len) {
+returncode_t libtock_kv_set_readwrite_allow_output_buffer(uint8_t* buffer, uint32_t len) {
   allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_KV, TOCK_KV_OUTPUT_BUF, (void*) buffer, len);
   return tock_allow_rw_return_to_returncode(aval);
 }

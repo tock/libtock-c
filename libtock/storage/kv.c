@@ -26,10 +26,10 @@ returncode_t libtock_kv_get(const uint8_t* key_buffer, uint32_t key_len, uint8_t
   err = libtock_kv_set_upcall(kv_upcall_get, cb);
   if (err != RETURNCODE_SUCCESS) return err;
 
-  err = libtock_kv_readonly_allow_key_buffer(key_buffer, key_len);
+  err = libtock_kv_set_readonly_allow_key_buffer(key_buffer, key_len);
   if (err != RETURNCODE_SUCCESS) return err;
 
-  err = libtock_kv_readwrite_allow_output_buffer(ret_buffer, ret_len);
+  err = libtock_kv_set_readwrite_allow_output_buffer(ret_buffer, ret_len);
   if (err != RETURNCODE_SUCCESS) return err;
 
   err = libtock_kv_command_get();
@@ -43,10 +43,10 @@ static returncode_t kv_insert(const uint8_t* key_buffer, uint32_t key_len, const
   err = libtock_kv_set_upcall(kv_upcall_done, cb);
   if (err != RETURNCODE_SUCCESS) return err;
 
-  err = libtock_kv_readonly_allow_key_buffer(key_buffer, key_len);
+  err = libtock_kv_set_readonly_allow_key_buffer(key_buffer, key_len);
   if (err != RETURNCODE_SUCCESS) return err;
 
-  err = libtock_kv_readonly_allow_input_buffer(val_buffer, val_len);
+  err = libtock_kv_set_readonly_allow_input_buffer(val_buffer, val_len);
   if (err != RETURNCODE_SUCCESS) return err;
 
   // Do the requested set/add/update operation.
@@ -75,7 +75,7 @@ returncode_t libtock_kv_delete(const uint8_t* key_buffer, uint32_t key_len, libt
   err = libtock_kv_set_upcall(kv_upcall_done, cb);
   if (err != RETURNCODE_SUCCESS) return err;
 
-  err = libtock_kv_readonly_allow_key_buffer(key_buffer, key_len);
+  err = libtock_kv_set_readonly_allow_key_buffer(key_buffer, key_len);
   if (err != RETURNCODE_SUCCESS) return err;
 
   err = libtock_kv_command_delete();
