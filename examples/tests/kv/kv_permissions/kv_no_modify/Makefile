@@ -1,10 +1,12 @@
 # Makefile for user application
 
 # Specify this directory relative to the current application.
-TOCK_USERLAND_BASE_DIR = ../../..
+TOCK_USERLAND_BASE_DIR = ../../../../..
 
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
+
+ELF2TAB_ARGS += --write_id 9092 --read_ids 9092
 
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.
