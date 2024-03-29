@@ -83,23 +83,23 @@ void otSysProcessDrivers(otInstance *aInstance){
     while (usr_rx_buffer.read_index != usr_rx_buffer.write_index) {
       offset = usr_rx_buffer.read_index * IEEE802154_FRAME_LEN;
       char* rx_buf       = usr_rx_buffer.buffer;
-      int payload_offset = rx_buf[offset];
-      int payload_length = rx_buf[offset + 1];
-      int mic_len        = rx_buf[offset + 2];
+      int header_len  = rx_buf[offset];
+      int payload_len = rx_buf[offset + 1];
+      int mic_len     = rx_buf[offset + 2];
 
       // this does not seem necessary since we implement the csma backoff in the radio driver
       // receiveFrame.mInfo.mRxInfo.mTimestamp = otPlatAlarmMilliGetNow() * 1000;
       receiveFrame.mInfo.mRxInfo.mRssi      = 50;
-      receiveFrame.mLength = payload_length + payload_offset + mic_len - 1;
+      receiveFrame.mLength = payload_len + header_len + mic_len + 2;
       receiveFrame.mInfo.mRxInfo.mTimestamp = 0;
       receiveFrame.mInfo.mRxInfo.mLqi       = 0x7f;
 
       // copy data
-      for (int i = 0; i < receiveFrame.mLength + 3; i++) {
-        receiveFrame.mPsdu[i] = rx_buf[i + 3 + offset];
+      for (int i = 0; i < (receiveFrame.mLength + IEEE802154_FRAME_META_LEN); i++) {
+        receiveFrame.mPsdu[i] = rx_buf[i + IEEE802154_FRAME_META_LEN + offset];
       }
 
-      // notify openthread instance that 
+      // notify openthread instance that a frame has been received
       otPlatRadioReceiveDone(aInstance, &receiveFrame, OT_ERROR_NONE);
       usr_rx_buffer.read_index++;
       if (usr_rx_buffer.read_index == USER_RX_BUF_FRAME_COUNT) {
@@ -130,14 +130,14 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
 
   // | head active # | tail active # | frame 0 | frame 1 | ... | frame n |
   while (*head_index != *tail_index) {
-    int payload_offset = rx_buf[offset];
-    int payload_length = rx_buf[offset + 1];
+    int header_len = rx_buf[offset];
+    int payload_len = rx_buf[offset + 1];
     int mic_len        = rx_buf[offset + 2];
 
-    int receive_frame_length = payload_length + payload_offset + mic_len;
+    int receive_frame_length = payload_len + header_len + mic_len;
     int ring_buffer_offset = usr_rx_buffer.write_index * IEEE802154_FRAME_LEN;
 
-    for (int i = 0; i < (receive_frame_length); i++) {
+    for (int i = 0; i < (IEEE802154_FRAME_META_LEN + receive_frame_length); i++) {
       usr_rx_buffer.buffer[ring_buffer_offset + i] = rx_buf[i + offset];
       rx_buf[i + offset] = 0;
     }
