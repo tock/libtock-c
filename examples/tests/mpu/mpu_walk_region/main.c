@@ -5,7 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <button.h>
+#include <libtock/interface/button.h>
 #include <console.h>
 #include <timer.h>
 
@@ -58,9 +58,9 @@ static void dowork(uint8_t* from, uint8_t* to, uint32_t incr) {
 // the state of the first button if one is present on the board.
 static bool overrun(void) {
   int count, read, res;
-  res = button_count(&count);
+  res = libtock_button_count(&count);
   if (res == RETURNCODE_SUCCESS && count) {
-    button_read(0, &read);
+    libtock_button_read(0, &read);
     return read;
   }
   return false;
