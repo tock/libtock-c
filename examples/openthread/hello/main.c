@@ -27,7 +27,7 @@ static void sendUdp(otInstance *aInstance);
 #if ENABLE_UDP_RECEIVE
 static void handleUdpReceive(void *aContext, otMessage *aMessage,
                              const otMessageInfo *aMessageInfo);
-#endif 
+#endif
 
 #if ENABLE_UDP_RECEIVE || ENABLE_UDP_SEND
 static otUdpSocket sUdpSocket;
