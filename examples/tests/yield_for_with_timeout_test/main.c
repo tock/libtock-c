@@ -1,4 +1,4 @@
-#include <led.h>
+#include <libtock/interface/led.h>
 #include <timer.h>
 
 static void timer_cb(__attribute__ ((unused)) int now,
@@ -16,16 +16,16 @@ int main(void) {
 
     int ret = yield_for_with_timeout(&done, 1000);
     if (ret == RETURNCODE_SUCCESS) {
-      led_on(0);
+      libtock_led_on(0);
     } else {
-      led_off(0);
+      libtock_led_off(0);
     }
 
     ret = yield_for_with_timeout(&done, 1000);
     if (ret == RETURNCODE_SUCCESS) {
-      led_on(0);
+      libtock_led_on(0);
     } else {
-      led_off(0);
+      libtock_led_off(0);
     }
   }
 }
