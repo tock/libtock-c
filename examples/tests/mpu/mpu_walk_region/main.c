@@ -5,9 +5,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <button.h>
-#include <console.h>
-#include <timer.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/interface/button.h>
+#include <libtock/tock.h>
 
 #if defined(__thumb__)
 static uint32_t read_cpsr(void) {
@@ -58,9 +58,9 @@ static void dowork(uint8_t* from, uint8_t* to, uint32_t incr) {
 // the state of the first button if one is present on the board.
 static bool overrun(void) {
   int count, read, res;
-  res = button_count(&count);
+  res = libtock_button_count(&count);
   if (res == RETURNCODE_SUCCESS && count) {
-    button_read(0, &read);
+    libtock_button_read(0, &read);
     return read;
   }
   return false;
@@ -90,7 +90,7 @@ int main(void) {
     putchar('\n');
     dowork(flash_start, flash_end + ((do_overrun) ? 0x1000 : 0x0), 0x100);
 
-    delay_ms(2000);
+    libtocksync_alarm_delay_ms(2000);
 
     do_overrun = overrun();
     printf("\nWalking memory\n");
@@ -99,6 +99,6 @@ int main(void) {
 
     dowork(memory_start, memory_limit + ((do_overrun) ? 0x1000 : 0x0), 0x100);
 
-    delay_ms(2000);
+    libtocksync_alarm_delay_ms(2000);
   }
 }
