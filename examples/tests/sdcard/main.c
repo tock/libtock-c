@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #include <console.h>
-#include <sdcard.h>
+#include <libtock-sync/storage/sdcard.h>
 #include <timer.h>
 #include <tock.h>
 
@@ -13,15 +13,10 @@ uint8_t write_buf[512] = {0};
 
 int main (void) {
   int err = 0;
-  printf("[TOCK] SD Card Test\n");
+  printf("[TEST] SD Card Test\n");
 
   // Check if an SD card is installed
-  err = sdcard_is_installed();
-  if (err < 0) {
-    printf("Is installed error: %d\n", err);
-    return -1;
-  }
-  if (err == 0) {
+  if (libtock_sdcard_exists()) {
     printf("No SD card installed\n");
     return 0;
   }
@@ -30,7 +25,7 @@ int main (void) {
   // Set up the SD card
   uint32_t block_size = 0;
   uint32_t size_in_kB = 0;
-  err = sdcard_initialize_sync(&block_size, &size_in_kB);
+  err = libtocksync_sdcard_initialize(&block_size, &size_in_kB);
   if (err < 0) {
     printf("Init error: %d\n", err);
     return -1;
@@ -39,20 +34,8 @@ int main (void) {
   printf("\tBlock size: %lu bytes\n\tSize:       %lu kB\n\n",
          block_size, size_in_kB);
 
-  // Give buffers to SD card
-  err = sdcard_set_read_buffer(read_buf, 512);
-  if (err < 0) {
-    printf("Allow read error: %d\n", err);
-    return -1;
-  }
-  err = sdcard_set_write_buffer(write_buf, 512);
-  if (err < 0) {
-    printf("Allow write error: %d\n", err);
-    return -1;
-  }
-
   // read first block of the SD card
-  err = sdcard_read_block_sync(0);
+  err = libtocksync_sdcard_read_block(0, read_buf, 512);
   if (err < 0) {
     printf("Read error: %d\n", err);
     return -1;
@@ -66,7 +49,7 @@ int main (void) {
     write_buf[1] = 0xB1;
     write_buf[2] = 0x10;
     write_buf[3] = i;
-    err = sdcard_write_block_sync(0);
+    err = libtocksync_sdcard_write_block(0, write_buf, 512);
     if (err < 0) {
       printf("Write error: %d\n", err);
       return -1;
@@ -75,7 +58,7 @@ int main (void) {
            write_buf[0], write_buf[1], write_buf[2], write_buf[3]);
 
     // read first block of the SD card again
-    err = sdcard_read_block_sync(0);
+    err = libtocksync_sdcard_read_block(0, read_buf, 512);
     if (err < 0) {
       printf("Read error: %d\n", err);
       return -1;
