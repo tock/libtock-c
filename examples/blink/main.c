@@ -1,10 +1,10 @@
-#include <interface/led.h>
+#include <libtock/interface/led.h>
 #include <timer.h>
 
 int main(void) {
   // Ask the kernel how many LEDs are on this board.
   int num_leds;
-  int err = led_count(&num_leds);
+  int err = libtock_led_count(&num_leds);
   if (err < 0) return err;
 
   // Blink the LEDs in a binary count pattern and scale
@@ -12,9 +12,9 @@ int main(void) {
   for (int count = 0; ; count++) {
     for (int i = 0; i < num_leds; i++) {
       if (count & (1 << i)) {
-        led_on(i);
+        libtock_led_on(i);
       } else {
-        led_off(i);
+        libtock_led_off(i);
       }
     }
 
