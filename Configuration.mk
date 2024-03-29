@@ -197,6 +197,12 @@ override CPPFLAGS_PIC += \
       -Wl,--emit-relocs\
       -fPIC
 
+ifneq ($(PICOLIB),)
+  # Use picolib for libc. We need to include the `picolib-tock` library which
+  # maps Tock's system-level functions to the names that picolib expects.
+  EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/picolib-tock
+endif
+
 ################################################################################
 ##
 ## RISC-V compiler/linker flags
