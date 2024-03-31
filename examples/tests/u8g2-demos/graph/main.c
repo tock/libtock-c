@@ -3,6 +3,7 @@
 
 #include <screen.h>
 #include <timer.h>
+#include <temperature.h>
 
 #include <u8g2-tock.h>
 #include <u8g2.h>
@@ -12,7 +13,7 @@
 u8g2_t u8g2;
 graph_t graph;
 
-#define SAMPLES 25
+#define SAMPLES 120
 
 int samples[SAMPLES] = {0};
 
@@ -29,13 +30,13 @@ int main(void) {
   int width  = u8g2_GetDisplayWidth(&u8g2);
   int height = u8g2_GetDisplayHeight(&u8g2);
 
-  graph_init(&graph, height, width, 12, 0);
+  graph_init(&graph, height, width, 0, 20);
 
   int count = 0;
   while (1) {
     append(samples, SAMPLES, count);
     graph_draw(&u8g2, &graph, samples, SAMPLES);
-    count = (count + 2) % 12;
+    count = (count + 2) % 20;
     delay_ms(1000);
   }
 }

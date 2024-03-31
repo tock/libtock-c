@@ -3,7 +3,7 @@
 
 #include "graph.h"
 
-void graph_init(graph_t* graph, int height, int width, int value_max, int value_min) {
+void graph_init(graph_t* graph, int height, int width, int value_min, int value_max) {
   graph->height = height;
   graph->width = width;
   graph->max = value_max;
