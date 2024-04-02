@@ -150,7 +150,7 @@ LIBS_$(1) += $$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME).a
 endef
 
 # uncomment to print generated rules
-# $(info $(foreach platform,$(TOCK_ARCHS), $(call LIB_RULES,$(call ARCH_FN,$(platform)))))
+# $(info $(foreach platform,$(TOCK_ARCHS), $(call LIB_RULES,$(arch))))
 # actually generate the rules for each architecture
 $(foreach arch,$(TOCK_ARCHS),$(eval $(call LIB_RULES,$(arch))))
 
