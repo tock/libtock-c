@@ -27,7 +27,7 @@ ifeq ($(strip $($(LIBNAME)_SRCS)),)
 endif
 
 # directory for built output
-$(LIBNAME)_BUILDDIR ?= $($(LIBNAME)_DIR)/build
+$(LIBNAME)_BUILDDIR := $($(LIBNAME)_DIR)/build
 
 # Handle complex paths.
 #
