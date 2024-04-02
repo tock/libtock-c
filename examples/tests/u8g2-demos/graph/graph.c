@@ -5,9 +5,9 @@
 
 void graph_init(graph_t* graph, int height, int width, int value_min, int value_max) {
   graph->height = height;
-  graph->width = width;
-  graph->max = value_max;
-  graph->min = value_min;
+  graph->width  = width;
+  graph->max    = value_max;
+  graph->min    = value_min;
 }
 
 void graph_draw(u8g2_t* u8g2, graph_t* graph, int* values, int len) {
@@ -16,14 +16,14 @@ void graph_draw(u8g2_t* u8g2, graph_t* graph, int* values, int len) {
   // Y axis
   u8g2_DrawLine(u8g2, 1, 1, 1, graph->height - 2);
   // X axis
-  u8g2_DrawLine(u8g2, 1, graph->height - 2, graph->width-2, graph->height - 2);
+  u8g2_DrawLine(u8g2, 1, graph->height - 2, graph->width - 2, graph->height - 2);
 
   int y_pixels = graph->height - 4;
-  int spacing = (graph->width - 4) / len;
+  int spacing  = (graph->width - 4) / len;
   int x_offset = 2;
 
   int x = x_offset;
-  for (int i=0; i<len; i++) {
+  for (int i = 0; i < len; i++) {
     int s = values[i];
 
     int y_vert;
@@ -32,7 +32,7 @@ void graph_draw(u8g2_t* u8g2, graph_t* graph, int* values, int len) {
     } else if (s >= graph->max) {
       y_vert = y_pixels;
     } else {
-      y_vert = ((s - graph->min)* y_pixels) / (graph->max - graph->min);
+      y_vert = ((s - graph->min) * y_pixels) / (graph->max - graph->min);
     }
 
     int y = graph->height - 2 - y_vert;

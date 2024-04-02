@@ -2,8 +2,8 @@
 #include <stdlib.h>
 
 #include <screen.h>
-#include <timer.h>
 #include <temperature.h>
+#include <timer.h>
 
 #include <u8g2-tock.h>
 #include <u8g2.h>
@@ -18,10 +18,10 @@ graph_t graph;
 int samples[SAMPLES] = {0};
 
 static void append(int* values, int len, int value) {
-  for (int i=0; i<len-1; i++) {
-    values[i] = values[i+1];
+  for (int i = 0; i < len - 1; i++) {
+    values[i] = values[i + 1];
   }
-  values[len-1] = value;
+  values[len - 1] = value;
 }
 
 int main(void) {
