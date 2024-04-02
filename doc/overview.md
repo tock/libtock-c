@@ -12,21 +12,20 @@ method with the following signature:
 int main(void);
 ```
 
-Applications **should** return 0 from `main`. Returning non-zero is undefined and the
-behavior may change in future versions of `libtock`.
-Today, `main` is called from `_start` and includes an implicit `while()` loop:
+The return value of the main function is used as an argument of the `exit` system call:
+
+If an application is long running, then it should set up a series of event subscriptions
+and add an explicit `while` loop at the end of the `main` function:
 
 ```c
-void _start(void* text_start, void* mem_start, void* memory_len, void* app_heap_break) {
-  main();
-  while (1) {
-    yield();
-  }
+int main(void) {
+	/* Code goes here */
+
+	while(true) {
+		yield();
+	}
 }
 ```
-
-Applications should set up a series of event subscriptions in their `main`
-method and then return.
 
 ## Stack and Heap
 
