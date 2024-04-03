@@ -158,11 +158,6 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
 
   assert(*head_index == *tail_index);
 
-  // We must notify the otSysProcessDrivers that there is new data
-  // to process. Otherwise, the otSysProcessDrivers will not be called
-  // until the next iteration of the main loop (which is non-deterministic
-  // since the main loop may yield before calling otSysProcessDrivers again).
-  otSysProcessDrivers(otTockInstance.instance);
 }
 
 

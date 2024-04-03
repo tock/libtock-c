@@ -81,7 +81,10 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   for ( ;;) {
     otTaskletsProcess(instance);
     otSysProcessDrivers(instance);
-    yield();
+
+    if (!otTaskletsArePending(instance)) {
+      yield();
+    }
 
     #if ENABLE_UDP_SEND
     sendUdp(instance);
