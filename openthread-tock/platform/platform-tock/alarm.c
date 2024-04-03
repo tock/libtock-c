@@ -19,7 +19,7 @@ static void callback(int __attribute__((unused)) now, int __attribute__((unused)
 static uint32_t milliToTicks(uint32_t milli) {
   uint32_t frequency;
   alarm_internal_frequency(&frequency);
-  return milli * (frequency / 1000);
+  return (milli / 1000) * frequency + (milli % 1000) * (frequency / 1000);;
 }
 
 void otPlatAlarmMilliStartAt(otInstance *aInstance, uint32_t aT0, uint32_t aDt){
@@ -32,6 +32,7 @@ void otPlatAlarmMilliStartAt(otInstance *aInstance, uint32_t aT0, uint32_t aDt){
   // uint32_t. this is a temporary fix until we implement
   // the wrap around functionality
   if ((aT0 > UINT32_MAX) || (aDt > UINT32_MAX)) {
+    assert(false);
     return;
   }
 
@@ -53,9 +54,9 @@ void otPlatAlarmMilliStop(otInstance *aInstance) {
 }
 
 uint32_t otPlatAlarmMilliGetNow(void) {
-  // TODO: this implementation wraps around at 511 seconds on 
-  // the nrf52840 as the counter register is 24 bits wide.
-  // This will need to be fixed. 
+  // TODO: there is a bug in this implementation causing the timer value to 
+  // wrap around 500,000 milliseconds. This may be an issue with the 
+  // `gettimeasticks` function or in the logic here.
   struct timeval tv;
   gettimeasticks(&tv, NULL);    // second arg is unused
 
