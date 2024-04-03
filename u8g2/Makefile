@@ -14,7 +14,7 @@ LIB_SRC_DIR := $($(LIBNAME)_DIR)/u8g2-$(VERSION_HASH)
 $(LIBNAME)_SRCS_ALL  += $(wildcard $(LIB_SRC_DIR)/csrc/u8g2*.c)
 $(LIBNAME)_SRCS_ALL  += $(wildcard $(LIB_SRC_DIR)/csrc/u8x8*.c)
 
-$(LIBNAME)_SRCS_ALL  += u8g2-tock.c
+$(LIBNAME)_SRCS_ALL  += $($(LIBNAME)_DIR)/u8g2-tock.c
 
 # Remove the buffer file, we need to create our own tock-specific version.
 $(LIBNAME)_SRCS := $(filter-out $(LIB_SRC_DIR)/csrc/u8g2_buffer.c,$($(LIBNAME)_SRCS_ALL))
