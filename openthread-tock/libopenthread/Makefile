@@ -1,6 +1,3 @@
-.PHONY: default
-default: all ;
-
 # Base folder definitions
 TOCK_USERLAND_BASE_DIR ?= ../..
 LIBNAME := libopenthread
@@ -24,9 +21,6 @@ $(LIBNAME)_SRCS  += $(wildcard $(LIB_SRC_DIR)/src/core/radio/*.cpp)
 $(LIBNAME)_SRCS  += $(wildcard $(LIB_SRC_DIR)/src/core/thread/*.cpp)
 $(LIBNAME)_SRCS  += $(wildcard $(LIB_SRC_DIR)/src/core/utils/*.cpp)
 
-
-# # Need libtock headers
-# override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
 override CPPFLAGS += -I$(LIB_SRC_DIR)/src/core
 override CPPFLAGS += -I$(LIB_SRC_DIR)/include
 override CPPFLAGS += -I$(LIB_SRC_DIR)/third_party/mbedtls/repo/include
@@ -34,7 +28,6 @@ override CPPFLAGS += -I$(LIB_SRC_DIR)/third_party/mbedtls
 
 override CPPFLAGS += -DPACKAGE_NAME=\"tockot\"
 override CPPFLAGS += -DPACKAGE_VERSION=\"0.1\"
-override CPPFLAGS += -DOT_MTD=OFF -DOT_FTD=ON
 override CPPFLAGS += -DOPENTHREAD_MTD=1
 override CPPFLAGS += -DMBEDTLS_CONFIG_FILE=\"mbedtls-config.h\"
 
@@ -43,5 +36,3 @@ override CPPFLAGS_$(LIBNAME) += -Wno-error
 
 # Include the rules to build the library.
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
-
-
