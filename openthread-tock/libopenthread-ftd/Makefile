@@ -1,7 +1,7 @@
 # Base folder definitions
 TOCK_USERLAND_BASE_DIR ?= ../..
-LIBNAME := libopenthread
-$(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/openthread-tock/libopenthread
+LIBNAME := libopenthread-ftd
+$(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/openthread-tock/libopenthread-ftd
 LIB_SRC_DIR := $(TOCK_USERLAND_BASE_DIR)/openthread-tock/openthread
 
 # List all C and Assembly files
@@ -26,9 +26,9 @@ override CPPFLAGS += -I$(LIB_SRC_DIR)/include
 override CPPFLAGS += -I$(LIB_SRC_DIR)/third_party/mbedtls/repo/include
 override CPPFLAGS += -I$(LIB_SRC_DIR)/third_party/mbedtls
 
-override CPPFLAGS += -DPACKAGE_NAME=\"tockot\"
+override CPPFLAGS += -DPACKAGE_NAME=\"tock-openthread-ftd\"
 override CPPFLAGS += -DPACKAGE_VERSION=\"0.1\"
-override CPPFLAGS += -DOPENTHREAD_MTD=1
+override CPPFLAGS += -DOPENTHREAD_FTD=1
 override CPPFLAGS += -DMBEDTLS_CONFIG_FILE=\"mbedtls-config.h\"
 
 # Avoid failing in CI due to warnings in the library.
