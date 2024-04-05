@@ -2,9 +2,10 @@
 TOCK_USERLAND_BASE_DIR ?= ..
 LIBNAME := lua53
 $(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/$(LIBNAME)
+$(LIBNAME)_SRC_ROOT := $($(LIBNAME)_DIR)/lua
 
 # List all C and Assembly files
-$(LIBNAME)_SRCS  := $(wildcard $($(LIBNAME)_DIR)/lua/*.c)
+$(LIBNAME)_SRCS  := $(wildcard $($(LIBNAME)_SRC_ROOT)/*.c)
 
 override CFLAGS += -DLUA_32BITS -D"luai_makeseed()"=0
 
