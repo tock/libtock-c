@@ -1,15 +1,12 @@
-#include <stdio.h>
-
 #include <eui64.h>
-
-uint8_t eui64_buf[EUI64_BUF_SIZE];
+#include <stdio.h>
 
 int main(void) {
   int ret;
 
   printf("[EUI64] EUI-64 test app\n");
-
-  ret = get_eui64(eui64_buf);
+  uint64_t eui64;
+  ret = get_eui64(&eui64);
 
   if (ret != RETURNCODE_SUCCESS) {
     printf("ERROR getting EUI-64\n");
@@ -18,9 +15,9 @@ int main(void) {
   }
 
   printf("EUI-64: ");
-  for (int i = 0; i < EUI64_BUF_SIZE; i++) {
-    printf("%02x", eui64_buf[i]);
-  }  
+  for (int i = 0; i < 8; i++) {
+    printf("%02x", ((uint8_t*)&eui64)[i]);
+  }
 
   printf("\n");
 
