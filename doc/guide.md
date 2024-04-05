@@ -97,17 +97,17 @@ The signature is:
 
 - Read-Only Allow:
     ```c
-    int libtock_[name]_set_readonly_allow(const uint8_t* buffer, uint32_t len);
+    returncode_t libtock_[name]_set_readonly_allow(const uint8_t* buffer, uint32_t len);
     ```
 
 - Read-Write Allow:
     ```c
-    int libtock_[name]_set_readwrite_allow(uint8_t* buffer, uint32_t len);
+    returncode_t libtock_[name]_set_readwrite_allow(uint8_t* buffer, uint32_t len);
     ```
 
 - Userspace Read Allow:
     ```c
-    int libtock_[name]_set_userspace_read_allow(uint8_t* buffer, uint32_t len);
+    returncode_t libtock_[name]_set_userspace_read_allow(uint8_t* buffer, uint32_t len);
     ```
 
 If only one allow is supported, the function name must be
@@ -326,7 +326,7 @@ Define a static callback function to pass to the asynchronous implementation:
 
 ```c
 static void sensor_cb(returncode_t ret, int val) {
-  result.temp = val;
+  result.val = val;
   result.fired = true;
   result.result = ret;
 }
