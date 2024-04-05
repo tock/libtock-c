@@ -2,29 +2,29 @@
 TOCK_USERLAND_BASE_DIR ?= ../..
 LIBNAME := libopenthread-mtd
 $(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/openthread-tock/libopenthread-mtd
-$(LIBNAME)_SRC_DIR := $(TOCK_USERLAND_BASE_DIR)/openthread-tock/openthread
+$(LIBNAME)_SRC_ROOT := $(TOCK_USERLAND_BASE_DIR)/openthread-tock/openthread
 
 # List all C and Assembly files
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/*.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/api/*.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/backbone_router/*.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/border_router/*.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/coap/*.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/common/*.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/crypto/*.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/diags/*.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/instance/instance.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/mac/*.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/meshcop/*.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/net/*.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/radio/*.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/thread/*.cpp)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_DIR)/src/core/utils/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/api/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/backbone_router/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/border_router/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/coap/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/common/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/crypto/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/diags/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/instance/instance.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/mac/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/meshcop/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/net/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/radio/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/thread/*.cpp)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/utils/*.cpp)
 
-override CPPFLAGS += -I$($(LIBNAME)_SRC_DIR)/src/core
-override CPPFLAGS += -I$($(LIBNAME)_SRC_DIR)/include
-override CPPFLAGS += -I$($(LIBNAME)_SRC_DIR)/third_party/mbedtls/repo/include
-override CPPFLAGS += -I$($(LIBNAME)_SRC_DIR)/third_party/mbedtls
+override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)/src/core
+override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)/include
+override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)/third_party/mbedtls/repo/include
+override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)/third_party/mbedtls
 
 override CPPFLAGS += -DPACKAGE_NAME=\"tock-openthread-mtd\"
 override CPPFLAGS += -DPACKAGE_VERSION=\"0.1\"
