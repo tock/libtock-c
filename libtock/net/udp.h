@@ -1,9 +1,7 @@
 #pragma once
 
-#include <stddef.h>
-#include <sys/types.h>
-
-#include "tock.h"
+#include "../tock.h"
+#include "syscalls/udp_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,9 +22,16 @@ typedef struct sock_handle {
   sock_addr_t addr;
 } sock_handle_t;
 
+
+/// Callback for when a tx is completed.
+typedef void (*libtock_udp_callback_send_done) (statuscode_t);
+
+/// Callback for when a rx is completed.
+typedef void (*libtock_udp_callback_recv_done) (statuscode_t, int);
+
 // Creates a new datagram socket bound to an address.
 // Returns 0 on success, negative on failure.
-int udp_socket(sock_handle_t *handle, sock_addr_t *addr);
+returncode_t libtock_udp_create_socket(sock_handle_t *handle, sock_addr_t *addr);
 
 // Takes in an addess and a handle, and copies the address into
 // the handle.
@@ -35,34 +40,31 @@ int udp_socket(sock_handle_t *handle, sock_addr_t *addr);
 // the bound port, and ensures that all sent packets will have
 // the bound port as their src address.
 // Returns 0 on successful bind, negative on failure.
-int udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned char *buf_bind_cfg);
+returncode_t libtock_udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned char *buf_bind_cfg);
 
 // Closes a socket.
 // Currently only one socket can exist per app, so this fn
 // simply closes any connected socket
 // Returns 0 on success, negative on failure.
-int udp_close(sock_handle_t *handle);
-
-// Sends data on a socket. Requires binding to a port first.
-// Returns 0 on success, negative on failure.
-ssize_t udp_send_to(void *buf, size_t len, sock_addr_t *dst_addr);
+returncode_t libtock_udp_close(sock_handle_t *handle);
 
 // Receives messages from that socket asynchronously.
-// The callback is passed the return code for the reception.
+// The callback is passed the return code for the reception
+// in addition to the length of the received packet.
 // Returns 0 on successful bind, negative on failure.
-ssize_t udp_recv(subscribe_upcall callback, void *buf, size_t len);
+returncode_t libtock_udp_recv(void *buf, size_t len, libtock_udp_callback_recv_done cb);
 
-// Receives messages from the bound socket synchronously.
-// Returns 0 on successful reception, negative on failure.
-// Hangs until reception occurs unless there is a failure during a bind or reception.
-ssize_t udp_recv_sync(void *buf, size_t len);
+// Sends a message to the destination address asynchronously
+// The callback is passed the return code for the transmission.
+returncode_t libtock_udp_send(void *buf, size_t len,
+                    sock_addr_t *dst_addr, libtock_udp_callback_send_done cb);
 
 // Lists `len` interfaces at the array pointed to by `ifaces`.
 // Returns the _total_ number of interfaces, negative on failure.
-int udp_list_ifaces(ipv6_addr_t *ifaces, size_t len);
+returncode_t libtock_udp_list_ifaces(ipv6_addr_t *ifaces, size_t len);
 
 // Returns the maximum length udp payload that the app can transmit
-int udp_get_max_tx_len(int* length);
+returncode_t libtock_udp_get_max_tx_len(int* length);
 
 #ifdef __cplusplus
 }
