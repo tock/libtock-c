@@ -1,17 +1,15 @@
 TOCK_USERLAND_BASE_DIR ?= ..
 LIBNAME := lvgl
 $(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/$(LIBNAME)
+$(LIBNAME)_SRC_ROOT := $(TOCK_USERLAND_BASE_DIR)/$(LIBNAME)/lvgl
 
-
-DEPPATH += --dep-path $(LVGL_DIR)
-VPATH += :$(LVGL_DIR)
-
-LVGL_DIR = $(TOCK_USERLAND_BASE_DIR)/lvgl/lvgl
-
-include $(LVGL_DIR)/lvgl.mk
-
-# List all C and Assembly files
-$(LIBNAME)_SRCS  := $(CSRCS)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/draw/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/extra/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/font/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/gpu/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/hal/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/misc/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/widgets/*.c)
 
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
-
