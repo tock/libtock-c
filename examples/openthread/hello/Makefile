@@ -17,7 +17,7 @@ TOCK_USERLAND_BASE_DIR = ../../..
 
 OT_TOCK_LIB_DIR += $(TOCK_USERLAND_BASE_DIR)/openthread-tock
 
-EXTERN_LIBS += $(OT_TOCK_LIB_DIR)/libopenthread
+EXTERN_LIBS += $(OT_TOCK_LIB_DIR)/libopenthread-mtd
 # EXTERN_LIBS += $(OT_TOCK_LIB_DIR)/libmbedcrypto
 # EXTERN_LIBS += $(OT_TOCK_LIB_DIR)/libmbedx509
 EXTERN_LIBS += $(OT_TOCK_LIB_DIR)/libtcplp
