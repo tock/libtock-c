@@ -32,12 +32,6 @@ include $(TOCK_USERLAND_BASE_DIR)/Precompiled.mk
 # library when needed.
 include $(TOCK_USERLAND_BASE_DIR)/libtock/Makefile
 
-# Connection to the Tock kernel. Apps need the ability to be loaded onto a
-# board, and that method is board-specific. So for now, we have the TOCK_BOARD
-# variable which selects one and we include the appropriate Makefile-app from
-# within the Tock base directory.
-TOCK_BOARD ?= hail
-
 # Include the makefile that has the programming functions for each board.
 include $(TOCK_USERLAND_BASE_DIR)/Program.mk
 
