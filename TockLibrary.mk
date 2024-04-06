@@ -18,8 +18,21 @@ include $(TOCK_USERLAND_BASE_DIR)/Helpers.mk
 # Targets for fetching pre-compiled libraries.
 include $(TOCK_USERLAND_BASE_DIR)/Precompiled.mk
 
+# Each library Makefile needs to define these variables:
+#
+# - `$(LIBNAME)`: A name for the library. Ex: "libtock".
+# - `$($(LIBNAME)_DIR)`: The path to the directory the library Makefile is
+#   stored in. This is typically based on the `$(TOCK_USERLAND_BASE_DIR)`
+#   variable.
+# - `$($(LIBNAME)_SRC_ROOT)`: The path to the directory where the library sources
+#   are stored. This is typically based on the `$(TOCK_USERLAND_BASE_DIR)`
+#   variable.
+# - `$($(LIBNAME)_SRCS)`: A list of source paths to compile for this library.
+#   Each item in this list MUST be a path that starts with
+#   `$($(LIBNAME)_SRC_ROOT)`.
 $(call check_defined, LIBNAME)
 $(call check_defined, $(LIBNAME)_DIR)
+$(call check_defined, $(LIBNAME)_SRC_ROOT)
 $(call check_defined, $(LIBNAME)_SRCS)
 
 ifeq ($(strip $($(LIBNAME)_SRCS)),)
@@ -63,7 +76,7 @@ $(LIBNAME)_SRCS_DIRS := $(sort $(dir $($(LIBNAME)_SRCS))) # sort removes duplica
 
 # Only use vpath for certain types of files
 # But must be a global list
-VPATH_DIRS += $($(LIBNAME)_SRCS_DIRS)
+VPATH_DIRS += $($(LIBNAME)_SRC_ROOT)
 vpath %.s $(VPATH_DIRS)
 vpath %.c $(VPATH_DIRS)
 vpath %.cc $(VPATH_DIRS)
@@ -91,28 +104,37 @@ endef
 $(foreach hdrdir,$($(LIBNAME)_SRCS_DIRS),$(eval $(call LIB_HEADER_INCLUDES,$(hdrdir))))
 
 # Rules to generate libraries for a given Architecture
-# These will be used to create the different architecture versions of LibNRFSerialization
+# These will be used to create the different architecture versions of libraries.
+#
 # Argument $(1) is the Architecture (e.g. cortex-m0) to build for
 define LIB_RULES
 
-$$($(LIBNAME)_BUILDDIR)/$(1):
+$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME):
 	$$(TRACE_DIR)
 	$$(Q)mkdir -p $$@
 
-$$($(LIBNAME)_BUILDDIR)/$(1)/%.o: %.c | $$($(LIBNAME)_BUILDDIR)/$(1) newlib-$$(NEWLIB_VERSION_$(1))
+$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o: %.cpp | $$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME) newlib-$$(NEWLIB_VERSION_$(1))
 	$$(TRACE_CC)
+	$$(Q)mkdir -p $$(dir $$@)
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(CPPFLAGS_$(LIBNAME)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
+	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(CPPFLAGS_$(LIBNAME)) -c -o $$@ $$<
+
+$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o: %.c | $$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME) newlib-$$(NEWLIB_VERSION_$(1))
+	$$(TRACE_CC)
+	$$(Q)mkdir -p $$(dir $$@)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(CPPFLAGS_$(LIBNAME)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(CPPFLAGS_$(LIBNAME)) -c -o $$@ $$<
 
-$$($(LIBNAME)_BUILDDIR)/$(1)/%.o: %.S | $$($(LIBNAME)_BUILDDIR)/$(1) newlib-$$(NEWLIB_VERSION_$(1))
+$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o: %.S | $$($(LIBNAME)_BUILDDIR)/$(1) newlib-$$(NEWLIB_VERSION_$(1))
 	$$(TRACE_AS)
+	$$(Q)mkdir -p $$(dir $$@)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(AS) $$(ASFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
-$(LIBNAME)_OBJS_$(1) += $$(patsubst %.s,$$($(LIBNAME)_BUILDDIR)/$(1)/%.o,$$(filter %.s, $$($(LIBNAME)_SRCS_FLAT)))
-$(LIBNAME)_OBJS_$(1) += $$(patsubst %.c,$$($(LIBNAME)_BUILDDIR)/$(1)/%.o,$$(filter %.c, $$($(LIBNAME)_SRCS_FLAT)))
-$(LIBNAME)_OBJS_$(1) += $$(patsubst %.cc,$$($(LIBNAME)_BUILDDIR)/$(1)/%.o,$$(filter %.cc, $$($(LIBNAME)_SRCS_FLAT)))
-$(LIBNAME)_OBJS_$(1) += $$(patsubst %.cpp,$$($(LIBNAME)_BUILDDIR)/$(1)/%.o,$$(filter %.cpp, $$($(LIBNAME)_SRCS_FLAT)))
-$(LIBNAME)_OBJS_$(1) += $$(patsubst %.cxx,$$($(LIBNAME)_BUILDDIR)/$(1)/%.o,$$(filter %.cxx, $$($(LIBNAME)_SRCS_FLAT)))
+$(LIBNAME)_OBJS_$(1) += $$(patsubst $$($(LIBNAME)_SRC_ROOT)/%.s,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.s, $$($(LIBNAME)_SRCS)))
+$(LIBNAME)_OBJS_$(1) += $$(patsubst $$($(LIBNAME)_SRC_ROOT)/%.c,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.c, $$($(LIBNAME)_SRCS)))
+$(LIBNAME)_OBJS_$(1) += $$(patsubst $$($(LIBNAME)_SRC_ROOT)/%.cc,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.cc, $$($(LIBNAME)_SRCS)))
+$(LIBNAME)_OBJS_$(1) += $$(patsubst $$($(LIBNAME)_SRC_ROOT)/%.cpp,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.cpp, $$($(LIBNAME)_SRCS)))
+$(LIBNAME)_OBJS_$(1) += $$(patsubst $$($(LIBNAME)_SRC_ROOT)/%.cxx,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.cxx, $$($(LIBNAME)_SRCS)))
 
 # Dependency rules for picking up header changes
 -include $$($(LIBNAME)_OBJS_$(1):.o=.d)
@@ -126,7 +148,7 @@ $(LIBNAME)_OBJS_$(1) += $$(patsubst %.cxx,$$($(LIBNAME)_BUILDDIR)/$(1)/%.o,$$(fi
 # $$(info $(LIBNAME)_OBJS_$(1): $$($(LIBNAME)_OBJS_$(1)))
 # $$(info =====================================================)
 
-$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME).a: $$($(LIBNAME)_OBJS_$(1)) | $$($(LIBNAME)_BUILDDIR)/$(1) newlib-$$(NEWLIB_VERSION_$(1))
+$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME).a: $$($(LIBNAME)_OBJS_$(1)) | $$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME) newlib-$$(NEWLIB_VERSION_$(1))
 	$$(TRACE_AR)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(AR) rc $$@ $$^
 	$$(Q)$$(TOOLCHAIN_$(1))$$(RANLIB) $$@
@@ -169,10 +191,10 @@ $(eval $(call CLEAN_RULE,$($(LIBNAME)_BUILDDIR)))
 
 
 # Rules for running the C linter
-$(LIBNAME)_FORMATTED_FILES := $(patsubst %.c,$($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.c, $($(LIBNAME)_SRCS_FLAT)))
-$(LIBNAME)_FORMATTED_FILES += $(patsubst %.cc,$($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cc, $($(LIBNAME)_SRCS_FLAT)))
-$(LIBNAME)_FORMATTED_FILES += $(patsubst %.cpp,$($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cpp, $($(LIBNAME)_SRCS_FLAT)))
-$(LIBNAME)_FORMATTED_FILES += $(patsubst %.cxx,$($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cxx, $($(LIBNAME)_SRCS_FLAT)))
+$(LIBNAME)_FORMATTED_FILES := $(patsubst $($(LIBNAME)_SRC_ROOT)/%.c,  $($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.c,   $($(LIBNAME)_SRCS)))
+$(LIBNAME)_FORMATTED_FILES += $(patsubst $($(LIBNAME)_SRC_ROOT)/%.cc, $($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cc,  $($(LIBNAME)_SRCS)))
+$(LIBNAME)_FORMATTED_FILES += $(patsubst $($(LIBNAME)_SRC_ROOT)/%.cpp,$($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cpp, $($(LIBNAME)_SRCS)))
+$(LIBNAME)_FORMATTED_FILES += $(patsubst $($(LIBNAME)_SRC_ROOT)/%.cxx,$($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cxx, $($(LIBNAME)_SRCS)))
 
 $($(LIBNAME)_BUILDDIR)/format:
 	@mkdir -p $@
