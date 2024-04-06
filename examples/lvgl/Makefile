@@ -17,10 +17,3 @@ STACK_SIZE := 4096
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.
 include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
-
-# Ensure the required submodule is present
-lvgl_driver.c:	| ../../lvgl/lvgl/lvgl.h
-
-../../lvgl/lvgl/lvgl.h:
-	git submodule init ../../lvgl/lvgl
-	git submodule update ../../lvgl/lvgl
