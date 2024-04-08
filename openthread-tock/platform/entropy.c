@@ -1,5 +1,3 @@
-// TODO ADD COPYRIGHT ETC
-
 #include <openthread/platform/entropy.h>
 #include <rng.h>
 #include <stdio.h>

@@ -1,5 +1,3 @@
-// TODO COPYRIGHT
-
 #include <openthread/platform/flash.h>
 #include <string.h>
 
@@ -12,21 +10,12 @@ uint8_t swapPart1[512];
 // an in memory representation of "flash" that will be lost across power
 // cycles.
 
-void zeroArray(uint8_t *arr, uint32_t size);
-
-// function to zero array
-void zeroArray(uint8_t *arr, uint32_t size) {
-  for (uint32_t i = 0; i < size; i++) {
-    arr[i] = 0;
-  }
-}
-
 void otPlatFlashInit(otInstance *aInstance) {
   OT_UNUSED_VARIABLE(aInstance);
 
   // initialize swapPart0 and swapPart1
-  zeroArray(swapPart0, SWAP_SIZE);
-  zeroArray(swapPart1, SWAP_SIZE);
+  memset(swapPart0, 0, SWAP_SIZE);
+  memset(swapPart1, 0, SWAP_SIZE);
 
 }
 
@@ -34,9 +23,9 @@ void otPlatFlashErase(otInstance *aInstance, uint8_t aSwapIndex) {
   OT_UNUSED_VARIABLE(aInstance);
 
   if (aSwapIndex == 0) {
-    zeroArray(swapPart0, SWAP_SIZE);
+    memset(swapPart0, 0, SWAP_SIZE);
   } else {
-    zeroArray(swapPart1, SWAP_SIZE);
+    memset(swapPart1, 0, SWAP_SIZE);
   }
 }
 
