@@ -28,12 +28,12 @@
 
 /**
  * @file
- *   This file includes nrf52840 compile-time configuration constants
+ *   This file includes tock compile-time configuration constants
  *   for OpenThread.
  */
 
-#ifndef OPENTHREAD_CORE_NRF52840_CONFIG_H_
-#define OPENTHREAD_CORE_NRF52840_CONFIG_H_
+#ifndef OPENTHREAD_CORE_TOCK_CONFIG_H_
+#define OPENTHREAD_CORE_TOCK_CONFIG_H_
 
 /*
  * The GNU Autoconf system defines a PACKAGE macro which is the name
@@ -46,7 +46,7 @@
 /**
  * @def OPENTHREAD_CONFIG_LOG_OUTPUT
  *
- * The nrf52840 platform provides an otPlatLog() function.
+ * The tock platform provides an otPlatLog() function.
  */
 #ifndef OPENTHREAD_CONFIG_LOG_OUTPUT
 #define OPENTHREAD_CONFIG_LOG_OUTPUT OPENTHREAD_CONFIG_LOG_OUTPUT_PLATFORM_DEFINED
@@ -59,7 +59,7 @@
  *
  */
 #ifndef OPENTHREAD_CONFIG_PLATFORM_INFO
-#define OPENTHREAD_CONFIG_PLATFORM_INFO "NRF52840"
+#define OPENTHREAD_CONFIG_PLATFORM_INFO "tock"
 #endif
 
 /**
@@ -335,4 +335,4 @@
 _Pragma("diag_suppress=111") _Pragma("diag_suppress=128")
 #endif
 
-#endif // OPENTHREAD_CORE_NRF52840_CONFIG_H_
+#endif // OPENTHREAD_CORE_TOCK_CONFIG_H_
