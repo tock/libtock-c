@@ -1,4 +1,3 @@
-// TODO COPYRIGHT
 #include <ieee802154.h>
 #include <openthread-system.h>
 #include <openthread/instance.h>

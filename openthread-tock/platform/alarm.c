@@ -1,5 +1,3 @@
-// TODO ADD COPYRIGHT ETC
-
 #include <alarm.h>
 #include <assert.h>
 #include <internal/alarm.h>

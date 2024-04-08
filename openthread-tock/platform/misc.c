@@ -1,5 +1,3 @@
-// TODO COPYRIGHT
-
 #include <openthread/platform/misc.h>
 
 void otPlatReset(otInstance *aInstance) {
