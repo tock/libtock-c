@@ -29,6 +29,7 @@ override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)/third_party/mbedtls
 override CPPFLAGS += -DPACKAGE_NAME=\"tock-openthread-ftd\"
 override CPPFLAGS += -DPACKAGE_VERSION=\"0.1\"
 override CPPFLAGS += -DOPENTHREAD_FTD=1
+override CPPFLAGS += -DOPENTHREAD_PLATFORM_CORE_CONFIG_FILE=\"openthread-core-tock-config.h\"
 override CPPFLAGS += -DMBEDTLS_CONFIG_FILE=\"mbedtls-config.h\"
 
 # Avoid failing in CI due to warnings in the library.
