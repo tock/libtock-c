@@ -10,6 +10,7 @@ $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/repo/library/*.c)
 override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)/../../src/core
 override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)/../../include
 override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)/repo/include
+override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)
 override CPPFLAGS += -I$($(LIBNAME)_DIR)
 
 # override CPPFLAGS += -DPACKAGE_NAME=\"tockot\"
