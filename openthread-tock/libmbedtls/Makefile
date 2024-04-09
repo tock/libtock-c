@@ -28,6 +28,7 @@ override CPPFLAGS += -DOPENTHREAD_CONFIG_THREAD_VERSION=OT_THREAD_VERSION_1_3
 
 # Avoid failing in CI due to warnings in the library.
 override CPPFLAGS_$(LIBNAME) += -Wno-error
+override CPPFLAGS_$(LIBNAME) += -Wno-unused-macros -Wno-redundant-decls
 
 # Include the rules to build the library.
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
