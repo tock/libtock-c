@@ -160,7 +160,6 @@ void _start(void* app_start __attribute__((unused)),
     "movs r0, r6\n"             // first arg is app_start
     "movs r1, r7\n"             // second arg is mem_start
     "bl _c_start_pic\n"
-    "bkpt #255\n"
     );
 
 #elif defined(__riscv)
