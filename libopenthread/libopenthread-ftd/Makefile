@@ -1,8 +1,8 @@
 # Base folder definitions
 TOCK_USERLAND_BASE_DIR ?= ../..
-LIBNAME := libopenthread-mtd
-$(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/openthread-tock/libopenthread-mtd
-$(LIBNAME)_SRC_ROOT := $(TOCK_USERLAND_BASE_DIR)/openthread-tock/openthread
+LIBNAME := libopenthread-ftd
+$(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/libopenthread/libopenthread-ftd
+$(LIBNAME)_SRC_ROOT := $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread
 
 # List all C and Assembly files
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/src/core/*.cpp)
@@ -25,25 +25,15 @@ override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)/src/core
 override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)/include
 override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)/third_party/mbedtls/repo/include
 override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)/third_party/mbedtls
-# Need to include the folder where `openthread-core-tock-config.h` is located.
-override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/openthread-tock/platform/platform-tock
 
-# Package settings for the Tock version of OpenThread.
-override CPPFLAGS += -DPACKAGE_NAME=\"tock-openthread-mtd\"
+override CPPFLAGS += -DPACKAGE_NAME=\"tock-openthread-ftd\"
 override CPPFLAGS += -DPACKAGE_VERSION=\"0.1\"
-# Specify we want a minimal thread device build of the library.
-override CPPFLAGS += -DOPENTHREAD_MTD=1
-# Configuration header files we need to specify.
+override CPPFLAGS += -DOPENTHREAD_FTD=1
 override CPPFLAGS += -DOPENTHREAD_PLATFORM_CORE_CONFIG_FILE=\"openthread-core-tock-config.h\"
 override CPPFLAGS += -DMBEDTLS_CONFIG_FILE=\"mbedtls-config.h\"
 
 # Avoid failing in CI due to warnings in the library.
 override CPPFLAGS_$(LIBNAME) += -Wno-error
-# Ignore warnings that openthread seems to not care about.
-override CPPFLAGS_$(LIBNAME) += -Wno-useless-cast -Wno-old-style-cast
-override CPPFLAGS_$(LIBNAME) += -Wno-missing-declarations -Wno-date-time
-override CPPFLAGS_$(LIBNAME) += -Wno-zero-as-null-pointer-constant
-override CPPFLAGS_$(LIBNAME) += -Wno-suggest-attribute=format -Wno-redundant-decls
 
 # Include the rules to build the library.
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk

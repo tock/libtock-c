@@ -1,8 +1,8 @@
 # Base folder definitions
 TOCK_USERLAND_BASE_DIR ?= ../..
 LIBNAME := libmbedtls
-$(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/openthread-tock/libmbedtls
-$(LIBNAME)_SRC_ROOT := $(TOCK_USERLAND_BASE_DIR)/openthread-tock/openthread/third_party/mbedtls
+$(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/libopenthread/libmbedtls
+$(LIBNAME)_SRC_ROOT := $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/third_party/mbedtls
 
 # List all C and Assembly files
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/repo/library/*.c)
@@ -15,7 +15,7 @@ override CPPFLAGS += -I$($(LIBNAME)_DIR)
 
 # Include our standard OpenThread configuration to ensure all flags are set
 # consistently.
-override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/openthread-tock/platform/platform-tock
+override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libopenthread/platform
 override CPPFLAGS += -DOPENTHREAD_PLATFORM_CORE_CONFIG_FILE=\"openthread-core-tock-config.h\"
 
 # Include our config file for mbedtls which makes one minor modification.
