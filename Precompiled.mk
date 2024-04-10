@@ -17,10 +17,34 @@ ifndef PRECOMPILED_MAKEFILE
 PRECOMPILED_MAKEFILE = 1
 
 ################################################################################
+# Supported architectures in gcc format.
+#
+# These are used to generate rules for each library in the precompiled
+# libraries.
+################################################################################
+
+ARM_ARCHS := thumb/v6-m/nofp thumb/v7-m/nofp thumb/v7e-m/nofp
+RISCV_ARCHS := rv32i/ilp32 rv32im/ilp32 rv32imac/ilp32
+
+################################################################################
 # Newlib Rules
 #
 # These pre-compiled archives were created using the libtock-c/newlib folder.
 ################################################################################
+
+# Rule to ensure that the newlib libraries for an architecture exist.
+#
+# Arguments:
+# - $(1): Version
+# - $(2): Family
+# - $(3): Toolchain
+# - $(4): Arch
+define PRECOMPILED_NEWLIB_RULES
+
+$$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-$(1)/$(2)/$(3)/lib/$(4)/libc.a: | $$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-$(1)
+$$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-$(1)/$(2)/$(3)/lib/$(4)/libm.a: | $$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-$(1)
+
+endef
 
 # Target to download and extract newlib.
 $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231:
@@ -37,42 +61,34 @@ newlib-4.3.0.20230120: | $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.2023
 
 # newlib 4.2.0.20211231
 
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
-
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.2.0.20211231
+$(foreach arch,$(ARM_ARCHS),$(eval $(call PRECOMPILED_NEWLIB_RULES,4.2.0.20211231,arm,arm-none-eabi,$(arch))))
+$(foreach arch,$(RISCV_ARCHS),$(eval $(call PRECOMPILED_NEWLIB_RULES,4.2.0.20211231,riscv,riscv64-unknown-elf,$(arch))))
 
 # newlib 4.3.0.20230120
 
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
-
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libm.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-4.3.0.20230120
-
+$(foreach arch,$(ARM_ARCHS),$(eval $(call PRECOMPILED_NEWLIB_RULES,4.3.0.20230120,arm,arm-none-eabi,$(arch))))
+$(foreach arch,$(RISCV_ARCHS),$(eval $(call PRECOMPILED_NEWLIB_RULES,4.3.0.20230120,riscv,riscv64-unknown-elf,$(arch))))
 
 ################################################################################
 # LIBC++ Rules
 #
 # These pre-compiled archives were created using the libtock-c/libc++ folder.
 ################################################################################
+
+# Rule to ensure that the libc++ libraries for an architecture exist.
+#
+# Arguments:
+# - $(1): Version
+# - $(2): Family
+# - $(3): Toolchain
+# - $(4): Arch
+define PRECOMPILED_CPPLIB_RULES
+
+$$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$(1)/$(2)/$(3)/lib/$(4)/libstdc++.a: | $$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$(1)
+$$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$(1)/$(2)/$(3)/lib/$(4)/libsupc++.a: | $$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$(1)
+$$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$(1)/$(2)/lib/gcc/$(3)/$(1)/$(4)/libgcc.a: | $$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$(1)
+
+endef
 
 # Target to download and extract the C++ libraries.
 $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0:
@@ -93,69 +109,18 @@ libc++-13.2.0: | $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
 
 # LIBC++ 10.5.0
 
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/arm/lib/gcc/arm-none-eabi/10.5.0/thumb/v6-m/nofp/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/arm/lib/gcc/arm-none-eabi/10.5.0/thumb/v7-m/nofp/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/arm/lib/gcc/arm-none-eabi/10.5.0/thumb/v7e-m/nofp/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/riscv/lib/gcc/riscv64-unknown-elf/10.5.0/rv32i/ilp32/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/riscv/lib/gcc/riscv64-unknown-elf/10.5.0/rv32im/ilp32/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0/riscv/lib/gcc/riscv64-unknown-elf/10.5.0/rv32imac/ilp32/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-10.5.0
+$(foreach arch,$(ARM_ARCHS),$(eval $(call PRECOMPILED_CPPLIB_RULES,10.5.0,arm,arm-none-eabi,$(arch))))
+$(foreach arch,$(RISCV_ARCHS),$(eval $(call PRECOMPILED_CPPLIB_RULES,10.5.0,riscv,riscv64-unknown-elf,$(arch))))
 
 # LIBC++ 12.3.0
 
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/arm/lib/gcc/arm-none-eabi/12.3.0/thumb/v6-m/nofp/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/arm/lib/gcc/arm-none-eabi/12.3.0/thumb/v7-m/nofp/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/arm/lib/gcc/arm-none-eabi/12.3.0/thumb/v7e-m/nofp/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/riscv/lib/gcc/riscv64-unknown-elf/12.3.0/rv32i/ilp32/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/riscv/lib/gcc/riscv64-unknown-elf/12.3.0/rv32im/ilp32/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0/riscv/lib/gcc/riscv64-unknown-elf/12.3.0/rv32imac/ilp32/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-12.3.0
+$(foreach arch,$(ARM_ARCHS),$(eval $(call PRECOMPILED_CPPLIB_RULES,12.3.0,arm,arm-none-eabi,$(arch))))
+$(foreach arch,$(RISCV_ARCHS),$(eval $(call PRECOMPILED_CPPLIB_RULES,12.3.0,riscv,riscv64-unknown-elf,$(arch))))
 
 # LIBC++ 13.2.0
 
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/arm/lib/gcc/arm-none-eabi/13.2.0/thumb/v6-m/nofp/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/arm/lib/gcc/arm-none-eabi/13.2.0/thumb/v7-m/nofp/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/arm/lib/gcc/arm-none-eabi/13.2.0/thumb/v7e-m/nofp/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/riscv/lib/gcc/riscv64-unknown-elf/13.2.0/rv32i/ilp32/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/riscv/lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libstdc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libsupc++.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
-$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0/riscv/lib/gcc/riscv64-unknown-elf/13.2.0/rv32imac/ilp32/libgcc.a: $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-13.2.0
+$(foreach arch,$(ARM_ARCHS),$(eval $(call PRECOMPILED_CPPLIB_RULES,13.2.0,arm,arm-none-eabi,$(arch))))
+$(foreach arch,$(RISCV_ARCHS),$(eval $(call PRECOMPILED_CPPLIB_RULES,13.2.0,riscv,riscv64-unknown-elf,$(arch))))
 
 
 endif
