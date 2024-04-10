@@ -8,7 +8,7 @@
 #pragma GCC diagnostic ignored "-Wsuggest-attribute=format"
 // The compiler gives the following warning:
 //
-// openthread-tock/platform/platform-tock/logging.c:18:5: warning: function 'otPlatLog'
+// libopenthread/platform/logging.c:18:5: warning: function 'otPlatLog'
 // might be a candidate for 'gnu_printf' format attribute [-Wsuggest-attribute=format]
 // 18 |     vprintf(aFormat, args);
 //

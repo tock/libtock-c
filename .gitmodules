@@ -7,6 +7,6 @@
 [submodule "examples/lora/RadioLib"]
 	path = wip/lora/RadioLib
 	url = https://github.com/jgromes/RadioLib.git
-[submodule "openthread-tock/openthread"]
-	path = openthread-tock/openthread
+[submodule "libopenthread/openthread"]
+	path = libopenthread/openthread
 	url = https://github.com/openthread/openthread.git
