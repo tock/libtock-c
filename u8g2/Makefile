@@ -1,6 +1,3 @@
-.PHONY: default
-default: all ;
-
 # Git hash of the library to use
 VERSION_HASH := c4f9cd9f8717661c46be16bfbcb0017d785db3c1
 
