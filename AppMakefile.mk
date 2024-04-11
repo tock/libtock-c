@@ -51,11 +51,11 @@ ifneq "$$(wildcard $(2)/Makefile.setup)" ""
 $(1):
 	# Since a Makefile.setup exists, do any setup steps needed to fetch the
 	# library.
-	$(MAKE) -C $(2) -f Makefile.setup all
-	$(MAKE) -C $(2) -f Makefile all
+	$$(MAKE) -C $(2) -f Makefile.setup all
+	$$(MAKE) -C $(2) -f Makefile all
 else
 $(1):
-	$(MAKE) -C $(2) -f Makefile all
+	$$(MAKE) -C $(2) -f Makefile all
 endif
 
 endef
