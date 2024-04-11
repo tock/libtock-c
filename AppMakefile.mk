@@ -36,6 +36,43 @@ include $(TOCK_USERLAND_BASE_DIR)/libtock/Makefile
 include $(TOCK_USERLAND_BASE_DIR)/Program.mk
 
 
+# Rules to call library makefiles to build required libraries. We use the build
+# directory as the indicator if the library exists or not.
+#
+# We also support an optional Makefile.setup which is responsible for retrieving
+# the source used to build the library.
+#
+# Arguments:
+# - $(1): The path to the build directory.
+# - $(2): The path to the library.
+define EXTERN_LIB_BUILD_RULE
+
+ifneq "$$(wildcard $(2)/Makefile.setup)" ""
+$(1):
+	# Since a Makefile.setup exists, do any setup steps needed to fetch the
+	# library.
+	$(MAKE) -C $(2) -f Makefile.setup all
+	$(MAKE) -C $(2) -f Makefile all
+else
+$(1):
+	$(MAKE) -C $(2) -f Makefile all
+endif
+
+endef
+
+# Rule to build each architecture-specific library archive (.a file). To ensure
+# each library only has a single build rule, we just make each archive dependent
+# on the build directory itself. Creating the build directory is responsible for
+# building the entire library.
+#
+# Arguments:
+# - $(1): The path to the built library .a file.
+# - $(2): The path to the build directory for the library.
+define EXTERN_LIB_BUILD_RULES
+
+$(1): | $(2)
+
+endef
 
 # Rules to incorporate external libraries
 define EXTERN_LIB_RULES
@@ -53,6 +90,12 @@ endif
 # Use the $(LIBNAME)_BUILDDIR as build directory, if set.
 $$(notdir $(1))_BUILDDIR ?= $(1)/build
 $$(foreach arch, $$(TOCK_ARCHS), $$(eval LIBS_$$(arch) += $$($(notdir $(1))_BUILDDIR)/$$(arch)/$(notdir $(1)).a))
+
+# Generate rules for checking the library exists, and if not building the
+# library.
+# $$(info $$(foreach arch, $$(TOCK_ARCHS), $$(call EXTERN_LIB_BUILD_RULES,$$($(notdir $(1))_BUILDDIR)/$$(arch)/$(notdir $(1)).a,$$($(notdir $(1))_BUILDDIR)))
+$$(foreach arch, $$(TOCK_ARCHS), $$(eval $$(call EXTERN_LIB_BUILD_RULES,$$($(notdir $(1))_BUILDDIR)/$$(arch)/$(notdir $(1)).a,$$($(notdir $(1))_BUILDDIR))))
+$$(eval $$(call EXTERN_LIB_BUILD_RULE,$$($(notdir $(1))_BUILDDIR),$(1)))
 
 endef
 
