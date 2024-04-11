@@ -19,11 +19,11 @@ override CPPFLAGS += -isystem ../RadioLib/examples/NonArduino/Tock
 # Include the base of libtock-c to fix the libtock/ includes from RadioLib
 override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/
 
-override LINK_LIBS_cortex-m += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
-override LINK_LIBS_cortex-m0 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
-override LINK_LIBS_cortex-m3 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
-override LINK_LIBS_cortex-m4 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
-override LINK_LIBS_cortex-m7 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
+override LIBS_cortex-m += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
+override LIBS_cortex-m0 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
+override LIBS_cortex-m3 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
+override LIBS_cortex-m4 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
+override LIBS_cortex-m7 += ../RadioLib/examples/NonArduino/Tock/build/RadioLib/libRadioLib.a
 
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.
