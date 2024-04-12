@@ -5,5 +5,5 @@
 	path = lvgl/lvgl
 	url = https://github.com/littlevgl/lvgl.git
 [submodule "examples/lora/RadioLib"]
-	path = examples/lora/RadioLib
+	path = legacy/lora/RadioLib
 	url = https://github.com/jgromes/RadioLib.git
