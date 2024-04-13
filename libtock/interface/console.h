@@ -1,24 +1,27 @@
 #pragma once
 
 #include "tock.h"
+#include "syscalls/console_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define DRIVER_NUM_CONSOLE 0x1
+// Function signature for write done callbacks.
+//
+// - `length` (`int`): Number of bytes written
+typedef void (*libtock_console_callback_write)(returncode_t, uint32_t);
 
-int putnstr(const char* str, size_t len);
-int putnstr_async(const char* str, size_t len, subscribe_upcall cb, void* userdata);
+// Function signature for read done callbacks.
+//
+// - `length` (`int`): Number of bytes read
+typedef void (*libtock_console_callback_read)(returncode_t, uint32_t);
 
-int getnstr(char *str, size_t len);
-int getnstr_async(char *str, size_t len, subscribe_upcall cb, void* userdata);
+returncode_t libtock_console_write(const uint8_t* buffer, uint32_t len, libtock_console_callback_write cb);
 
-/* Returns TOCK_FAIL on failure, or else the character received */
-int getch(void);
+returncode_t libtock_console_read(uint8_t* buffer, uint32_t len, libtock_console_callback_read cb);
 
-// Abort an ongoing receive call.
-int getnstr_abort(void);
+returncode_t libtock_console_abort_read(void);
 
 #ifdef __cplusplus
 }
