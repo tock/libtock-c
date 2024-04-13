@@ -40,9 +40,18 @@ int _open(const char* path, int flags, ...)
 {
   return -1;
 }
+
+static bool _write_done = false;
+
+static void _write_cb(returncode_t rt, uint32_t length) {
+  _write_done = true;
+}
+
 int _write(int fd, const void *buf, uint32_t count)
 {
-  putnstr((const char*)buf, count);
+  _write_done = false;
+  libtock_console_write((const uint8_t*)buf, count, &_write_cb);
+  yield_for(&_write_done);
   return count;
 }
 int _close(int fd)
