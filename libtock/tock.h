@@ -152,6 +152,13 @@ int tock_command_return_novalue_to_returncode(syscall_return_t);
 // variants.
 int tock_command_return_u32_to_returncode(syscall_return_t, uint32_t*);
 
+// Convert a `syscall_return_t` with two u32s to a `returncode_t`.
+//
+// This expects exactly two u32s to be returned (i.e. the only success case is
+// `TOCK_SYSCALL_SUCCESS_U64`). Do not use with other expected SyscallReturn
+// variants.
+int tock_command_return_u64_to_returncode(syscall_return_t, uint64_t*);
+
 // Convert a `subscribe_return_t` to a `returncode_t`.
 int tock_subscribe_return_to_returncode(subscribe_return_t);
 
