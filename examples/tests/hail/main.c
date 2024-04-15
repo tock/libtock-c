@@ -8,18 +8,18 @@
 #include <simple_adv.h>
 #include <simple_ble.h>
 
-#include <adc.h>
-#include <ambient_light.h>
-#include <button.h>
-#include <crc.h>
-#include <gpio.h>
-#include <humidity.h>
-#include <led.h>
-#include <ninedof.h>
-#include <nrf51_serialization.h>
-#include <rng.h>
-#include <temperature.h>
-#include <timer.h>
+#include <libtock-sync/peripherals/crc.h>
+#include <libtock-sync/peripherals/rng.h>
+#include <libtock-sync/sensors/ambient_light.h>
+#include <libtock-sync/sensors/humidity.h>
+#include <libtock-sync/sensors/ninedof.h>
+#include <libtock-sync/sensors/temperature.h>
+#include <libtock/interface/button.h>
+#include <libtock/interface/led.h>
+#include <libtock/net/nrf51_serialization.h>
+#include <libtock/peripherals/adc.h>
+#include <libtock/peripherals/gpio.h>
+#include <libtock/timer.h>
 
 
 /////////////////////////////////////////////////////////////////////
@@ -62,37 +62,35 @@ void ble_address_set (void) {
 // Callback for button presses.
 //   btn_num: The index of the button associated with the callback
 //   val: 1 if pressed, 0 if depressed
-static void button_callback(__attribute__ ((unused)) int   btn_num,
-                            int                            val,
-                            __attribute__ ((unused)) int   arg2,
-                            __attribute__ ((unused)) void *ud) {
+static void button_callback(__attribute__ ((unused)) returncode_t ret,
+                            __attribute__ ((unused)) int          btn_num,
+                            bool                                  val) {
   if (val == 1) {
-    led_on(1); // green
+    libtock_led_on(1); // green
   } else {
-    led_off(1);
+    libtock_led_off(1);
   }
 }
 
 // Callback for gpio interrupts.
 //   - pin_num: The index of the pin associated with the callback.
 //   - pin_state: 1 if high, 0 if low.
-static void gpio_callback(  int                            pin_num,
-                            int                            pin_state,
-                            __attribute__ ((unused)) int   arg2,
-                            __attribute__ ((unused)) void *ud) {
-  printf("GPIO Interrupt: pin: %i, state: %i\n", pin_num, pin_state);
+static void gpio_callback(  uint32_t pin_num,
+                            bool     pin_state) {
+  printf("GPIO Interrupt: pin: %li, state: %i\n", pin_num, pin_state);
 }
 
 static void sample_sensors (void) {
 
   // Sensors: temperature/humidity, acceleration, light
   int temp;
-  temperature_read_sync(&temp);
-  unsigned humi;
-  humidity_read_sync(&humi);
-  uint32_t accel_mag = ninedof_read_accel_mag();
+  libtocksync_temperature_read(&temp);
+  int humi;
+  libtocksync_humidity_read(&humi);
+  double accel_mag;
+  libtocksync_ninedof_read_accelerometer_magnitude(&accel_mag);
   int light;
-  ambient_light_read_intensity_sync(&light);
+  libtocksync_ambient_light_read_intensity(&light);
 
   // Analog inputs: A0-A5
   uint16_t val;
@@ -111,22 +109,22 @@ static void sample_sensors (void) {
 
   // Digital inputs: D0, D1, D6, D7
   int d0;
-  gpio_read(0, &d0);
+  libtock_gpio_read(0, &d0);
   int d1;
-  gpio_read(1, &d1);
+  libtock_gpio_read(1, &d1);
   int d6;
-  gpio_read(2, &d6);
+  libtock_gpio_read(2, &d6);
   int d7;
-  gpio_read(3, &d7);
+  libtock_gpio_read(3, &d7);
 
   // Random bytes
   uint8_t rand[5];
   int count;
-  rng_sync(rand, 5, 5, &count);
+  libtocksync_rng_get_random_bytes(rand, 5, 5, &count);
 
   // CRC of the random bytes
   uint32_t crc;
-  crc_compute(rand, 5, CRC_32, &crc);
+  libtocksync_crc_compute(rand, 5, LIBTOCK_CRC_32, &crc);
   uint32_t reference_crc = 0;
   reference_crc32(rand, 5, &reference_crc);
 
@@ -135,7 +133,7 @@ static void sample_sensors (void) {
   printf("  Temperature:  %d 1/100 degrees C\n", temp);
   printf("  Humidity:     %u 0.01%%\n", humi);
   printf("  Light:        %d\n", light);
-  printf("  Acceleration: %lu\n", accel_mag);
+  printf("  Acceleration: %f\n", accel_mag);
   printf("  A0:           %d mV\n", a0);
   printf("  A1:           %d mV\n", a1);
   printf("  A2:           %d mV\n", a2);
@@ -152,7 +150,7 @@ static void sample_sensors (void) {
   printf("\n");
 
   // toggle the blue LED
-  led_toggle(2);
+  libtock_led_toggle(2);
 }
 
 int main(void) {
@@ -166,18 +164,17 @@ int main(void) {
   simple_adv_only_name();
 
   // Enable button callbacks
-  button_subscribe(button_callback, NULL);
-  button_enable_interrupt(0);
+  libtock_button_notify_on_press(0, button_callback);
 
   // Setup D0, D1, D6, D7
-  gpio_enable_input(0, PullDown); // D0
-  gpio_enable_input(1, PullDown); // D1
-  gpio_enable_input(2, PullDown); // D6
-  gpio_enable_input(3, PullDown); // D7
+  libtock_gpio_enable_input(0, libtock_pull_down); // D0
+  libtock_gpio_enable_input(1, libtock_pull_down); // D1
+  libtock_gpio_enable_input(2, libtock_pull_down); // D6
+  libtock_gpio_enable_input(3, libtock_pull_down); // D7
 
   // Enable interrupts on D7
-  gpio_interrupt_callback(gpio_callback, NULL);
-  gpio_enable_interrupt(3, Change);
+  libtock_gpio_set_interrupt_callback(gpio_callback);
+  libtock_gpio_enable_interrupt(3, libtock_change);
 
   // sample sensors every second
   while (1) {
