@@ -8,7 +8,7 @@
 // Included in the libnrfserialization.a library.
 #include <simple_ble.h>
 
-#include <led.h>
+#include <libtock/interface/led.h>
 
 /*******************************************************************************
  * BLE
@@ -51,7 +51,7 @@ void ble_evt_adv_report (ble_evt_t* p_ble_evt) {
          adv->rssi, adv->dlen);
 
   // Also toggle the first LED.
-  led_toggle(0);
+  libtock_led_toggle(0);
 }
 
 /*******************************************************************************
