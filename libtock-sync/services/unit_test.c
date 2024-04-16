@@ -11,9 +11,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <ipc.h>
-#include <timer.h>
-#include <unit_test.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/timer.h>
+
+#include "unit_test.h"
 
 /*******************************************************************************
  * STRUCT DEFINITIONS AND HELPER FUNCTIONS
