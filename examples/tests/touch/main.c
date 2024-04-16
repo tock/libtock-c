@@ -1,77 +1,77 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <screen.h>
-#include <timer.h>
-#include <touch.h>
+#include <libtock/display/screen.h>
+#include <libtock/sensors/touch.h>
+#include <libtock/timer.h>
 
-static void tocuh_event (int status, int x, int y, void *ud __attribute__ ((unused))) {
+libtock_touch_event_t* multi_touch_buffer;
+
+static void touch_event (int status, uint16_t x, uint16_t y) {
   switch (status) {
-    case TOUCH_STATUS_PRESSED: {
+    case LIBTOCK_TOUCH_STATUS_PRESSED: {
       printf("pressed ");
       break;
     }
-    case TOUCH_STATUS_RELEASED: {
+    case LIBTOCK_TOUCH_STATUS_RELEASED: {
       printf("released ");
       break;
     }
-    case TOUCH_STATUS_MOVED: {
+    case LIBTOCK_TOUCH_STATUS_MOVED: {
       printf("moved ");
       break;
     }
     default:
       printf("error ");
   }
-  printf("%d x %d y %d\n", status, x, y);
+  printf("(%d): %d y %d\n", status, x, y);
 }
 
-static void multi_tocuh_event (int num_touches, int data2 __attribute__ ((unused)), int data3 __attribute__ (
-                                 (unused)), void *ud __attribute__ ((unused))) {
+static void multi_touch_event (
+  returncode_t ret __attribute__ ((unused)),
+  int          num_touches,
+  int          num_dropped __attribute__ ((unused)),
+  int          num_nofit __attribute__ ((unused))) {
   for (int i = 0; i < num_touches; i++) {
-    unsigned char id, status;
-    unsigned short x, y;
-    read_touch(i, &id, &status, &x, &y);
+    uint8_t id, status, x, y, size, pressure;
+    libtock_touch_read_touch_from_buffer(multi_touch_buffer, i, &id, &status, &x, &y, &size, &pressure);
     printf("%d: ", id);
     switch (status) {
-      case TOUCH_STATUS_PRESSED: {
+      case LIBTOCK_TOUCH_STATUS_PRESSED: {
         printf("pressed ");
         break;
       }
-      case TOUCH_STATUS_RELEASED: {
+      case LIBTOCK_TOUCH_STATUS_RELEASED: {
         printf("released ");
         break;
       }
-      case TOUCH_STATUS_MOVED: {
+      case LIBTOCK_TOUCH_STATUS_MOVED: {
         printf("moved ");
         break;
       }
       default:
         printf("error ");
     }
-    printf("%d x %d y %d, ", status, x, y);
+    printf("(%d): %d y %d, ", status, x, y);
   }
   printf("\n");
   // ack the multi touch event and enable the next event
-  multi_touch_next();
+  libtock_touch_multi_touch_next();
 }
 
 int main(void) {
-  int err;
-  int num_touches;
-  err = get_number_of_touches(&num_touches);
-  if (err < 0) {
-    return -1;
-  }
+  int num_touches = 0;
+  libtock_touch_get_number_of_touches(&num_touches);
   printf("Number of touches: %d\n", num_touches);
-
   if (num_touches == 0) {
     printf("No touch found\n");
   } else if (num_touches == 1) {
     // single touch
-    single_touch_set_callback(tocuh_event, NULL);
+    libtock_touch_enable_single_touch(touch_event);
   } else {
     // multi touch
-    multi_touch_set_callback(multi_tocuh_event, NULL, num_touches);
+    libtock_touch_allocate_multi_touch_buffer(num_touches, &multi_touch_buffer);
+    libtock_touch_enable_multi_touch(multi_touch_buffer, num_touches, multi_touch_event);
   }
   return 0;
 }
