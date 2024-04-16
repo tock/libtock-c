@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <aes.h>
-#include <console.h>
+#include <libtock/crypto/aes.h>
 
 #define KEY_LEN  16
 #define IV_LEN  16
@@ -70,53 +69,53 @@ static void aes_ctr_test(void) {
 
   printf("[TEST] AES CTR Example Test\r\n");
 
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_check_status());
+  TOCK_EXPECT(true, libtock_aes_exists());
 
   /*** Encryption ***/
   // Set AES128Ctr as the encryption algorithm
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_algorithm(0, true));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_algorithm(0, true));
 
   printf("Loading in the key...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_key_buffer(key_buf, KEY_LEN));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readonly_allow_key_buffer(key_buf, KEY_LEN));
   printf("   done\r\n");
 
   printf("Loading in the IV buf...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_iv_buffer(iv_buf, IV_LEN));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readonly_allow_iv_buffer(iv_buf, IV_LEN));
   printf("   done\r\n");
 
   printf("Loading in the first half of the source buf...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_source_buffer(&data_buf[0], DATA_LEN / 2));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readonly_allow_source_buffer(&data_buf[0], DATA_LEN / 2));
   printf("   done\r\n");
 
   printf("Setting up the first half of the dest buf...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_dest_buffer(&dest_buf[0], 128));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readwrite_allow_dest_buffer(&dest_buf[0], 128));
   printf("   done\r\n");
 
   printf("Setting up the callback...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_callback(aes_cb, &con));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_upcall(aes_cb, &con));
   printf("   done\r\n");
 
   printf("Starting the initial run...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_setup());
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_setup());
   printf("   done\r\n");
 
   yield_for(&con);
   con = false;
 
   printf("Loading in second half of the source buf...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_source_buffer(&data_buf[DATA_LEN / 2], 128));
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_dest_buffer(&dest_buf[128], DEST_LEN - 128));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readonly_allow_source_buffer(&data_buf[DATA_LEN / 2], 128));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readwrite_allow_dest_buffer(&dest_buf[128], DEST_LEN - 128));
   printf("   done\r\n");
 
   printf("Running AES twice...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_crypt());
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_crypt());
   printf("   done\r\n");
 
   yield_for(&con);
   con = false;
 
   printf("Finish AES operation...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_finish());
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_finish());
   printf("   done\r\n");
 
   for (i = 0; i < CHECK_LEN; i++) {
@@ -133,25 +132,25 @@ static void aes_ctr_test(void) {
   /*** Decryption ***/
 
   // Set AES128Ctr as the decryption algorithm
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_algorithm(0, true));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_algorithm(0, true));
 
   printf("Loading in the decryption source buf...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_source_buffer(dest_buf, DEST_LEN));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readonly_allow_source_buffer(dest_buf, DEST_LEN));
   printf("   done\r\n");
 
   printf("Setting up the decryption dest buf...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_dest_buffer(dest_buf, DEST_LEN));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readwrite_allow_dest_buffer(dest_buf, DEST_LEN));
   printf("   done\r\n");
 
   printf("Running decryption...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_setup());
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_setup());
   printf("   done\r\n");
 
   yield_for(&con);
   con = false;
 
   printf("Finish AES operation...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_finish());
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_finish());
   printf("   done\r\n");
 
   printf("Original text: '%s'\r\n", dest_buf);
@@ -163,42 +162,42 @@ static void aes_ccm_test(void) {
 
   printf("[TEST] AES CCM Example Test\r\n");
 
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_check_status());
+  TOCK_EXPECT(true, libtock_aes_exists());
 
   /*** Encryption ***/
   // Set AES128CCM as the encryption algorithm
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_algorithm(3, true));
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_ccm_set_mic_len(8));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_algorithm(3, true));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_ccm_set_mic_len(8));
 
   printf("Loading in the key...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_key_buffer(key_buf, KEY_LEN));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readonly_allow_key_buffer(key_buf, KEY_LEN));
   printf("   done\r\n");
 
   printf("Loading in the nonce buf...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_nonce_buffer(iv_buf, IV_LEN));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readonly_allow_nonce_buffer(iv_buf, IV_LEN));
   printf("   done\r\n");
 
   printf("Loading in the source buf...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_source_buffer(data_buf, 96));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readonly_allow_source_buffer(data_buf, 96));
   printf("   done\r\n");
 
   printf("Setting up the dest buf...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_dest_buffer(dest_buf, 96));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readwrite_allow_dest_buffer(dest_buf, 96));
   printf("   done\r\n");
 
   printf("Setting up the callback...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_callback(aes_cb, &con));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_upcall(aes_cb, &con));
   printf("   done\r\n");
 
   printf("Starting the initial run...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_setup());
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_setup());
   printf("   done\r\n");
 
   yield_for(&con);
   con = false;
 
   printf("Finish AES operation...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_finish());
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_finish());
   printf("   done\r\n");
 
   for (i = 0; i < 96; i++) {
@@ -215,25 +214,25 @@ static void aes_ccm_test(void) {
   /*** Decryption ***/
 
   // Set AES128CCM as the decryption algorithm
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_algorithm(3, false));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_algorithm(3, false));
 
   printf("Loading in the decryption source buf...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_source_buffer(dest_buf, 96));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readonly_allow_source_buffer(dest_buf, 96));
   printf("   done\r\n");
 
   printf("Setting up the decryption dest buf...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_set_dest_buffer(dest_buf, 96));
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_set_readwrite_allow_dest_buffer(dest_buf, 96));
   printf("   done\r\n");
 
   printf("Running decryption...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_setup());
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_setup());
   printf("   done\r\n");
 
   yield_for(&con);
   con = false;
 
   printf("Finish AES operation...\r\n");
-  TOCK_EXPECT(RETURNCODE_SUCCESS, aes_finish());
+  TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_aes_finish());
   printf("   done\r\n");
 
   printf("Original text: '%s'\r\n", dest_buf);
