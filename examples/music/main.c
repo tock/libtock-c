@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <buzzer.h>
-#include <timer.h>
+#include <libtock-sync/interface/buzzer.h>
+#include <libtock/timer.h>
 
 // Adapted from https://github.com/robsoncouto/arduino-songs
 
@@ -34,7 +34,7 @@ int melody[] = {
 #define TEMPO 114
 
 int main(void) {
-  if (!buzzer_exists()) {
+  if (!libtock_buzzer_exists()) {
     printf("There is no available buzzer\n");
     return -1;
   }
@@ -57,6 +57,6 @@ int main(void) {
     }
 
     // we only play the note for 90% of the duration, leaving 10% as a pause
-    tone_sync(melody[note], note_duration * 0.9);
+    libtocksync_buzzer_tone(melody[note], note_duration * 0.9);
   }
 }
