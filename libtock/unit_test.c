@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <ipc.h>
+#include <kernel/ipc.h>
 #include <timer.h>
 #include <unit_test.h>
 
