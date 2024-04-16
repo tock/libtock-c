@@ -1,4 +1,4 @@
-#include <rtc.h>
+#include <peripheral/rtc.h>
 #include <stdio.h>
 #include <timer.h>
 
