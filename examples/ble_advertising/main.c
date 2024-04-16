@@ -1,7 +1,9 @@
-#include <ble.h>
-#include <gap.h>
 #include <stdbool.h>
 #include <stdio.h>
+
+#include <gap.h>
+
+#include <net/ble.h>
 #include <tock.h>
 
 // Sizes in bytes
