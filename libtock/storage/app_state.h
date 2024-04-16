@@ -34,14 +34,12 @@
 //     if (ret != 0) prinrf("ERROR(%i): Could not write back to flash.\n", ret);
 //   }
 
+#include "../tock.h"
+#include "syscalls/app_state_syscalls.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "tock.h"
-
-#define DRIVER_NUM_APP_FLASH 0x50000
-
 
 // Declare an application state structure
 //
@@ -57,27 +55,36 @@ extern "C" {
 // The variable `memory_copy` is available as regular C structure, however
 // users must explicitly `load` and `save` application state as appropriate.
 // Note that each process may only use APP_STATE_DECLARE once.
-#define APP_STATE_DECLARE(_type, _identifier)                         \
+#define LIBTOCK_APP_STATE_DECLARE(_type, _identifier)                 \
   __attribute__((section(".app_state")))                              \
   _type _app_state_flash;                                             \
   _type _identifier;                                                  \
   void* _app_state_flash_pointer = NULL;                              \
-  void* _app_state_ram_pointer = &_identifier;                        \
-  size_t _app_state_size = sizeof(_type);
+  void* _app_state_ram_pointer   = &_identifier;                        \
+  size_t _app_state_size         = sizeof(_type);                             \
+  bool _app_state_inited         = false;
+
+
+// Function signature save done callbacks.
+//
+// - `arg1` (`returncode_t`): Status of save operation.
+typedef void (*libtock_app_state_callback)(returncode_t);
+
 
 extern void* _app_state_flash_pointer;
 extern void* _app_state_ram_pointer;
 extern size_t _app_state_size;
+extern bool _app_state_inited;
 
-// Load application state from persistent storage
-__attribute__ ((warn_unused_result))
-int app_state_load_sync(void);
 
-// Save application state to persistent storage
-__attribute__ ((warn_unused_result))
-int app_state_save(subscribe_upcall callback, void* callback_args);
-__attribute__ ((warn_unused_result))
-int app_state_save_sync(void);
+
+// Load application state from persistent storage into the in-memory storage
+// location.
+returncode_t libtock_app_state_load(void);
+
+// Save the application state to persistent storage.
+returncode_t libtock_app_state_save(libtock_app_state_callback cb);
+
 
 
 #ifdef __cplusplus

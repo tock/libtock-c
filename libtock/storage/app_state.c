@@ -1,24 +1,23 @@
 #include <string.h>
 
 #include "app_state.h"
-#include "tock.h"
+
 
 // Internal callback for synchronous interfaces
-static void app_state_sync_upcall(__attribute__ ((unused)) int callback_type,
-                                  __attribute__ ((unused)) int value,
-                                  __attribute__ ((unused)) int unused,
-                                  void*                        ud) {
-  *((bool*) ud) = true;
+static void app_state_upcall(__attribute__ ((unused)) int callback_type,
+                             __attribute__ ((unused)) int value,
+                             __attribute__ ((unused)) int unused,
+                             void*                        opaque) {
+  libtock_app_state_callback cb = (libtock_app_state_callback) opaque;
+  cb(RETURNCODE_SUCCESS);
 }
 
 
-static bool _app_state_inited = false;
-static int app_state_init(void) {
-  allow_ro_return_t aret =
-    allow_readonly(DRIVER_NUM_APP_FLASH, 0, _app_state_ram_pointer, _app_state_size);
-  if (!aret.success) {
-    return tock_status_to_returncode(aret.status);
-  }
+static returncode_t app_state_init(void) {
+  returncode_t ret;
+
+  ret = libtock_app_state_set_readonly_allow(_app_state_ram_pointer, _app_state_size);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Check that we have a region to use for this.
   int number_regions = tock_app_number_writeable_flash_regions();
@@ -28,49 +27,31 @@ static int app_state_init(void) {
   _app_state_flash_pointer = tock_app_writeable_flash_region_begins_at(0);
 
   _app_state_inited = true;
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
 
-
-int app_state_load_sync(void) {
+returncode_t libtock_app_state_load(void) {
   if (!_app_state_inited) {
     int err;
     err = app_state_init();
-    if (err < 0) return err;
+    if (err != RETURNCODE_SUCCESS) return err;
   }
 
   memcpy(_app_state_ram_pointer, _app_state_flash_pointer, _app_state_size);
-  return 0;
+  return RETURNCODE_SUCCESS;
 }
 
-int app_state_save(subscribe_upcall callback, void* callback_args) {
+returncode_t libtock_app_state_save(libtock_app_state_callback cb) {
+  returncode_t err;
+
   if (!_app_state_inited) {
-    int err = app_state_init();
-    if (err < 0) return err;
+    err = app_state_init();
+    if (err != RETURNCODE_SUCCESS) return err;
   }
 
-  subscribe_return_t sret =
-    subscribe(DRIVER_NUM_APP_FLASH, 0, callback, callback_args);
-  if (!sret.success) {
-    return tock_status_to_returncode(sret.status);
-  }
+  err = libtock_app_state_set_upcall(app_state_upcall, (void*) cb);
+  if (err != RETURNCODE_SUCCESS) return err;
 
-  syscall_return_t cret =
-    command(DRIVER_NUM_APP_FLASH, 1, (uint32_t) _app_state_flash_pointer, 0);
-  return tock_command_return_novalue_to_returncode(cret);
-}
-
-
-static bool save_sync_flag;
-int app_state_save_sync(void) {
-  int err;
-  save_sync_flag = false;
-
-  err = app_state_save(app_state_sync_upcall, (void*) &save_sync_flag);
-  if (err < 0) return err;
-
-  // Wait for the callback.
-  yield_for(&save_sync_flag);
-
-  return 0;
+  err = libtock_app_state_command_save((uint32_t) _app_state_flash_pointer);
+  return err;
 }
