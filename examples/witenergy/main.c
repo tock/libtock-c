@@ -15,13 +15,12 @@
 
 #include <simple_ble.h>
 
-#include <nrf51_serialization.h>
-
-#include <button.h>
-#include <console.h>
-#include <led.h>
-#include <timer.h>
-#include <tock.h>
+#include <libtock/interface/button.h>
+#include <libtock/interface/console.h>
+#include <libtock/interface/led.h>
+#include <libtock/net/nrf51_serialization.h>
+#include <libtock/timer.h>
+#include <libtock/tock.h>
 
 
 /*******************************************************************************
@@ -577,11 +576,11 @@ void toggle_relay (void) {
   }
 }
 
-static void button_callback(__attribute__ ((unused)) int   btn_num,
-                            int                            val,
-                            __attribute__ ((unused)) int   arg2,
-                            __attribute__ ((unused)) void *ud) {
-  if (val == 1 && _state == OORT_STATE_NONE) {
+static void button_callback(
+  __attribute__ ((unused)) returncode_t ret,
+  __attribute__ ((unused)) int          btn_num,
+  bool                                  val) {
+  if (val && _state == OORT_STATE_NONE) {
     printf("Button press! Toggle the relay!\n");
     toggle_relay();
   }
@@ -594,8 +593,7 @@ int main (void) {
   printf("Press the user button to toggle the relay.\n");
 
   // Button press toggles meter relay.
-  button_subscribe(button_callback, NULL);
-  button_enable_interrupt(0);
+  libtock_button_notify_on_press(0, button_callback);
 
   // Setup simple BLE. This does most of the nordic setup.
   simple_ble_init(&_ble_config);
