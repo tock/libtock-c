@@ -1,21 +1,17 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <ambient_light.h>
-#include <humidity.h>
-#include <lps25hb.h>
-#include <ninedof.h>
-#include <proximity.h>
-#include <sound_pressure.h>
-#include <temperature.h>
-#include <timer.h>
-#include <tock.h>
-#include <tsl2561.h>
+#include <libtock-sync/sensors/ambient_light.h>
+#include <libtock-sync/sensors/humidity.h>
+#include <libtock-sync/sensors/ninedof.h>
+#include <libtock-sync/sensors/proximity.h>
+#include <libtock-sync/sensors/sound_pressure.h>
+#include <libtock-sync/sensors/temperature.h>
+#include <libtock/timer.h>
+#include <libtock/tock.h>
 
 static tock_timer_t timer;
 static bool light          = false;
-static bool tsl2561        = false;
-static bool lps25hb        = false;
 static bool temperature    = false;
 static bool humidity       = false;
 static bool ninedof        = false;
@@ -29,10 +25,8 @@ static void timer_fired(__attribute__ ((unused)) int   arg0,
                         __attribute__ ((unused)) int   arg2,
                         __attribute__ ((unused)) void* ud) {
   int lite = 0;
-  int tsl2561_lux = 0;
-  int lps25hb_pressure = 0;
   int temp = 0;
-  unsigned humi = 0;
+  int humi = 0;
   int ninedof_accel_x = 0, ninedof_accel_y = 0, ninedof_accel_z = 0;
   int ninedof_magneto_x = 0, ninedof_magneto_y = 0, ninedof_magneto_z = 0;
   int ninedof_gyro_x = 0, ninedof_gyro_y = 0, ninedof_gyro_z = 0;
@@ -40,20 +34,16 @@ static void timer_fired(__attribute__ ((unused)) int   arg0,
   unsigned char sound_pressure_reading = 0;
 
   /* *INDENT-OFF* */
-  if (light)          ambient_light_read_intensity_sync(&lite);
-  if (tsl2561)        tsl2561_get_lux_sync(&tsl2561_lux);
-  if (lps25hb)        lps25hb_get_pressure_sync(&lps25hb_pressure);
-  if (temperature)    temperature_read_sync(&temp);
-  if (humidity)       humidity_read_sync(&humi);
-  if (ninedof_accel)  ninedof_read_acceleration_sync(&ninedof_accel_x, &ninedof_accel_y, &ninedof_accel_z);
-  if (ninedof_mag)    ninedof_read_magnetometer_sync(&ninedof_magneto_x, &ninedof_magneto_y, &ninedof_magneto_z);
-  if (ninedof_gyro)   ninedof_read_gyroscope_sync(&ninedof_gyro_x, &ninedof_gyro_y, &ninedof_gyro_z);
-  if (proximity)      proximity_read_sync(&prox_reading);
-  if (sound_pressure) sound_pressure_read_sync(&sound_pressure_reading);
+  if (light)          libtocksync_ambient_light_read_intensity(&lite);
+  if (temperature)    libtocksync_temperature_read(&temp);
+  if (humidity)       libtocksync_humidity_read(&humi);
+  if (ninedof_accel)  libtocksync_ninedof_read_accelerometer(&ninedof_accel_x, &ninedof_accel_y, &ninedof_accel_z);
+  if (ninedof_mag)    libtocksync_ninedof_read_magnetometer(&ninedof_magneto_x, &ninedof_magneto_y, &ninedof_magneto_z);
+  if (ninedof_gyro)   libtocksync_ninedof_read_gyroscope(&ninedof_gyro_x, &ninedof_gyro_y, &ninedof_gyro_z);
+  if (proximity)      libtocksync_proximity_read(&prox_reading);
+  if (sound_pressure) libtocksync_sound_pressure_read(&sound_pressure_reading);
 
   if (light)          printf("Amb. Light: Light Intensity: %d\n", lite);
-  if (tsl2561)        printf("TSL2561:    Light:           %d lux\n", tsl2561_lux);
-  if (lps25hb)        printf("LPS25HB:    Pressure:        %d\n", lps25hb_pressure);
   if (temperature)    printf("Temperature:                 %d deg C\n", temp/100);
   if (humidity)       printf("Humidity:                    %u%%\n", humi/100);
   if (ninedof_accel)  printf("Acceleration: X: %d Y: %d Z: %d\n", ninedof_accel_x, ninedof_accel_y, ninedof_accel_z);
@@ -73,27 +63,23 @@ int main(void) {
   printf("[Sensors] All available sensors on the platform will be sampled.\n");
 
   /* *INDENT-OFF* */
-  light          = driver_exists(DRIVER_NUM_AMBIENT_LIGHT);
-  tsl2561        = driver_exists(DRIVER_NUM_TSL2561);
-  lps25hb        = driver_exists(DRIVER_NUM_LPS25HB);
-  temperature    = driver_exists(DRIVER_NUM_TEMPERATURE);
-  humidity       = driver_exists(DRIVER_NUM_HUMIDITY);
-  ninedof        = driver_exists(DRIVER_NUM_NINEDOF);
-  proximity      = driver_exists(DRIVER_NUM_PROXIMITY);
-  sound_pressure = driver_exists(DRIVER_NUM_SOUND_PRESSURE);
+  light          = libtock_ambient_light_exists();
+  temperature    = libtock_temperature_exists();
+  humidity       = libtock_humidity_exists();
+  ninedof        = libtock_ninedof_exists();
+  proximity      = libtock_proximity_exists();
+  sound_pressure = libtock_sound_pressure_exists();
   /* *INDENT-ON* */
 
   if (ninedof) {
     int buffer;
-    ninedof_accel = (ninedof_read_acceleration_sync(&buffer, &buffer, &buffer) == RETURNCODE_SUCCESS);
-    ninedof_mag   = (ninedof_read_magnetometer_sync(&buffer, &buffer, &buffer) == RETURNCODE_SUCCESS);
-    ninedof_gyro  = (ninedof_read_gyroscope_sync(&buffer, &buffer, &buffer) == RETURNCODE_SUCCESS);
+    ninedof_accel = (libtocksync_ninedof_read_accelerometer(&buffer, &buffer, &buffer) == RETURNCODE_SUCCESS);
+    ninedof_mag   = (libtocksync_ninedof_read_magnetometer(&buffer, &buffer, &buffer) == RETURNCODE_SUCCESS);
+    ninedof_gyro  = (libtocksync_ninedof_read_gyroscope(&buffer, &buffer, &buffer) == RETURNCODE_SUCCESS);
   }
 
   /* *INDENT-OFF* */
   if (light)          printf("[Sensors]   Sampling Ambient Light sensor.\n");
-  if (tsl2561)        printf("[Sensors]   Sampling TSL2561 Light sensor.\n");
-  if (lps25hb)        printf("[Sensors]   Sampling LPS25HB pressure sensor.\n");
   if (temperature)    printf("[Sensors]   Sampling Temperature sensor.\n");
   if (humidity)       printf("[Sensors]   Sampling Humidity sensor.\n");
   if (ninedof_accel)  printf("[Sensors]   Sampling Accelerometer.\n");
@@ -104,7 +90,7 @@ int main(void) {
   /* *INDENT-ON* */
 
   if (sound_pressure) {
-    sound_pressure_enable();
+    libtock_sound_pressure_command_enable();
   }
 
   // Setup periodic timer to sample the sensors.
