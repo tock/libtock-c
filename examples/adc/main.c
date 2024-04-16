@@ -1,5 +1,6 @@
-#include <adc.h>
 #include <stdio.h>
+
+#include <peripherals/adc.h>
 #include <timer.h>
 
 int main(void) {
