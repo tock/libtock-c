@@ -1,8 +1,9 @@
+#include <stdbool.h>
+
 #include <timer.h>
 #include <tock.h>
 #include <unit_test.h>
 
-#include <stdbool.h>
 
 static bool test_pass(void) {
   delay_ms(100);
