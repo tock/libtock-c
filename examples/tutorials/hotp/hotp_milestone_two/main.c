@@ -18,14 +18,12 @@
 #include <string.h>
 
 // Libtock includes
-#include <app_state.h>
-#include <button.h>
-#include <console.h>
-#include <hmac.h>
-#include <kv.h>
-#include <led.h>
+#include <libtock/crypto/hmac.h>
+#include <libtock/interface/button.h>
+#include <libtock/interface/console.h>
+#include <libtock/interface/led.h>
+#include <libtock/interface/usb_keyboard_hid.h>
 #include <timer.h>
-#include <usb_keyboard_hid.h>
 
 // Local includes
 #include "base32.h"
