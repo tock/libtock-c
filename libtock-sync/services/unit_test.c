@@ -11,9 +11,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <ipc.h>
-#include <timer.h>
-#include <unit_test.h>
+#include "alarm.h"
+#include <libtock/kernel/ipc.h>
+
+#include "unit_test.h"
 
 /*******************************************************************************
  * STRUCT DEFINITIONS AND HELPER FUNCTIONS
@@ -82,8 +83,8 @@ struct unit_test_t {
   // Process ID of this test runner.
   int pid;
 
-  // Timer structure used for triggering test timeout conditions.
-  tock_timer_t timer;
+  // alarm structure used for triggering test timeout conditions.
+  alarm_t alarm;
 
   // Result of the most recently completed test.
   unit_test_result_t result;
@@ -230,7 +231,7 @@ void unit_test_runner(unit_test_fun *tests, uint32_t test_count,
 
   // Establish communication with the test supervisor service. First delay 10 ms
   // to ensure the supervisor service has time to register.
-  delay_ms(10);
+  libtocksync_alarm_delay_ms(10);
   size_t test_svc;
   int err = ipc_discover(svc_name, &test_svc);
   if (err < 0) return;
@@ -320,19 +321,22 @@ static void print_test_summary(unit_test_t *test) {
          incomplete, total);
 }
 
+struct alarm_cb_data {
+  unit_test_t *test;
+};
+
+static struct alarm_cb_data data = { .test = NULL };
+
 /** \brief Timer callback for handling a test timeout.
  *
  * When a test times out, there's no guarantee about the test runner's state, so
  * we just stop the tests here and print the results.
  */
-static void timeout_callback(__attribute__ ((unused)) int now,
-                             __attribute__ ((unused)) int expiration,
-                             __attribute__ ((unused)) int unused, void* ud) {
-
-  unit_test_t *test = (unit_test_t *)ud;
-  test->result = Timeout;
-  print_test_result(test);
-  print_test_summary(test);
+static void timeout_callback(__attribute__ ((unused)) uint32_t now,
+                             __attribute__ ((unused)) uint32_t scheduled) {
+  data.test->result = Timeout;
+  print_test_result(data.test);
+  print_test_summary(data.test);
 }
 
 /** \brief IPC service callback for coordinating test runners.
@@ -372,15 +376,16 @@ static void unit_test_service_callback(int                            pid,
       break;
 
     case TestStart:
-      // Start the timer and start the test.
-      timer_in(test->timeout_ms, timeout_callback, test, &test->timer);
+      // Start the alarm and start the test.
+      data.test = test;
+      libtock_alarm_in_ms(test->timeout_ms, timeout_callback, &test->alarm);
       ipc_notify_client(test->pid);
       break;
 
     case TestEnd:
-      // Cancel the timeout timer since the test is now complete.
+      // Cancel the timeout alarm since the test is now complete.
       // Record the test result for the test summary statistics.
-      timer_cancel(&test->timer);
+      libtock_alarm_cancel(&test->alarm);
 
       // If the test timed out, the summary results will already have been
       // printed. In this case, we no longer want the tests to continue,
