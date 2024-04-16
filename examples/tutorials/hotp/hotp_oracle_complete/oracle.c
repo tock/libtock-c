@@ -1,7 +1,8 @@
-#include "oracle.h"
-
-#include <rng.h>
 #include <stdbool.h>
+
+#include <libtock-sync/peripherals/rng.h>
+
+#include "oracle.h"
 
 struct crypt_upcall_ud {
   bool done;
@@ -16,7 +17,7 @@ static void crypt_upcall(__attribute__((unused)) int  num,
   ((struct crypt_upcall_ud*)ud)->len  = len;
 }
 
-int decrypt(const uint8_t* iv, const uint8_t* cipher, int cipher_len, uint8_t* output, int outputlen) {
+int oracle_decrypt(const uint8_t* iv, const uint8_t* cipher, int cipher_len, uint8_t* output, int outputlen) {
   // set IV
   allow_ro_return_t ror = allow_readonly(0x99999, 0, iv, 16);
   if (!ror.success) {
@@ -52,13 +53,13 @@ int decrypt(const uint8_t* iv, const uint8_t* cipher, int cipher_len, uint8_t* o
   return ud.len;
 }
 
-int encrypt(const uint8_t* plaintext, int plaintext_len, uint8_t* output, int output_len, uint8_t iv[16]) {
+int oracle_encrypt(const uint8_t* plaintext, int plaintext_len, uint8_t* output, int output_len, uint8_t iv[16]) {
   // get randomness for iv
   int rng_out = 0;
-  int suc     = rng_sync(iv, 16, 16, &rng_out);
+  int suc     = libtocksync_rng_get_random_bytes(iv, 16, 16, &rng_out);
   if (suc != 0) {
     return suc;
   }
 
-  return decrypt(iv, plaintext, plaintext_len, output, output_len);
+  return oracle_decrypt(iv, plaintext, plaintext_len, output, output_len);
 }
