@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <ipc.h>
-#include <timer.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/timer.h>
 
 size_t _svc_num = 0;
 

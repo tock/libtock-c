@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <ipc.h>
-#include <timer.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/timer.h>
 
-#include <ambient_light.h>
-#include <humidity.h>
-#include <temperature.h>
+#include <libtock-sync/sensors/ambient_light.h>
+#include <libtock-sync/sensors/humidity.h>
+#include <libtock-sync/sensors/temperature.h>
 
 size_t _svc_num = 0;
 
@@ -42,12 +42,12 @@ static void do_sensing_cb(__attribute__ ((unused)) int   now,
 
   sensor_update_t *update = (sensor_update_t*) buf;
 
-  int light     = 0;
-  int temp      = 0;
-  unsigned humi = 0;
+  int light = 0;
+  int temp  = 0;
+  int humi  = 0;
 
   if (driver_exists(DRIVER_NUM_AMBIENT_LIGHT)) {
-    ambient_light_read_intensity_sync(&light);
+    libtocksync_ambient_light_read_intensity(&light);
 
     update->type  = SENSOR_IRRADIANCE;
     update->value = light;
@@ -57,7 +57,7 @@ static void do_sensing_cb(__attribute__ ((unused)) int   now,
   }
 
   if (driver_exists(DRIVER_NUM_TEMPERATURE)) {
-    temperature_read_sync(&temp);
+    libtocksync_temperature_read(&temp);
 
     update->type  = SENSOR_TEMPERATURE;
     update->value = temp;
@@ -67,7 +67,7 @@ static void do_sensing_cb(__attribute__ ((unused)) int   now,
   }
 
   if (driver_exists(DRIVER_NUM_HUMIDITY)) {
-    humidity_read_sync(&humi);
+    libtocksync_humidity_read(&humi);
 
     update->type  = SENSOR_HUMIDITY;
     update->value = humi;
