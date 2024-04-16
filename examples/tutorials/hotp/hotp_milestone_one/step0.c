@@ -1,49 +1,14 @@
-// USB Security Key Application
-//
-// Outputs HOTP codes over USB HID
-//
-// Test with: https://www.verifyr.com/en/otp/check#hotp
-// Use the "Generate HOTP Code" window with the default secret "test" or whatever secret you use
-// Counter should be the current counter value
-// MUST use algorithm "sha256"
-// Digits should be "6" unless you later change that
-
-// C standard library includes
-#include <ctype.h>
 #include <math.h>
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
-// Libtock includes
 #include <libtock-sync/interface/usb_keyboard_hid.h>
-#include <libtock-sync/services/alarm.h>
 #include <libtock/crypto/hmac.h>
 #include <libtock/interface/button.h>
-#include <libtock/interface/console.h>
 #include <libtock/interface/led.h>
 
-// Local includes
 #include "base32.h"
-
-
-// --- Definitions for HOTP App ---
-
-// Select how many digits for a key
-#define KEY_DIGITS 6
-
-typedef uint64_t counter_t;
-
-typedef struct {
-  uint8_t len;
-  uint8_t key[64];
-  counter_t counter;
-} hotp_key_t;
-
-hotp_key_t stored_key = {0};
-
+#include "step0.h"
 
 // --- Button Handling ---
 
@@ -64,7 +29,7 @@ static void button_callback(__attribute__ ((unused)) returncode_t ret,
 }
 
 // Initializes interrupts on a button
-static int initialize_buttons(void) {
+int initialize_buttons(void) {
   returncode_t err;
 
   // Determine the number of supported buttons
@@ -90,8 +55,8 @@ static void hmac_callback(__attribute__ ((unused)) returncode_t ret) {
   hmac_done = true;
 }
 
-static int hmac(const uint8_t* key, int key_len, const uint8_t* data, int data_len, uint8_t* output_buffer,
-                int output_buffer_len) {
+int hmac(const uint8_t* key, int key_len, const uint8_t* data, int data_len, uint8_t* output_buffer,
+         int output_buffer_len) {
   returncode_t ret;
   hmac_done = false;
 
@@ -115,7 +80,7 @@ done:
   return ret;
 }
 
-static int decrypt(const uint8_t* cipher, int cipherlen, uint8_t* plaintext, int plaintext_capacity) {
+int decrypt(const uint8_t* cipher, int cipherlen, uint8_t* plaintext, int plaintext_capacity) {
   int copylen = cipherlen;
   if (plaintext_capacity < cipherlen) {
     copylen = plaintext_capacity;
@@ -124,9 +89,9 @@ static int decrypt(const uint8_t* cipher, int cipherlen, uint8_t* plaintext, int
   return copylen;
 }
 
-// --- HOTP Actions ---
+// --- HOTP ---
 
-static void program_default_secret(hotp_key_t* hotp_key) {
+void program_default_secret(hotp_key_t* hotp_key) {
   libtock_led_on(0);
   const char* default_secret = "test";
 
@@ -146,7 +111,7 @@ static void program_default_secret(hotp_key_t* hotp_key) {
   libtock_led_off(0);
 }
 
-static void get_next_code(hotp_key_t* hotp_key) {
+void get_next_code(hotp_key_t* hotp_key, int key_digits) {
   libtock_led_on(0);
 
   // Decrypt the key
@@ -176,12 +141,12 @@ static void get_next_code(hotp_key_t* hotp_key) {
                     | ((hmac_output_buf[offset + 3] & 0xff)));
 
   // Limit output to correct number of digits. Modulus by 10^digits
-  double digit_count = pow(10, KEY_DIGITS);
+  double digit_count = pow(10, key_digits);
   S %= (uint32_t)digit_count;
 
   // Record value as a string
   char hotp_format_buffer[16];
-  int len = snprintf(hotp_format_buffer, 16, "%.*ld", KEY_DIGITS, S);
+  int len = snprintf(hotp_format_buffer, 16, "%.*ld", key_digits, S);
   if (len < 0) {
     len = 0;
   } else if (len > 16) {
@@ -199,43 +164,4 @@ static void get_next_code(hotp_key_t* hotp_key) {
 
   // Complete
   libtock_led_off(0);
-}
-
-
-
-// --- Main Loop ---
-
-// Performs initialization and interactivity.
-int main(void) {
-  libtocksync_alarm_delay_ms(1000);
-  printf("Tock HOTP App Started. Usage:\r\n"
-      "* Press Button 1 to get the next HOTP code for that slot.\r\n"
-      "* Hold Button 1 to enter a new HOTP secret for that slot.\r\n");
-
-  // Initialize buttons
-  if (initialize_buttons() != RETURNCODE_SUCCESS) {
-    printf("ERROR initializing buttons\r\n");
-    return 1;
-  }
-
-  // Configure a default HOTP secret
-  program_default_secret(&stored_key);
-
-  // Main loop. Waits for button presses
-  while (true) {
-    // Yield until a button is pressed
-    button_pressed = false;
-    yield_for(&button_pressed);
-
-    // Handle short presses on already configured keys (output next code)
-    if (stored_key.len > 0) {
-      get_next_code(&stored_key);
-
-      // Error for short press on a non-configured key
-    } else if (stored_key.len == 0) {
-      printf("HOTP / TOTP key not yet configured.\r\n");
-    }
-  }
-
-  return 0;
 }
