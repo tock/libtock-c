@@ -17,9 +17,9 @@
 
 #include <nrf51_serialization.h>
 
-#include <button.h>
-#include <console.h>
-#include <led.h>
+#include <interface/button.h>
+#include <interface/console.h>
+#include <interface/led.h>
 #include <timer.h>
 #include <tock.h>
 
