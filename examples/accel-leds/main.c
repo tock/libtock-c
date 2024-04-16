@@ -1,15 +1,15 @@
 #include <limits.h>
 #include <stdio.h>
 
-#include <led.h>
-#include <ninedof.h>
+#include <libtock-sync/sensors/ninedof.h>
+#include <libtock/interface/led.h>
 
 int main(void) {
   printf("[App] Accelerometer -> LEDs\n");
 
   while (1) {
     int x, y, z;
-    ninedof_read_acceleration_sync(&x, &y, &z);
+    libtocksync_ninedof_read_accelerometer(&x, &y, &z);
 
     // abs()
     if (x < 0) x *= -1;
@@ -23,19 +23,19 @@ int main(void) {
     if (z > largest) largest = z;
 
     if (x == largest) {
-      led_on(0);
+      libtock_led_on(0);
     } else {
-      led_off(0);
+      libtock_led_off(0);
     }
     if (y == largest) {
-      led_on(1);
+      libtock_led_on(1);
     } else {
-      led_off(1);
+      libtock_led_off(1);
     }
     if (z == largest) {
-      led_on(2);
+      libtock_led_on(2);
     } else {
-      led_off(2);
+      libtock_led_off(2);
     }
   }
 
