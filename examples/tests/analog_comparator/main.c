@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include <analog_comparator.h>
-#include <timer.h>
-#include <tock.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/peripherals/analog_comparator.h>
+#include <libtock/tock.h>
+
 static int callback_channel;
 
 static void analog_comparator_comparison_polling(uint8_t channel) {
@@ -12,14 +13,14 @@ static void analog_comparator_comparison_polling(uint8_t channel) {
   while (1) {
     count++;
     bool result;
-    analog_comparator_comparison(channel, &result);
+    libtock_analog_comparator_comparison(channel, &result);
     printf("Try %d. Result = %d.\n", count, result);
     if (result == 1) {
       printf("This means Vinp > Vinn!\n\n");
     } else {
       printf("This means Vinp < Vinn!\n\n");
     }
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 }
 
@@ -35,11 +36,11 @@ static void analog_comparator_callback (int                          arg0,
 
 static void analog_comparator_comparison_interrupt(uint8_t channel) {
   // Enable AC interrupts on the desired channel (i.e. two pins)
-  analog_comparator_start_comparing(channel);
+  libtock_analog_comparator_start_comparing(channel);
 
   static bool resume = 0;
   // Set callback for AC interrupts
-  analog_comparator_interrupt_callback(analog_comparator_callback, &resume);
+  libtock_analog_comparator_set_upcall(analog_comparator_callback, &resume);
 
   while (1) {
     yield_for(&resume);
@@ -51,13 +52,13 @@ static void analog_comparator_comparison_interrupt(uint8_t channel) {
 int main(void) {
   printf("\nAnalog Comparator test application\n");
 
-  if (!analog_comparator_exists()) {
+  if (!libtock_analog_comparator_exists()) {
     printf("Analog Comparator driver does not exist\n");
     exit(1);
   }
 
   int count;
-  analog_comparator_count(&count);
+  libtock_analog_comparator_count(&count);
   printf("Analog Comparator driver exists with %d channels\n", count);
 
   // Set mode according to which implementation you want.
