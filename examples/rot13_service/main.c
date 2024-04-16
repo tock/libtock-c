@@ -1,5 +1,5 @@
-#include <ipc.h>
-#include <tock.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/tock.h>
 
 struct rot13_buf {
   int8_t length;
