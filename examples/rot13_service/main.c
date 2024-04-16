@@ -1,4 +1,4 @@
-#include <ipc.h>
+#include <kernel/ipc.h>
 #include <tock.h>
 
 struct rot13_buf {
