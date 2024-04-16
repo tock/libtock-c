@@ -1,37 +1,23 @@
-// \file
-// This program waits for button presses on each of the buttons attached
-// to a board and toggles the LED with the same index. For example, if the first
-// button is pressed, the first LED is toggled. If the third button is pressed,
-// the third LED is toggled.
-
-#include <button.h>
-#include <led.h>
+#include <libtock/interface/button.h>
+#include <libtock/interface/led.h>
 
 // Callback for button presses.
-//   btn_num: The index of the button associated with the callback
-//   val: 1 if pressed, 0 if depressed
-static void button_callback(int                            btn_num,
-                            int                            val,
-                            __attribute__ ((unused)) int   arg2,
-                            __attribute__ ((unused)) void *ud) {
-  if (val == 1) {
-    led_toggle(btn_num);
+static void button_callback(__attribute__ ((unused)) returncode_t ret, int btn_num, bool pressed) {
+  if (pressed) {
+    libtock_led_toggle(btn_num);
   }
 }
 
 int main(void) {
   int err;
 
-  err = button_subscribe(button_callback, NULL);
-  if (err < 0) return err;
-
   // Enable interrupts on each button.
   int count;
-  err = button_count(&count);
+  err = libtock_button_count(&count);
   if (err < 0) return err;
 
   for (int i = 0; i < count; i++) {
-    button_enable_interrupt(i);
+    libtock_button_notify_on_press(i, button_callback);
   }
 
   return 0;
