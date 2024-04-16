@@ -14,7 +14,7 @@
 
 #include <nrf51_serialization.h>
 
-#include <console.h>
+#include <interface/console.h>
 #include <tock.h>
 
 #include "ble_nus.h"
