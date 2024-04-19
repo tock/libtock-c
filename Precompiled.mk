@@ -44,8 +44,8 @@ RISCV_ARCHS := rv32i/ilp32 rv32im/ilp32 rv32imac/ilp32
 # - $(3): Arch
 define PRECOMPILED_NEWLIB_RULES
 
-TOCK_NEWLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/newlib/%/$(1)/$(2)/lib/$(3)/libc.a
-TOCK_NEWLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/newlib/%/$(1)/$(2)/lib/$(3)/libm.a
+TOCK_NEWLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/%/$(1)/$(2)/lib/$(3)/libc.a
+TOCK_NEWLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/%/$(1)/$(2)/lib/$(3)/libm.a
 
 endef
 
@@ -58,7 +58,7 @@ $(foreach arch,$(RISCV_ARCHS),$(eval $(call PRECOMPILED_NEWLIB_RULES,riscv,riscv
 # % will match something like "libtock-newlib-4.2.0.20211231" which we then
 # strip down to just the version with some string manipulation.
 $(TOCK_NEWLIB_TARGETS):
-	cd $(TOCK_USERLAND_BASE_DIR)/lib/newlib; ./fetch-newlib.sh $(patsubst libtock-newlib-%,%,$*)
+	cd $(TOCK_USERLAND_BASE_DIR)/lib; ./fetch-newlib.sh $(patsubst libtock-newlib-%,%,$*)
 
 ################################################################################
 # LIBC++ Rules
@@ -69,8 +69,8 @@ $(TOCK_NEWLIB_TARGETS):
 define PRECOMPILED_CXXLIB_RULES
 
 # This first bit is the same approach as newlib above.
-TOCK_CXXLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/libc++/%/$(1)/$(2)/lib/$(3)/libstdc++.a
-TOCK_CXXLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/libc++/%/$(1)/$(2)/lib/$(3)/libsupc++.a
+TOCK_CXXLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/%/$(1)/$(2)/lib/$(3)/libstdc++.a
+TOCK_CXXLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/%/$(1)/$(2)/lib/$(3)/libsupc++.a
 
 # So this is supremely frustrating. The issue boils down to limitations of
 # pattern rules in make.
@@ -90,8 +90,8 @@ TOCK_CXXLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/libc++/%/$(1)/$(2)/lib/$(3
 # is in the path twice with libgcc.a and once with the other libs.
 #
 # For reference here's a concrete example of library paths we must handle:
-#  ../../lib/libc++/libtock-libc++-10.5.0/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libstdc++.a
-#  ../../lib/libc++/libtock-libc++-10.5.0/riscv/lib/gcc/riscv64-unknown-elf/10.5.0/rv32imac/ilp32/libgcc.a
+#  ../../lib/libtock-libc++-10.5.0/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libstdc++.a
+#  ../../lib/libtock-libc++-10.5.0/riscv/lib/gcc/riscv64-unknown-elf/10.5.0/rv32imac/ilp32/libgcc.a
 #
 # The slightly dissastifying workaround then is to fake the libgcc.a targets.
 # The idea is to create rules where a given libgcc.a has an order-only
@@ -114,8 +114,8 @@ TOCK_CXXLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/libc++/%/$(1)/$(2)/lib/$(3
 # create the needed dependency.
 #
 .SECONDEXPANSION:
-$$(TOCK_USERLAND_BASE_DIR)/lib/libc++/%/$(3)/libgcc.a: $$(TOCK_USERLAND_BASE_DIR)/lib/libc++/libtock-libc++-$$$$(lastword $$$$(subst /, ,$$$$*))/$(1)/$(2)/lib/$(3)/libstdc++.a
-	@test -f $$< || (echo You are somehow missing "libgcc.a" only.; echo Easiest fix is to delete the folder "$$(TOCK_USERLAND_BASE_DIR)/lib/libc++/libtock-libc++-$$(lastword $$(subst /, ,$$*))" and re-run make. ; exit 1)
+$$(TOCK_USERLAND_BASE_DIR)/lib/%/$(3)/libgcc.a: $$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$$$$(lastword $$$$(subst /, ,$$$$*))/$(1)/$(2)/lib/$(3)/libstdc++.a
+	@test -f $$< || (echo You are somehow missing "libgcc.a" only.; echo Easiest fix is to delete the folder "$$(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$$(lastword $$(subst /, ,$$*))" and re-run make. ; exit 1)
 
 endef
 
@@ -127,5 +127,5 @@ $(foreach arch,$(RISCV_ARCHS),$(eval $(call PRECOMPILED_CXXLIB_RULES,riscv,riscv
 
 # Target to download and extract the C++ libraries.
 $(TOCK_CXXLIB_TARGETS):
-	cd $(TOCK_USERLAND_BASE_DIR)/lib/libc++; ./fetch-libc++.sh $(patsubst libtock-libc++-%,%,$*)
+	cd $(TOCK_USERLAND_BASE_DIR)/lib; ./fetch-libc++.sh $(patsubst libtock-libc++-%,%,$*)
 endif

@@ -254,7 +254,7 @@ endif
 NEWLIB_VERSION_rv32i    := $(NEWLIB_VERSION_rv32)
 NEWLIB_VERSION_rv32imc  := $(NEWLIB_VERSION_rv32)
 NEWLIB_VERSION_rv32imac := $(NEWLIB_VERSION_rv32)
-NEWLIB_BASE_DIR_rv32 := $(TOCK_USERLAND_BASE_DIR)/lib/newlib/libtock-newlib-$(NEWLIB_VERSION_rv32)
+NEWLIB_BASE_DIR_rv32 := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-$(NEWLIB_VERSION_rv32)
 
 # Match compiler version to supported libtock-libc++ versions.
 ifeq ($(CC_rv32_version_major),10)
@@ -271,7 +271,7 @@ endif
 LIBCPP_VERSION_rv32i    := $(LIBCPP_VERSION_rv32)
 LIBCPP_VERSION_rv32imc  := $(LIBCPP_VERSION_rv32)
 LIBCPP_VERSION_rv32imac := $(LIBCPP_VERSION_rv32)
-LIBCPP_BASE_DIR_rv32 := $(TOCK_USERLAND_BASE_DIR)/lib/libc++/libtock-libc++-$(LIBCPP_VERSION_rv32)
+LIBCPP_BASE_DIR_rv32 := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$(LIBCPP_VERSION_rv32)
 
 # Set the toolchain specific flags.
 #
@@ -395,7 +395,7 @@ NEWLIB_VERSION_cortex-m0 := $(NEWLIB_VERSION_cortex-m)
 NEWLIB_VERSION_cortex-m3 := $(NEWLIB_VERSION_cortex-m)
 NEWLIB_VERSION_cortex-m4 := $(NEWLIB_VERSION_cortex-m)
 NEWLIB_VERSION_cortex-m7 := $(NEWLIB_VERSION_cortex-m)
-NEWLIB_BASE_DIR_cortex-m := $(TOCK_USERLAND_BASE_DIR)/lib/newlib/libtock-newlib-$(NEWLIB_VERSION_cortex-m)
+NEWLIB_BASE_DIR_cortex-m := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-$(NEWLIB_VERSION_cortex-m)
 
 # Match compiler version to supported libtock-libc++ versions.
 ifeq ($(CC_cortex-m_version_major),10)
@@ -413,7 +413,7 @@ LIBCPP_VERSION_cortex-m0 := $(LIBCPP_VERSION_cortex-m)
 LIBCPP_VERSION_cortex-m3 := $(LIBCPP_VERSION_cortex-m)
 LIBCPP_VERSION_cortex-m4 := $(LIBCPP_VERSION_cortex-m)
 LIBCPP_VERSION_cortex-m7 := $(LIBCPP_VERSION_cortex-m)
-LIBCPP_BASE_DIR_cortex-m := $(TOCK_USERLAND_BASE_DIR)/lib/libc++/libtock-libc++-$(LIBCPP_VERSION_cortex-m)
+LIBCPP_BASE_DIR_cortex-m := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$(LIBCPP_VERSION_cortex-m)
 
 # Based on the toolchain used by each architecture, add in toolchain-specific
 # flags. We assume that each architecture family uses the same toolchain.
