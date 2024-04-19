@@ -25,8 +25,4 @@ $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/sensors/syscalls/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/storage/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/storage/syscalls/*.c)
 
-# Include the libtock folder for includes to find header files. This is
-# temporary until the libtock-c rewrite is merged.
-override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
-
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
