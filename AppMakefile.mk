@@ -43,7 +43,7 @@ include $(TOCK_USERLAND_BASE_DIR)/Program.mk
 # the source used to build the library.
 #
 # Arguments:
-# - $(1): The path to the build directory.
+# - $(1): Pattern matching all arch-specific library files.
 # - $(2): The path to the library.
 define EXTERN_LIB_BUILD_RULE
 
@@ -60,22 +60,9 @@ endif
 
 endef
 
-# Rule to build each architecture-specific library archive (.a file). To ensure
-# each library only has a single build rule, we just make each archive dependent
-# on the build directory itself. Creating the build directory is responsible for
-# building the entire library.
-#
-# Arguments:
-# - $(1): The path to the built library .a file.
-# - $(2): The path to the build directory for the library.
-define EXTERN_LIB_BUILD_RULES
-
-$(1): | $(2)
-
-endef
-
 # Rules to incorporate external libraries
 define EXTERN_LIB_RULES
+
 EXTERN_LIB_NAME_$(notdir $(1)) := $(notdir $(1))
 
 # If this library has any additional rules, add them
@@ -93,9 +80,8 @@ $$(foreach arch, $$(TOCK_ARCHS), $$(eval LIBS_$$(arch) += $$($(notdir $(1))_BUIL
 
 # Generate rules for checking the library exists, and if not building the
 # library.
-# $$(info $$(foreach arch, $$(TOCK_ARCHS), $$(call EXTERN_LIB_BUILD_RULES,$$($(notdir $(1))_BUILDDIR)/$$(arch)/$(notdir $(1)).a,$$($(notdir $(1))_BUILDDIR)))
-$$(foreach arch, $$(TOCK_ARCHS), $$(eval $$(call EXTERN_LIB_BUILD_RULES,$$($(notdir $(1))_BUILDDIR)/$$(arch)/$(notdir $(1)).a,$$($(notdir $(1))_BUILDDIR))))
-$$(eval $$(call EXTERN_LIB_BUILD_RULE,$$($(notdir $(1))_BUILDDIR),$(1)))
+# $$(info $$(call EXTERN_LIB_BUILD_RULE,$$($(notdir $(1))_BUILDDIR)/%/$(notdir $(1)).a,$(1)))
+$$(eval $$(call EXTERN_LIB_BUILD_RULE,$$($(notdir $(1))_BUILDDIR)/%/$(notdir $(1)).a,$(1)))
 
 endef
 
