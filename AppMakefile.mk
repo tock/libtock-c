@@ -36,11 +36,15 @@ include $(TOCK_USERLAND_BASE_DIR)/libtock/Makefile
 include $(TOCK_USERLAND_BASE_DIR)/Program.mk
 
 
-# Rules to call library makefiles to build required libraries. We use the build
-# directory as the indicator if the library exists or not.
+# Rules to call library makefiles to build required libraries.
 #
-# We also support an optional Makefile.setup which is responsible for retrieving
-# the source used to build the library.
+# We support an optional Makefile.setup which is responsible for retrieving the
+# source used to build the library.
+#
+# Secret sauce: For this rule to work, make must treat the targets as a group.
+# For make to do that, the targets must use the `%` wildcard, and that wildcard
+# MUST expand to the same value for every target. To ensure this, we use the
+# build directory for the library as the `%` expansion.
 #
 # Arguments:
 # - $(1): Pattern matching all arch-specific library files.
@@ -48,9 +52,8 @@ include $(TOCK_USERLAND_BASE_DIR)/Program.mk
 define EXTERN_LIB_BUILD_RULE
 
 ifneq "$$(wildcard $(2)/Makefile.setup)" ""
+# Since a Makefile.setup exists, do any setup steps needed to fetch the library.
 $(1):
-	# Since a Makefile.setup exists, do any setup steps needed to fetch the
-	# library.
 	$$(MAKE) -C $(2) -f Makefile.setup all
 	$$(MAKE) -C $(2) -f Makefile all
 else
@@ -73,15 +76,14 @@ ifneq "$$(wildcard $(1)/include)" ""
   override CPPFLAGS += -I$(1)/include
 endif
 
-# Add arch-specific rules for each library
+# Add arch-specific dependencies for the library to ensure the library is built.
 # Use the $(LIBNAME)_BUILDDIR as build directory, if set.
 $$(notdir $(1))_BUILDDIR ?= $(1)/build
 $$(foreach arch, $$(TOCK_ARCHS), $$(eval LIBS_$$(arch) += $$($(notdir $(1))_BUILDDIR)/$$(arch)/$(notdir $(1)).a))
 
-# Generate rules for checking the library exists, and if not building the
-# library.
-# $$(info $$(call EXTERN_LIB_BUILD_RULE,$$($(notdir $(1))_BUILDDIR)/%/$(notdir $(1)).a,$(1)))
-$$(eval $$(call EXTERN_LIB_BUILD_RULE,$$($(notdir $(1))_BUILDDIR)/%/$(notdir $(1)).a,$(1)))
+# Generate rule for building the library.
+# $$(info $$(call EXTERN_LIB_BUILD_RULE,$$(foreach arch,$$(TOCK_ARCHS),%/$$(arch)/$(notdir $(1)).a),$(1)))
+$$(eval $$(call EXTERN_LIB_BUILD_RULE,$$(foreach arch,$$(TOCK_ARCHS),%/$$(arch)/$(notdir $(1)).a),$(1)))
 
 endef
 
