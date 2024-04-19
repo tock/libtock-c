@@ -3,18 +3,19 @@
 
 # Base folder definitions
 TOCK_USERLAND_BASE_DIR ?= ..
-LIBNAME := libtocks
+LIBNAME := libtocksync
 $(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/libtock-sync
+$(LIBNAME)_SRC_ROOT := $($(LIBNAME)_DIR)
 
 # List all C and Assembly files
-$(LIBNAME)_SRCS  := $(wildcard $($(LIBNAME)_DIR)/*.c)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/crypto/*.c)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/display/*.c)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/interface/*.c)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/net/*.c)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/peripherals/*.c)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/sensors/*.c)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/storage/*.c)
+$(LIBNAME)_SRCS  := $(wildcard $($(LIBNAME)_SRC_ROOT)/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/crypto/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/display/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/interface/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/net/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/peripherals/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/sensors/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/storage/*.c)
 
 # Need libtock headers.
 override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
