@@ -104,22 +104,22 @@ $$(BUILDDIR)/$(1):
 
 # First step doesn't actually compile, just generate header dependency information
 # More info on our approach here: http://stackoverflow.com/questions/97338
-$$(BUILDDIR)/$(1)/%.o: %.c | $$(BUILDDIR)/$(1) $$(LIBS_$(1)) newlib-$$(NEWLIB_VERSION_$(1))
+$$(BUILDDIR)/$(1)/%.o: %.c | $$(BUILDDIR)/$(1) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1))
 	$$(TRACE_CC)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
-$$(BUILDDIR)/$(1)/%.o: %.cc | $$(BUILDDIR)/$(1) $$(LIBS_$(1)) newlib-$$(NEWLIB_VERSION_$(1)) libc++-$$(LIBCPP_VERSION_$(1))
+$$(BUILDDIR)/$(1)/%.o: %.cc | $$(BUILDDIR)/$(1) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1))
 	$$(TRACE_CXX)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
-$$(BUILDDIR)/$(1)/%.o: %.cpp | $$(BUILDDIR)/$(1) $$(LIBS_$(1)) newlib-$$(NEWLIB_VERSION_$(1)) libc++-$$(LIBCPP_VERSION_$(1))
+$$(BUILDDIR)/$(1)/%.o: %.cpp | $$(BUILDDIR)/$(1) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1))
 	$$(TRACE_CXX)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
-$$(BUILDDIR)/$(1)/%.o: %.cxx | $$(BUILDDIR)/$(1) $$(LIBS_$(1)) newlib-$$(NEWLIB_VERSION_$(1)) libc++-$$(LIBCPP_VERSION_$(1))
+$$(BUILDDIR)/$(1)/%.o: %.cxx | $$(BUILDDIR)/$(1) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1))
 	$$(TRACE_CXX)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
@@ -155,7 +155,7 @@ $$(BUILDDIR)/$(1)/$(2).custom.ld: $$(LAYOUT) | $$(BUILDDIR)/$(1)
 	  perl -pi -e "s/(SRAM.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$(4)\$$$$3/" $$@
 
 # Collect all desired built output.
-$$(BUILDDIR)/$(1)/$(2).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LINK_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(2).custom.ld | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(2).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1)) $$(BUILDDIR)/$(1)/$(2).custom.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(WLFLAGS) $$(WLFLAGS_$(1))\
 	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
@@ -163,7 +163,7 @@ $$(BUILDDIR)/$(1)/$(2).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LINK_LIBS_$(1)) $$(BU
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
 	    -T $$(BUILDDIR)/$(1)/$(2).custom.ld\
 	    -nostdlib\
-	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LINK_LIBS_$(1)) -Wl,--end-group\
+	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1)) -Wl,--end-group\
 	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(2).Map\
 	    -o $$@
 
@@ -242,7 +242,7 @@ else
 endif
 
 # Step 2: Create a new ELF with the layout that matches what's loaded
-$$(BUILDDIR)/$(1)/$(2).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LINK_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(2).userland_debug.ld | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(2).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1)) $$(BUILDDIR)/$(1)/$(2).userland_debug.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(WLFLAGS) $$(WLFLAGS_$(1))\
 	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
@@ -250,7 +250,7 @@ $$(BUILDDIR)/$(1)/$(2).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LINK_L
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
 	    -T $$(BUILDDIR)/$(1)/$(2).userland_debug.ld\
 	    -nostdlib\
-	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LINK_LIBS_$(1)) -Wl,--end-group\
+	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1)) -Wl,--end-group\
 	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(2).Map\
 	    -o $$@
 
@@ -297,7 +297,7 @@ FLASH_ADDRESS_FN = $(if $(word 3,$(subst |, ,$1)),$(word 3,$(subst |, ,$1)),0x80
 RAM_ADDRESS_FN = $(if $(word 4,$(subst |, ,$1)),$(word 4,$(subst |, ,$1)),0x00000000)
 
 # To see the generated rules, run:
-#$(info $(foreach platform, $(TOCK_ARCHS), $(eval $(call BUILD_RULES_PER_ARCH,$(platform)))))
+#$(info $(foreach platform, $(TOCK_ARCHS), $(call BUILD_RULES_PER_ARCH,$(platform))))
 #$(info $(foreach platform, $(TOCK_TARGETS), $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call OUTPUT_NAME_FN,$(platform)),$(call FLASH_ADDRESS_FN,$(platform)),$(call RAM_ADDRESS_FN,$(platform)))))
 # Actually generate the rules for each architecture
 $(foreach platform, $(TOCK_ARCHS), $(eval $(call BUILD_RULES_PER_ARCH,$(platform))))

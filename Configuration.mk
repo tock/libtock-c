@@ -324,26 +324,32 @@ override WLFLAGS_rv32i    += $(WLFLAGS_rv32)
 override WLFLAGS_rv32imc  += $(WLFLAGS_rv32)
 override WLFLAGS_rv32imac += $(WLFLAGS_rv32)
 
-override LINK_LIBS_rv32i    += \
-      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libstdc++.a \
-      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libsupc++.a \
-      $(LIBCPP_BASE_DIR_rv32)/riscv/lib/gcc/riscv64-unknown-elf/$(LIBCPP_VERSION_rv32)/rv32i/ilp32/libgcc.a \
+override SYSTEM_LIBS_rv32i    += \
       $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libc.a \
       $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libm.a
 
-override LINK_LIBS_rv32imc  += \
-      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libstdc++.a \
-      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libsupc++.a \
-      $(LIBCPP_BASE_DIR_rv32)/riscv/lib/gcc/riscv64-unknown-elf/$(LIBCPP_VERSION_rv32)/rv32im/ilp32/libgcc.a \
+override SYSTEM_LIBS_CXX_rv32i += \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libstdc++.a \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libsupc++.a \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/lib/gcc/riscv64-unknown-elf/$(LIBCPP_VERSION_rv32)/rv32i/ilp32/libgcc.a
+
+override SYSTEM_LIBS_rv32imc  += \
       $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libc.a \
       $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libm.a
 
-override LINK_LIBS_rv32imac += \
-      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libstdc++.a \
-      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libsupc++.a \
-      $(LIBCPP_BASE_DIR_rv32)/riscv/lib/gcc/riscv64-unknown-elf/$(LIBCPP_VERSION_rv32)/rv32imac/ilp32/libgcc.a \
+override SYSTEM_LIBS_CXX_rv32imc += \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libstdc++.a \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libsupc++.a \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/lib/gcc/riscv64-unknown-elf/$(LIBCPP_VERSION_rv32)/rv32im/ilp32/libgcc.a
+
+override SYSTEM_LIBS_rv32imac += \
       $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libc.a \
       $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libm.a
+
+override SYSTEM_LIBS_CXX_rv32imac += \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libstdc++.a \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libsupc++.a \
+      $(LIBCPP_BASE_DIR_rv32)/riscv/lib/gcc/riscv64-unknown-elf/$(LIBCPP_VERSION_rv32)/rv32imac/ilp32/libgcc.a
 
 
 ################################################################################
@@ -448,33 +454,41 @@ override CPPFLAGS_cortex-m4 += $(CPPFLAGS_cortex-m) \
 override CPPFLAGS_cortex-m7 += $(CPPFLAGS_cortex-m) \
       -mcpu=cortex-m7
 
-override LINK_LIBS_cortex-m0 += \
-      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libstdc++.a \
-      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libsupc++.a \
-      $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v6-m/nofp/libgcc.a \
+override SYSTEM_LIBS_cortex-m0 += \
       $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libc.a \
       $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libm.a
 
-override LINK_LIBS_cortex-m3 += \
-      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libstdc++.a \
-      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libsupc++.a \
-      $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v7-m/nofp/libgcc.a \
+override SYSTEM_LIBS_CXX_cortex-m0 += \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libstdc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libsupc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v6-m/nofp/libgcc.a
+
+override SYSTEM_LIBS_cortex-m3 += \
       $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libc.a \
       $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libm.a
 
-override LINK_LIBS_cortex-m4 += \
-      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libstdc++.a \
-      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libsupc++.a \
-      $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v7e-m/nofp/libgcc.a \
+override SYSTEM_LIBS_CXX_cortex-m3 += \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libstdc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libsupc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v7-m/nofp/libgcc.a
+
+override SYSTEM_LIBS_cortex-m4 += \
       $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libc.a \
       $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libm.a
 
-override LINK_LIBS_cortex-m7 += \
+override SYSTEM_LIBS_CXX_cortex-m4 += \
       $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libstdc++.a \
       $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libsupc++.a \
-      $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v7e-m/nofp/libgcc.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v7e-m/nofp/libgcc.a
+
+override SYSTEM_LIBS_cortex-m7 += \
       $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libc.a \
       $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libm.a
+
+override SYSTEM_LIBS_CXX_cortex-m7 += \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libstdc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libsupc++.a \
+      $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v7e-m/nofp/libgcc.a
 
 # Cortex-M needs an additional OBJDUMP flag.
 override OBJDUMP_FLAGS_cortex-m  += --disassembler-options=force-thumb
