@@ -152,6 +152,13 @@ int tock_command_return_novalue_to_returncode(syscall_return_t);
 // variants.
 int tock_command_return_u32_to_returncode(syscall_return_t, uint32_t*);
 
+// Convert a `syscall_return_t` with two `u32` values to a `returncode_t`.
+//
+// This expects exactly two `u32`s to be returned (i.e. the only success case is
+// `TOCK_SYSCALL_SUCCESS_U32_U32`). Do not use with other expected SyscallReturn
+// variants.
+int tock_command_return_u32_u32_to_returncode(syscall_return_t, uint32_t*, uint32_t*);
+
 // Convert a `subscribe_return_t` to a `returncode_t`.
 int tock_subscribe_return_to_returncode(subscribe_return_t);
 
@@ -160,6 +167,9 @@ int tock_allow_rw_return_to_returncode(allow_rw_return_t);
 
 // Convert a `allow_ro_return_t` to a `returncode_t`.
 int tock_allow_ro_return_to_returncode(allow_ro_return_t);
+
+// Convert a `allow_userspace_r_return_t` to a `returncode_t`.
+int tock_allow_userspace_r_return_to_returncode(allow_userspace_r_return_t);
 
 int tock_enqueue(subscribe_upcall cb, int arg0, int arg1, int arg2, void* ud);
 
