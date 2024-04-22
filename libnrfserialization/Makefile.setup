@@ -1,0 +1,24 @@
+###
+### Helper Makefile for downloading the nRF serialization library.
+###
+
+TOCK_USERLAND_BASE_DIR ?= ..
+
+# Git hash of the library to use. Must match the hash in Makefile.
+NRF5X_BASE_SHA := f813b5dbfef3b7a71044bca72e2ab8b3c4d9e593
+
+# Base folder definitions
+NRFS_LIB_DIR := $(TOCK_USERLAND_BASE_DIR)/libnrfserialization
+NRFS_SRC_DIR := $(NRFS_LIB_DIR)/nrf5x-base-$(NRF5X_BASE_SHA)
+
+# Rules to download the source repository if needed. These are here so that the
+# expanded library is available before calling into the library Makefile.
+$(NRFS_SRC_DIR).zip:
+	curl -L --output $(NRFS_SRC_DIR).zip https://github.com/lab11/nrf5x-base/archive/$(NRF5X_BASE_SHA).zip
+
+# The .h file will exist when the library is unzipped.
+$(NRFS_SRC_DIR)/sdk/nrf51_sdk_11.0.0/components/serialization/common/ble_serialization.h: | $(NRFS_SRC_DIR).zip
+	unzip -q -d $(NRFS_LIB_DIR) $(NRFS_SRC_DIR).zip
+
+# Main rule to check if we need to fetch the library.
+all: | $(NRFS_SRC_DIR)/sdk/nrf51_sdk_11.0.0/components/serialization/common/ble_serialization.h

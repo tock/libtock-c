@@ -3,8 +3,9 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <timer.h>
-#include <gpio.h>
+#include <libtock/timer.h>
+#include <libtock/gpio.h>
+#include <libtock/nrf51_serialization.h>
 
 #include "nrf.h"
 #include "ser_phy.h"
@@ -13,7 +14,6 @@
 #include "nordic_common.h"
 #include "app_timer.h"
 
-#include "nrf51_serialization.h"
 #include "ble_serialization.h"
 #include "ser_sd_transport.h"
 
@@ -333,7 +333,7 @@ uint32_t ser_phy_open (ser_phy_events_handler_t events_handler) {
 
     ret = nrf51_serialization_read(SER_HAL_TRANSPORT_RX_MAX_PKT_SIZE);
     if (ret < 0) return NRF_ERROR_INTERNAL;
-    
+
     // Save the callback handler
     _ser_phy_event_handler = events_handler;
 

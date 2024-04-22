@@ -18,10 +18,3 @@ To use `libnrfserialization`, add the following include to the application's
 Makefile:
 
     EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/libnrfserialization
-
-
-
-Compiling `libnrfserialization`
-------------------
-
-    ./create_libnrfserialization.sh
