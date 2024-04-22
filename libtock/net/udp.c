@@ -1,5 +1,6 @@
-#include "udp.h"
 #include <string.h>
+
+#include "udp.h"
 
 returncode_t libtock_udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned char *buf_bind_cfg) {
   // Pass interface to listen on and space for kernel to write src addr
@@ -22,16 +23,19 @@ returncode_t libtock_udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned
   // Notably, the pair chosen must match the address/port to which the
   // app is bound, unless the kernel changes in the future to allow for
   // sending from a port to which the app is not bound.
+  // HACK!! This is not static.
+  unsigned char BUF_TX_CFG[2 * sizeof(sock_addr_t)];
+  memcpy(BUF_TX_CFG, &(handle->addr), bytes);
   ret = libtock_udp_set_readwrite_allow_cfg((void *) BUF_TX_CFG, 2 * bytes);
   if (ret != RETURNCODE_SUCCESS) return ret;
-
-  memcpy(BUF_TX_CFG, &(handle->addr), bytes);
 
   return libtock_udp_command_bind();
 }
 
 returncode_t libtock_udp_close(__attribute__ ((unused)) sock_handle_t *handle) {
   returncode_t ret;
+  // HACK!! This is not static.
+  unsigned char zero_addr[2 * sizeof(sock_addr_t)] = {0};
   int bytes = sizeof(sock_addr_t);
 
   // call allow here to prevent any issues if close is called before bind
@@ -41,6 +45,9 @@ returncode_t libtock_udp_close(__attribute__ ((unused)) sock_handle_t *handle) {
 
   memset(zero_addr, 0, 2 * bytes);
   ret = libtock_udp_command_bind();
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  ret = libtock_udp_set_readwrite_allow_rx_cfg(NULL, 0);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Remove the callback.
@@ -58,6 +65,7 @@ static void udp_send_done_upcall (int                          status,
 returncode_t libtock_udp_send(void *buf, size_t len,
                               sock_addr_t *dst_addr, libtock_udp_callback_send_done cb) {
   returncode_t ret;
+  unsigned char BUF_TX_CFG[2 * sizeof(sock_addr_t)];
 
   // Set dest addr
   // NOTE: bind() must be called previously for this to work

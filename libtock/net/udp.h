@@ -22,8 +22,6 @@ typedef struct sock_handle {
   sock_addr_t addr;
 } sock_handle_t;
 
-static unsigned char BUF_TX_CFG[2 * sizeof(sock_addr_t)];
-static unsigned char zero_addr[2 * sizeof(sock_addr_t)];
 
 /// Callback for when a tx is completed.
 typedef void (*libtock_udp_callback_send_done) (returncode_t);
@@ -53,7 +51,7 @@ returncode_t libtock_udp_close(sock_handle_t *handle);
 // Receives messages from that socket asynchronously.
 // The callback is passed the return code for the reception
 // in addition to the length of the received packet.
-// Returns 0 on successful bind, negative on failure. 
+// Returns 0 on successful bind, negative on failure.
 returncode_t libtock_udp_recv(void *buf, size_t len, libtock_udp_callback_recv_done cb);
 
 // Sends a message to the destination address asynchronously

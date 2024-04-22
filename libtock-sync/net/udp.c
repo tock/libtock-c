@@ -39,7 +39,7 @@ returncode_t libtock_udp_send_sync(void *buf, size_t len,
   return send_sync_result.result;
 }
 
-returncode_t libtock_udp_recv_sync(void *buf, size_t* len) {
+returncode_t libtock_udp_recv_sync(void *buf, size_t len, size_t* received_len) {
   returncode_t ret;
   recv_sync_result.fired = false;
 
@@ -48,6 +48,6 @@ returncode_t libtock_udp_recv_sync(void *buf, size_t* len) {
 
   yield_for(&recv_sync_result.fired);
 
-  *len = recv_sync_result.val;
+  *received_len = recv_sync_result.val;
   return recv_sync_result.result;
 }
