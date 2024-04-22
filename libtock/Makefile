@@ -25,4 +25,8 @@ $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/sensors/syscalls/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/storage/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/storage/syscalls/*.c)
 
+# Temporary hack for alarm
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/internal/*.c)
+CPPFLAGS_$(LIBNAME) += -I$($(LIBNAME)_DIR)
+
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
