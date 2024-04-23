@@ -68,8 +68,8 @@ $(LIBNAME)_BUILDDIR := $($(LIBNAME)_DIR)/build
 $(LIBNAME)_SRCS_FLAT := $(notdir $($(LIBNAME)_SRCS))
 $(LIBNAME)_SRCS_DIRS := $(sort $(dir $($(LIBNAME)_SRCS))) # sort removes duplicates
 
-# # Only use vpath for certain types of files
-# # But must be a global list
+# Only use vpath for certain types of files
+# But must be a global list
 VPATH_DIRS += $(TOCK_USERLAND_BASE_DIR)
 vpath %.s $(VPATH_DIRS)
 vpath %.c $(VPATH_DIRS)
