@@ -48,7 +48,7 @@ static uint8_t mui_hrule(mui_t *mui, uint8_t msg) {
 
 
 muif_t muif_list[] = {
-  // // normal text style
+  // normal text style
   MUIF_U8G2_LABEL(),
   MUIF_U8G2_FONT_STYLE(0, u8g2_font_helvB08_tr),
   MUIF_U8G2_FONT_STYLE(1, u8g2_font_helvR08_tr),
