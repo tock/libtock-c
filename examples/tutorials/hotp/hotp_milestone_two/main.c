@@ -22,6 +22,7 @@
 #include <button.h>
 #include <console.h>
 #include <hmac.h>
+#include <kv.h>
 #include <led.h>
 #include <timer.h>
 #include <usb_keyboard_hid.h>
@@ -43,7 +44,7 @@ typedef struct {
   counter_t counter;
 } hotp_key_t;
 
-// hotp_key_t hotp_key = {0};
+hotp_key_t hotp_key = {0};
 
 
 // --- Button Handling ---
@@ -88,36 +89,33 @@ static int initialize_buttons(bool* flag_pointer) {
 }
 
 
-// --- App State Handling ---
+// --- Persistent Key Handling ---
 
-typedef struct {
-  uint32_t magic;
-  hotp_key_t key;
-} key_storage_t;
+static void save_key(void) {
+  int ret;
+  uint8_t value[sizeof(hotp_key_t)];
 
-APP_STATE_DECLARE(key_storage_t, keystore);
+  // Key is "hotp". Value is the `key_storage_t` data.
+  memcpy(value, &hotp_key, sizeof(hotp_key_t));
+  ret = kv_set_sync((const uint8_t *) "hotp", 4, value, sizeof(hotp_key_t));
 
-static int initialize_app_state(void) {
-  // Recover state from flash if it exists
-  int ret = app_state_load_sync();
   if (ret != 0) {
-    printf("ERROR(%i): Could not read the flash region.\r\n", ret);
-    return ret;
-  } else {
-    printf("Flash read\r\n");
+    printf("ERROR(%i): %s.\r\n", ret, tock_strrcode(ret));
+    printf("  Could not store key.\r\n");
   }
+}
 
-  // Initialize default values if nothing previously existed
-  if (keystore.magic != 0xdeadbeef) {
-    keystore.magic   = 0xdeadbeef;
-    keystore.key.len = 0;
-    ret = app_state_save_sync();
-    if (ret != 0) {
-      printf("ERROR(%i): Could not write back to flash.\r\n", ret);
-      return ret;
-    } else {
-      printf("Initialized state\r\n");
-    }
+static int initialize_key(void) {
+  int ret;
+
+  uint8_t value[sizeof(hotp_key_t)];
+  uint32_t value_len = 0;
+  ret = kv_get_sync((const uint8_t *) "hotp", 4, value, sizeof(hotp_key_t), &value_len);
+
+  // Check if we read what looks like a valid key.
+  if (ret == RETURNCODE_SUCCESS && value_len == sizeof(hotp_key_t)) {
+    // Looks valid
+    memcpy(&hotp_key, value, sizeof(hotp_key_t));
   }
 
   return RETURNCODE_SUCCESS;
@@ -204,16 +202,16 @@ static void program_default_secret(void) {
   const char* default_secret = "test";
 
   // Decode base32 to get HOTP key value
-  int ret = base32_decode((const uint8_t*)default_secret, keystore.key.key, 64);
+  int ret = base32_decode((const uint8_t*)default_secret, hotp_key.key, 64);
   if (ret < 0 ) {
     printf("ERROR cannot base32 decode secret\r\n");
-    keystore.key.len = 0;
+    hotp_key.len = 0;
     return;
   }
 
   // Initialize remainder of HOTP key
-  keystore.key.len     = ret;
-  keystore.key.counter = 0;
+  hotp_key.len     = ret;
+  hotp_key.counter = 0;
 
   printf("Programmed \"%s\" as key \r\n", default_secret);
   led_off(0);
@@ -260,12 +258,9 @@ static void program_new_secret(void) {
   }
 
   // Decode and save secret to flash
-  keystore.key.len     = base32_decode(newkey, keystore.key.key, 64);
-  keystore.key.counter = 0;
-  int ret = app_state_save_sync();
-  if (ret != 0) {
-    printf("ERROR(%i): Could not write back to flash.\r\n", ret);
-  }
+  hotp_key.len     = base32_decode(newkey, hotp_key.key, 64);
+  hotp_key.counter = 0;
+  save_key();
 
   // Completed!
   printf("Programmed \"%s\" as key\r\n", newkey);
@@ -273,17 +268,19 @@ static void program_new_secret(void) {
 }
 
 static void get_next_code(void) {
+  int ret;
+
   led_on(0);
 
   // Decrypt the key
   uint8_t key[64];
-  int keylen = decrypt(keystore.key.key, keystore.key.len, key, 64);
+  int keylen = decrypt(hotp_key.key, hotp_key.len, key, 64);
 
   // Generate the HMAC'ed data from the "moving factor" (timestamp in TOTP,
   // counter in HOTP), shuffled in a specific way:
   uint8_t moving_factor[sizeof(counter_t)];
   for (size_t i = 0; i < sizeof(counter_t); i++) {
-    moving_factor[i] = (keystore.key.counter >> ((sizeof(counter_t) - i - 1) * 8)) & 0xFF;
+    moving_factor[i] = (hotp_key.counter >> ((sizeof(counter_t) - i - 1) * 8)) & 0xFF;
   }
 
   // Perform the HMAC operation
@@ -292,11 +289,8 @@ static void get_next_code(void) {
   hmac(key, keylen, moving_factor, sizeof(counter_t), hmac_output_buf, HMAC_OUTPUT_BUF_LEN);
 
   // Increment the counter and save to flash
-  keystore.key.counter++;
-  int ret = app_state_save_sync();
-  if (ret != 0) {
-    printf("ERROR(%i): Could not write back to flash.\r\n", ret);
-  }
+  hotp_key.counter++;
+  save_key();
 
   // Get output value
   uint8_t offset = hmac_output_buf[HMAC_OUTPUT_BUF_LEN - 1] & 0x0f;
@@ -323,7 +317,7 @@ static void get_next_code(void) {
   if (ret < 0) {
     printf("ERROR sending string with USB keyboard HID: %i\r\n", ret);
   } else {
-    printf("Counter: %u. Typed \"%s\" on the USB HID the keyboard\r\n", (size_t)keystore.key.counter - 1,
+    printf("Counter: %u. Typed \"%s\" on the USB HID the keyboard\r\n", (size_t)hotp_key.counter - 1,
            hotp_format_buffer);
   }
 
@@ -341,9 +335,9 @@ int main(void) {
       "* Press Button 1 to get the next HOTP code for that slot.\r\n"
       "* Hold Button 1 to enter a new HOTP secret for that slot.\r\n");
 
-  // Initialize app state
-  if (initialize_app_state() != RETURNCODE_SUCCESS) {
-    printf("ERROR initializing app store\r\n");
+  // Initialize key from KV store.
+  if (initialize_key() != RETURNCODE_SUCCESS) {
+    printf("ERROR initializing key from KV\r\n");
     return 1;
   }
 
@@ -374,11 +368,11 @@ int main(void) {
       program_new_secret();
 
       // Handle short presses on already configured keys (output next code)
-    } else if (keystore.key.len > 0) {
+    } else if (hotp_key.len > 0) {
       get_next_code();
 
       // Error for short press on a non-configured key
-    } else if (keystore.key.len == 0) {
+    } else if (hotp_key.len == 0) {
       printf("HOTP / TOTP key not yet configured.\r\n");
     }
   }
