@@ -1,9 +1,8 @@
-#include <screen.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <timer.h>
+#include <libtock/timer.h>
 
 #include <u8g2-tock.h>
 #include <u8g2.h>
