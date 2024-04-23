@@ -10,6 +10,7 @@ LIB_SRC_DIR := $($(LIBNAME)_DIR)/u8g2-$(VERSION_HASH)
 # List all C and Assembly files
 $(LIBNAME)_SRCS_ALL  += $(wildcard $(LIB_SRC_DIR)/csrc/u8g2*.c)
 $(LIBNAME)_SRCS_ALL  += $(wildcard $(LIB_SRC_DIR)/csrc/u8x8*.c)
+$(LIBNAME)_SRCS_ALL  += $(wildcard $(LIB_SRC_DIR)/csrc/mui*.c)
 
 $(LIBNAME)_SRCS_ALL  += $($(LIBNAME)_DIR)/u8g2-tock.c
 
