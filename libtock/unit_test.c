@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include <kernel/ipc.h>
-#include <timer.h>
+#include <libtock_sync/services/alarm_timer.h>
 #include <unit_test.h>
 
 /*******************************************************************************
@@ -373,14 +373,14 @@ static void unit_test_service_callback(int                            pid,
 
     case TestStart:
       // Start the timer and start the test.
-      timer_in(test->timeout_ms, timeout_callback, test, &test->timer);
+      libtock_timer_in(test->timeout_ms, timeout_callback, test, &test->timer);
       ipc_notify_client(test->pid);
       break;
 
     case TestEnd:
       // Cancel the timeout timer since the test is now complete.
       // Record the test result for the test summary statistics.
-      timer_cancel(&test->timer);
+      libtock_timer_cancel(&test->timer);
 
       // If the test timed out, the summary results will already have been
       // printed. In this case, we no longer want the tests to continue,
