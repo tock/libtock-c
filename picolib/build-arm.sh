@@ -29,8 +29,8 @@ fi
 # picocrt-lib=false         # Do not package crt0.
 # tinystdio=false           # Do not use AVR tinystdio, which uses a different underlying interface (aka stdout object).
 # newlib-stdio64=false      # Do not include 64 bit APIs.
-# newlib-reent-small=true   # ?
-# newlib-global-atexit=true # ?
+# newlib-reent-small=true   # Disable reentrancy support to save space
+# newlib-global-atexit=true # Disable reentrancy for `atexit` (saves space)
 $PICOLIB_SRC_DIR/scripts/do-configure arm-none-eabi -Dprefix=`realpath $PICOLIB_INSTALL_DIR` \
   -Dpicolib=false \
   -Dpicocrt=false \
