@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include <libtock-sync/peripherals/gpio_async.h>
-#include <timer.h>
+#include <libtock/timer.h>
 
 int interrupt_count = 0;
 
