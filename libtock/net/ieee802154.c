@@ -1,7 +1,7 @@
 #include <string.h>
 
 #include "ieee802154.h"
-#include "timer.h"
+#include "libtock-sync/services/alarm.h"
 
 const int RADIO_DRIVER = 0x30001;
 
