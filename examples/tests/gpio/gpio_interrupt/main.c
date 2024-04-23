@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <console.h>
+#include <libtock/interface/console.h>
 #include <libtock/peripherals/gpio.h>
 #include <libtock/tock.h>
 

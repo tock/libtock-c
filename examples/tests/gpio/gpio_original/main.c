@@ -15,10 +15,10 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <console.h>
+#include <libtock/interface/console.h>
 #include <libtock/peripherals/gpio.h>
-#include <led.h>
-#include <timer.h>
+#include <libtock/interface/led.h>
+#include <libtock/timer.h>
 #include <libtock/tock.h>
 
 int callback_count = 0;
