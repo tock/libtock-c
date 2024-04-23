@@ -24,15 +24,9 @@ include $(TOCK_USERLAND_BASE_DIR)/Precompiled.mk
 # - `$($(LIBNAME)_DIR)`: The path to the directory the library Makefile is
 #   stored in. This is typically based on the `$(TOCK_USERLAND_BASE_DIR)`
 #   variable.
-# - `$($(LIBNAME)_SRC_ROOT)`: The path to the directory where the library sources
-#   are stored. This is typically based on the `$(TOCK_USERLAND_BASE_DIR)`
-#   variable.
 # - `$($(LIBNAME)_SRCS)`: A list of source paths to compile for this library.
-#   Each item in this list MUST be a path that starts with
-#   `$($(LIBNAME)_SRC_ROOT)`.
 $(call check_defined, LIBNAME)
 $(call check_defined, $(LIBNAME)_DIR)
-$(call check_defined, $(LIBNAME)_SRC_ROOT)
 $(call check_defined, $(LIBNAME)_SRCS)
 
 ifeq ($(strip $($(LIBNAME)_SRCS)),)
@@ -76,7 +70,7 @@ $(LIBNAME)_SRCS_DIRS := $(sort $(dir $($(LIBNAME)_SRCS))) # sort removes duplica
 
 # Only use vpath for certain types of files
 # But must be a global list
-VPATH_DIRS += $($(LIBNAME)_SRC_ROOT)
+VPATH_DIRS += $(TOCK_USERLAND_BASE_DIR)
 vpath %.s $(VPATH_DIRS)
 vpath %.c $(VPATH_DIRS)
 vpath %.cc $(VPATH_DIRS)
@@ -130,11 +124,11 @@ $$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o: %.S | $$($(LIBNAME)_BUILDDIR)/$(1) 
 	$$(Q)mkdir -p $$(dir $$@)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(AS) $$(ASFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
-$(LIBNAME)_OBJS_$(1) += $$(patsubst $$($(LIBNAME)_SRC_ROOT)/%.s,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.s, $$($(LIBNAME)_SRCS)))
-$(LIBNAME)_OBJS_$(1) += $$(patsubst $$($(LIBNAME)_SRC_ROOT)/%.c,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.c, $$($(LIBNAME)_SRCS)))
-$(LIBNAME)_OBJS_$(1) += $$(patsubst $$($(LIBNAME)_SRC_ROOT)/%.cc,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.cc, $$($(LIBNAME)_SRCS)))
-$(LIBNAME)_OBJS_$(1) += $$(patsubst $$($(LIBNAME)_SRC_ROOT)/%.cpp,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.cpp, $$($(LIBNAME)_SRCS)))
-$(LIBNAME)_OBJS_$(1) += $$(patsubst $$($(LIBNAME)_SRC_ROOT)/%.cxx,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.cxx, $$($(LIBNAME)_SRCS)))
+$(LIBNAME)_OBJS_$(1) += $$(patsubst $$(TOCK_USERLAND_BASE_DIR)/%.s,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.s, $$($(LIBNAME)_SRCS)))
+$(LIBNAME)_OBJS_$(1) += $$(patsubst $$(TOCK_USERLAND_BASE_DIR)/%.c,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.c, $$($(LIBNAME)_SRCS)))
+$(LIBNAME)_OBJS_$(1) += $$(patsubst $$(TOCK_USERLAND_BASE_DIR)/%.cc,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.cc, $$($(LIBNAME)_SRCS)))
+$(LIBNAME)_OBJS_$(1) += $$(patsubst $$(TOCK_USERLAND_BASE_DIR)/%.cpp,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.cpp, $$($(LIBNAME)_SRCS)))
+$(LIBNAME)_OBJS_$(1) += $$(patsubst $$(TOCK_USERLAND_BASE_DIR)/%.cxx,$$($(LIBNAME)_BUILDDIR)/$(1)/$(LIBNAME)/%.o,$$(filter %.cxx, $$($(LIBNAME)_SRCS)))
 
 # Dependency rules for picking up header changes
 -include $$($(LIBNAME)_OBJS_$(1):.o=.d)
@@ -191,10 +185,10 @@ $(eval $(call CLEAN_RULE,$($(LIBNAME)_BUILDDIR)))
 
 
 # Rules for running the C linter
-$(LIBNAME)_FORMATTED_FILES := $(patsubst $($(LIBNAME)_SRC_ROOT)/%.c,  $($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.c,   $($(LIBNAME)_SRCS)))
-$(LIBNAME)_FORMATTED_FILES += $(patsubst $($(LIBNAME)_SRC_ROOT)/%.cc, $($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cc,  $($(LIBNAME)_SRCS)))
-$(LIBNAME)_FORMATTED_FILES += $(patsubst $($(LIBNAME)_SRC_ROOT)/%.cpp,$($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cpp, $($(LIBNAME)_SRCS)))
-$(LIBNAME)_FORMATTED_FILES += $(patsubst $($(LIBNAME)_SRC_ROOT)/%.cxx,$($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cxx, $($(LIBNAME)_SRCS)))
+$(LIBNAME)_FORMATTED_FILES := $(patsubst $(TOCK_USERLAND_BASE_DIR)/%.c,  $($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.c,   $($(LIBNAME)_SRCS)))
+$(LIBNAME)_FORMATTED_FILES += $(patsubst $(TOCK_USERLAND_BASE_DIR)/%.cc, $($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cc,  $($(LIBNAME)_SRCS)))
+$(LIBNAME)_FORMATTED_FILES += $(patsubst $(TOCK_USERLAND_BASE_DIR)/%.cpp,$($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cpp, $($(LIBNAME)_SRCS)))
+$(LIBNAME)_FORMATTED_FILES += $(patsubst $(TOCK_USERLAND_BASE_DIR)/%.cxx,$($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cxx, $($(LIBNAME)_SRCS)))
 
 $($(LIBNAME)_BUILDDIR)/format:
 	@mkdir -p $@
