@@ -5,9 +5,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <libtock/tock.h>
 #include <libtock/interface/button.h>
-#include <console.h>
-#include <timer.h>
+#include <libtock/timer.h>
 
 #if defined(__thumb__)
 static uint32_t read_cpsr(void) {

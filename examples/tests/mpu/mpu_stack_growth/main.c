@@ -5,7 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <console.h>
+#include <libtock/tock.h>
 
 #define GROW_BY 0x100
 
