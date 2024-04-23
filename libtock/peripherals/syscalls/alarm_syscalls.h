@@ -12,15 +12,15 @@ extern "C" {
 bool libtock_alarm_exists(void);
 
 /*
- * Sets the callback for timers
+ * Sets the callback for alarms
  *
- * When invoked, the callback's first argument will be the timer value at which
- * the timer was fired.
+ * When invoked, the callback's first argument will be the alarm value at which
+ * the alarm was fired.
  */
 int libtock_alarm_set_upcall(subscribe_upcall callback, void *opaque);
 
 /*
- * Get the the timer frequency in Hz.
+ * Get the the alarm frequency in Hz.
  */
 int libtock_alarm_command_get_frequency(uint32_t* frequency);
 
@@ -32,7 +32,7 @@ int libtock_alarm_command_read(uint32_t* time);
 /*
  * Stops any outstanding hardware alarm.
  *
- * Side-effects: cancels any existing/outstanding timers
+ * Side-effects: cancels any existing/outstanding alarms
  */
 int libtock_alarm_command_stop(void);
 
@@ -42,7 +42,7 @@ int libtock_alarm_command_stop(void);
  * expiration - relative expiration value from when kernel handles syscall.
  * Sets *actual to the time the actual alarm was set for by the kernel.
  *
- * Side-effects: cancels any existing/outstanding timers
+ * Side-effects: cancels any existing/outstanding alarms
  */
 int libtock_alarm_command_set_relative(uint32_t dt, uint32_t* actual);
 
@@ -50,10 +50,10 @@ int libtock_alarm_command_set_relative(uint32_t dt, uint32_t* actual);
  * Starts a oneshot alarm
  *
  * expiration - absolute expiration value = reference + dt.
- * Using reference + dt allows library to distinguish expired timers from
- * timers in the far future.
+ * Using reference + dt allows library to distinguish expired alarms from
+ * alarms in the far future.
  *
- * Side-effects: cancels any existing/outstanding timers
+ * Side-effects: cancels any existing/outstanding alarms
  */
 int libtock_alarm_command_set_absolute(uint32_t reference, uint32_t dt);
 

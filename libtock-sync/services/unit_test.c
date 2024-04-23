@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include <libtock/kernel/ipc.h>
-#include <libtock/timer.h>
+#include <libtock_sync/services/alarm.h>
 
 #include "unit_test.h"
 
@@ -83,8 +83,8 @@ struct unit_test_t {
   // Process ID of this test runner.
   int pid;
 
-  // Timer structure used for triggering test timeout conditions.
-  tock_timer_t timer;
+  // alarm structure used for triggering test timeout conditions.
+  alarm_t alarm;
 
   // Result of the most recently completed test.
   unit_test_result_t result;
@@ -373,15 +373,15 @@ static void unit_test_service_callback(int                            pid,
       break;
 
     case TestStart:
-      // Start the timer and start the test.
-      timer_in(test->timeout_ms, timeout_callback, test, &test->timer);
+      // Start the alarm and start the test.
+      libtock_alarm_in(test->timeout_ms, timeout_callback, test, &test->alarm);
       ipc_notify_client(test->pid);
       break;
 
     case TestEnd:
-      // Cancel the timeout timer since the test is now complete.
+      // Cancel the timeout alarm since the test is now complete.
       // Record the test result for the test summary statistics.
-      timer_cancel(&test->timer);
+      libtock_alarm_cancel(&test->alarm);
 
       // If the test timed out, the summary results will already have been
       // printed. In this case, we no longer want the tests to continue,
