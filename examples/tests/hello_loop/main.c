@@ -2,8 +2,8 @@
 
 #include <stdio.h>
 
-#include <console.h>
-#include <timer.h>
+#include <libtock/interface/console.h>
+#include <libtock/timer.h>
 
 int main(void) {
   while (1) {
