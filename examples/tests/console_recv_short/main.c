@@ -1,30 +1,22 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 
-#include <console.h>
+#include <libtock-sync/interface/console.h>
 
-char buf[100];
-
-static void getnstr_cb(int   result __attribute__ ((unused)),
-                       int   len,
-                       int   _z __attribute__ ((unused)),
-                       void* ud __attribute__ ((unused))) {
-  printf("\n\nconsole_recv_short: ");
-  for (int i = 0; i < len; i++) {
-    printf("%c", buf[i]);
-  }
-  printf("\n");
-}
-
+uint8_t buf[100];
 
 int main(void) {
-  int ret = getnstr_async(buf, 11, getnstr_cb, NULL);
+  int number_read;
+  int ret = libtocksync_console_read(buf, 11, &number_read);
   if (ret != RETURNCODE_SUCCESS) {
     printf("[SHORT] Error doing UART receive: %i\n", ret);
     return -1;
   }
+
+  printf("\n\nconsole_recv_short: ");
+  for (int i = 0; i < number_read; i++) {
+    printf("%c", buf[i]);
+  }
+  printf("\n");
 
   return 0;
 }
