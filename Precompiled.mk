@@ -44,8 +44,8 @@ RISCV_ARCHS := rv32i/ilp32 rv32im/ilp32 rv32imac/ilp32
 # - $(3): Arch
 define PRECOMPILED_NEWLIB_RULES
 
-TOCK_NEWLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/%/$(1)/$(2)/lib/$(3)/libc.a
-TOCK_NEWLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/%/$(1)/$(2)/lib/$(3)/libm.a
+TOCK_NEWLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-%/$(1)/$(2)/lib/$(3)/libc.a
+TOCK_NEWLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-%/$(1)/$(2)/lib/$(3)/libm.a
 
 endef
 
@@ -55,10 +55,10 @@ $(foreach arch,$(RISCV_ARCHS),$(eval $(call PRECOMPILED_NEWLIB_RULES,riscv,riscv
 
 # Target to download and extract newlib.
 #
-# % will match something like "libtock-newlib-4.2.0.20211231" which we then
-# strip down to just the version with some string manipulation.
+# `$*` will match the version number in the libtock-newlib folder name
+# (something like "libtock-newlib-4.2.0.20211231").
 $(TOCK_NEWLIB_TARGETS):
-	cd $(TOCK_USERLAND_BASE_DIR)/lib; ./fetch-newlib.sh $(patsubst libtock-newlib-%,%,$*)
+	cd $(TOCK_USERLAND_BASE_DIR)/lib; ./fetch-newlib.sh $*
 
 ################################################################################
 # Picolib Rules
@@ -68,8 +68,10 @@ $(TOCK_NEWLIB_TARGETS):
 
 # Rule to ensure that the picolib libraries for an architecture exist.
 #
-# Need to list all libraries which are possible targets to tell make that one
-# invocation of this build rule will make all the target files.
+# Need to list all libraries which are possible targets into one variable. It is
+# imperative that the wildcard `%` expands to the same value for every target to
+# tell make that one invocation of this build rule will make all the target
+# files.
 #
 # Arguments:
 # - $(1): Family
@@ -77,8 +79,8 @@ $(TOCK_NEWLIB_TARGETS):
 # - $(3): Arch
 define PRECOMPILED_PICOLIB_RULES
 
-TOCK_PICOLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/%/$(1)/$(2)/lib/$(3)/libc.a
-TOCK_PICOLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/%/$(1)/$(2)/lib/$(3)/libm.a
+TOCK_PICOLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-%/$(1)/$(2)/lib/$(3)/libc.a
+TOCK_PICOLIB_TARGETS += $$(TOCK_USERLAND_BASE_DIR)/lib/libtock-picolib-%/$(1)/$(2)/lib/$(3)/libm.a
 
 endef
 
@@ -88,10 +90,10 @@ $(foreach arch,$(RISCV_ARCHS),$(eval $(call PRECOMPILED_PICOLIB_RULES,riscv,risc
 
 # Target to download and extract picolib.
 #
-# % will match something like "libtock-picolib-1.8.5" which we then strip down
-# to just the version with some string manipulation.
+# `$*` will match the version number in the libtock-picolib folder name
+# (something like "libtock-picolib-1.8.5").
 $(TOCK_PICOLIB_TARGETS):
-	cd $(TOCK_USERLAND_BASE_DIR)/lib; ./fetch-picolib.sh $(patsubst libtock-picolib-%,%,$*)
+	cd $(TOCK_USERLAND_BASE_DIR)/lib; ./fetch-picolib.sh $*
 
 ################################################################################
 # LIBC++ Rules
