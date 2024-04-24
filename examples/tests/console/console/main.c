@@ -3,7 +3,14 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <console.h>
+#include <libtock-sync/interface/console.h>
+
+static int getch(void) {
+  uint8_t buffer[1];
+  int number_read;
+  libtocksync_console_read(buffer, 1, &number_read);
+  return buffer[0];
+}
 
 int main(void) {
   // Repeatedly read a character from the console
