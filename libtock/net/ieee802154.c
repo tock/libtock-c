@@ -1,165 +1,122 @@
 #include <string.h>
 
 #include "ieee802154.h"
-#include "timer.h"
 
-const int RADIO_DRIVER = 0x30001;
-
-const int ALLOW_RX  = 0;
-const int ALLOW_CFG = 1;
-
-const int ALLOW_RO_TX = 0;
-
-const int SUBSCRIBE_RX = 0;
-const int SUBSCRIBE_TX = 1;
-
-const int COMMAND_STATUS        = 1;
-const int COMMAND_SET_ADDR      = 2;
-const int COMMAND_SET_ADDR_LONG = 3;
-const int COMMAND_SET_PAN       = 4;
-const int COMMAND_SET_CHANNEL   = 5;
-const int COMMAND_SET_POWER     = 6;
-const int COMMAND_CONFIG_COMMIT = 7;
-
-const int COMMAND_GET_ADDR      = 8;
-const int COMMAND_GET_ADDR_LONG = 9;
-const int COMMAND_GET_PAN       = 10;
-const int COMMAND_GET_CHANNEL   = 11;
-const int COMMAND_GET_POWER     = 12;
-
-const int COMMAND_MAX_NEIGHBORS          = 13;
-const int COMMAND_NUM_NEIGHBORS          = 14;
-const int COMMAND_GET_NEIGHBOR_ADDR      = 15;
-const int COMMAND_GET_NEIGHBOR_ADDR_LONG = 16;
-const int COMMAND_ADD_NEIGHBOR    = 17;
-const int COMMAND_REMOVE_NEIGHBOR = 18;
-
-const int COMMAND_MAX_KEYS      = 19;
-const int COMMAND_NUM_KEYS      = 20;
-const int COMMAND_GET_KEY_LEVEL = 21;
-const int COMMAND_GET_KEY_ID    = 22;
-const int COMMAND_GET_KEY       = 23;
-const int COMMAND_ADD_KEY       = 24;
-const int COMMAND_REMOVE_KEY    = 25;
-
-const int COMMAND_SEND     = 26;
-const int COMMAND_SEND_RAW = 27;
-
+bool libtock_ieee802154_driver_exists(void){
+  return driver_exists(DRIVER_NUM_IEEE802154);
+}
 
 // Temporary buffer used for some commands where the system call interface
 // parameters / return codes are not enough te contain the required data.
-unsigned char BUF_CFG[27];
+uint8_t BUF_CFG[27];
 
-bool ieee802154_driver_exists(void) {
-  return driver_exists(RADIO_DRIVER);
-}
-
-int ieee802154_up(void) {
-  // Spin until radio is on. Maybe this can be done with a callback?
-  while (!ieee802154_is_up()) {
-    delay_ms(10);
-  }
-  delay_ms(10); // without this delay, immediate calls to send can still fail.
-  return RETURNCODE_SUCCESS;
-}
-
-int ieee802154_down(void) {
+int libtock_ieee802154_down(void) {
   // Currently unsupported: there is no way to implement this with the existing
   // radio interface.
   return RETURNCODE_ENOSUPPORT;
 }
 
-bool ieee802154_is_up(void) {
-  return command(RADIO_DRIVER, COMMAND_STATUS, 0, 0).type == TOCK_SYSCALL_SUCCESS;
+returncode_t libtock_ieee802154_is_up(bool *status) {
+  returncode_t ret = libtock_ieee802154_command_status();
+  if (ret == RETURNCODE_EOFF) {
+    *status = false;
+  } else if (ret == RETURNCODE_SUCCESS) {
+    *status = true;
+  }
+
+  return ret;
 }
 
-int ieee802154_set_address(unsigned short addr) {
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SET_ADDR, (unsigned int) addr, 0);
-  return tock_command_return_novalue_to_returncode(com);
+returncode_t libtock_ieee802154_set_address_short(uint16_t addr_short) {
+  return libtock_ieee802154_command_set_address_short(addr_short);
 }
 
-int ieee802154_set_address_long(unsigned char *addr_long) {
+returncode_t libtock_ieee802154_set_address_long(uint8_t *addr_long) {
   if (!addr_long) return RETURNCODE_EINVAL;
 
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
-  if (!rw.success) return tock_status_to_returncode(rw.status);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) addr_long, 8);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SET_ADDR_LONG, 0, 0);
-  return tock_command_return_novalue_to_returncode(com);
+  ret = libtock_ieee802154_command_set_address_long();
+
+  // unallow the rw buffer from the kernel so that other libtock functions
+  // can utilize and modify the buffer
+  libtock_ieee802154_set_readwrite_allow_cfg(NULL, 0);
+
+  return ret;
 }
 
-int ieee802154_set_pan(unsigned short pan) {
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SET_PAN, (unsigned int) pan, 0);
-  return tock_command_return_novalue_to_returncode(com);
+returncode_t libtock_ieee802154_set_pan(uint16_t pan) {
+  return libtock_ieee802154_command_set_pan(pan);
 }
 
-int ieee802154_set_channel(unsigned char channel) {
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SET_CHANNEL, (unsigned int) channel, 0);
-  return tock_command_return_novalue_to_returncode(com);
+returncode_t libtock_ieee802154_set_channel(uint8_t channel) {
+  return libtock_ieee802154_command_set_channel(channel);
 }
 
-int ieee802154_set_power(char power) {
-  // Cast the signed char to an unsigned char before zero-padding it.
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SET_POWER, (unsigned int) (unsigned char) power, 0);
-  return tock_command_return_novalue_to_returncode(com);
+returncode_t libtock_ieee802154_set_power(uint32_t power) {
+  // Cast the signed uint8_t to an uint8_t before zero-padding it.
+  return libtock_ieee802154_command_set_power(power);
 }
 
-int ieee802154_config_commit(void) {
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_CONFIG_COMMIT, 0, 0);
-  return tock_command_return_novalue_to_returncode(com);
+returncode_t libtock_ieee802154_config_commit(void) {
+  return libtock_ieee802154_command_config_commit();
 }
 
-int ieee802154_get_address(unsigned short *addr) {
+returncode_t libtock_ieee802154_get_address_short(uint16_t *addr) {
   if (!addr) return RETURNCODE_EINVAL;
 
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_ADDR, 0, 0);
-  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) addr);
+  uint32_t addr_ret;  // Command returncode holds u32 return value.
+  returncode_t ret = libtock_ieee802154_command_get_address_short(&addr_ret);
 
   // Driver adds 1 to make the value positive.
-  *addr -= 1;
+  *addr = addr_ret - 1;
 
   return ret;
 }
 
-int ieee802154_get_address_long(unsigned char *addr_long) {
+returncode_t libtock_ieee802154_get_address_long(uint8_t *addr_long) {
   if (!addr_long) return RETURNCODE_EINVAL;
 
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
-  if (!rw.success) return tock_status_to_returncode(rw.status);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) addr_long, 8);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_ADDR_LONG, 0, 0);
-  return tock_command_return_novalue_to_returncode(com);
+  ret = libtock_ieee802154_command_get_address_long();
+
+  // unallow the rw buffer from the kernel so that other libtock functions
+  // can utilize and modify the buffer
+  libtock_ieee802154_set_readwrite_allow_cfg(NULL, 0);
+
+  return ret;
 }
 
-int ieee802154_get_pan(unsigned short *pan) {
+returncode_t libtock_ieee802154_get_pan(uint16_t *pan) {
   if (!pan) return RETURNCODE_EINVAL;
 
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_PAN, 0, 0);
-  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) pan);
+  uint32_t pan_ret;  // Command returncode holds u32 return value.
+  returncode_t ret = libtock_ieee802154_command_get_pan(&pan_ret);
 
   // Driver adds 1 to make the value positive.
-  *pan -= 1;
+  *pan = pan_ret - 1;
 
   return ret;
 }
 
-int ieee802154_get_channel(unsigned char *channel) {
+returncode_t libtock_ieee802154_get_channel(uint8_t *channel) {
   if (!channel) return RETURNCODE_EINVAL;
 
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_PAN, 0, 0);
-  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) channel);
+  uint32_t channel_ret;  // Command returncode holds u32 return value.
+  returncode_t ret = libtock_ieee802154_command_get_channel(&channel_ret);
 
   // Driver adds 1 to make the value positive.
-  *channel -= 1;
-
+  *channel = channel_ret - 1;
   return ret;
 }
 
-int ieee802154_get_power(char *power) {
+returncode_t libtock_ieee802154_get_power(uint32_t *power) {
   if (!power) return RETURNCODE_EINVAL;
 
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_POWER, 0, 0);
-  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) power);
+  returncode_t ret = libtock_ieee802154_command_get_power(power);
 
   // Driver adds 1 to the power after casting it to unsigned, so this works
   *power -= 1;
@@ -167,9 +124,10 @@ int ieee802154_get_power(char *power) {
   return ret;
 }
 
-int ieee802154_max_neighbors(int* neighbors) {
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_MAX_NEIGHBORS, 0, 0);
-  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) neighbors);
+returncode_t libtock_ieee802154_max_neighbors(uint32_t* neighbors) {
+  if (!neighbors) return RETURNCODE_EINVAL;
+
+  returncode_t ret = libtock_ieee802154_command_get_max_neighbors(neighbors);
 
   // Driver adds 1 to the power after casting it to unsigned, so this works
   *neighbors -= 1;
@@ -177,54 +135,66 @@ int ieee802154_max_neighbors(int* neighbors) {
   return ret;
 }
 
-int ieee802154_num_neighbors(int* neighbors) {
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_NUM_NEIGHBORS, 0, 0);
-  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) neighbors);
+returncode_t libtock_ieee802154_num_neighbors(uint32_t* num_neighbors) {
+  if (!num_neighbors) return RETURNCODE_EINVAL;
+
+  returncode_t ret = libtock_ieee802154_command_get_number_neighbors(num_neighbors);
 
   // Driver adds 1 to the power after casting it to unsigned, so this works
-  *neighbors -= 1;
+  *num_neighbors -= 1;
 
   return ret;
 }
 
-int ieee802154_get_neighbor_address(unsigned index, unsigned short *addr) {
+returncode_t libtock_ieee802154_get_neighbor_address_short(uint32_t index, uint16_t *addr) {
   if (!addr) return RETURNCODE_EINVAL;
 
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_NEIGHBOR_ADDR, (unsigned int) index, 0);
-  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) addr);
+  uint32_t addr_ret;  // Command returncode holds u32 return value.
+  returncode_t ret = libtock_ieee802154_command_get_neighbor_address_short(index, &addr_ret);
 
   // Driver adds 1 to ensure it is positive.
-  *addr -= 1;
+  *addr = addr_ret - 1;
 
   return ret;
 }
 
-int ieee802154_get_neighbor_address_long(unsigned index, unsigned char *addr_long) {
+returncode_t libtock_ieee802154_get_neighbor_address_long(uint32_t index, uint8_t *addr_long) {
   if (!addr_long) return RETURNCODE_EINVAL;
 
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
-  if (!rw.success) return tock_status_to_returncode(rw.status);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) addr_long, 8);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_NEIGHBOR_ADDR_LONG, (unsigned int) index, 0);
-  return tock_command_return_novalue_to_returncode(com);
+  ret = libtock_ieee802154_command_get_neighbor_address_long(index);
+
+  // unallow the rw buffer from the kernel so that other libtock functions
+  // can utilize and modify the buffer
+  libtock_ieee802154_set_readwrite_allow_cfg(NULL, 0);
+
+  return ret;
 }
 
-int ieee802154_get_neighbor(unsigned        index,
-                            unsigned short *addr,
-                            unsigned char * addr_long) {
-  int err = ieee802154_get_neighbor_address(index, addr);
-  if (err < 0) return err;
-  return ieee802154_get_neighbor_address_long(index, addr_long);
+returncode_t libtock_ieee802154_get_neighbor(uint32_t  index,
+                                             uint16_t *addr_short,
+                                             uint8_t * addr_long) {
+  returncode_t ret = libtock_ieee802154_get_neighbor_address_short(index, addr_short);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  return libtock_ieee802154_get_neighbor_address_long(index, addr_long);
 }
 
-int ieee802154_add_neighbor(unsigned short addr, unsigned char *addr_long, unsigned *index) {
+returncode_t libtock_ieee802154_add_neighbor(uint16_t addr_short, uint8_t *addr_long, uint32_t *index) {
   if (!addr_long) return RETURNCODE_EINVAL;
 
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) addr_long, 8);
-  if (!rw.success) return tock_status_to_returncode(rw.status);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) addr_long, 8);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_ADD_NEIGHBOR, (unsigned int) addr, 0);
-  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) index);
+  ret = libtock_ieee802154_command_add_neighbor(addr_short, index);
+
+  // unallow the rw buffer from the kernel so that other libtock functions
+  // can utilize and modify the buffer
+  libtock_ieee802154_set_readwrite_allow_cfg(NULL, 0);
+
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Driver adds 1 to ensure it is positive.
   *index -= 1;
@@ -232,48 +202,45 @@ int ieee802154_add_neighbor(unsigned short addr, unsigned char *addr_long, unsig
   return ret;
 }
 
-int ieee802154_remove_neighbor(unsigned index) {
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_REMOVE_NEIGHBOR, (unsigned int) index, 0);
-  return tock_command_return_novalue_to_returncode(com);
+returncode_t libtock_ieee802154_remove_neighbor(uint32_t index) {
+  return libtock_ieee802154_command_remove_neighbor(index);
 }
 
-int ieee802154_max_keys(int* keys) {
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_MAX_KEYS, 0, 0);
-  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) keys);
+returncode_t libtock_ieee802154_max_keys(uint32_t* max_keys) {
+  returncode_t ret = libtock_ieee802154_command_get_max_keys(max_keys);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Driver adds 1 to ensure it is positive.
-  *keys -= 1;
+  *max_keys -= 1;
 
   return ret;
 }
 
-int ieee802154_num_keys(int* keys) {
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_NUM_KEYS, 0, 0);
-  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) keys);
+returncode_t libtock_ieee802154_num_keys(uint32_t* key_count) {
+  returncode_t ret = libtock_ieee802154_command_get_num_keys(key_count);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Driver adds 1 to ensure it is positive.
-  *keys -= 1;
+  *key_count -= 1;
 
   return ret;
 }
 
-int ieee802154_get_key_security_level(unsigned index, security_level_t *level) {
+returncode_t libtock_ieee802154_get_key_security_level(uint32_t index, security_level_t *level) {
   if (!level) return RETURNCODE_EINVAL;
 
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_KEY_LEVEL, (unsigned int) index, 0);
-  int store_u32        = 0;
-  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) store_u32);
+  uint32_t ret_level;
+  returncode_t ret = libtock_ieee802154_command_get_key_security_level(index, &ret_level);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  if (ret == RETURNCODE_SUCCESS) {
-    // Driver adds 1 to ensure it is positive.
-    store_u32 -= 1;
-    *level     = store_u32;
-  }
+  // Driver adds 1 to ensure it is positive.
+  ret_level -= 1;
+  *level     = (security_level_t) ret_level;
 
   return ret;
 }
 
-int ieee802154_key_id_bytes(key_id_mode_t key_id_mode) {
+returncode_t libtock_ieee802154_key_id_bytes(key_id_mode_t key_id_mode) {
   switch (key_id_mode) {
     default:
     case KEY_ID_IMPLICIT:
@@ -287,66 +254,81 @@ int ieee802154_key_id_bytes(key_id_mode_t key_id_mode) {
   }
 }
 
-int ieee802154_get_key_id(unsigned       index,
-                          key_id_mode_t *key_id_mode,
-                          unsigned char *key_id) {
+returncode_t libtock_ieee802154_get_key_id(uint32_t       index,
+                                           key_id_mode_t *key_id_mode,
+                                           uint8_t *      key_id) {
   if (!key_id_mode || !key_id) return RETURNCODE_EINVAL;
 
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) BUF_CFG, 10);
-  if (!rw.success) return tock_status_to_returncode(rw.status);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) BUF_CFG, 10);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_KEY_ID, (unsigned int) index, 0);
-  int ret = tock_command_return_novalue_to_returncode(com);
+  ret = libtock_ieee802154_command_get_key_id(index);
+
+  // unallow the rw buffer from the kernel prior to accessing the buffer.
+  libtock_ieee802154_set_readwrite_allow_cfg(NULL, 0);
+
   if (ret == RETURNCODE_SUCCESS) {
     *key_id_mode = (key_id_mode_t) (BUF_CFG[0]);
-    memcpy(key_id, BUF_CFG + 1, ieee802154_key_id_bytes(*key_id_mode));
+    memcpy(key_id, BUF_CFG + 1, libtock_ieee802154_key_id_bytes(*key_id_mode));
+  }
+  return ret;
+}
+
+returncode_t libtock_ieee802154_get_key(uint32_t index, uint8_t *key) {
+  if (!key) return RETURNCODE_EINVAL;
+
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) BUF_CFG, 16);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  ret = libtock_ieee802154_command_get_key(index);
+
+  // unallow the rw buffer from the kernel prior to accessing the buffer.
+  libtock_ieee802154_set_readwrite_allow_cfg(NULL, 0);
+
+  if (ret == RETURNCODE_SUCCESS) {
+    memcpy(key, BUF_CFG, 16);
   }
 
   return ret;
 }
 
-int ieee802154_get_key(unsigned index, unsigned char *key) {
-  if (!key) return RETURNCODE_EINVAL;
+returncode_t libtock_ieee802154_get_key_desc(uint32_t          index,
+                                             security_level_t *level,
+                                             key_id_mode_t *   key_id_mode,
+                                             uint8_t *         key_id,
+                                             uint8_t *         key) {
+  returncode_t ret = libtock_ieee802154_get_key_security_level(index, level);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) key, 16);
-  if (!rw.success) return tock_status_to_returncode(rw.status);
+  ret = libtock_ieee802154_get_key_id(index, key_id_mode, key_id);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_GET_KEY, (unsigned int) index, 0);
-  return tock_command_return_novalue_to_returncode(com);
+  return libtock_ieee802154_get_key(index, key);
 }
 
-int ieee802154_get_key_desc(unsigned          index,
-                            security_level_t *level,
-                            key_id_mode_t *   key_id_mode,
-                            unsigned char *   key_id,
-                            unsigned char *   key) {
-  int err = ieee802154_get_key_security_level(index, level);
-  if (err < 0) return err;
-  err = ieee802154_get_key_id(index, key_id_mode, key_id);
-  if (err < 0) return err;
-  return ieee802154_get_key(index, key);
-}
-
-int ieee802154_add_key(security_level_t level,
-                       key_id_mode_t    key_id_mode,
-                       unsigned char *  key_id,
-                       unsigned char *  key,
-                       unsigned *       index) {
+returncode_t libtock_ieee802154_add_key(security_level_t level,
+                                        key_id_mode_t    key_id_mode,
+                                        uint8_t *        key_id,
+                                        uint8_t *        key,
+                                        uint32_t *       index) {
   if (!key) return RETURNCODE_EINVAL;
-
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) BUF_CFG, 27);
-  if (!rw.success) return tock_status_to_returncode(rw.status);
 
   BUF_CFG[0] = level;
   BUF_CFG[1] = key_id_mode;
-  int bytes = ieee802154_key_id_bytes(key_id_mode);
+  int bytes = libtock_ieee802154_key_id_bytes(key_id_mode);
   if (bytes > 0) {
     memcpy(BUF_CFG + 2, key_id, bytes);
   }
   memcpy(BUF_CFG + 2 + 9, key, 16);
 
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_ADD_KEY, 0, 0);
-  int ret = tock_command_return_u32_to_returncode(com, (uint32_t*) index);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) BUF_CFG, 27);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  ret = libtock_ieee802154_command_add_key(index);
+
+  // unallow the rw buffer from the kernel so that other libtock functions
+  // can utilize and modify the buffer.
+  libtock_ieee802154_set_readwrite_allow_cfg(NULL, 0);
 
   // Driver adds 1 to ensure it is positive.
   *index -= 1;
@@ -354,170 +336,124 @@ int ieee802154_add_key(security_level_t level,
   return ret;
 }
 
-int ieee802154_remove_key(unsigned index) {
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_REMOVE_KEY, (unsigned int) index, 0);
-  return tock_command_return_novalue_to_returncode(com);
+returncode_t libtock_ieee802154_remove_key(uint32_t index) {
+  return libtock_ieee802154_command_remove_key(index);
 }
 
 // Internal callback for transmission
-static int tx_result;
-static int tx_acked;
-static void tx_done_callback(int                          status,
-                             int                          acked,
-                             __attribute__ ((unused)) int arg3,
-                             void*                        ud) {
-  tx_result     = tock_status_to_returncode(status);
-  tx_acked      = acked;
-  *((bool*) ud) = true;
+static void tx_done_upcall(int                          status,
+                           int                          acked,
+                           __attribute__ ((unused)) int unused2,
+                           void *                       opaque) {
+  libtock_ieee802154_callback_send_done cb = (libtock_ieee802154_callback_send_done) opaque;
+  cb(status, acked);
 }
 
-int ieee802154_send(unsigned short   addr,
-                    security_level_t level,
-                    key_id_mode_t    key_id_mode,
-                    unsigned char *  key_id,
-                    const char *     payload,
-                    unsigned char    len) {
-  // Setup parameters in ALLOW_CFG and ALLOW_RO_TX
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_CFG, (void *) BUF_CFG, 11);
-  if (!rw.success) return tock_status_to_returncode(rw.status);
-
+returncode_t libtock_ieee802154_send(uint32_t                              addr,
+                                     security_level_t                      level,
+                                     key_id_mode_t                         key_id_mode,
+                                     uint8_t *                             key_id,
+                                     const uint8_t *                       payload,
+                                     uint8_t                               len,
+                                     libtock_ieee802154_callback_send_done cb) {
+  // Setup parameters in CFG
   BUF_CFG[0] = level;
   BUF_CFG[1] = key_id_mode;
-  int bytes = ieee802154_key_id_bytes(key_id_mode);
+  int bytes = libtock_ieee802154_key_id_bytes(key_id_mode);
   if (bytes > 0) {
     memcpy(BUF_CFG + 2, key_id, bytes);
   }
-  allow_ro_return_t ro = allow_readonly(RADIO_DRIVER, ALLOW_RO_TX, (void *) payload, len);
-  if (!ro.success) return tock_status_to_returncode(ro.status);
 
-  // Subscribe to the transmit callback
-  bool tx_done = false;
-  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_TX,
-                                     tx_done_callback, (void *) &tx_done);
-  if (!sub.success) return tock_status_to_returncode(sub.status);
+  // Allow CFG buffer to the kernel
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) BUF_CFG, 27);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Issue the send command and wait for the transmission to be done.
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SEND, (unsigned int) addr, 0);
-  int ret = tock_command_return_novalue_to_returncode(com);
-  if (ret < 0) return ret;
+  // Allow payload buffer to the kernel
+  ret = libtock_ieee802154_set_readonly_allow((void *) payload, len);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  yield_for(&tx_done);
-  if (tx_result != RETURNCODE_SUCCESS) {
-    return tx_result;
-  } else if (tx_acked == 0) {
-    return RETURNCODE_ENOACK;
-  }
-
-  return RETURNCODE_SUCCESS;
-}
-
-int ieee802154_send_raw(
-  const char *  payload,
-  unsigned char len) {
-  // Setup parameters in ALLOW_RO_TX
-  allow_ro_return_t ro = allow_readonly(RADIO_DRIVER, ALLOW_RO_TX, (void *) payload, len);
-  if (!ro.success) return tock_status_to_returncode(ro.status);
-
-  // Subscribe to the transmit callback
-  bool tx_done = false;
-  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_TX,
-                                     tx_done_callback, (void *) &tx_done);
-  if (!sub.success) return tock_status_to_returncode(sub.status);
+  // Subscribe the provided callback using the internal tx_done_upcall.
+  ret = libtock_ieee802154_set_upcall_frame_transmitted(tx_done_upcall, cb);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Issue the send command and wait for the transmission to be done.
-  syscall_return_t com = command(RADIO_DRIVER, COMMAND_SEND_RAW, 0, 0);
-  int ret = tock_command_return_novalue_to_returncode(com);
-  if (ret < 0) return ret;
+  ret = libtock_ieee802154_command_send(addr);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  yield_for(&tx_done);
-  if (tx_result != RETURNCODE_SUCCESS) {
-    return tx_result;
-  } else if (tx_acked == 0) {
-    return RETURNCODE_ENOACK;
-  }
-
-  return RETURNCODE_SUCCESS;
+  return ret;
 }
 
+returncode_t libtock_ieee802154_send_raw(
+  const uint8_t *                       payload,
+  uint8_t                               len,
+  libtock_ieee802154_callback_send_done cb) {
+  // Setup parameters in ALLOW_RO_TX.
+  returncode_t ret = libtock_ieee802154_set_readonly_allow((void *) payload, len);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
+  // Subscribe the provided callback using the internal tx_done_upcall.
+  ret = libtock_ieee802154_set_upcall_frame_transmitted(tx_done_upcall, cb);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  // Issue the send command
+  return libtock_ieee802154_command_send_raw();
+}
 
 // Internal callback for receive
-static void rx_done_callback(__attribute__ ((unused)) int pans,
-                             __attribute__ ((unused)) int dst_addr,
-                             __attribute__ ((unused)) int src_addr,
-                             void*                        ud) {
-  reset_ring_buf(NULL, NULL, NULL);
-  *((bool*) ud) = true;
+static void rx_done_upcall(int   pans,
+                           int   dst_addr,
+                           int   src_addr,
+                           void* opaque) {
+  libtock_ieee802154_callback_recv_done cb = (libtock_ieee802154_callback_recv_done) opaque;
+  cb(pans, dst_addr, src_addr);
 }
 
-int ieee802154_receive_sync(const ieee802154_rxbuf *frame) {
-  // Provide the buffer to the kernel
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, IEEE802154_RING_BUFFER_LEN);
-  if (!rw.success) return tock_status_to_returncode(rw.status);
+returncode_t libtock_ieee802154_receive(const libtock_ieee802154_rxbuf *      frame,
+                                        libtock_ieee802154_callback_recv_done cb) {
+  // Provide the ring buffer to the kernel
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_rx((uint8_t *) frame, libtock_ieee802154_RING_BUFFER_LEN);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Subscribe to the received callback
-  bool rx_done = false;
-  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_RX, rx_done_callback, (void *) &rx_done);
-  if (!sub.success) return tock_status_to_returncode(sub.status);
-
-  // Wait for a frame
-  yield_for(&rx_done);
-  return RETURNCODE_SUCCESS;
+  // Subscribe the provided callback using the internal rx_done_upcall.
+  return libtock_ieee802154_set_upcall_frame_received(rx_done_upcall, cb);
 }
 
-// must be called before accessing the contents of the "allowed" receive buffer
-bool ieee802154_unallow_rx_buf(void) {
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, NULL, 0);
-  return rw.success;
+returncode_t libtock_reset_ring_buf(const libtock_ieee802154_rxbuf* frame, subscribe_upcall callback, void* ud) {
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_rx((uint8_t *) frame,
+                                                               (frame) ? libtock_ieee802154_RING_BUFFER_LEN : 0);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  return libtock_ieee802154_set_upcall_frame_received(callback, ud);
 }
 
-bool reset_ring_buf(const ieee802154_rxbuf* frame, subscribe_upcall callback, void* ud) {
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame,
-                                         (frame) ? IEEE802154_RING_BUFFER_LEN : 0);
-  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_RX, callback, ud);
-  return rw.success && sub.success;
-}
-
-char* ieee802154_read_next_frame(const ieee802154_rxbuf* frame) {
+uint8_t* libtock_ieee802154_read_next_frame(const libtock_ieee802154_rxbuf* frame) {
   if (!frame) return NULL;
 
-  char *rx_buf    = (char *) frame;
+  uint8_t *rx_buf = (uint8_t *) frame;
   int read_index  = rx_buf[0];
   int write_index = rx_buf[1];
   if (read_index == write_index) {
     return NULL;
   }
   rx_buf[0]++;
-  if (rx_buf[0] >= IEEE802154_MAX_RING_BUF_FRAMES) {
+  if (rx_buf[0] >= libtock_ieee802154_MAX_RING_BUF_FRAMES) {
     rx_buf[0] = 0;
   }
-  return &rx_buf[IEEE802154_RING_BUF_META_LEN + (read_index * IEEE802154_FRAME_LEN)];
+  return &rx_buf[libtock_ieee802154_RING_BUF_META_LEN + (read_index * libtock_ieee802154_FRAME_LEN)];
 }
 
-int ieee802154_receive(subscribe_upcall        callback,
-                       const ieee802154_rxbuf* frame,
-                       void*                   ud) {
-
-  // Provide the buffer to the kernel
-  allow_rw_return_t rw = allow_readwrite(RADIO_DRIVER, ALLOW_RX, (void *) frame, IEEE802154_RING_BUFFER_LEN);
-  if (!rw.success) return tock_status_to_returncode(rw.status);
-
-  subscribe_return_t sub = subscribe(RADIO_DRIVER, SUBSCRIBE_RX, callback, ud);
-  return tock_subscribe_return_to_returncode(sub);
-}
-
-int ieee802154_frame_get_length(const char *frame) {
+int libtock_ieee802154_frame_get_length(const uint8_t *frame) {
   if (!frame) return 0;
   // data_offset + data_len - 2 header bytes
   return frame[0] + frame[1] - 2;
 }
 
-int ieee802154_frame_get_payload_offset(const char *frame) {
+int libtock_ieee802154_frame_get_payload_offset(const uint8_t *frame) {
   if (!frame) return 0;
   return frame[0];
 }
 
-int ieee802154_frame_get_payload_length(const char *frame) {
+int libtock_ieee802154_frame_get_payload_length(const uint8_t *frame) {
   if (!frame) return 0;
   return frame[1];
 }
@@ -531,12 +467,12 @@ int ieee802154_frame_get_payload_length(const char *frame) {
 //
 // If the source pan is dropped, that means that it is the same as the
 // destination pan, which must be present.
-static bool ieee802154_get_addressing(uint16_t     frame_control,
-                                      bool *       dst_pan_present,
-                                      addr_mode_t *dst_mode,
-                                      bool *       src_pan_present,
-                                      bool *       src_pan_dropped,
-                                      addr_mode_t *src_mode) {
+static bool libtock_ieee802154_get_addressing(uint16_t     frame_control,
+                                              bool *       dst_pan_present,
+                                              addr_mode_t *dst_mode,
+                                              bool *       src_pan_present,
+                                              bool *       src_pan_dropped,
+                                              addr_mode_t *src_mode) {
   if (!dst_pan_present || !dst_mode || !src_pan_present || !src_pan_dropped ||
       !src_mode) {
     return false;
@@ -597,30 +533,30 @@ static bool ieee802154_get_addressing(uint16_t     frame_control,
 }
 
 // Utility function to obtain the frame control field from a frame
-static void ieee802154_get_frame_control(const char *frame, uint16_t *frame_control) {
+static void libtock_ieee802154_get_frame_control(const uint8_t *frame, uint16_t *frame_control) {
   if (!frame || !frame_control) return;
-  *frame_control = ((uint16_t) frame[IEEE802154_FRAME_META_LEN]) |
-                   (((uint16_t) frame[IEEE802154_FRAME_META_LEN + 1]) << 8);
+  *frame_control = ((uint16_t) frame[libtock_ieee802154_FRAME_META_LEN]) |
+                   (((uint16_t) frame[libtock_ieee802154_FRAME_META_LEN + 1]) << 8);
 }
 
 // Utility function to obtain the address offset from a frame
-static void ieee802154_get_addr_offset(const char *frame, uint16_t *addr_offset, uint16_t *frame_control,
-                                       const uint16_t *SEQ_SUPPRESSED) {
+static void libtock_ieee802154_get_addr_offset(const uint8_t *frame, uint16_t *addr_offset, uint16_t *frame_control,
+                                               const uint16_t *SEQ_SUPPRESSED) {
   if (!frame || !addr_offset || !frame_control || !SEQ_SUPPRESSED) return;
-  *addr_offset =  ((*frame_control & *SEQ_SUPPRESSED) ? 2 : 3) + IEEE802154_FRAME_META_LEN;
+  *addr_offset =  ((*frame_control & *SEQ_SUPPRESSED) ? 2 : 3) + libtock_ieee802154_FRAME_META_LEN;
 }
 
-addr_mode_t ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const char *    frame,
-                                          __attribute__ ((unused)) unsigned short *short_addr,
-                                          __attribute__ ((unused)) unsigned char * long_addr) {
+addr_mode_t libtock_ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const uint8_t * frame,
+                                                  __attribute__ ((unused)) uint16_t *      short_addr,
+                                                  __attribute__ ((unused)) uint8_t *       long_addr) {
   if (!frame) return ADDR_NONE;
 
   uint16_t frame_control;
-  ieee802154_get_frame_control(frame, &frame_control);
+  libtock_ieee802154_get_frame_control(frame, &frame_control);
 
   bool dst_pan_present, src_pan_present, src_pan_dropped;
   addr_mode_t dst_mode, src_mode;
-  if (!ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
+  if (!libtock_ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
                                  &src_pan_present, &src_pan_dropped, &src_mode)) {
     return ADDR_NONE;
   }
@@ -628,13 +564,13 @@ addr_mode_t ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const char * 
   // The addressing fields are after the sequence number, which can be ommitted
   const uint16_t SEQ_SUPPRESSED = 0x0100;
   uint16_t addr_offset;
-  ieee802154_get_addr_offset(frame, &addr_offset, &frame_control, &SEQ_SUPPRESSED);
+  libtock_ieee802154_get_addr_offset(frame, &addr_offset, &frame_control, &SEQ_SUPPRESSED);
 
   if (dst_pan_present) addr_offset += 2;
 
   if (dst_mode == ADDR_SHORT && short_addr) {
-    *short_addr = ((unsigned short) frame[addr_offset]) |
-                  (((unsigned short) frame[addr_offset + 1]) << 8);
+    *short_addr = ((uint16_t) frame[addr_offset]) |
+                  (((uint16_t) frame[addr_offset + 1]) << 8);
   }
   if (dst_mode == ADDR_LONG && long_addr) {
     int i;
@@ -646,17 +582,17 @@ addr_mode_t ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const char * 
   return dst_mode;
 }
 
-addr_mode_t ieee802154_frame_get_src_addr(__attribute__ ((unused)) const char *    frame,
-                                          __attribute__ ((unused)) unsigned short *short_addr,
-                                          __attribute__ ((unused)) unsigned char * long_addr) {
+addr_mode_t libtock_ieee802154_frame_get_src_addr(__attribute__ ((unused)) const uint8_t * frame,
+                                                  __attribute__ ((unused)) uint16_t *      short_addr,
+                                                  __attribute__ ((unused)) uint8_t *       long_addr) {
   if (!frame) return ADDR_NONE;
 
   uint16_t frame_control;
-  ieee802154_get_frame_control(frame, &frame_control);
+  libtock_ieee802154_get_frame_control(frame, &frame_control);
 
   bool dst_pan_present, src_pan_present, src_pan_dropped;
   addr_mode_t dst_mode, src_mode;
-  if (!ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
+  if (!libtock_ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
                                  &src_pan_present, &src_pan_dropped, &src_mode)) {
     return ADDR_NONE;
   }
@@ -664,7 +600,7 @@ addr_mode_t ieee802154_frame_get_src_addr(__attribute__ ((unused)) const char * 
   // The addressing fields are after the sequence number, which can be ommitted
   const uint16_t SEQ_SUPPRESSED = 0x0100;
   uint16_t addr_offset;
-  ieee802154_get_addr_offset(frame, &addr_offset, &frame_control, &SEQ_SUPPRESSED);
+  libtock_ieee802154_get_addr_offset(frame, &addr_offset, &frame_control, &SEQ_SUPPRESSED);
 
   if (dst_pan_present) addr_offset += 2;
   if (dst_mode == ADDR_SHORT) {
@@ -675,8 +611,8 @@ addr_mode_t ieee802154_frame_get_src_addr(__attribute__ ((unused)) const char * 
   if (src_pan_present) addr_offset += 2;
 
   if (src_mode == ADDR_SHORT && short_addr) {
-    *short_addr = ((unsigned short) frame[addr_offset]) |
-                  (((unsigned short) frame[addr_offset + 1]) << 8);
+    *short_addr = ((uint16_t) frame[addr_offset]) |
+                  (((uint16_t) frame[addr_offset + 1]) << 8);
   }
   if (src_mode == ADDR_LONG && long_addr) {
     int i;
@@ -688,16 +624,16 @@ addr_mode_t ieee802154_frame_get_src_addr(__attribute__ ((unused)) const char * 
   return src_mode;
 }
 
-bool ieee802154_frame_get_dst_pan(__attribute__ ((unused)) const char *    frame,
-                                  __attribute__ ((unused)) unsigned short *pan) {
+bool libtock_ieee802154_frame_get_dst_pan(__attribute__ ((unused)) const uint8_t * frame,
+                                          __attribute__ ((unused)) uint16_t *      pan) {
   if (!frame) return false;
 
   uint16_t frame_control;
-  ieee802154_get_frame_control(frame, &frame_control);
+  libtock_ieee802154_get_frame_control(frame, &frame_control);
 
   bool dst_pan_present, src_pan_present, src_pan_dropped;
   addr_mode_t dst_mode, src_mode;
-  if (!ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
+  if (!libtock_ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
                                  &src_pan_present, &src_pan_dropped, &src_mode)) {
     return false;
   }
@@ -705,26 +641,26 @@ bool ieee802154_frame_get_dst_pan(__attribute__ ((unused)) const char *    frame
   // The addressing fields are after the sequence number, which can be ommitted
   const uint16_t SEQ_SUPPRESSED = 0x0100;
   uint16_t addr_offset;
-  ieee802154_get_addr_offset(frame, &addr_offset, &frame_control, &SEQ_SUPPRESSED);
+  libtock_ieee802154_get_addr_offset(frame, &addr_offset, &frame_control, &SEQ_SUPPRESSED);
 
   if (dst_pan_present && pan) {
-    *pan = ((unsigned short) frame[addr_offset]) |
-           (((unsigned short) frame[addr_offset + 1]) << 8);
+    *pan = ((uint16_t) frame[addr_offset]) |
+           (((uint16_t) frame[addr_offset + 1]) << 8);
   }
 
   return dst_pan_present;
 }
 
-bool ieee802154_frame_get_src_pan(__attribute__ ((unused)) const char *    frame,
-                                  __attribute__ ((unused)) unsigned short *pan) {
+bool libtock_ieee802154_frame_get_src_pan(__attribute__ ((unused)) const uint8_t * frame,
+                                          __attribute__ ((unused)) uint16_t *      pan) {
   if (!frame) return false;
 
   uint16_t frame_control;
-  ieee802154_get_frame_control(frame, &frame_control);
+  libtock_ieee802154_get_frame_control(frame, &frame_control);
 
   bool dst_pan_present, src_pan_present, src_pan_dropped;
   addr_mode_t dst_mode, src_mode;
-  if (!ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
+  if (!libtock_ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
                                  &src_pan_present, &src_pan_dropped, &src_mode)) {
     return false;
   }
@@ -732,13 +668,13 @@ bool ieee802154_frame_get_src_pan(__attribute__ ((unused)) const char *    frame
   // The addressing fields are after the sequence number, which can be ommitted
   const uint16_t SEQ_SUPPRESSED = 0x0100;
   uint16_t addr_offset;
-  ieee802154_get_addr_offset(frame, &addr_offset, &frame_control, &SEQ_SUPPRESSED);
+  libtock_ieee802154_get_addr_offset(frame, &addr_offset, &frame_control, &SEQ_SUPPRESSED);
 
   if (src_pan_dropped) {
     // We can assume that the destination pan is present.
     if (pan) {
-      *pan = ((unsigned short) frame[addr_offset]) |
-             (((unsigned short) frame[addr_offset + 1]) << 8);
+      *pan = ((uint16_t) frame[addr_offset]) |
+             (((uint16_t) frame[addr_offset + 1]) << 8);
     }
   } else {
     if (dst_pan_present) addr_offset += 2;
@@ -749,8 +685,8 @@ bool ieee802154_frame_get_src_pan(__attribute__ ((unused)) const char *    frame
     }
 
     if (src_pan_present && pan) {
-      *pan = ((unsigned short) frame[addr_offset]) |
-             (((unsigned short) frame[addr_offset + 1]) << 8);
+      *pan = ((uint16_t) frame[addr_offset]) |
+             (((uint16_t) frame[addr_offset + 1]) << 8);
     }
   }
 

@@ -18,7 +18,7 @@ extern "C" {
 #define SUBSCRIBE_TX 1
 
 #define COMMAND_GET_IFACES 1
-#define COMMAND_SEND       2
+#define UDP_COMMAND_SEND       2
 #define COMMAND_BIND       3
 #define COMMAND_GET_TX_LEN 4
 

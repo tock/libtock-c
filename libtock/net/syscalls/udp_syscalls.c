@@ -43,7 +43,7 @@ returncode_t libtock_udp_command_get_ifaces(size_t len){
 }
 
 returncode_t libtock_udp_command_send(void){
-  syscall_return_t cval = command(DRIVER_NUM_UDP, COMMAND_SEND, 0, 0);
+  syscall_return_t cval = command(DRIVER_NUM_UDP, UDP_COMMAND_SEND, 0, 0);
   return tock_command_return_novalue_to_returncode(cval);
 }
 
