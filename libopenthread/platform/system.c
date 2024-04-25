@@ -48,7 +48,7 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
 
 static ieee802154_rxbuf* swap_shared_kernel_buf(otTock* instance) {
   ieee802154_rxbuf* rx_buf;
-
+ 
   if (instance->kernel_rx_buf == &rx_buf_a) {
     instance->kernel_rx_buf = &rx_buf_b;
     rx_buf = &rx_buf_a;

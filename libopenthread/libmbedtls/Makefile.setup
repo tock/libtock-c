@@ -1,6 +1,10 @@
 .PHONY: clean
 
+TOCK_USERLAND_BASE_DIR ?= ../..
+
 LIBMBEDTLS_DIR:=$(TOCK_USERLAND_BASE_DIR)/libopenthread/libmbedtls
+
+all: libmbedtls
 
 clean::
 	rm -rf build

@@ -9,7 +9,6 @@ $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/lib/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/bsdtcp/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_SRC_ROOT)/bsdtcp/cc/*.c)
 
-
 # Need openthread headers
 override CPPFLAGS += -I$($(LIBNAME)_SRC_ROOT)/../../include
 

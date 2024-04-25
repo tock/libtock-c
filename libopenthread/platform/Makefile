@@ -9,9 +9,6 @@ override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
 
 $(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/libopenthread/platform
 $(LIBNAME)_SRC_ROOT := $(TOCK_USERLAND_BASE_DIR)/libopenthread/platform
-$(LIBNAME)_SRCS :=				\
-	$(wildcard $($(LIBNAME)_DIR)/*.c)	\
-	$(wildcard $($(LIBNAME)_DIR)/*.cxx)	\
-	$(wildcard $($(LIBNAME)_DIR)/*.s)
+$(LIBNAME)_SRCS := $(wildcard $($(LIBNAME)_SRC_ROOT)/*.c)
 
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk

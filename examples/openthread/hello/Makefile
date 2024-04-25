@@ -3,11 +3,6 @@
 # Specify this directory relative to the current application.
 TOCK_USERLAND_BASE_DIR = ../../..
 
-# Include needed header files for OpenThread library
-override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/include
-override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/src/core
-override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libopenthread/platform
-
 OT_TOCK_LIB_DIR += $(TOCK_USERLAND_BASE_DIR)/libopenthread
 
 EXTERN_LIBS += $(OT_TOCK_LIB_DIR)/libopenthread-mtd
