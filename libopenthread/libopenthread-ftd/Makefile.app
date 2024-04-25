@@ -1,15 +1,2 @@
-.PHONY: clean
-
-LIBOPENTHREAD-FTD_DIR:=$(TOCK_USERLAND_BASE_DIR)/libopenthread/libopenthread-ftd
-
-clean::
-	rm -rf build
-
-libopenthread-ftd: 
-	make -C $(LIBOPENTHREAD-FTD_DIR)
-
-# Make sure the library is built for every architecture
-define MTD_RULES
-$(TOCK_USERLAND_BASE_DIR)/libopenthread/libopenthread-mtd/build/$(1)/libopenthread-mtd.a: libopenthread-mtd 
-endef
-$(foreach arch,$(TOCK_ARCHS),$(eval $(call MTD_RULES,$(arch))))
+override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/include
+override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/src/core

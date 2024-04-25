@@ -1,5 +1,6 @@
 # Base folder definitions
 TOCK_USERLAND_BASE_DIR ?= ../..
+
 LIBNAME := libmbedtls
 $(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/libopenthread/libmbedtls
 $(LIBNAME)_SRC_ROOT := $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/third_party/mbedtls
