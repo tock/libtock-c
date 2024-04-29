@@ -1,8 +1,11 @@
-#include <ble.h>
-#include <gap.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <tock.h>
+
+#include <gap.h>
+
+#include <libtock/net/ble.h>
+#include <libtock/timer.h>
+#include <libtock/tock.h>
 
 int main(void) {
   static uint8_t adv_data_buf[ADV_DATA_MAX_SIZE];
@@ -10,11 +13,11 @@ int main(void) {
 
   // declarations of variables to be used in this BLE example application
   uint16_t advertising_interval_ms = 300;
-  uint8_t device_name[]            = "Advertiser2";
+  uint8_t device_name[] = "Advertiser2";
 
   // configure device name as Advertiser2
   printf(" - Setting the device name... %s\n", device_name);
-  int err = gap_add_device_name(&adv_data, device_name, sizeof(device_name)-1);
+  int err = gap_add_device_name(&adv_data, device_name, sizeof(device_name) - 1);
   if (err < RETURNCODE_SUCCESS)
     printf("ble_advertise_name, error: %s\r\n", tock_strrcode(err));
 

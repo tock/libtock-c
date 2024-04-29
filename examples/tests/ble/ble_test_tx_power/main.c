@@ -1,9 +1,9 @@
-#include <ble.h>
-#include <rng.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <timer.h>
-#include <tock.h>
+
+#include <libtock/net/ble.h>
+#include <libtock/timer.h>
+#include <libtock/tock.h>
 
 #define NRF5X_POS_4_DBM   0x04
 #define NRF5X_POS_3_DBM   0x03
