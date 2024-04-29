@@ -84,7 +84,7 @@ struct unit_test_t {
   int pid;
 
   // alarm structure used for triggering test timeout conditions.
-  alarm_t alarm;
+  libtock_alarm_t alarm;
 
   // Result of the most recently completed test.
   unit_test_result_t result;
@@ -333,7 +333,8 @@ static struct alarm_cb_data data = { .test = NULL };
  * we just stop the tests here and print the results.
  */
 static void timeout_callback(__attribute__ ((unused)) uint32_t now,
-                             __attribute__ ((unused)) uint32_t scheduled) {
+                             __attribute__ ((unused)) uint32_t scheduled,
+                             __attribute__ ((unused)) void*    opqaue) {
   data.test->result = Timeout;
   print_test_result(data.test);
   print_test_summary(data.test);
@@ -378,7 +379,7 @@ static void unit_test_service_callback(int                            pid,
     case TestStart:
       // Start the alarm and start the test.
       data.test = test;
-      libtock_alarm_in_ms(test->timeout_ms, timeout_callback, &test->alarm);
+      libtock_alarm_in_ms(test->timeout_ms, timeout_callback, NULL, &test->alarm);
       ipc_notify_client(test->pid);
       break;
 
