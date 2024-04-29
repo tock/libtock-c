@@ -3,9 +3,21 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <console.h>
+#include <libtock-sync/interface/console.h>
 #include <libtock-sync/peripherals/rng.h>
 
+static int getch(void) {
+  uint8_t buffer[1];
+  int number_read;
+  libtocksync_console_read(buffer, 1, &number_read);
+  return buffer[0];
+}
+
+static int putnstr(const char* str, int len) {
+  int number_written;
+  libtocksync_console_read((uint8_t*) str, len, &number_written);
+  return number_written;
+}
 
 static int get_number(void) {
   char buffer[10] = {0};
