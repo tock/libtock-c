@@ -2,10 +2,11 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <libtock/timer.h>
-#include <libtock/gpio.h>
-#include <libtock/nrf51_serialization.h>
+#include <libtock/peripherals/gpio.h>
+#include <libtock/net/nrf51_serialization.h>
 
 #include "nrf.h"
 #include "ser_phy.h"
@@ -310,6 +311,7 @@ void ser_app_hal_nrf_evt_pending (void) {
 
 uint32_t ser_phy_open (ser_phy_events_handler_t events_handler) {
     int ret;
+    int bytes_read;
 
     if (events_handler == NULL) {
         return NRF_ERROR_NULL;
@@ -321,17 +323,17 @@ uint32_t ser_phy_open (ser_phy_events_handler_t events_handler) {
     }
 
     // Start by doing a reset.
-    ret = nrf51_serialization_reset();
+    ret = libtock_nrf51_serialization_reset();
     if (ret < 0) return NRF_ERROR_INTERNAL;
 
     // Configure the serialization layer in the kernel
-    ret = nrf51_serialization_subscribe(ble_serialization_callback);
+    ret = libtock_nrf51_serialization_set_upcall(ble_serialization_callback, NULL);
     if (ret < 0) return NRF_ERROR_INTERNAL;
 
-    ret = nrf51_serialization_setup_receive_buffer((char*) rx, SER_HAL_TRANSPORT_RX_MAX_PKT_SIZE);
+    ret = libtock_nrf51_serialization_set_readwrite_allow_receive_buffer(rx, SER_HAL_TRANSPORT_RX_MAX_PKT_SIZE);
     if (ret < 0) return NRF_ERROR_INTERNAL;
 
-    ret = nrf51_serialization_read(SER_HAL_TRANSPORT_RX_MAX_PKT_SIZE);
+    ret = libtock_nrf51_serialization_read(SER_HAL_TRANSPORT_RX_MAX_PKT_SIZE, &bytes_read);
     if (ret < 0) return NRF_ERROR_INTERNAL;
 
     // Save the callback handler
@@ -368,7 +370,7 @@ uint32_t ser_phy_tx_pkt_send (const uint8_t* p_buffer, uint16_t num_of_bytes) {
         tx_len = num_of_bytes + SER_PHY_HEADER_SIZE;
 
         // Call tx procedure to start transmission of a packet
-        int ret = nrf51_serialization_write((char*) tx, tx_len);
+        int ret = libtock_nrf51_serialization_write(tx, tx_len);
         if (ret < 0) {
             return NRF_ERROR_INTERNAL;
         }
