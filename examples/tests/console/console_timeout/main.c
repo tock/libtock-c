@@ -17,6 +17,8 @@ static void getnstr_cb(returncode_t result __attribute__ ((unused)),
     printf("%c", buf[i]);
   }
   printf("\n");
+
+  exit(0);
 }
 
 static void timer_cb(int   result __attribute__ ((unused)),
@@ -24,8 +26,6 @@ static void timer_cb(int   result __attribute__ ((unused)),
                      int   _z __attribute__ ((unused)),
                      void* ud __attribute__ ((unused))) {
   libtock_console_abort_read();
-
-  exit(0);
 }
 
 int main(void) {
