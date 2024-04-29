@@ -3,19 +3,17 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <console.h>
-#include <timer.h>
+#include <libtock/interface/console.h>
+#include <libtock/timer.h>
 
 char buf[100];
 
 tock_timer_t t;
 
-static void getnstr_cb(int   result __attribute__ ((unused)),
-                       int   len,
-                       int   _z __attribute__ ((unused)),
-                       void* ud __attribute__ ((unused))) {
+static void getnstr_cb(returncode_t result __attribute__ ((unused)),
+                       uint32_t     len) {
   printf("Userspace call to read console returned: ");
-  for (int i = 0; i < len; i++) {
+  for (uint32_t i = 0; i < len; i++) {
     printf("%c", buf[i]);
   }
   printf("\n");
@@ -25,14 +23,14 @@ static void timer_cb(int   result __attribute__ ((unused)),
                      int   _y __attribute__ ((unused)),
                      int   _z __attribute__ ((unused)),
                      void* ud __attribute__ ((unused))) {
-  getnstr_abort();
+  libtock_console_abort_read();
 
   exit(0);
 }
 
 int main(void) {
 
-  int ret = getnstr_async(buf, 60, getnstr_cb, NULL);
+  int ret = libtock_console_read((uint8_t*) buf, 60, getnstr_cb);
   if (ret != RETURNCODE_SUCCESS) {
     printf("Error doing UART receive.\n");
   }
