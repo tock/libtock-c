@@ -3,10 +3,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <adc.h>
-#include <alarm.h>
-#include <console.h>
-#include <tock.h>
+#include <libtock/interface/console.h>
+#include <libtock/peripherals/adc.h>
+#include <libtock/tock.h>
 
 // Sample the first channel. On Hail, this is external pin A0 (AD0)
 #define ADC_CHANNEL 0
@@ -25,9 +24,23 @@
 static uint16_t sample_buffer1[BUF_SIZE] = {0};
 static uint16_t sample_buffer2[BUF_SIZE] = {0};
 
-static void continuous_sample_cb(uint8_t                        channel,
-                                 uint16_t                       sample,
-                                 __attribute__ ((unused)) void* callback_args) {
+static void continuous_sample_cb(uint8_t  channel,
+                                 uint16_t sample);
+static void continuous_buffered_sample_cb(uint8_t   channel,
+                                          uint32_t  length,
+                                          uint16_t* buf_ptr);
+
+static libtock_adc_callbacks callbacks = {
+  .single_sample_callback     = NULL,
+  .continuous_sample_callback = continuous_sample_cb,
+  .buffered_sample_callback   = NULL,
+  .continuous_buffered_sample_callback = continuous_buffered_sample_cb,
+};
+
+
+
+static void continuous_sample_cb(uint8_t  channel,
+                                 uint16_t sample) {
 
   // single ADC sample is ready
   static uint8_t counter = 0;
@@ -42,7 +55,7 @@ static void continuous_sample_cb(uint8_t                        channel,
     counter = 0;
 
     // stop single sampling
-    int err = adc_stop_sampling();
+    int err = libtock_adc_stop_sampling();
     if (err < RETURNCODE_SUCCESS) {
       printf("Failed to stop sampling: %d\n", err);
       return;
@@ -51,7 +64,7 @@ static void continuous_sample_cb(uint8_t                        channel,
     // start buffered sampling
     printf("Beginning buffered sampling on channel %d at %d Hz\n",
            ADC_CHANNEL, ADC_HIGHSPEED_FREQUENCY);
-    err = adc_continuous_buffered_sample(ADC_CHANNEL, ADC_HIGHSPEED_FREQUENCY);
+    err = libtock_adc_continuous_buffered_sample(ADC_CHANNEL, ADC_HIGHSPEED_FREQUENCY, &callbacks);
     if (err < RETURNCODE_SUCCESS) {
       printf("continuous buffered sample error: %d\n", err);
       return;
@@ -59,10 +72,9 @@ static void continuous_sample_cb(uint8_t                        channel,
   }
 }
 
-static void continuous_buffered_sample_cb(uint8_t                        channel,
-                                          uint32_t                       length,
-                                          uint16_t*                      buf_ptr,
-                                          __attribute__ ((unused)) void* callback_args) {
+static void continuous_buffered_sample_cb(uint8_t   channel,
+                                          uint32_t  length,
+                                          uint16_t* buf_ptr) {
   // buffer of ADC samples is ready
   static uint8_t counter = 0;
 
@@ -89,7 +101,7 @@ static void continuous_buffered_sample_cb(uint8_t                        channel
     counter = 0;
 
     // stop single sampling
-    int err = adc_stop_sampling();
+    int err = libtock_adc_stop_sampling();
     if (err < RETURNCODE_SUCCESS) {
       printf("Failed to stop sampling: %d\n", err);
       return;
@@ -98,7 +110,7 @@ static void continuous_buffered_sample_cb(uint8_t                        channel
     // start single sampling
     printf("Beginning continuous sampling on channel %d at %d Hz\n",
            ADC_CHANNEL, ADC_LOWSPEED_FREQUENCY);
-    err = adc_continuous_sample(ADC_CHANNEL, ADC_LOWSPEED_FREQUENCY);
+    err = libtock_adc_continuous_sample(ADC_CHANNEL, ADC_LOWSPEED_FREQUENCY, &callbacks);
     if (err < RETURNCODE_SUCCESS) {
       printf("continuous sample error: %d\n", err);
       return;
@@ -111,28 +123,16 @@ int main(void) {
   printf("[Tock] ADC Continuous Test\n");
 
   // check if ADC driver exists
-  if (!adc_exists()) {
+  if (!libtock_adc_exists()) {
     printf("No ADC driver!\n");
     return -1;
   }
   int count;
-  adc_channel_count(&count);
+  libtock_adc_channel_count(&count);
   printf("ADC driver exists with %d channels\n", count);
 
-  // set ADC callbacks
-  err = adc_set_continuous_sample_callback(continuous_sample_cb, NULL);
-  if (err < RETURNCODE_SUCCESS) {
-    printf("set continuous sample callback error: %d\n", err);
-    return -1;
-  }
-  err = adc_set_continuous_buffered_sample_callback(continuous_buffered_sample_cb, NULL);
-  if (err < RETURNCODE_SUCCESS) {
-    printf("set continuous buffered sample callback error: %d\n", err);
-    return -1;
-  }
-
   // set main buffer for ADC samples
-  err = adc_set_buffer(sample_buffer1, BUF_SIZE);
+  err = libtock_adc_set_buffer(sample_buffer1, BUF_SIZE);
   if (err < RETURNCODE_SUCCESS) {
     printf("set buffer error: %d\n", err);
     return -1;
@@ -140,7 +140,7 @@ int main(void) {
 
   // set secondary buffer for ADC samples. In continuous mode, the ADC will
   // automatically switch between the two each callback
-  err = adc_set_double_buffer(sample_buffer2, BUF_SIZE);
+  err = libtock_adc_set_double_buffer(sample_buffer2, BUF_SIZE);
   if (err < RETURNCODE_SUCCESS) {
     printf("set double buffer error: %d\n", err);
     return -1;
@@ -149,7 +149,7 @@ int main(void) {
   // begin continuous sampling
   printf("Beginning continuous sampling on channel %d at %d Hz\n",
          ADC_CHANNEL, ADC_LOWSPEED_FREQUENCY);
-  err = adc_continuous_sample(ADC_CHANNEL, ADC_LOWSPEED_FREQUENCY);
+  err = libtock_adc_continuous_sample(ADC_CHANNEL, ADC_LOWSPEED_FREQUENCY, &callbacks);
   if (err < RETURNCODE_SUCCESS) {
     printf("continuous sample error: %d\n", err);
     return -1;
