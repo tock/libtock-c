@@ -3,10 +3,10 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <adc.h>
-#include <console.h>
-#include <timer.h>
-#include <tock.h>
+#include <libtock-sync/peripherals/adc.h>
+#include <libtock/interface/console.h>
+#include <libtock/timer.h>
+#include <libtock/tock.h>
 
 int reference_voltage;
 
@@ -16,7 +16,7 @@ const uint32_t FREQS[10] = {25, 100, 500, 1000, 5000, 10000, 44100, 100000, 1500
 static void test_single_samples(uint8_t channel) {
   uint16_t sample;
 
-  int err = adc_sample_sync(channel, &sample);
+  int err = libtocksync_adc_sample(channel, &sample);
   if (err < 0) {
     printf("Error sampling ADC: %d\n", err);
 
@@ -34,7 +34,7 @@ static void test_sampling_buffer(uint8_t channel, int index) {
   memset(buf, 0, length);
 
   printf("%lu ADC samples at %lu Hz\n", length, FREQS[index]);
-  int err = adc_sample_buffer_sync(channel, FREQS[index], buf, length);
+  int err = libtocksync_adc_sample_buffer(channel, FREQS[index], buf, length);
   if (err < 0) {
     printf("Error sampling ADC: %d\n", err);
 
@@ -52,15 +52,15 @@ int main(void) {
   printf("[Tock] ADC Test\n");
 
   // check if ADC driver exists
-  if (!adc_exists()) {
+  if (!libtock_adc_exists()) {
     printf("No ADC driver!\n");
     return -1;
   }
   int count;
-  adc_channel_count(&count);
+  libtock_adc_channel_count(&count);
   printf("ADC driver exists with %d channels\n", count);
 
-  reference_voltage = adc_get_reference_voltage();
+  libtock_adc_command_get_reference_voltage((uint32_t*) &reference_voltage);
   if (reference_voltage > 0) {
     printf("ADC reference voltage %d.%dV\n", reference_voltage / 1000, reference_voltage % 1000);
   } else {
@@ -68,8 +68,9 @@ int main(void) {
     printf("ADC no reference voltage, assuming 3.3V\n");
   }
 
-  int resolution = adc_get_resolution_bits();
-  printf("ADC resolution %d bits\n", resolution);
+  uint32_t resolution;
+  libtock_adc_command_get_resolution_bits(&resolution);
+  printf("ADC resolution %lu bits\n", resolution);
 
   while (1) {
     // iterate through the channels
