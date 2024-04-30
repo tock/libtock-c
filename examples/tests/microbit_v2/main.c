@@ -3,19 +3,23 @@
 
 #include <stdio.h>
 
-#include <adc.h>
-#include <alarm.h>
-#include <ble.h>
-#include <button.h>
-#include <buzzer.h>
 #include <gap.h>
-#include <gpio.h>
-#include <led.h>
-#include <ninedof.h>
-#include <sound_pressure.h>
-#include <temperature.h>
-#include <timer.h>
-#include <tock.h>
+
+#include <libtock-sync/peripherals/adc.h>
+#include <libtock-sync/peripherals/crc.h>
+#include <libtock-sync/peripherals/rng.h>
+#include <libtock-sync/sensors/ambient_light.h>
+#include <libtock-sync/sensors/humidity.h>
+#include <libtock-sync/sensors/ninedof.h>
+#include <libtock-sync/sensors/sound_pressure.h>
+#include <libtock-sync/sensors/temperature.h>
+#include <libtock/interface/button.h>
+#include <libtock/interface/buzzer.h>
+#include <libtock/interface/led.h>
+#include <libtock/net/ble.h>
+#include <libtock/net/nrf51_serialization.h>
+#include <libtock/peripherals/gpio.h>
+#include <libtock/timer.h>
 
 
 static int check_err(int retval, const char* func_name) {
@@ -35,14 +39,14 @@ static void tone_callback(void) {
 
 static void light_leds(int leds[], int len) {
   for (int i = 0; i < len; i++) {
-    check_err(led_on(leds[i]), "led_on");
+    check_err(libtock_led_on(leds[i]), "libtock_led_on");
   }
 }
 
-static void button_callback(int                            btn_num,
-                            int                            button_pressed,
-                            __attribute__ ((unused)) int   arg2,
-                            __attribute__ ((unused)) void *ud) {
+static void button_callback(
+  __attribute__ ((unused)) returncode_t ret,
+  int                                   btn_num,
+  bool                                  button_pressed) {
 
   // Do not run if this was a button release or if tone is not finished
   if (!button_pressed || !tone_complete) {
@@ -56,58 +60,60 @@ static void button_callback(int                            btn_num,
   tone_complete = false;
   if (btn_num == 0) {
     // When playing notes, note that the minimum frequency the Microbit can play is 489 Hz.
-    check_err(tone(NOTE_C5, 500, tone_callback), "tone");
+    check_err(libtock_buzzer_tone(NOTE_C5, 500, tone_callback), "libtock_buzzer_tone");
     int leds[10] = {2, 6, 8, 11, 12, 13, 16, 18, 21, 23};
     light_leds(leds, 10);
   } else if (btn_num == 1) {
-    check_err(tone(NOTE_E5, 500, tone_callback), "tone");
+    check_err(libtock_buzzer_tone(NOTE_E5, 500, tone_callback), "libtock_buzzer_tone");
     int leds[11] = {1, 2, 6, 8, 11, 12, 13, 16, 18, 21, 22};
     light_leds(leds, 11);
   }
 }
 
 static void sample_sensors(void) {
-  check_err(led_toggle(0), "led_toggle");  // Blink top left LED
+  check_err(libtock_led_toggle(0), "led_toggle");  // Blink top left LED
   for (int i = 1; i < 25; i++) {
-    check_err(led_off(i), "led_off");
+    check_err(libtock_led_off(i), "led_off");
   }
 
   // Sensors: temperature, acceleration, sound pressure
   int temp = 0;
-  check_err(temperature_read_sync(&temp), "temperature_read_sync");
-  uint32_t accel_mag = check_err(ninedof_read_accel_mag(), "ninedof_read_accel_mag");
+  check_err(libtocksync_temperature_read(&temp), "temperature_read_sync");
+  double accel_mag;
+  check_err(libtocksync_ninedof_read_accelerometer_magnitude(
+    &accel_mag), "libtocksync_ninedof_read_accelerometer_magnitude");
   int x = 0;
   int y = 0;
   int z = 0;
-  check_err(ninedof_read_magnetometer_sync(&x, &y, &z), "ninedof_read_magnetometer_sync");
+  check_err(libtocksync_ninedof_read_magnetometer(&x, &y, &z), "libtocksync_ninedof_read_magnetometer");
   unsigned char sound_pres;
-  check_err(sound_pressure_read_sync(&sound_pres), "sound_pressure_read_sync");
+  check_err(libtocksync_sound_pressure_read(&sound_pres), "libtocksync_sound_pressure_read");
 
   // Analog inputs: P0-P2
   uint16_t val = 0;
-  check_err(adc_sample_sync(0, &val), "adc_sample_sync");
+  check_err(libtocksync_adc_sample(0, &val), "libtocksync_adc_sample");
   int p0 = (val * 3300) / (4095 << 4);
-  check_err(adc_sample_sync(1, &val), "adc_sample_sync");
+  check_err(libtocksync_adc_sample(1, &val), "libtocksync_adc_sample");
   int p1 = (val * 3300) / (4095 << 4);
-  check_err(adc_sample_sync(2, &val), "adc_sample_sync");
+  check_err(libtocksync_adc_sample(2, &val), "libtocksync_adc_sample");
   int p2 = (val * 3300) / (4095 << 4);
   if (p0 < 10 || p1 < 10 || p2 < 10) { // pin is connected to gnd
-    check_err(led_on(20), "led_on");
+    check_err(libtock_led_on(20), "led_on");
   }
 
   // Digital inputs: P8, P9, P16
   int p8 = 0;
-  check_err(gpio_read(8, &p8), "gpio_read");
+  check_err(libtock_gpio_read(8, &p8), "gpio_read");
   int p9 = 0;
-  check_err(gpio_read(9, &p9), "gpio_read");
+  check_err(libtock_gpio_read(9, &p9), "gpio_read");
   int p16 = 0;
-  check_err(gpio_read(16, &p16), "gpio_read");
+  check_err(libtock_gpio_read(16, &p16), "gpio_read");
 
   // print results
   printf("[Micro:bit Sensor Reading]\n");
   // Temp is given in hundredths of a degree C, in format XX00
   printf("  Temperature: reading: %d.0 degrees C\n", temp / 100);
-  printf("  Acceleration: %lu\n", accel_mag);
+  printf("  Acceleration: %f\n", accel_mag);
   printf("  Magnetometer: X: %d, Y: %d, Z: %d\n", x, y, z);
   printf("  Ambient Sound: %i\n", sound_pres);
   printf("ADC:\n");
@@ -138,19 +144,18 @@ int main(void) {
   printf("Now advertising every %d ms as '%s'\n", advertising_interval_ms, device_name);
 
   // Enable button callbacks
-  check_err(button_subscribe(button_callback, NULL), "button_subscribe");
-  check_err(button_enable_interrupt(0), "button_enable_interrupt");
-  check_err(button_enable_interrupt(1), "button_enable_interrupt");
+  check_err(libtock_button_notify_on_press(0, button_callback), "libtock_button_notify_on_press");
+  check_err(libtock_button_notify_on_press(1, button_callback), "libtock_button_notify_on_press");
   printf("Set up button callbacks!\n");
 
   // Enable sound pressure sensor
-  check_err(sound_pressure_enable(), "sound_pressure_enable");
+  check_err(libtock_sound_pressure_command_enable(), "libtock_sound_pressure_command_enable");
   printf("Enabled sound pressure!\n");
 
   // Setup P8, P9, P16
-  check_err(gpio_enable_input(8, PullDown), "gpio_enable_input"); // P8
-  check_err(gpio_enable_input(9, PullDown), "gpio_enable_input"); // P9
-  check_err(gpio_enable_input(16, PullDown), "gpio_enable_input"); // P16
+  check_err(libtock_gpio_enable_input(8, libtock_pull_down), "libtock_gpio_enable_input"); // P8
+  check_err(libtock_gpio_enable_input(9, libtock_pull_down), "libtock_gpio_enable_input"); // P9
+  check_err(libtock_gpio_enable_input(16, libtock_pull_down), "libtock_gpio_enable_input"); // P16
   printf("Set up gpio pins!\n");
 
   printf("Setup complete!\n");
