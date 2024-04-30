@@ -8,6 +8,7 @@
 #include <simple_adv.h>
 #include <simple_ble.h>
 
+#include <libtock-sync/peripherals/adc.h>
 #include <libtock-sync/peripherals/crc.h>
 #include <libtock-sync/peripherals/rng.h>
 #include <libtock-sync/sensors/ambient_light.h>
@@ -17,7 +18,6 @@
 #include <libtock/interface/button.h>
 #include <libtock/interface/led.h>
 #include <libtock/net/nrf51_serialization.h>
-#include <libtock/peripherals/adc.h>
 #include <libtock/peripherals/gpio.h>
 #include <libtock/timer.h>
 
@@ -94,17 +94,17 @@ static void sample_sensors (void) {
 
   // Analog inputs: A0-A5
   uint16_t val;
-  adc_sample_sync(0, &val);
+  libtocksync_adc_sample(0, &val);
   int a0 = (val * 3300) / (4095 << 4);
-  adc_sample_sync(1, &val);
+  libtocksync_adc_sample(1, &val);
   int a1 = (val * 3300) / (4095 << 4);
-  adc_sample_sync(2, &val);
+  libtocksync_adc_sample(2, &val);
   int a2 = (val * 3300) / (4095 << 4);
-  adc_sample_sync(3, &val);
+  libtocksync_adc_sample(3, &val);
   int a3 = (val * 3300) / (4095 << 4);
-  adc_sample_sync(4, &val);
+  libtocksync_adc_sample(4, &val);
   int a4 = (val * 3300) / (4095 << 4);
-  adc_sample_sync(5, &val);
+  libtocksync_adc_sample(5, &val);
   int a5 = (val * 3300) / (4095 << 4);
 
   // Digital inputs: D0, D1, D6, D7
