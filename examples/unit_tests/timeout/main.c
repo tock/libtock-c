@@ -15,7 +15,6 @@ static bool test_fail(void) {
   return false;
 }
 
-
 static bool test_timeout(void) {
   libtocksync_alarm_delay_ms(500);
   return true;
