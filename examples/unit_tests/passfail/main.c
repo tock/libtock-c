@@ -1,9 +1,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <timer.h>
-#include <tock.h>
-#include <unit_test.h>
+#include <libtock-sync/services/unit_test.h>
+#include <libtock/timer.h>
+#include <libtock/tock.h>
 
 
 

@@ -1,8 +1,8 @@
 #include <stdbool.h>
 
-#include <timer.h>
-#include <tock.h>
-#include <unit_test.h>
+#include <libtock-sync/services/unit_test.h>
+#include <libtock/timer.h>
+#include <libtock/tock.h>
 
 
 static bool test_pass(void) {
@@ -14,7 +14,6 @@ static bool test_fail(void) {
   delay_ms(100);
   return false;
 }
-
 
 static bool test_timeout(void) {
   delay_ms(500);
