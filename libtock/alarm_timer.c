@@ -236,9 +236,8 @@ int gettimeasticks(struct timeval *tv, __attribute__ ((unused)) void *tzvp)
   // NOTE: the drawback to this microsecond calculation is the potential loss of precision
   // when scaling frequency / 1000 (lose 3 degrees of precision). At the time of this
   // implementation (1/31/24), the Tock timer frequency struct provides support for
-  // frequencies such as 1KHz, 16KHz, 1MHz, etc. With such frequencies, there is not a loss
-  // of precision as the 3 least significant digits do not encode data. The loss of precision
-  // can never be more than 1us of error.
+  // frequencies such as 1KHz, 16KHz, 1MHz, etc. The 3 bits of lost precision mean that
+  // there cannot be more than 1000us of error.
   tv->tv_sec  = seconds;
   tv->tv_usec = ((remainder * 1000) / frequency) * 1000;
 
