@@ -31,14 +31,9 @@ OpenThread to use the relevant `libtock-c` functionality. This is implemented in
 - The Tock Thread device disconnects from the network (i.e. does not send child update request 
 and subsequently times out) after ~7 minutes. This bug has been traced to an issue with the alarm
 implementation but has not been resolved.
-- The 6LoWPAN capsule on occassion panics (this behavior is observed semi frequently)
 - The code size is quite large as is for the current implementation. There are numerous 
 opportunities to reduce this (use hardware crypto instead of mbed crypto library).
-- The openthread_hello `Makefile` will build all needed OpenThread and platform dependencies. 
-However, the `make` build system, as is, does not rebuild the platform or OpenThread library 
-if changes are made to either the platform or openthread directories.
 - Channel switching is not yet implemented
-- The RSSI value is hard coded 
 
 ## Thread Network Setup
 
