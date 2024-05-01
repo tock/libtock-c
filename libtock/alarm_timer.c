@@ -237,11 +237,10 @@ int gettimeasticks(struct timeval *tv, __attribute__ ((unused)) void *tzvp)
   // when scaling frequency / 1000 (lose 3 degrees of precision). At the time of this
   // implementation (1/31/24), the Tock timer frequency struct provides support for
   // frequencies such as 1KHz, 16KHz, 1MHz, etc. With such frequencies, there is not a loss
-  // of precision as the 3 least significant digits do not encode data. The only case of a lose
-  // in precision is for the frequency 32.768KHz. In this case, the loss of precision introduces ~1us
-  // of error.
+  // of precision as the 3 least significant digits do not encode data. The loss of precision
+  // can never be more than 1us of error.
   tv->tv_sec  = seconds;
-  tv->tv_usec = (remainder * 1000) / (frequency / 1000);
+  tv->tv_usec = ((remainder * 1000) / frequency) * 1000;
 
   return 0;
 }
