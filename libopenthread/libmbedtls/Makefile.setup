@@ -9,7 +9,11 @@ all: libmbedtls
 clean::
 	rm -rf build
 
-libmbedtls:
+# confirm openthread git submodule is checked out.
+$(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md:
+	git submodule update --init -- $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread
+
+libmbedtls: $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md
 	make -C $(LIBMBEDTLS_DIR)
 
 # Make sure the library is built for every architecture
