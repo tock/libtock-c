@@ -6,10 +6,14 @@ LIBOPENTHREAD-FTD_DIR:=$(TOCK_USERLAND_BASE_DIR)/libopenthread/libopenthread-ftd
 
 all: libopenthread-ftd
 
+# confirm openthread git submodule is checked out.
+$(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md:
+	git submodule update --init -- $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread
+
 clean::
 	rm -rf build
 
-libopenthread-ftd: 
+libopenthread-ftd: $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md:
 	make -C $(LIBOPENTHREAD-FTD_DIR)
 
 # Make sure the library is built for every architecture

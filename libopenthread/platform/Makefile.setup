@@ -9,7 +9,11 @@ all: platform
 clean::
 	rm -rf build
 
-platform:
+# confirm openthread git submodule is checked out. 
+$(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md:
+	git submodule update --init -- $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread
+
+platform: $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md
 	make -C $(PLATFORM_DIR)
 
 # Make sure the library is built for every architecture

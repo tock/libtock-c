@@ -7,7 +7,11 @@ TCPLP_DIR:=$(TOCK_USERLAND_BASE_DIR)/libopenthread/libtcplp
 clean:: 
 	rm -rf build
 
-libtcplp:
+# confirm openthread git submodule is checked out.
+$(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md:
+	git submodule update --init -- $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread
+
+libtcplp: $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md
 	make -C $(TCPLP_DIR)
 
 # Make sure the library is built for every architecture

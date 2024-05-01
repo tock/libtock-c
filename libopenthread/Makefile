@@ -1,5 +1,8 @@
 .PHONY: clean default
-default:
+
+TOCK_USERLAND_BASE_DIR ?= ..
+
+default: ftd mtd
 
 ftd: dependencies
 	make -C libopenthread-ftd
@@ -7,13 +10,14 @@ ftd: dependencies
 mtd: dependencies
 	make -C libopenthread-mtd
 
-dependencies:
+# confirm openthread git submodule is checked out.
+$(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md:
+	git submodule update --init -- openthread
+
+dependencies: $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md
 	make -C libmbedtls
 	make -C libtcplp
 	make -C platform
-
-subcmd:
-	echo "hi"
 
 clean::
 	make -C libopenthread-ftd clean
