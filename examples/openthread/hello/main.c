@@ -86,9 +86,9 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
       yield();
     }
 
-    #if ENABLE_UDP_SEND
+#if ENABLE_UDP_SEND
     sendUdp(instance);
-    #endif
+#endif
   }
 
   return 0;
