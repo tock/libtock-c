@@ -1,12 +1,13 @@
-#include <eui64.h>
 #include <stdio.h>
+
+#include <eui64.h>
 
 int main(void) {
   int ret;
 
   printf("[EUI64] EUI-64 test app\n");
   uint64_t eui64;
-  ret = get_eui64(&eui64);
+  ret = libtock_eui64_get(&eui64);
 
   if (ret != RETURNCODE_SUCCESS) {
     printf("ERROR getting EUI-64\n");
