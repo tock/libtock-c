@@ -1,5 +1,4 @@
-#ifndef PLAT_H
-#define PLAT_H
+#pragma once
 #include<stdbool.h>
 
 typedef struct {
@@ -8,5 +7,3 @@ typedef struct {
     int read_index;
     bool new;
 } ring_buffer;
-
-#endif // PLAT_H
