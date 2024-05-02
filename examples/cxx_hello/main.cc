@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <timer.h>
+#include <libtock/timer.h>
 
 class Base {
 public:
