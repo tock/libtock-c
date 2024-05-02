@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <internal/alarm.h>
-#include <timer.h>
+#include <libtock/internal/alarm.h>
+#include <libtock/timer.h>
 
 volatile int a = 0;
 int b = 0;
