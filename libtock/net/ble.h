@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tock.h"
+#include "../tock.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +30,7 @@ extern "C" {
 #define ADV_IND  0x00
 #define ADV_DIRECT_IND  0x01
 #define ADV_NONCONN_IND  0x02
-#define ADV_SCAN_IND  0x06 
+#define ADV_SCAN_IND  0x06
 
 typedef enum {
   POSITIVE_10_DBM = 10,
