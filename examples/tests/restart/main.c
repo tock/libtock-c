@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include <timer.h>
-#include <tock.h>
+#include <libtock/timer.h>
+#include <libtock/tock.h>
 
 int x = 1;
 int z = 0;
