@@ -2,8 +2,8 @@
 #include <string.h>
 
 #include <libtock-sync/display/text_screen.h>
-#include <timer.h>
-#include <tock.h>
+#include <libtock/timer.h>
+#include <libtock/tock.h>
 
 int main(void) {
   returncode_t ret;
