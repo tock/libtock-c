@@ -1,5 +1,5 @@
 #include <libtock/interface/led.h>
-#include <timer.h>
+#include <libtock/timer.h>
 
 static void timer_cb(__attribute__ ((unused)) int now,
                      __attribute__ ((unused)) int expiration,
