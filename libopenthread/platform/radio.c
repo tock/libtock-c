@@ -50,9 +50,8 @@ void otPlatRadioSetExtendedAddress(otInstance *aInstance, const otExtAddress *aE
   }
 
   int retCode = ieee802154_set_address_long((unsigned char*) &temp);
-  assert(retCode == 0);
 
-  if (retCode != 0) printf("Error setting long address");
+  if (retCode != RETURNCODE_SUCCESS) printf("Error setting long address.\n");
 }
 
 void otPlatRadioSetShortAddress(otInstance *aInstance, uint16_t aShortAddress) {
@@ -70,7 +69,7 @@ otError otPlatRadioEnable(otInstance *aInstance) {
   OT_UNUSED_VARIABLE(aInstance);
 
   int retCode = ieee802154_up();
-  if (retCode == 0) {
+  if (retCode == RETURNCODE_SUCCESS) {
     return OT_ERROR_NONE;
   } else {
     printf("Initializing Radio Failed!\n");
@@ -83,7 +82,7 @@ otError otPlatRadioDisable(otInstance *aInstance) {
 
   int retCode = ieee802154_down();
 
-  if (retCode == 0) {
+  if (retCode == RETURNCODE_SUCCESS) {
     return OT_ERROR_NONE;
   } else {
     printf("Disable Radio Failed!\n");
@@ -103,7 +102,7 @@ otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel) {
 
   // switch to channel TODO
   if (aChannel != 26) {
-    return OT_ERROR_NONE;
+    return OT_ERROR_NOT_IMPLEMENTED;
   }
 
   otError result = otTockStartReceive(aChannel, aInstance);
