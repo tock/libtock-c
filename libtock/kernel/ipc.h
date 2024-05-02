@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "tock.h"
+#include "../tock.h"
 
 #ifdef __cplusplus
 extern "C" {
