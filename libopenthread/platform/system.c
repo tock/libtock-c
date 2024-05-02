@@ -6,6 +6,38 @@
 #include <plat.h>
 #include <stdio.h>
 
+// This platform file serves to handle platform specific logic 
+// that must occur when not performing OpenThread specific work.
+// The `otSysProcessDrivers` must be called upon each iteration
+// of the main loop. The logic for handling radio upcalls from
+// the kernel and passing the received data to the OpenThread
+// instance is implemented here. 
+//
+// Passing the radio buffer to the OpenThread instance becomes 
+// challenging given the sync/async nature of the kernel upcalls.
+// Apps only receive upcalls when they have yielded. Conversely,
+// this means that an app will receive a pending upcall whenever 
+// yield is called. This can lead to strange behavior and receiving
+// packets out of order if an app yields before completing copying
+// the packet from the buffer shared with the kernel to the buffer 
+// passed to OpenThread. A ring buffer is used to handle receiving
+// and buffering multiple packets within the kernel (share ring buffer
+// with kernel). We also use a userspace ring buffer to hand the
+// aforementioned async issues. This allows the packet reception
+// for an OpenThread app to work as follows:
+//  1. App shares a kernel ring buffer with the kernel (read/write buffer).
+//  2. Kernel schedules an upcall to notify app.
+//  3. App yields allowing upcall to be handled.
+//  4. App copies data from kernel ring buffer to userspace ring buffer.
+//  5. App copies data from userspace ring buffer to OpenThread instance.
+//
+// Although the userspace ring buffer may appear redundant, it is necessary
+// as OpenThread may call libtock functions that yield while OpenThread 
+// possess the buffer holding the receiving packet. The use of a ring buffer
+// allows for us to prevent the receive upcall from overwriting the buffer 
+// OpenThread is currently copying to the OpenThread instance (leading to packets)
+// being receiving out of order or potentially overwritten. 
+
 static ieee802154_rxbuf rx_buf_a;
 static ieee802154_rxbuf rx_buf_b;
 
@@ -165,16 +197,12 @@ otError otTockStartReceive(uint8_t aChannel, otInstance *aInstance) {
     otTockInstance.instance = aInstance;
   }
   if (aChannel != 26) {
-    return OT_ERROR_NONE;
+    return OT_ERROR_NOT_IMPLEMENTED;
   }
 
   int res = ieee802154_receive(rx_callback, otTockInstance.kernel_rx_buf, NULL);
 
-  otError result = OT_ERROR_NONE;
+  if (res != RETURNCODE_SUCCESS) return OT_ERROR_FAILED;
 
-  if (res != 0) {
-    result = OT_ERROR_FAILED;
-  }
-
-  return result;
+  return OT_ERROR_NONE;
 }
