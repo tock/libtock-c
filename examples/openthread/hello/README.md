@@ -14,10 +14,7 @@ the nrf52840dk board.
 ## OpenThread Port for Tock
 
 ### Overview
-The Tock/OpenThread port is implemented in the `libtock-c/libopenthread` directory. OpenThread 
-utilizes a CMake build system. To port OpenThread to Tock, we alter the compile arguments 
-provided to OpenThread, initiate the OpenThread build system, and then use the compiled 
-static library as an external library within the `libtock-c` `make` build system. 
+The Tock/OpenThread port is implemented in the `libtock-c/libopenthread` directory.
 
 The OpenThread static library implements the logic needed to create, attach to, maintain,
 and operate within a Thread network. OpenThread utilizes a platform abstraction layer 
