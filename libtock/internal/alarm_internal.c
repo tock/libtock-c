@@ -1,4 +1,4 @@
-#include "internal/alarm.h"
+#include "alarm.h"
 
 int alarm_internal_subscribe(subscribe_upcall cb, void *userdata) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_ALARM, 0, cb, userdata);
