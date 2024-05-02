@@ -4,7 +4,7 @@ TOCK_USERLAND_BASE_DIR ?= ../..
 
 PLATFORM_DIR:=$(TOCK_USERLAND_BASE_DIR)/libopenthread/platform
 
-all: platform
+all: $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md
 
 clean::
 	rm -rf build
@@ -12,14 +12,3 @@ clean::
 # confirm openthread git submodule is checked out. 
 $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md:
 	git submodule update --init -- $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread
-
-platform: $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md
-	make -C $(PLATFORM_DIR)
-
-# Make sure the library is built for every architecture
-define PLATFORM_RULES
-$(TOCK_USERLAND_BASE_DIR)/libopenthread/platform/build/$(1)/platform.a: platform 
-endef
-$(foreach arch,$(TOCK_ARCHS),$(eval $(call PLATFORM_RULES,$(arch))))
-
-

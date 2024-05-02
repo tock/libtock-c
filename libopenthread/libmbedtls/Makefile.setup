@@ -4,7 +4,7 @@ TOCK_USERLAND_BASE_DIR ?= ../..
 
 LIBMBEDTLS_DIR:=$(TOCK_USERLAND_BASE_DIR)/libopenthread/libmbedtls
 
-all: libmbedtls
+all: $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md
 
 clean::
 	rm -rf build
@@ -12,12 +12,3 @@ clean::
 # confirm openthread git submodule is checked out.
 $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md:
 	git submodule update --init -- $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread
-
-libmbedtls: $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md
-	make -C $(LIBMBEDTLS_DIR)
-
-# Make sure the library is built for every architecture
-define MBEDTLS_RULES
-$(TOCK_USERLAND_BASE_DIR)/libopenthread/libmbedtls/build/$(1)/libmbedtls.a: libmbedtls 
-endef
-$(foreach arch,$(TOCK_ARCHS),$(eval $(call MBEDTLS_RULES,$(arch))))
