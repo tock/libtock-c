@@ -1,7 +1,8 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <timer.h>
+
+#include <libtock/timer.h>
 
 #include "lauxlib.h"
 #include "lua.h"
