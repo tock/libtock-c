@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <tock.h>
+#include <libtock/tock.h>
 
 int main(void) {
   printf("[TEST] MPU Flash Start Write\n");
