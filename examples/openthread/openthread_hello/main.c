@@ -4,36 +4,14 @@
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
 #include <openthread/ip6.h>
-#include <openthread/message.h>
 #include <openthread/platform/alarm-milli.h>
 #include <openthread/tasklet.h>
 #include <openthread/thread.h>
-#include <openthread/udp.h>
 #include <plat.h>
 
 #include <stdio.h>
 #include <string.h>
 #include <timer.h>
-
-#define UDP_PORT 1212
-#define ENABLE_UDP_SEND 0
-#define ENABLE_UDP_RECEIVE 1
-
-#if ENABLE_UDP_SEND
-static const char UDP_DEST_ADDR[] = "ff03::1";
-static const char UDP_PAYLOAD[]   = "Hello OpenThread World from Tock!";
-static void sendUdp(otInstance *aInstance);
-#endif
-
-#if ENABLE_UDP_RECEIVE
-static void handleUdpReceive(void *aContext, otMessage *aMessage,
-                             const otMessageInfo *aMessageInfo);
-#endif
-
-#if ENABLE_UDP_RECEIVE || ENABLE_UDP_SEND
-static otUdpSocket sUdpSocket;
-static void initUdp(otInstance *aInstance);
-#endif
 
 // helper utility demonstrating network config setup
 static void setNetworkConfiguration(otInstance *aInstance);
@@ -72,15 +50,10 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
 
   print_ip_addr(instance);
 
-  #if ENABLE_UDP_RECEIVE || ENABLE_UDP_SEND
-  // Initialize UDP socket (see guide: https://openthread.io/codelabs/openthread-apis#7)
-  initUdp(instance);
-  #endif
-
   /* Start the Thread stack (CLI cmd -> thread start) */
   otThreadSetEnabled(instance, true);
 
-  for ( ;;) {
+  for (;;) {
     otTaskletsProcess(instance);
     otSysProcessDrivers(instance);
 
@@ -88,9 +61,6 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
       yield();
     }
 
-#if ENABLE_UDP_SEND
-    sendUdp(instance);
-#endif
   }
 
   return 0;
@@ -120,79 +90,6 @@ void setNetworkConfiguration(otInstance *aInstance)
   assert(error == 0);
 
 }
-
-#if ENABLE_UDP_RECEIVE || ENABLE_UDP_SEND
-void initUdp(otInstance *aInstance)
-{
-  otSockAddr listenSockAddr;
-
-  memset(&sUdpSocket, 0, sizeof(sUdpSocket));
-  memset(&listenSockAddr, 0, sizeof(listenSockAddr));
-
-  listenSockAddr.mPort = UDP_PORT;
-
-  otUdpOpen(aInstance, &sUdpSocket, handleUdpReceive, aInstance);
-  otUdpBind(aInstance, &sUdpSocket, &listenSockAddr, OT_NETIF_THREAD);
-}
-#endif
-
-#if ENABLE_UDP_SEND
-/**
- * Send a UDP datagram
- */
-void sendUdp(otInstance *aInstance)
-{
-  otError error = OT_ERROR_NONE;
-  otMessage *   message;
-  otMessageInfo messageInfo;
-  otIp6Address destinationAddr;
-
-  memset(&messageInfo, 0, sizeof(messageInfo));
-
-  otIp6AddressFromString(UDP_DEST_ADDR, &destinationAddr);
-  messageInfo.mPeerAddr = destinationAddr;
-  messageInfo.mPeerPort = UDP_PORT;
-
-  message = otUdpNewMessage(aInstance, NULL);
-  assert(message != NULL);
-  // otEXPECT_ACTION(message != NULL, error = OT_ERROR_NO_BUFS);
-
-  error = otMessageAppend(message, UDP_PAYLOAD, sizeof(UDP_PAYLOAD));
-  // otEXPECT(error == OT_ERROR_NONE);
-  assert(error == OT_ERROR_NONE);
-
-  error = otUdpSend(aInstance, &sUdpSocket, message, &messageInfo);
-
-  // NOTE: we currently do not free the otMessage if there is an error.
-  // we need to add this (TODO)
-}
-#endif
-
-#if ENABLE_UDP_RECEIVE
-void handleUdpReceive(void *aContext, otMessage *aMessage,
-                      const otMessageInfo *aMessageInfo)
-{
-  OT_UNUSED_VARIABLE(aContext);
-  OT_UNUSED_VARIABLE(aMessageInfo);
-  char buf[150];
-  int length;
-
-  printf("Received UDP packet [%d bytes] from ", otMessageGetLength(aMessage) - otMessageGetOffset(aMessage));
-  const otIp6Address sender_addr = aMessageInfo->mPeerAddr;
-  otIp6AddressToString(&sender_addr, buf, sizeof(buf));
-  printf(" %s ", buf);
-
-  length      = otMessageRead(aMessage, otMessageGetOffset(aMessage), buf, sizeof(buf) - 1);
-  buf[length] = '\n';
-
-  for (int i = 0; i < length; i++) {
-    printf("%c", buf[i]);
-  }
-
-  printf("\n");
-
-}
-#endif
 
 static void stateChangeCallback(uint32_t flags, void *context)
 {
