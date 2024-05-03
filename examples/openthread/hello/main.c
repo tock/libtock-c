@@ -5,6 +5,7 @@
 #include <openthread/instance.h>
 #include <openthread/ip6.h>
 #include <openthread/message.h>
+#include <openthread/platform/alarm-milli.h>
 #include <openthread/tasklet.h>
 #include <openthread/thread.h>
 #include <openthread/udp.h>
@@ -45,6 +46,7 @@ static void print_ip_addr(otInstance *instance);
 
 int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
+  otSysInit(argc, argv);
   otInstance *instance;
   instance = otInstanceInitSingle();
   assert(instance);
