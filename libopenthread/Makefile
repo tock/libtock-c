@@ -10,11 +10,7 @@ ftd: dependencies
 mtd: dependencies
 	make -C libopenthread-mtd
 
-# confirm openthread git submodule is checked out.
-$(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md:
-	git submodule update --init -- openthread
-
-dependencies: $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md
+dependencies:
 	make -C libmbedtls
 	make -C libtcplp
 	make -C platform
