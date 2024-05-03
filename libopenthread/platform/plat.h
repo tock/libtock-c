@@ -13,3 +13,6 @@ typedef struct {
     int read_index;
     bool new;
 } ring_buffer;
+
+// Initializer needed for alarm PAL methods.
+void init_otPlatAlarm(void);
