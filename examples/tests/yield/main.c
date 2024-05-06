@@ -19,12 +19,12 @@ int main(void) {
   alarm_t alarm;
   while (1) {
     data.fired = false;
-    libtock_alarm_in(1500, alarm_cb, &alarm);
+    libtock_alarm_in_ms(1500, alarm_cb, &alarm);
     printf("spinning\n");
     while (yield_no_wait() == 0) {}
     printf("waiting\n");
     data.fired = false;
-    libtock_alarm_in(1500, alarm_cb, &alarm);
+    libtock_alarm_in_ms(1500, alarm_cb, &alarm);
     yield();
   }
 }

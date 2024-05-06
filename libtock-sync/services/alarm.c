@@ -16,7 +16,7 @@ int libtocksync_alarm_delay_ms(uint32_t ms) {
   alarm_t alarm;
   int rc;
 
-  if ((rc = libtock_alarm_in(ms, delay_cb, &alarm)) != RETURNCODE_SUCCESS) {
+  if ((rc = libtock_alarm_in_ms(ms, delay_cb, &alarm)) != RETURNCODE_SUCCESS) {
     return rc;
   }
 
@@ -34,7 +34,7 @@ static void yf_timeout_cb(__attribute__ ((unused)) uint32_t now,
 int libtocksync_alarm_yield_for_with_timeout(bool* cond, uint32_t ms) {
   yf_timeout_data.fired = false;
   alarm_t alarm;
-  libtock_alarm_in(ms, yf_timeout_cb, &alarm);
+  libtock_alarm_in_ms(ms, yf_timeout_cb, &alarm);
 
   while (!*cond) {
     if (yf_timeout_data.fired) {

@@ -85,10 +85,10 @@ void libtock_alarm_cancel(alarm_t*);
 //
 // ```c
 // int _gettimeofday(struct timeval *tv, void *tzvp) {
-//   return libtock_gettimeasticks(tv, tzvp);
+//   return libtock_alarm_gettimeasticks(tv, tzvp);
 // }
 // ```
-int libtock_gettimeasticks(struct timeval *tv, void *tzvp);
+int libtock_alarm_gettimeasticks(struct timeval *tv, void *tzvp);
 
 /** \brief Create a new alarm to fire in `ms` milliseconds.
  *
@@ -98,7 +98,7 @@ int libtock_gettimeasticks(struct timeval *tv, void *tzvp);
  * \param A handle to the alarm that was created.
  * \return An error code. Either RETURNCODE_SUCCESS or RETURNCODE_FAIL.
  */
-int libtock_alarm_in(uint32_t ms, libtock_alarm_callback cb, alarm_t* alarm);
+int libtock_alarm_in_ms(uint32_t ms, libtock_alarm_callback cb, alarm_t* alarm);
 
 /** \brief Create a new repeating alarm to fire every `ms` milliseconds.
  *

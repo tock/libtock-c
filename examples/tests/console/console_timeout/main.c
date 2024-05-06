@@ -34,7 +34,7 @@ int main(void) {
   }
 
   // Generate a timeout to abort the receive call.
-  libtock_alarm_in(5000, alarm_cb, &t);
+  libtock_alarm_in_ms(5000, alarm_cb, &t);
 
   while (1) {
     yield();

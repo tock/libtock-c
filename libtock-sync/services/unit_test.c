@@ -378,7 +378,7 @@ static void unit_test_service_callback(int                            pid,
     case TestStart:
       // Start the alarm and start the test.
       data.test = test;
-      libtock_alarm_in(test->timeout_ms, timeout_callback, &test->alarm);
+      libtock_alarm_in_ms(test->timeout_ms, timeout_callback, &test->alarm);
       ipc_notify_client(test->pid);
       break;
 

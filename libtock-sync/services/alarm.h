@@ -9,7 +9,7 @@ extern "C" {
 
 /** \brief Blocks for the given amount of time in millisecond.
  *
- * This is a blocking version of `libtock_alarm_in`. Instead of calling a user
+ * This is a blocking version of `libtock_alarm_in_ms`. Instead of calling a user
  * specified callback, it blocks the current call-stack.
  *
  * \param ms the number of milliseconds to delay for.

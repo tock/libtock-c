@@ -53,7 +53,7 @@ static void alarm_cb(__attribute__ ((unused)) uint32_t now,
   /* *INDENT-ON* */
 
   printf("\n");
-  libtock_alarm_in(1000, alarm_cb, &alarm);
+  libtock_alarm_in_ms(1000, alarm_cb, &alarm);
 }
 
 int main(void) {
@@ -92,7 +92,7 @@ int main(void) {
   }
 
   // Setup periodic alarm to sample the sensors.
-  libtock_alarm_in(1000, alarm_cb, &alarm);
+  libtock_alarm_in_ms(1000, alarm_cb, &alarm);
 
   while (1) {
     yield();

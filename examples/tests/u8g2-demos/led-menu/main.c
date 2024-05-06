@@ -133,7 +133,7 @@ static void debounce_cb(__attribute__ ((unused)) uint32_t now,
 
 static void start_debounce(void) {
   data.debouncing = true;
-  libtock_alarm_in(300, debounce_cb, &debounce_alarm);
+  libtock_alarm_in_ms(300, debounce_cb, &debounce_alarm);
 }
 
 static void button_callback(

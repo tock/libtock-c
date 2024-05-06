@@ -136,7 +136,7 @@ void libtock_alarm_cancel(alarm_t* alarm) {
 
 }
 
-int libtock_alarm_in(uint32_t ms, libtock_alarm_callback cb, alarm_t *alarm) {
+int libtock_alarm_in_ms(uint32_t ms, libtock_alarm_callback cb, alarm_t *alarm) {
   uint32_t frequency;
   libtock_alarm_command_get_frequency(&frequency);
   uint32_t interval = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
@@ -173,7 +173,7 @@ void libtock_alarm_repeating_cancel(alarm_repeating_t* repeating) {
   libtock_alarm_cancel(&repeating->alarm);
 }
 
-int libtock_gettimeasticks(struct timeval *tv, __attribute__ ((unused)) void *tzvp)
+int libtock_alarm_gettimeasticks(struct timeval *tv, __attribute__ ((unused)) void *tzvp)
 {
   uint32_t frequency, now, seconds, remainder;
 

@@ -17,7 +17,7 @@ int main(void) {
   while (1) {
     data.fired = false;
     alarm_t alarm;
-    libtock_alarm_in(1500, alarm_cb, &alarm);
+    libtock_alarm_in_ms(1500, alarm_cb, &alarm);
 
     int ret = libtocksync_alarm_yield_for_with_timeout(&data.fired, 1000);
     if (ret == RETURNCODE_SUCCESS) {

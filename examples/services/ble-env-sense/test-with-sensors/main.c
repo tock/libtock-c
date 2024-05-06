@@ -80,7 +80,7 @@ static void do_sensing_cb(__attribute__ ((unused)) uint32_t now,
   printf("  temp:  %i\n", temp);
   printf("  humi:  %i\n", humi);
 
-  libtock_alarm_in(3000, do_sensing_cb, &_alarm);
+  libtock_alarm_in_ms(3000, do_sensing_cb, &_alarm);
 }
 
 
@@ -100,7 +100,7 @@ int main(void) {
   ipc_register_client_callback(_svc_num, ipc_callback, update);
   ipc_share(_svc_num, buf, 64);
 
-  libtock_alarm_in(1000, do_sensing_cb, &_alarm);
+  libtock_alarm_in_ms(1000, do_sensing_cb, &_alarm);
 
   return 0;
 }
