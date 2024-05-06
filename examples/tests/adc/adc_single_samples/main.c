@@ -5,7 +5,7 @@
 
 #include <libtock-sync/peripherals/adc.h>
 #include <libtock/interface/console.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
 
@@ -38,7 +38,7 @@ int main(void) {
     }
 
     printf("\n");
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 
   return 0;

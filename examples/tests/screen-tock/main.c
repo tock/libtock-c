@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include <libtock-sync/display/screen.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #define BUFFER_SIZE 10 * 1024
 

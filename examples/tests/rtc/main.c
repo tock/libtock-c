@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include <libtock-sync/peripherals/rtc.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 int main(void){
   // Initialises a date struct with a certain timestamp
@@ -18,7 +18,7 @@ int main(void){
 
   libtocksync_rtc_set_date(&date);
   // Clock has a small delay before starting to count seconds
-  delay_ms(2000);
+  libtocksync_alarm_delay_ms(2000);
 
   while (1) {
     libtocksync_rtc_get_date(&date);
@@ -26,7 +26,7 @@ int main(void){
            date.month, date.day, date.day_of_week, date.hour, date.minute, date.seconds);
 
     // This delay uses an underlying timer in the kernel
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
   return 0;
 }

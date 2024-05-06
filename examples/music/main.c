@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include <libtock-sync/interface/buzzer.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 // Adapted from https://github.com/robsoncouto/arduino-songs
 

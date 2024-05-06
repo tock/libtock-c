@@ -7,10 +7,10 @@
 #include <libtock-sync/sensors/proximity.h>
 #include <libtock-sync/sensors/sound_pressure.h>
 #include <libtock-sync/sensors/temperature.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
-static tock_timer_t timer;
+static alarm_t alarm;
 static bool light          = false;
 static bool temperature    = false;
 static bool humidity       = false;
@@ -20,10 +20,8 @@ static bool ninedof_mag    = false;
 static bool ninedof_gyro   = false;
 static bool proximity      = false;
 static bool sound_pressure = false;
-static void timer_fired(__attribute__ ((unused)) int   arg0,
-                        __attribute__ ((unused)) int   arg1,
-                        __attribute__ ((unused)) int   arg2,
-                        __attribute__ ((unused)) void* ud) {
+static void alarm_cb(__attribute__ ((unused)) uint32_t now,
+                     __attribute__ ((unused)) uint32_t scheduled) {
   int lite = 0;
   int temp = 0;
   int humi = 0;
@@ -55,7 +53,7 @@ static void timer_fired(__attribute__ ((unused)) int   arg0,
   /* *INDENT-ON* */
 
   printf("\n");
-  timer_in(1000, timer_fired, NULL, &timer);
+  libtock_alarm_in(1000, alarm_cb, &alarm);
 }
 
 int main(void) {
@@ -93,8 +91,8 @@ int main(void) {
     libtock_sound_pressure_command_enable();
   }
 
-  // Setup periodic timer to sample the sensors.
-  timer_in(1000, timer_fired, NULL, &timer);
+  // Setup periodic alarm to sample the sensors.
+  libtock_alarm_in(1000, alarm_cb, &alarm);
 
   while (1) {
     yield();

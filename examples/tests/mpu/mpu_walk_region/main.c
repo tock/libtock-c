@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #include <libtock/interface/button.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
 #if defined(__thumb__)
@@ -90,7 +90,7 @@ int main(void) {
     putchar('\n');
     dowork(flash_start, flash_end + ((do_overrun) ? 0x1000 : 0x0), 0x100);
 
-    delay_ms(2000);
+    libtocksync_alarm_delay_ms(2000);
 
     do_overrun = overrun();
     printf("\nWalking memory\n");
@@ -99,6 +99,6 @@ int main(void) {
 
     dowork(memory_start, memory_limit + ((do_overrun) ? 0x1000 : 0x0), 0x100);
 
-    delay_ms(2000);
+    libtocksync_alarm_delay_ms(2000);
   }
 }

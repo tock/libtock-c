@@ -5,7 +5,7 @@
 
 #include <libtock-sync/peripherals/adc.h>
 #include <libtock/interface/console.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
 int reference_voltage;
@@ -79,13 +79,13 @@ int main(void) {
       printf("\nSingle Samples - Channel %u\n", channel);
       for (uint32_t i = 0; i < 10; i++) {
         test_single_samples(channel);
-        delay_ms(100);
+        libtocksync_alarm_delay_ms(100);
       }
 
       printf("\nBuffered Samples - Channel %u\n", channel);
       for (uint32_t i = 0; i < 10; i++) {
         test_sampling_buffer(channel, i);
-        delay_ms(100);
+        libtocksync_alarm_delay_ms(100);
       }
     }
   }

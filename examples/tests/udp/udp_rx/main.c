@@ -4,7 +4,7 @@
 
 #include <libtock/interface/led.h>
 #include <libtock/net/udp.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #include <libtock-sync/net/ieee802154.h>
 #include <libtock/net/ieee802154.h>
@@ -110,7 +110,7 @@ int main(void) {
   /* This app tests receiving for 10 seconds
    * then closing the connection, so we include a busy wait for that
    * reason. */
-  delay_ms(30000);
+  libtocksync_alarm_delay_ms(30000);
   returncode_t err = libtock_udp_close(handle);
   if (err < 0) {
     printf("Error closing socket\n");

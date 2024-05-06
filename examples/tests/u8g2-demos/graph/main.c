@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #include <u8g2-tock.h>
 #include <u8g2.h>
@@ -35,6 +35,6 @@ int main(void) {
     append(samples, SAMPLES, count);
     graph_draw(&u8g2, &graph, samples, SAMPLES);
     count = (count + 2) % 20;
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 }

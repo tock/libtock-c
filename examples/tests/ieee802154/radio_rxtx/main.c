@@ -4,7 +4,7 @@
 #include <libtock-sync/net/ieee802154.h>
 #include <libtock/interface/led.h>
 #include <libtock/net/ieee802154.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 // IEEE 802.15.4 sample packet echo app.
 // Continually receives packets at the specified short address, then retransmits them.
@@ -39,7 +39,7 @@ int main(void) {
         // Only retransmit the payload if this packet was meant for us.
         int payload_offset = libtock_ieee802154_frame_get_payload_offset(packet_rx);
         int payload_length = libtock_ieee802154_frame_get_payload_length(packet_rx);
-        delay_ms(250);
+        libtocksync_alarm_delay_ms(250);
         printf("Retransmitting received packet.\n");
         libtocksync_ieee802154_send(0xFFFF,
                         SEC_LEVEL_NONE,

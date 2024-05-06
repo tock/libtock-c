@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include <libtock/kernel/ipc.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 // Every 500 ms use the RNG service to randomly select an LED to turn on or
 // off and then use the LED service to control that LED.
@@ -92,7 +92,7 @@ int main(void) {
     uint8_t led_state = (random >> 8) > 0x7F;
     set_led(led_index, led_state);
 
-    delay_ms(500);
+    libtocksync_alarm_delay_ms(500);
   }
 
   return 0;

@@ -5,7 +5,7 @@
 #include <libtock/interface/button.h>
 #include <libtock/net/udp.h>
 #include <libtock-sync/net/udp.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #define DEBUG 0
 
@@ -75,7 +75,7 @@ int main(void) {
   bind_return = libtock_udp_bind(&handle, &addr2, BUF_BIND_CFG);
   assert(bind_return >= 0); // bind succeeds bc this app binds first
 
-  delay_ms(100); // to re-sync with other app
+  libtocksync_alarm_delay_ms(100); // to re-sync with other app
 
   result = libtocksync_udp_send(packet, len, &destination);
   assert(result == RETURNCODE_SUCCESS); // should succeed, both apps should be bound to different ports

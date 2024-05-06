@@ -5,7 +5,7 @@
 #include <libtock/interface/led.h>
 #include <libtock/net/udp.h>
 #include <libtock/net/udp.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 /*
  * UDP sample packet reception app.
@@ -94,7 +94,7 @@ int main(void) {
   /* This app tests receiving for 10 seconds
    * then closing the connection, so we include a delay for that
    * reason. */
-  delay_ms(30000);
+  libtocksync_alarm_delay_ms(30000);
   result = libtock_udp_close(handle);
   if (result != RETURNCODE_SUCCESS) {
     printf("Error closing socket\n");

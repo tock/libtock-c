@@ -5,7 +5,7 @@
 #include <libtock/interface/button.h>
 #include <libtock/interface/led.h>
 #include <libtock/peripherals/gpio.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
 
@@ -158,7 +158,7 @@ static bool test_gpio0_int_raising(void) {
   CHECK(libtock_gpio_clear(GPIO0_OUT) == 0);
   CHECK(libtock_gpio_read(GPIO0_IN, &val) == 0);
   CHECK(val == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 1);
   CHECK(int_nr == GPIO0_IN);
   return true;
@@ -169,7 +169,7 @@ static bool test_gpio0_int_falling(void) {
   CHECK(libtock_gpio_enable_interrupt(GPIO0_IN, libtock_falling_edge) == 0);
   CHECK(libtock_gpio_set(GPIO0_OUT) == 0);
   CHECK(libtock_gpio_clear(GPIO0_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 1);
   CHECK(int_nr == GPIO0_IN);
   return true;
@@ -179,7 +179,7 @@ static bool test_gpio0_int_both(void) {
   CHECK(libtock_gpio_enable_interrupt(GPIO0_IN, libtock_change) == 0);
   CHECK(libtock_gpio_set(GPIO0_OUT) == 0);
   CHECK(libtock_gpio_clear(GPIO0_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 2);
   CHECK(int_nr == GPIO0_IN);
   return true;
@@ -195,7 +195,7 @@ static bool test_gpio1_int_raising(void) {
   CHECK(libtock_gpio_clear(GPIO1_OUT) == 0);
   CHECK(libtock_gpio_read(GPIO1_IN, &val) == 0);
   CHECK(val == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 1);
   CHECK(int_nr == GPIO1_IN);
   return true;
@@ -206,7 +206,7 @@ static bool test_gpio1_int_falling(void) {
   CHECK(libtock_gpio_enable_interrupt(GPIO1_IN, libtock_falling_edge) == 0);
   CHECK(libtock_gpio_set(GPIO1_OUT) == 0);
   CHECK(libtock_gpio_clear(GPIO1_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 1);
   CHECK(int_nr == GPIO1_IN);
   return true;
@@ -216,7 +216,7 @@ static bool test_gpio1_int_both(void) {
   CHECK(libtock_gpio_enable_interrupt(GPIO1_IN, libtock_change) == 0);
   CHECK(libtock_gpio_set(GPIO1_OUT) == 0);
   CHECK(libtock_gpio_clear(GPIO1_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 2);
   CHECK(int_nr == GPIO1_IN);
   return true;
@@ -518,11 +518,11 @@ static bool test_push_button4(void) {
 static bool test_button1_int(void) {
   CHECK(libtock_button_notify_on_press(0, test_button_callback) == 0);
   CHECK(libtock_gpio_clear(BUTTON1_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 1);
   CHECK(int_nr == 0);
   CHECK(libtock_gpio_set(BUTTON1_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 2);
   CHECK(int_nr == 0);
   return true;
@@ -531,19 +531,19 @@ static bool test_two_buttons_int(void) {
   CHECK(libtock_button_notify_on_press(0, test_button_callback) == 0);
   CHECK(libtock_button_notify_on_press(1, test_button_callback) == 0);
   CHECK(libtock_gpio_clear(BUTTON1_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 1);
   CHECK(int_nr == 0);
   CHECK(libtock_gpio_clear(BUTTON2_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 2);
   CHECK(int_nr == 1);
   CHECK(libtock_gpio_set(BUTTON2_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 3);
   CHECK(int_nr == 1);
   CHECK(libtock_gpio_set(BUTTON1_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 4);
   CHECK(int_nr == 0);
   return true;
@@ -552,19 +552,19 @@ static bool test_disable_button_int(void) {
   CHECK(libtock_button_notify_on_press(0, test_button_callback) == 0);
   CHECK(libtock_button_notify_on_press(1, test_button_callback) == 0);
   CHECK(libtock_gpio_clear(BUTTON1_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 1);
   CHECK(int_nr == 0);
   CHECK(libtock_gpio_clear(BUTTON2_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 2);
   CHECK(int_nr == 1);
   CHECK(libtock_button_command_disable_interrupt(1) == 0);
   CHECK(libtock_gpio_set(BUTTON2_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 2);
   CHECK(libtock_gpio_set(BUTTON1_OUT) == 0);
-  delay_ms(2);
+  libtocksync_alarm_delay_ms(2);
   CHECK(int_ctr == 3);
   CHECK(int_nr == 0);
   return true;

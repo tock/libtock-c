@@ -4,11 +4,11 @@
 #include <unistd.h>
 
 #include <libtock/interface/console.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 char buf[100];
 
-tock_timer_t t;
+alarm_t t;
 
 static void getnstr_cb(returncode_t result __attribute__ ((unused)),
                        uint32_t     len) {
@@ -21,10 +21,8 @@ static void getnstr_cb(returncode_t result __attribute__ ((unused)),
   exit(0);
 }
 
-static void timer_cb(int   result __attribute__ ((unused)),
-                     int   _y __attribute__ ((unused)),
-                     int   _z __attribute__ ((unused)),
-                     void* ud __attribute__ ((unused))) {
+static void alarm_cb(__attribute__ ((unused)) uint32_t now,
+                     __attribute__ ((unused)) uint32_t scheduled) {
   libtock_console_abort_read();
 }
 
@@ -36,7 +34,7 @@ int main(void) {
   }
 
   // Generate a timeout to abort the receive call.
-  timer_in(5000, timer_cb, NULL, &t);
+  libtock_alarm_in(5000, alarm_cb, &t);
 
   while (1) {
     yield();

@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #include "lauxlib.h"
 #include "lua.h"
@@ -12,7 +12,7 @@
 // Linux/OS X/BSD for testing.
 #if defined(__unix__)
 #include <time.h>
-void delay_ms(int ms) {
+void libtocksync_alarm_delay_ms(int ms) {
   struct timespec ts;
   ts.tv_sec  = 0;
   ts.tv_nsec = (long)ms * 1000 * 1000;
@@ -57,7 +57,7 @@ int main(void) {
     int kb    = lua_gc(L, LUA_GCCOUNT, 0);
     int bytes = lua_gc(L, LUA_GCCOUNT, 0);
     printf("> %dKB and %d bytes used\n", kb, bytes);
-    delay_ms(500);
+    libtocksync_alarm_delay_ms(500);
   }
 
   // Close lua

@@ -4,7 +4,7 @@
 #include <libtock-sync/net/ieee802154.h>
 #include <libtock/interface/led.h>
 #include <libtock/net/ieee802154.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 // IEEE 802.15.4 sample packet transmission/ack app.
 // Continually transmits frames at the specified short address to the specified
@@ -41,6 +41,6 @@ int main(void) {
     }
     counter++;
     packet_tx[0] = counter;
-    delay_ms(4000);
+    libtocksync_alarm_delay_ms(4000);
   }
 }

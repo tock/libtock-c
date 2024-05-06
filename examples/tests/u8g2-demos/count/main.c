@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #include <u8g2-tock.h>
 #include <u8g2.h>
@@ -39,6 +39,6 @@ int main(void) {
     u8g2_SendBuffer(&u8g2);
 
     count += 1;
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 }

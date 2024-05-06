@@ -19,7 +19,7 @@
 #include <libtock/interface/console.h>
 #include <libtock/interface/led.h>
 #include <libtock/net/nrf51_serialization.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
 
@@ -495,7 +495,7 @@ static void __on_ble_evt (ble_evt_t* p_ble_evt) {
       _next_state = OORT_STATE_NONE;
 
       printf("Disconnected! Attempting to reconnect in 2s\n");
-      delay_ms(2000);
+      libtocksync_alarm_delay_ms(2000);
       setup_oort();
       break;
     }

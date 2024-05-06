@@ -3,7 +3,7 @@
 
 #include <libtock/interface/button.h>
 #include <libtock/interface/led.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 // These have to be included before mui.h
 #include <u8g2-tock.h>
@@ -15,10 +15,9 @@
 u8g2_t u8g2;
 mui_t ui;
 
-tock_timer_t debounce_timer;
+alarm_t debounce_alarm;
 
 bool action     = false;
-bool debouncing = false;
 
 uint8_t my_value    = 2;
 uint8_t my_value2   = 2;
@@ -121,23 +120,27 @@ fds_t *fds =
   MUI_GOTO(64, 59, 1, " Ok ")
 ;
 
-static void debounce_timer_callback(__attribute__ ((unused)) int   arg0,
-                                    __attribute__ ((unused)) int   arg1,
-                                    __attribute__ ((unused)) int   arg2,
-                                    __attribute__ ((unused)) void *ud) {
-  debouncing = false;
+struct alarm_cb_data {
+  bool debouncing;
+};
+
+static struct alarm_cb_data data = { .debouncing = true };
+
+static void debounce_cb(__attribute__ ((unused)) uint32_t now,
+                        __attribute__ ((unused)) uint32_t scheduled) {
+  data.debouncing = false;
 }
 
 static void start_debounce(void) {
-  debouncing = true;
-  timer_in(300, debounce_timer_callback, NULL, &debounce_timer);
+  data.debouncing = true;
+  libtock_alarm_in(300, debounce_cb, &debounce_alarm);
 }
 
 static void button_callback(
   __attribute__ ((unused)) returncode_t ret,
   int                                   btn_num,
   bool                                  val) {
-  if (debouncing) return;
+  if (data.debouncing) return;
   start_debounce();
 
   if (val) {

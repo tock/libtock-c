@@ -19,7 +19,7 @@
 #include <libtock/net/ble.h>
 #include <libtock/net/nrf51_serialization.h>
 #include <libtock/peripherals/gpio.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 
 static int check_err(int retval, const char* func_name) {
@@ -162,6 +162,6 @@ int main(void) {
   // sample sensors every second
   while (1) {
     sample_sensors();
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 }

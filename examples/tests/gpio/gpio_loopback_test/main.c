@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #include <libtock/peripherals/gpio.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
 
@@ -62,7 +62,7 @@ static int loopback(uint32_t out, uint32_t in) {
       }
     }
 
-    delay_ms(300);
+    libtocksync_alarm_delay_ms(300);
   }
 
   printf("SUCCESS\n");

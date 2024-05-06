@@ -13,7 +13,7 @@
 
 // Libtock includes
 #include <libtock/interface/button.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 // Local includes
 #include "base32.h"
@@ -41,7 +41,7 @@ hotp_key_t stored_keys[NUM_KEYS];
 
 // Performs initialization and interactivity.
 int main(void) {
-  delay_ms(1000);
+  libtocksync_alarm_delay_ms(1000);
   printf("Tock HOTP App Started. Usage:\r\n"
       "* Press a button to get the next HOTP code for that slot.\r\n"
       "* Hold a button to enter a new HOTP secret for that slot.\r\n");
@@ -70,7 +70,7 @@ int main(void) {
     int btn_num = pressed_btn_num;
 
     // Delay and check if button is still pressed, signalling a "hold"
-    delay_ms(500);
+    libtocksync_alarm_delay_ms(500);
     int new_val = 0;
     libtock_button_read(btn_num, &new_val);
 

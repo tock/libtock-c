@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include <libtock/peripherals/dac.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
 uint16_t sine_samples[100] = {
@@ -35,7 +35,7 @@ int main(void) {
         printf("ERROR setting DAC value\n");
         return 1;
       }
-      delay_ms(100);
+      libtocksync_alarm_delay_ms(100);
     }
   }
 

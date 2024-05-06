@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include <libtock-sync/peripherals/gpio_async.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 int interrupt_count = 0;
 
@@ -28,9 +28,9 @@ int main (void) {
 
   while (1) {
     libtocksync_gpio_async_set(0, 0);
-    delay_ms(500);
+    libtocksync_alarm_delay_ms(500);
     libtocksync_gpio_async_clear(0, 0);
-    delay_ms(500);
+    libtocksync_alarm_delay_ms(500);
   }
 
   return 0;

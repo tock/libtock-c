@@ -5,7 +5,7 @@
 
 #include <libtock/interface/button.h>
 #include <libtock/peripherals/i2c_master.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #define BUF_SIZE 16
 #define FOLLOW_ADDRESS 0x41

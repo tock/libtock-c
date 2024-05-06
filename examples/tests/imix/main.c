@@ -20,7 +20,7 @@
 #include <libtock/interface/led.h>
 #include <libtock/net/nrf51_serialization.h>
 #include <libtock/peripherals/gpio.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 // Intervals for BLE advertising and connections
 simple_ble_config_t ble_config = {
@@ -119,6 +119,6 @@ int main(void) {
   while (1) {
     printf("[imix] Sampling sensors.\n");
     sample_sensors();
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 }

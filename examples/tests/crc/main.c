@@ -4,7 +4,7 @@
 
 #include <libtock-sync/peripherals/crc.h>
 #include <libtock-sync/peripherals/rng.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 struct test_case {
   libtock_crc_alg_t alg;
@@ -69,6 +69,6 @@ int main(void) {
     }
 
     printf("\n");
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 }

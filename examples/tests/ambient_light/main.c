@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include <libtock-sync/sensors/ambient_light.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
 int main (void) {
@@ -19,6 +19,6 @@ int main (void) {
       // Print the lux value
       printf("\tValue(%d lux) [0x%X]\n\n", lux, lux);
     }
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 }

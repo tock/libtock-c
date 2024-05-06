@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #include <libtock-sync/storage/sdcard.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
 uint8_t read_buf[512]  = {0};
@@ -73,7 +73,7 @@ int main (void) {
       }
     }
     printf("Buffers match!\n\n");
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 
   // test complete

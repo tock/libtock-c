@@ -19,7 +19,7 @@
 #include <libtock/interface/led.h>
 #include <libtock/net/nrf51_serialization.h>
 #include <libtock/peripherals/gpio.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 
 /////////////////////////////////////////////////////////////////////
@@ -179,6 +179,6 @@ int main(void) {
   // sample sensors every second
   while (1) {
     sample_sensors();
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 }

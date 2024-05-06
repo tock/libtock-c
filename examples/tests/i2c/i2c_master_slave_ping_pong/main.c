@@ -5,7 +5,7 @@
 
 #include <libtock/interface/button.h>
 #include <libtock/peripherals/i2c_master_slave.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #define BUF_SIZE 16
 #define LEADER_ADDRESS 0x40
@@ -41,7 +41,7 @@ static void i2c_callback(int                            callback_type,
     TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_listen());
   } else if (callback_type == TOCK_I2C_CB_SLAVE_WRITE) {
     printf("CB: Slave write\n");
-    delay_ms(2500);
+    libtocksync_alarm_delay_ms(2500);
 
     printf("%s sending\n", is_leader ? "Leader" : "Follower");
     TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(is_leader ? FOLLOW_ADDRESS : LEADER_ADDRESS, BUF_SIZE));

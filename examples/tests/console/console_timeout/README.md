@@ -2,7 +2,7 @@ Console Receive Timeout Test
 =======================
 
 This app tests canceling asynchronous reads from the console. The application
-reads from the console and sets a 5 second time. When the timer fires, it
+reads from the console and sets a 5 second time. When the alarm fires, it
 aborts the read from the console. If aborts are working correctly, this
 should result in a receive callback containing anything that was read so far.
 

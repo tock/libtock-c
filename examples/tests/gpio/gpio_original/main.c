@@ -18,17 +18,20 @@
 #include <libtock/interface/console.h>
 #include <libtock/interface/led.h>
 #include <libtock/peripherals/gpio.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
-int callback_count = 0;
-// callback for timers
-static void timer_cb (__attribute__ ((unused)) int   arg0,
-                      __attribute__ ((unused)) int   arg1,
-                      __attribute__ ((unused)) int   arg2,
-                      __attribute__ ((unused)) void* userdata) {
-  callback_count     = callback_count + 1;
-  *((bool*)userdata) = 1;
+struct alarm_cb_data {
+  bool fired;
+  int callback_count;
+};
+
+static struct alarm_cb_data data = { .fired = false, .callback_count = 0 };
+
+static void alarm_cb(__attribute__ ((unused)) uint32_t now,
+                     __attribute__ ((unused)) uint32_t scheduled) {
+  data.callback_count = data.callback_count + 1;
+  data.fired = true;
 }
 
 // **************************************************
@@ -38,14 +41,14 @@ static void gpio_output(void) {
   printf("Periodically toggling pin\n");
 
   libtock_gpio_enable_output(0);
-  // Start repeating timer
-  static bool resume = 0;
-  tock_timer_t timer;
-  timer_every(1000, timer_cb, &resume, &timer);
+  // Start repeating alarm
+  data.fired = false;
+  alarm_repeating_t alarm_repeating;
+  libtock_alarm_repeating_every(1000, alarm_cb, &alarm_repeating);
 
   while (1) {
-    yield_for(&resume);
-    resume = 0;
+    yield_for(&data.fired);
+    data.fired = false;
     libtock_gpio_toggle(0);
   }
 }
@@ -57,20 +60,20 @@ static void gpio_input(void) {
   printf("Periodically reading value of the GPIO 0 pin\n");
   printf("Jump pin high to test (defaults to low)\n");
 
-  // set userspace pin 0 as input and start repeating timer
+  // set userspace pin 0 as input and start repeating alarm
   // pin is configured with a pull-down resistor, so it should read 0 as default
   libtock_gpio_enable_input(0, libtock_pull_down);
-  tock_timer_t timer;
-  static bool resume = 0;
-  timer_every(500, timer_cb, &resume, &timer);
+  alarm_repeating_t alarm_repeating;
+  data.fired = false;
+  libtock_alarm_repeating_every(500, alarm_cb, &alarm_repeating);
 
   while (1) {
     // print pin value
     int pin_val;
     libtock_gpio_read(0, &pin_val);
     printf("\tValue(%d)\n", pin_val);
-    yield_for(&resume);
-    resume = 0;
+    yield_for(&data.fired);
+    data.fired = 0;
   }
 }
 

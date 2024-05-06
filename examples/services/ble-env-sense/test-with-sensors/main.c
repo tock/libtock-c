@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include <libtock/kernel/ipc.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #include <libtock-sync/sensors/ambient_light.h>
 #include <libtock-sync/sensors/humidity.h>
@@ -24,7 +24,7 @@ typedef struct {
 } sensor_update_t;
 
 bool _ipc_done = false;
-tock_timer_t _timer;
+alarm_t _alarm;
 
 static void ipc_callback(__attribute__ ((unused)) int   pid,
                          __attribute__ ((unused)) int   len,
@@ -33,10 +33,9 @@ static void ipc_callback(__attribute__ ((unused)) int   pid,
   _ipc_done = true;
 }
 
-static void do_sensing_cb(__attribute__ ((unused)) int   now,
-                          __attribute__ ((unused)) int   expiration,
-                          __attribute__ ((unused)) int   unused,
-                          __attribute__ ((unused)) void* ud) {
+
+static void do_sensing_cb(__attribute__ ((unused)) uint32_t now,
+                     __attribute__ ((unused)) uint32_t scheduled) {
 
   printf("[BLE ESS Test] Sampling Sensors\n");
 
@@ -81,8 +80,7 @@ static void do_sensing_cb(__attribute__ ((unused)) int   now,
   printf("  temp:  %i\n", temp);
   printf("  humi:  %i\n", humi);
 
-  timer_in(3000, do_sensing_cb, NULL, &_timer);
-
+  libtock_alarm_in(3000, do_sensing_cb, &_alarm);
 }
 
 
@@ -96,13 +94,13 @@ int main(void) {
 
   printf("Found BLE ESS service (%u)\n", _svc_num);
 
-  delay_ms(1500);
+  libtocksync_alarm_delay_ms(1500);
 
   sensor_update_t *update = (sensor_update_t*) buf;
   ipc_register_client_callback(_svc_num, ipc_callback, update);
   ipc_share(_svc_num, buf, 64);
 
-  timer_in(1000, do_sensing_cb, NULL, &_timer);
+  libtock_alarm_in(1000, do_sensing_cb, &_alarm);
 
   return 0;
 }

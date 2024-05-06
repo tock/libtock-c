@@ -3,7 +3,7 @@
 
 #include <libtock/display/screen.h>
 #include <libtock/sensors/touch.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 libtock_touch_event_t* multi_touch_buffer;
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include <libtock-sync/display/screen.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #include <lvgl/lvgl.h>
 
@@ -58,7 +58,7 @@ int main (void)
         snprintf(buffer, 99, "Seconds: %d", seconds / 200);
         lv_label_set_text(label1, buffer);
       }
-      delay_ms(5);
+      libtocksync_alarm_delay_ms(5);
       lvgl_driver_event(5);
     }
   } else {

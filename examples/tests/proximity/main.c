@@ -4,7 +4,7 @@
 
 #include <libtock-sync/sensors/proximity.h>
 #include <libtock/interface/led.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
 int main(void) {
@@ -37,7 +37,7 @@ int main(void) {
   while (true) {
     for (int led = 0; led < num_leds; led++) {
       libtock_led_on(led);
-      delay_ms(period / (frequency + 1));
+      libtocksync_alarm_delay_ms(period / (frequency + 1));
       libtock_led_off(led);
     }
 

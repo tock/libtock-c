@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #include <u8g2-tock.h>
 #include <u8g2.h>
@@ -41,7 +41,7 @@ int main(void) {
     u8g2_DrawLine(&u8g2, center_x, center_y, x, y);
 
     u8g2_SendBuffer(&u8g2);
-    delay_ms(200);
+    libtocksync_alarm_delay_ms(200);
 
     rot = (rot + 1) % 100;
   }

@@ -22,7 +22,7 @@
 #include <libtock-sync/storage/kv.h>
 #include <libtock/interface/button.h>
 #include <libtock/interface/led.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 // Local includes
 #include "base32.h"
@@ -278,7 +278,7 @@ int main(void) {
     int btn_num = pressed_btn_num;
 
     // Delay and check if button is still pressed, signalling a "hold"
-    delay_ms(500);
+    libtocksync_alarm_delay_ms(500);
     int new_val = 0;
     libtock_button_read(btn_num, &new_val);
 

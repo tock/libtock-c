@@ -5,7 +5,7 @@
 #include <libtock/interface/button.h>
 #include <libtock/net/udp.h>
 #include <libtock-sync/net/udp.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #define DEBUG 0
 
@@ -69,7 +69,7 @@ int main(void) {
   // attempt. However, udp_send can take more than 10ms for a multi-fragment packet,
   // so putting the delay after the send still makes it possible for this app to
   // bind first. Accordingly, put the delay before the send to ensure it sends second.
-  delay_ms(10);
+  libtocksync_alarm_delay_ms(10);
   result = libtocksync_udp_send(packet, len, &destination);
   assert(result == RETURNCODE_SUCCESS); // finally, a valid send attempt
 
@@ -81,7 +81,7 @@ int main(void) {
   bind_return = libtock_udp_bind(&handle, &addr2, BUF_BIND_CFG);
   assert(bind_return < 0); // bind should fail bc this app binds second to port 80
 
-  delay_ms(90); // to re-sync with other app
+  libtocksync_alarm_delay_ms(90); // to re-sync with other app
   sock_addr_t addr3 = {
     ifaces[0],
     81

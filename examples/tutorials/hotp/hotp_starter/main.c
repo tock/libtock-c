@@ -23,7 +23,7 @@
 #include <libtock/interface/button.h>
 #include <libtock/interface/console.h>
 #include <libtock/interface/led.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 // Local includes
 #include "base32.h"
@@ -207,7 +207,7 @@ static void get_next_code(hotp_key_t* hotp_key) {
 
 // Performs initialization and interactivity.
 int main(void) {
-  delay_ms(1000);
+  libtocksync_alarm_delay_ms(1000);
   printf("Tock HOTP App Started. Usage:\r\n"
       "* Press Button 1 to get the next HOTP code for that slot.\r\n"
       "* Hold Button 1 to enter a new HOTP secret for that slot.\r\n");

@@ -5,7 +5,7 @@
 #include <libtock/interface/led.h>
 #include <libtock/net/ieee802154.h>
 #include <libtock/peripherals/gpio.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 // IEEE 802.15.4 sample packet transmission app.
 // Continually transmits frames at the specified short address to the specified
@@ -42,6 +42,6 @@ int main(void) {
       printf("Transmit failed with error %i.\n", err);
       libtock_gpio_toggle(0);
     }
-    delay_ms(250);
+    libtocksync_alarm_delay_ms(250);
   }
 }

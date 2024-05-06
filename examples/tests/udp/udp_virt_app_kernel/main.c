@@ -5,7 +5,7 @@
 #include <libtock-sync/net/udp.h>
 #include <libtock/interface/button.h>
 #include <libtock/net/udp.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #define DEBUG 0
 
@@ -48,7 +48,7 @@ int main(void) {
   int bind_return = libtock_udp_bind(&handle, &addr, BUF_BIND_CFG);
   assert(bind_return >= 0); // bind should succeed
 
-  delay_ms(3000); // resync with kernel
+  libtocksync_alarm_delay_ms(3000); // resync with kernel
 
   sock_addr_t addr2 = {
     ifaces[0],
@@ -63,7 +63,7 @@ int main(void) {
   bind_return = libtock_udp_bind(&handle, &addr3, BUF_BIND_CFG);
   assert(bind_return >= 0);
 
-  delay_ms(1000); // should be synced with kernel test 2 starting now.
+  libtocksync_alarm_delay_ms(1000); // should be synced with kernel test 2 starting now.
 
   if (DEBUG) {
     printf("Sending packet (length %d) --> ", len);

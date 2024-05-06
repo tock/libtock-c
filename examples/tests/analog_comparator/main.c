@@ -3,7 +3,7 @@
 #include <sys/types.h>
 
 #include <libtock/peripherals/analog_comparator.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
 static int callback_channel;
@@ -20,7 +20,7 @@ static void analog_comparator_comparison_polling(uint8_t channel) {
     } else {
       printf("This means Vinp < Vinn!\n\n");
     }
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 }
 

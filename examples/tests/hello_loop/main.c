@@ -3,11 +3,11 @@
 #include <stdio.h>
 
 #include <libtock/interface/console.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 int main(void) {
   while (1) {
     printf("Hello\n");
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 }

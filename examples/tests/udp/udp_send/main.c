@@ -10,7 +10,7 @@
 #include <libtock/sensors/ambient_light.h>
 #include <libtock/sensors/humidity.h>
 #include <libtock/sensors/temperature.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #include <libtock-sync/net/udp.h>
 #include <libtock/net/udp.h>
@@ -81,7 +81,7 @@ int main(void) {
         printf("Error sending packet %d\n\n", result);
     }
     count++;
-    delay_ms(5000);
+    libtocksync_alarm_delay_ms(5000);
   }
 }
 

@@ -1,27 +1,32 @@
 #include <libtock/interface/led.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
-static void timer_cb(__attribute__ ((unused)) int now,
-                     __attribute__ ((unused)) int expiration,
-                     __attribute__ ((unused)) int unused, void* ud) {
-  *((bool*)ud) = true;
+struct alarm_cb_data {
+  bool fired;
+};
+
+static struct alarm_cb_data data = { .fired = false };
+
+static void alarm_cb(__attribute__ ((unused)) uint32_t now,
+                     __attribute__ ((unused)) uint32_t scheduled) {
+  data.fired = true;
 }
 
 int main(void) {
 
   while (1) {
-    bool done = false;
-    tock_timer_t timer;
-    timer_in(1500, timer_cb, &done, &timer);
+    data.fired = false;
+    alarm_t alarm;
+    libtock_alarm_in(1500, alarm_cb, &alarm);
 
-    int ret = yield_for_with_timeout(&done, 1000);
+    int ret = libtocksync_alarm_yield_for_with_timeout(&data.fired, 1000);
     if (ret == RETURNCODE_SUCCESS) {
       libtock_led_on(0);
     } else {
       libtock_led_off(0);
     }
 
-    ret = yield_for_with_timeout(&done, 1000);
+    ret = libtocksync_alarm_yield_for_with_timeout(&data.fired, 1000);
     if (ret == RETURNCODE_SUCCESS) {
       libtock_led_on(0);
     } else {
