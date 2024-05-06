@@ -3,7 +3,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <libtock/alarm.h>
 #include <libtock/interface/console.h>
 #include <libtock/peripherals/adc.h>
 #include <libtock/tock.h>
