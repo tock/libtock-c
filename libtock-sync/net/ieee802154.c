@@ -1,4 +1,4 @@
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #include "ieee802154.h"
 
@@ -85,9 +85,9 @@ returncode_t libtocksync_ieee802154_up(void) {
   libtock_ieee802154_is_up(&status);
 
   while (!status) {
-    delay_ms(10);
+    libtocksync_alarm_delay_ms(10);
     libtock_ieee802154_is_up(&status);
   }
-  delay_ms(10); // without this delay, immediate calls to send can still fail.
+  libtocksync_alarm_delay_ms(10); // without this delay, immediate calls to send can still fail.
   return RETURNCODE_SUCCESS;
 }

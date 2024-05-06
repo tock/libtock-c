@@ -15,7 +15,7 @@ extern "C" {
  * \param ms the number of milliseconds to delay for.
  * \return An error code. Either RETURNCODE_SUCCESS or RETURNCODE_FAIL.
  */
-int delay_ms(uint32_t ms);
+int libtocksync_alarm_delay_ms(uint32_t ms);
 
 /** \brief Functions as yield_for with a timeout.
  *
@@ -26,7 +26,7 @@ int delay_ms(uint32_t ms);
  * \param ms the amount of time before returning without the condition.
  * \return An error code. Either RETURNCODE_SUCCESS or RETURNCODE_FAIL for timeout.
  */
-int yield_for_with_timeout(bool* cond, uint32_t ms);
+int libtocksync_alarm_yield_for_with_timeout(bool* cond, uint32_t ms);
 
 #ifdef __cplusplus
 }

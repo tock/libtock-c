@@ -59,10 +59,15 @@ static alarm_t* root_peek(void) {
   return root;
 }
 
-static void alarm_upcall( __attribute__ ((unused)) int   unused0,
-                                __attribute__ ((unused)) int   unused1,
-                                __attribute__ ((unused)) int   unused2,
-                                __attribute__ ((unused)) void* ud) {
+// Below static variable is used to pass userdata to alarm_repeating_cb, while
+// still allowing alarm_repeating_cb to have the same signature as
+// every other libtock_alarm_callback, which simplifies the API of this library.
+static void* last_userdata = NULL;
+
+static void alarm_upcall( __attribute__ ((unused)) int   kernel_now,
+                          __attribute__ ((unused)) int   scheduled,
+                          __attribute__ ((unused)) int   unused2,
+                          __attribute__ ((unused)) void* opaque) {
   for (alarm_t* alarm = root_peek(); alarm != NULL; alarm = root_peek()) {
     uint32_t now;
     libtock_alarm_command_read(&now);
@@ -76,13 +81,16 @@ static void alarm_upcall( __attribute__ ((unused)) int   unused0,
 
       if (alarm->callback) {
         uint32_t expiration = alarm->reference + alarm->dt;
-        tock_enqueue(alarm->callback, now, expiration, 0, alarm->ud);
+        if (alarm->ud) {
+          last_userdata = alarm->ud;
+        }
+        alarm->callback(now, expiration);
       }
     }
   }
 }
 
-int libtock_alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall cb, void* ud, alarm_t* alarm) {
+static int libtock_alarm_at_internal(uint32_t reference, uint32_t dt, libtock_alarm_callback cb, void* ud, alarm_t* alarm) {
   alarm->reference = reference;
   alarm->dt        = dt;
   alarm->callback  = cb;
@@ -99,9 +107,13 @@ int libtock_alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall cb, void*
   if (root_peek() == alarm) {
     libtock_alarm_set_upcall((subscribe_upcall*)alarm_upcall, NULL);
 
-    return libtock_alarm_command_set(alarm->reference, alarm->dt);
+    return libtock_alarm_command_set_absolute(alarm->reference, alarm->dt);
   }
   return RETURNCODE_SUCCESS;
+}
+
+int libtock_alarm_at(uint32_t reference, uint32_t dt, libtock_alarm_callback cb, alarm_t* alarm) {
+  return libtock_alarm_at_internal(reference, dt, cb, NULL, alarm);
 }
 
 void libtock_alarm_cancel(alarm_t* alarm) {
@@ -115,7 +127,7 @@ void libtock_alarm_cancel(alarm_t* alarm) {
   if (root == alarm) {
     root = alarm->next;
     if (root != NULL) {
-      libtock_alarm_command_set(root->reference, root->dt);
+      libtock_alarm_command_set_absolute(root->reference, root->dt);
     }
   }
 
@@ -124,39 +136,36 @@ void libtock_alarm_cancel(alarm_t* alarm) {
 
 }
 
-int libtock_alarm_in(uint32_t ms, subscribe_upcall cb, void* ud, alarm_t *alarm) {
+int libtock_alarm_in(uint32_t ms, libtock_alarm_callback cb, alarm_t *alarm) {
   uint32_t frequency;
   libtock_alarm_command_get_frequency(&frequency);
   uint32_t interval = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
   uint32_t now;
   libtock_alarm_command_read(&now);
-  return libtock_alarm_at(now, interval, cb, ud, alarm);
+  return libtock_alarm_at(now, interval, cb, alarm);
 }
 
-static void alarm_repeating_upcall( uint32_t                     now,
-                                          __attribute__ ((unused)) int unused1,
-                                          __attribute__ ((unused)) int unused2,
-                                          void*                        ud) {
-  alarm_repeating_t* repeating = (alarm_repeating_t*)ud;
+static void alarm_repeating_cb( uint32_t now, __attribute__ ((unused)) uint32_t scheduled) {
+  alarm_repeating_t* repeating = (alarm_repeating_t*) last_userdata;
   uint32_t interval       = repeating->interval;
   uint32_t cur_exp        = repeating->alarm.reference + interval;
-  libtock_alarm_at(cur_exp, interval, (subscribe_upcall*)alarm_repeating_upcall,
+  libtock_alarm_at_internal(cur_exp, interval, (libtock_alarm_callback)alarm_repeating_cb,
            (void*)repeating, &repeating->alarm);
-  repeating->cb(now, cur_exp, 0, repeating->ud);
+  repeating->cb(now, cur_exp);
 }
 
-void libtock_alarm_repeating_every(uint32_t ms, subscribe_upcall cb, void* ud, alarm_repeating_t* repeating) {
+
+void libtock_alarm_repeating_every(uint32_t ms, libtock_alarm_callback cb, alarm_repeating_t* repeating) {
   uint32_t frequency;
   libtock_alarm_command_get_frequency(&frequency);
   uint32_t interval = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
 
   repeating->interval = interval;
   repeating->cb       = cb;
-  repeating->ud       = ud;
 
   uint32_t now;
   libtock_alarm_command_read(&now);
-  libtock_alarm_at(now, interval, (subscribe_upcall*)alarm_repeating_upcall,
+  libtock_alarm_at_internal(now, interval, alarm_repeating_cb,
            (void*)repeating, &repeating->alarm);
 }
 

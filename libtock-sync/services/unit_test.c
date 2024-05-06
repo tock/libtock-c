@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include <libtock/kernel/ipc.h>
-#include <libtock_sync/services/alarm.h>
+#include "alarm.h"
 
 #include "unit_test.h"
 
@@ -231,7 +231,7 @@ void unit_test_runner(unit_test_fun *tests, uint32_t test_count,
 
   // Establish communication with the test supervisor service. First delay 10 ms
   // to ensure the supervisor service has time to register.
-  delay_ms(10);
+  libtocksync_alarm_delay_ms(10);
   size_t test_svc;
   int err = ipc_discover(svc_name, &test_svc);
   if (err < 0) return;
@@ -321,19 +321,22 @@ static void print_test_summary(unit_test_t *test) {
          incomplete, total);
 }
 
+struct alarm_cb_data {
+  unit_test_t *test;
+};
+
+static struct alarm_cb_data data = { .test = NULL };
+
 /** \brief Timer callback for handling a test timeout.
  *
  * When a test times out, there's no guarantee about the test runner's state, so
  * we just stop the tests here and print the results.
  */
-static void timeout_callback(__attribute__ ((unused)) int now,
-                             __attribute__ ((unused)) int expiration,
-                             __attribute__ ((unused)) int unused, void* ud) {
-
-  unit_test_t *test = (unit_test_t *)ud;
-  test->result = Timeout;
-  print_test_result(test);
-  print_test_summary(test);
+static void timeout_callback(__attribute__ ((unused)) uint32_t now,
+                             __attribute__ ((unused)) uint32_t scheduled) {
+  data.test->result = Timeout;
+  print_test_result(data.test);
+  print_test_summary(data.test);
 }
 
 /** \brief IPC service callback for coordinating test runners.
@@ -374,7 +377,8 @@ static void unit_test_service_callback(int                            pid,
 
     case TestStart:
       // Start the alarm and start the test.
-      libtock_alarm_in(test->timeout_ms, timeout_callback, test, &test->alarm);
+      data.test = test;
+      libtock_alarm_in(test->timeout_ms, timeout_callback, &test->alarm);
       ipc_notify_client(test->pid);
       break;
 

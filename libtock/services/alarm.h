@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "tock.h"
+#include "../tock.h"
 #include "../peripherals/syscalls/alarm_syscalls.h"
 
 #include <sys/time.h>
@@ -21,12 +21,13 @@
 extern "C" {
 #endif
 
-// NOTE: alarm uses a different callback approach than most other
-// libtock drivers, by not defining a `libtock_alarm_callback` or similar,
-// and instead using the "old" approach of passing around bare `subscribe_upcall`
-// and `ud` pointers. This is necessary because the userspace virtualisation provided
-// by this driver requires using `tock_enqueue`, a generic API
-// that needs to be able to accept arbitrary callback types.
+
+// Function signature for alarm callback.
+//
+// - `arg1` (`now`): The current time when this callback was enqueued by the kernel.
+// - `arg2` (`scheduled`): The time (reference + dt) that this alarm was originally scheduled
+//    to fire at
+typedef void (*libtock_alarm_callback)(uint32_t, uint32_t);
 
 /** \brief Opaque handle to a single-shot alarm.
  *
@@ -36,7 +37,7 @@ extern "C" {
 typedef struct alarm {
   uint32_t reference;
   uint32_t dt;
-  subscribe_upcall *callback;
+  libtock_alarm_callback callback;
   void* ud;
   struct alarm* next;
   struct alarm* prev;
@@ -48,8 +49,7 @@ typedef struct alarm {
  */
 typedef struct alarm_repeating {
   uint32_t interval;
-  subscribe_upcall* cb;
-  void* ud;
+  libtock_alarm_callback cb;
   alarm_t alarm;
 } alarm_repeating_t;
 
@@ -67,7 +67,7 @@ typedef struct alarm_repeating {
  *        track of the alarm.
  * \return An error code. Either RETURNCODE_SUCCESS or RETURNCODE_FAIL.
  */
-int libtock_alarm_at(uint32_t reference, uint32_t dt, subscribe_upcall cb, void* ud, alarm_t *alarm);
+int libtock_alarm_at(uint32_t reference, uint32_t dt, libtock_alarm_callback cb, alarm_t *alarm);
 
 /** \brief Cancels an existing alarm.
  *
@@ -98,7 +98,7 @@ int libtock_gettimeasticks(struct timeval *tv, void *tzvp);
  * \param A handle to the alarm that was created.
  * \return An error code. Either RETURNCODE_SUCCESS or RETURNCODE_FAIL.
  */
-int libtock_alarm_in(uint32_t ms, subscribe_upcall cb, void* ud, alarm_t* alarm);
+int libtock_alarm_in(uint32_t ms, libtock_alarm_callback cb, alarm_t* alarm);
 
 /** \brief Create a new repeating alarm to fire every `ms` milliseconds.
  *
@@ -111,7 +111,7 @@ int libtock_alarm_in(uint32_t ms, subscribe_upcall cb, void* ud, alarm_t* alarm)
  * \param a pointer to a new alarm_repeating_t to be used by the implementation to
  *        keep track of the alarm.
  */
-void libtock_alarm_repeating_every(uint32_t ms, subscribe_upcall cb, void* ud, alarm_repeating_t* alarm_repeating);
+void libtock_alarm_repeating_every(uint32_t ms, libtock_alarm_callback cb, alarm_repeating_t* alarm_repeating);
 
 /** \brief Cancels an existing repeating alarm.
  *

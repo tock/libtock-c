@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #include <libtock-sync/peripherals/rng.h>
-#include <libtock/timer.h>
+#include <libtock-sync/services/alarm.h>
 
 uint8_t randbuf[256];
 
@@ -23,6 +23,6 @@ int main (void) {
     len -= snprintf(buf + (600 - len), len, "\n\n");
     printf("%s\n", buf);
 
-    delay_ms(500);
+    libtocksync_alarm_delay_ms(500);
   }
 }

@@ -19,6 +19,6 @@ int main(void) {
     }
 
     // This delay uses an underlying timer in the kernel.
-    delay_ms(250);
+    libtocksync_alarm_delay_ms(250);
   }
 }

@@ -1,39 +1,43 @@
 #include "alarm.h"
 
-static void delay_upcall(__attribute__ ((unused)) int unused0,
-                         __attribute__ ((unused)) int unused1,
-                         __attribute__ ((unused)) int unused2,
-                         void*                        ud) {
-  *((bool*)ud) = true;
+struct alarm_cb_data {
+  bool fired;
+};
+
+static struct alarm_cb_data delay_data = { .fired = false };
+
+static void delay_cb(__attribute__ ((unused)) uint32_t now,
+                     __attribute__ ((unused)) uint32_t scheduled) {
+  delay_data.fired = true;
 }
 
 int libtocksync_alarm_delay_ms(uint32_t ms) {
-  bool cond = false;
+  delay_data.fired = false;
   alarm_t alarm;
   int rc;
 
-  if ((rc = libtock_alarm_in(ms, delay_upcall, &cond, &alarm)) != RETURNCODE_SUCCESS) {
+  if ((rc = libtock_alarm_in(ms, delay_cb, &alarm)) != RETURNCODE_SUCCESS) {
     return rc;
   }
 
-  yield_for(&cond);
+  yield_for(&delay_data.fired);
   return rc;
 }
 
-static void yield_for_timeout_upcall(__attribute__ ((unused)) int unused0,
-                                     __attribute__ ((unused)) int unused1,
-                                     __attribute__ ((unused)) int unused2,
-                                     void*                        ud) {
-  *((bool*)ud) = true;
+static struct alarm_cb_data yf_timeout_data = { .fired = false };
+
+static void yf_timeout_cb(__attribute__ ((unused)) uint32_t now,
+                          __attribute__ ((unused)) uint32_t scheduled) {
+  yf_timeout_data.fired = true;
 }
 
 int libtocksync_alarm_yield_for_with_timeout(bool* cond, uint32_t ms) {
-  bool timeout = false;
+  yf_timeout_data.fired = false;
   alarm_t alarm;
-  libtock_alarm_in(ms, yield_for_timeout_upcall, &timeout, &alarm);
+  libtock_alarm_in(ms, yf_timeout_cb, &alarm);
 
   while (!*cond) {
-    if (timeout) {
+    if (yf_timeout_data.fired) {
       return RETURNCODE_FAIL;
     }
 
