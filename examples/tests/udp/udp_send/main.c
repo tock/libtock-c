@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/interface/led.h>
 #include <libtock/net/ieee802154.h>
@@ -10,7 +11,6 @@
 #include <libtock/sensors/ambient_light.h>
 #include <libtock/sensors/humidity.h>
 #include <libtock/sensors/temperature.h>
-#include <libtock-sync/services/alarm.h>
 
 #include <libtock-sync/net/udp.h>
 #include <libtock/net/udp.h>

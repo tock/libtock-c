@@ -2,8 +2,8 @@
 
 #include <stdio.h>
 
-#include <libtock/interface/console.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/interface/console.h>
 
 int main(void) {
   while (1) {

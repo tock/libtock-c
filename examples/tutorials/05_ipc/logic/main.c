@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <libtock/kernel/ipc.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/kernel/ipc.h>
 
 // Every 500 ms use the RNG service to randomly select an LED to turn on or
 // off and then use the LED service to control that LED.

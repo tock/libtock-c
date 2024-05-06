@@ -11,8 +11,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <libtock/kernel/ipc.h>
 #include "alarm.h"
+#include <libtock/kernel/ipc.h>
 
 #include "unit_test.h"
 

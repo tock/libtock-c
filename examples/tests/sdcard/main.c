@@ -3,8 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <libtock-sync/storage/sdcard.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock-sync/storage/sdcard.h>
 #include <libtock/tock.h>
 
 uint8_t read_buf[512]  = {0};

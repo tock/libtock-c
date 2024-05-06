@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/peripherals/i2c_master.h>
-#include <libtock-sync/services/alarm.h>
 
 #define BUF_SIZE 16
 #define FOLLOW_ADDRESS 0x41

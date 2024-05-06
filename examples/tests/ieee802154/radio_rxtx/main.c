@@ -2,9 +2,9 @@
 #include <stdio.h>
 
 #include <libtock-sync/net/ieee802154.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/interface/led.h>
 #include <libtock/net/ieee802154.h>
-#include <libtock-sync/services/alarm.h>
 
 // IEEE 802.15.4 sample packet echo app.
 // Continually receives packets at the specified short address, then retransmits them.

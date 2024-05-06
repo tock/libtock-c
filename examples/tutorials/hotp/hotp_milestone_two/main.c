@@ -18,9 +18,9 @@
 #include <string.h>
 
 // Libtock includes
+#include <libtock-sync/services/alarm.h>
 #include <libtock-sync/storage/kv.h>
 #include <libtock/interface/button.h>
-#include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
 // Local includes

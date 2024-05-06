@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/interface/led.h>
-#include <libtock-sync/services/alarm.h>
 
 // These have to be included before mui.h
 #include <u8g2-tock.h>
@@ -17,7 +17,7 @@ mui_t ui;
 
 alarm_t debounce_alarm;
 
-bool action     = false;
+bool action = false;
 
 uint8_t my_value    = 2;
 uint8_t my_value2   = 2;

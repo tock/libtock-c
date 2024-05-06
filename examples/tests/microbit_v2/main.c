@@ -13,13 +13,13 @@
 #include <libtock-sync/sensors/ninedof.h>
 #include <libtock-sync/sensors/sound_pressure.h>
 #include <libtock-sync/sensors/temperature.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/interface/buzzer.h>
 #include <libtock/interface/led.h>
 #include <libtock/net/ble.h>
 #include <libtock/net/nrf51_serialization.h>
 #include <libtock/peripherals/gpio.h>
-#include <libtock-sync/services/alarm.h>
 
 
 static int check_err(int retval, const char* func_name) {

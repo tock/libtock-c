@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include <libtock/peripherals/dac.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/peripherals/dac.h>
 #include <libtock/tock.h>
 
 uint16_t sine_samples[100] = {

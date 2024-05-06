@@ -3,8 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <libtock/peripherals/gpio.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/peripherals/gpio.h>
 #include <libtock/tock.h>
 
 

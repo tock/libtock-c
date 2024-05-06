@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <libtock-sync/services/alarm.h>
 #include <libtock/display/screen.h>
 #include <libtock/sensors/touch.h>
-#include <libtock-sync/services/alarm.h>
 
 libtock_touch_event_t* multi_touch_buffer;
 

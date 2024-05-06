@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <libtock/kernel/ipc.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/kernel/ipc.h>
 
 size_t _svc_num = 0;
 

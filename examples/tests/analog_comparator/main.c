@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include <libtock/peripherals/analog_comparator.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/peripherals/analog_comparator.h>
 #include <libtock/tock.h>
 
 static int callback_channel;

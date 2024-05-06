@@ -16,11 +16,11 @@
 #include <libtock-sync/sensors/humidity.h>
 #include <libtock-sync/sensors/ninedof.h>
 #include <libtock-sync/sensors/temperature.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/interface/led.h>
 #include <libtock/net/nrf51_serialization.h>
 #include <libtock/peripherals/gpio.h>
-#include <libtock-sync/services/alarm.h>
 
 // Intervals for BLE advertising and connections
 simple_ble_config_t ble_config = {

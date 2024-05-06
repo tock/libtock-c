@@ -19,11 +19,11 @@
 
 // Libtock includes
 #include <libtock-sync/interface/usb_keyboard_hid.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/crypto/hmac.h>
 #include <libtock/interface/button.h>
 #include <libtock/interface/console.h>
 #include <libtock/interface/led.h>
-#include <libtock-sync/services/alarm.h>
 
 // Local includes
 #include "base32.h"

@@ -5,8 +5,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <libtock/interface/button.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/interface/button.h>
 #include <libtock/tock.h>
 
 #if defined(__thumb__)

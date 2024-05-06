@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <libtock/kernel/ipc.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/kernel/ipc.h>
 
 #include <libtock-sync/sensors/ambient_light.h>
 #include <libtock-sync/sensors/humidity.h>
@@ -35,7 +35,7 @@ static void ipc_callback(__attribute__ ((unused)) int   pid,
 
 
 static void do_sensing_cb(__attribute__ ((unused)) uint32_t now,
-                     __attribute__ ((unused)) uint32_t scheduled) {
+                          __attribute__ ((unused)) uint32_t scheduled) {
 
   printf("[BLE ESS Test] Sampling Sensors\n");
 

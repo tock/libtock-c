@@ -1,5 +1,5 @@
-#include <libtock/interface/led.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/interface/led.h>
 
 struct alarm_cb_data {
   bool fired;

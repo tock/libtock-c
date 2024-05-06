@@ -1,7 +1,7 @@
 #include <stdbool.h>
 
-#include <libtock-sync/services/unit_test.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock-sync/services/unit_test.h>
 #include <libtock/tock.h>
 
 

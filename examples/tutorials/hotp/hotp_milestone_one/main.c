@@ -19,9 +19,9 @@
 
 // Libtock includes
 #include <libtock-sync/interface/console.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/interface/led.h>
-#include <libtock-sync/services/alarm.h>
 
 // Local includes
 #include "base32.h"

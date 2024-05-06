@@ -3,9 +3,9 @@
 #include <stdio.h>
 
 #include <libtock-sync/net/udp.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/net/udp.h>
-#include <libtock-sync/services/alarm.h>
 
 #define DEBUG 0
 

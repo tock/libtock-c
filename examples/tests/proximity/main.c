@@ -3,8 +3,8 @@
 #include <stdio.h>
 
 #include <libtock-sync/sensors/proximity.h>
-#include <libtock/interface/led.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/interface/led.h>
 #include <libtock/tock.h>
 
 int main(void) {
