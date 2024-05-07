@@ -80,8 +80,11 @@ void init_otPlatAlarm(void) {
 	uint32_t frequency;
 	alarm_internal_frequency(&frequency);
 	wrap_point = ((UINT32_MAX) / frequency) * 1000;
-	printf("WRAP POINT: %ld\n", wrap_point/1000);
-	prev_time_value = otPlatAlarmMilliGetNow();
+	// account for leftover ticks
+	uint64_t left_over_ticks = ((UINT32_MAX % frequency) * 1000) / frequency;
+	wrap_point += (uint32_t) left_over_ticks;
+	timer_every(wrap_point >> 1, wrap_time_upcall, NULL, &timer_wrap);
+	prev_time_value = otPlatAlarmMilliGetNow();	
 }
 
 uint32_t otPlatAlarmMilliGetNow(void) {
@@ -110,7 +113,6 @@ uint32_t otPlatAlarmMilliGetNow(void) {
 
 	// We will check for overflows here and subsequently cancel and
 	// reset the alarm.
-	timer_cancel(&timer_wrap);
 
 	struct timeval tv;
 	gettimeasticks(&tv, NULL);    
@@ -123,13 +125,8 @@ uint32_t otPlatAlarmMilliGetNow(void) {
 
 	// detect wrapping event
 	if (nowMilli32bit < prev_time_value) {
-		printf("Wrapping event detected\n");
-		printf("wrap count: %ld\n", wrap_count);
 		wrap_count++;
 		nowMilli32bit += wrap_count * wrap_point;
-		printf("incr %ld\n", wrap_count * wrap_point);
-		printf("nowMilli32bit: %ld\n", nowMilli32bit);
-
 	}
 
 	prev_time_value = nowMilli32bit;
@@ -137,7 +134,5 @@ uint32_t otPlatAlarmMilliGetNow(void) {
 	// Set timer to ensure we do not miss a wrapping event. 
 	// (TODO: add more detailed comment and confirm this will guarad
 	// against missed wrapping event)
-	timer_in(wrap_point >> 1, wrap_time_upcall, NULL, &timer_wrap); 
-
 	return nowMilli32bit;
 }

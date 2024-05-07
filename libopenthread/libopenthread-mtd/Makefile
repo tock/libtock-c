@@ -37,6 +37,9 @@ override CPPFLAGS_$(LIBNAME) += -DOPENTHREAD_MTD=1
 override CPPFLAGS_$(LIBNAME) += -DOPENTHREAD_PLATFORM_CORE_CONFIG_FILE=\"openthread-core-tock-config.h\"
 override CPPFLAGS_$(LIBNAME) += -DMBEDTLS_CONFIG_FILE=\"mbedtls-config.h\"
 
+# Uncomment to enable full openthread logging (at cost of code size)
+# override CPPFLAGS_$(LIBNAME) += -DOPENTHREAD_CONFIG_LOG_LEVEL=5
+
 # Avoid failing in CI due to warnings in the library.
 override CPPFLAGS_$(LIBNAME) += -Wno-error
 # Ignore warnings that openthread seems to not care about.

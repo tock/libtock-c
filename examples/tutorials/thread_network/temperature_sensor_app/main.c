@@ -67,7 +67,7 @@ int main(void) {
   // for the temperature read system call to complete.
   while (1) {
     temperature_read_sync(&current_temperature); 
-    printf("Current temperature: %d\r\n", current_temperature);
+    // printf("Current temperature: %d\r\n", current_temperature);
     delay_ms(1000);
   }
 }
