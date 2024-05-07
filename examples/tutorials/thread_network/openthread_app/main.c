@@ -12,17 +12,63 @@
 #include <openthread/thread.h>
 #include <plat.h>
 
+#include <openthread/udp.h>
 
 #include <ipc.h>
 #include <tock.h>
 #include <temperature.h>
 #include <timer.h>
 
+
+#define UDP_PORT 1212
+static const char UDP_DEST_ADDR[] = "ff02::1";
+static char UDP_CHAR;
+
+static otUdpSocket sUdpSocket;
+static void initUdp(otInstance *aInstance);
+static void sendUdp(otInstance *aInstance);
+
+// Callback method for received udp packets.
+static void handleUdpReceive(void* aContext, otMessage *aMessage,
+                             const otMessageInfo *aMessageInfo);
+
+
+// TEMP
+#include <button.h>
+uint8_t temperature = 22;
+uint8_t global_avg_openthread = 22;
+static void button_callback(int                            btn_num,
+                            int                            val,
+                            __attribute__ ((unused)) int   arg2,
+                            __attribute__ ((unused)) void *ud) {
+  if (val == 1) {
+    if (btn_num == 0 && temperature < 35) {
+      temperature++;
+    } else if (btn_num == 1 && temperature > 5) {
+      temperature--;
+    } else if (btn_num == 2) {
+      temperature = 22;
+    }
+  
+    UDP_CHAR = temperature;
+    sendUdp((otInstance *)ud);
+  }
+}
+
+static void print_temp(void){
+      puts("\n");
+      puts("====================================\n");
+      printf("Preferred setpoint: %d\r\n", temperature);
+      printf("Global setpoint: %d\r\n", global_avg_openthread);
+      puts("====================================\r\n");
+}
+///
+
 // Global variable storing the current temperature. This is written to in the
 // main loop, and read from in the IPC handler. Because the app is single
 // threaded and has no yield point when writing the value, we do not need to
 // worry about synchronization -- reads never happen during a write.
-static int current_temperature = 0;
+static int current_global_avg = 0;
 
 
 static void openthread_ipc_callback(int pid, int len, int buf,
@@ -31,17 +77,19 @@ static void openthread_ipc_callback(int pid, int len, int buf,
   // A client has requested us to provide them the current temperature value.
   // We must make sure that it provides us with a buffer sufficiently large to
   // store a single integer:
-  if (len < ((int) sizeof(current_temperature))) {
+  if (len < ((int) sizeof(current_global_avg))) {
     // We do not inform the caller and simply return. We do print a log message:
-    puts("[thread-sensor] ERROR: sensor IPC invoked with too small buffer.\r\n");
+    puts("[thread] ERROR: sensor IPC invoked with too small buffer.\r\n");
   }
 
   // The buffer is large enough, copy the current temperature into it:
-  memcpy((void*) buf, &current_temperature, sizeof(current_temperature));
+  memcpy((void*) buf, &current_global_avg, sizeof(current_global_avg));
 
   // Let the client know:
   ipc_notify_client(pid);
 }
+
+
  
 // helper utility demonstrating network config setup
 static void setNetworkConfiguration(otInstance *aInstance);
@@ -60,11 +108,23 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
     openthread_ipc_callback,
     NULL);
 
+
+
   otSysInit(argc, argv);
 
   otInstance *instance;
   instance = otInstanceInitSingle();
   assert(instance);
+
+
+  /// TEMP
+  int err = button_subscribe(button_callback, instance);
+  if (err < 0) return err;
+
+button_enable_interrupt(0);
+button_enable_interrupt(1);
+button_enable_interrupt(2);
+  /// END TEMP
 
   /* As part of the initialization, we will:
       - Init dataset with the following properties:
@@ -90,6 +150,9 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
 
   print_ip_addr(instance);
 
+  // Initialize UDP socket (see guide: https://openthread.io/codelabs/openthread-apis#7)
+  initUdp(instance);
+
   /* Start the Thread stack (CLI cmd -> thread start) */
   while(otThreadSetEnabled(instance, true) != OT_ERROR_NONE) {
     printf("Failed to start Thread stack!\n");
@@ -97,8 +160,8 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   }
 
   for (;;) {
-      	  otTaskletsProcess(instance);
-    otSysProcessDrivers(instance);
+      otTaskletsProcess(instance);
+      otSysProcessDrivers(instance);
 
     if (!otTaskletsArePending(instance)) {
       	    yield();
@@ -173,4 +236,61 @@ static void print_ip_addr(otInstance *instance){
     printf("%s\n", addr_string);
   }
 
+}
+
+void handleUdpReceive(void *aContext, otMessage *aMessage,
+                      const otMessageInfo *aMessageInfo)
+{
+  OT_UNUSED_VARIABLE(aContext);
+  OT_UNUSED_VARIABLE(aMessageInfo);
+  char buf[2];
+
+  const otIp6Address sender_addr = aMessageInfo->mPeerAddr;
+  otIp6AddressToString(&sender_addr, buf, sizeof(buf));
+
+  uint16_t length = otMessageRead(aMessage, otMessageGetOffset(aMessage), buf, sizeof(buf) - 1);
+  
+  global_avg_openthread = buf[0];
+  print_temp();
+}
+
+void initUdp(otInstance *aInstance)
+{
+  otSockAddr listenSockAddr;
+
+  memset(&sUdpSocket, 0, sizeof(sUdpSocket));
+  memset(&listenSockAddr, 0, sizeof(listenSockAddr));
+
+  listenSockAddr.mPort = UDP_PORT;
+
+  otUdpOpen(aInstance, &sUdpSocket, handleUdpReceive, aInstance);
+  otUdpBind(aInstance, &sUdpSocket, &listenSockAddr, OT_NETIF_THREAD);
+}
+
+void sendUdp(otInstance *aInstance)
+{
+  otError error = OT_ERROR_NONE;
+  otMessage *   message;
+  otMessageInfo messageInfo;
+  otIp6Address destinationAddr;
+
+  memset(&messageInfo, 0, sizeof(messageInfo));
+
+  otIp6AddressFromString(UDP_DEST_ADDR, &destinationAddr);
+  messageInfo.mPeerAddr = destinationAddr;
+  messageInfo.mPeerPort = UDP_PORT;
+
+  message = otUdpNewMessage(aInstance, NULL);
+  if(message == NULL){
+    return;
+  } 
+
+  error = otMessageAppend(message, &UDP_CHAR, sizeof(UDP_CHAR));
+
+  error = otUdpSend(aInstance, &sUdpSocket, message, &messageInfo);
+
+    if (error != OT_ERROR_NONE && message != NULL)
+    {
+        otMessageFree(message);
+    }
 }

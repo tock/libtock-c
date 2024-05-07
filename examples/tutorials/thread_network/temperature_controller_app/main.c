@@ -17,7 +17,7 @@ uint8_t temperature = 22;
 // We use this variable as a buffer that is naturally aligned to the int
 // alignment, and has an alignment >= its size.
 uint8_t temperature_buffer[64] __attribute__((aligned(64)));
-
+uint8_t openthread_buffer[64] __attribute__((aligned(64)));
 
 static void sensor_callback(__attribute__ ((unused)) int pid,
                             __attribute__ ((unused)) int len,
@@ -48,8 +48,6 @@ static void button_callback(int                            btn_num,
   }
 }
 
-
-
 int main(void) {
   int err = -1;
   int discover_retry_count = 0;
@@ -63,7 +61,6 @@ int main(void) {
 button_enable_interrupt(0);
 button_enable_interrupt(1);
 button_enable_interrupt(2);
-
 
   int err_sensor = -1;
   int err_openthread = -1;
@@ -95,22 +92,28 @@ button_enable_interrupt(2);
   //rb->length = snprintf(rb->buf, sizeof(rb->buf), "Hello World!");
   ipc_share(sensor_svc_num, &temperature_buffer, sizeof(temperature_buffer));
 
+  ipc_share(openthread_svc_num, &openthread_buffer, sizeof(openthread_buffer));
 
   int prior_temperature = 0;
+  int prior_global_avg = 0;
   uint8_t prior_setpoint = 0;
+
   while (1) {
     // puts("[controller] Requesting temperature readout.");
     ipc_sensor_called = false;
     ipc_notify_service(sensor_svc_num);
-    yield_for(&ipc_sensor_called);
-    // printf("[controller] Received IPC response, temperature: %d\r\n", *((int*) &temperature_buffer[0]));
+    ipc_notify_service(openthread_svc_num);
+    yield_for(&ipc_sensor_called || &ipc_openthread_called);
 
     int read_temp = *((int*) &temperature_buffer[0]);
-    if (prior_temperature != read_temp || prior_setpoint != temperature) {
+    int global_avg_openthread = *((int*) &openthread_buffer[0]);
+    if (prior_temperature != read_temp || prior_setpoint != temperature
+     || prior_global_avg != global_avg_openthread) {
       puts("\n");
       puts("====================================\n");
-      printf("temperature: %i\r\n", read_temp);
-      printf("setpoint: %d\r\n", temperature);
+      printf("Temperature reading: %i\r\n", read_temp);
+      printf("Preferred setpoint: %d\r\n", temperature);
+      printf("Global setpoint: %d\r\n", global_avg_openthread);
       puts("====================================\r\n");
     }
 
