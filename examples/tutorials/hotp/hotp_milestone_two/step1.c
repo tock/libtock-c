@@ -25,7 +25,7 @@ void program_new_secret(hotp_key_t* hotp_key) {
     libtocksync_console_read((uint8_t*) &c, 1, &number_read);
 
     // break on enter
-    if (c == '\n') {
+    if (c == '\n' || c == '\r') {
       break;
     }
 

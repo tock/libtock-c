@@ -98,13 +98,15 @@ int main(void) {
   }
 
   // Initialize buttons
-  if (initialize_buttons() != RETURNCODE_SUCCESS) {
+  if (initialize_buttons(false) != RETURNCODE_SUCCESS) {
     printf("ERROR initializing buttons\r\n");
     return 1;
   }
 
-  // Configure a default HOTP secret
-  program_default_secret(&stored_key);
+  if (stored_key.len == 0) {
+    // Configure a default HOTP secret
+    program_default_secret(&stored_key);
+  }
 
   // Main loop. Waits for button presses
   while (true) {
