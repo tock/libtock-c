@@ -24,7 +24,9 @@ static void callback(int __attribute__((unused)) now, int __attribute__((unused)
 static uint32_t milliToTicks(uint32_t milli) {
 	uint32_t frequency;
 	alarm_internal_frequency(&frequency);
-	return (milli / 1000) * frequency + (milli % 1000) * (frequency / 1000);;
+	uint32_t second_ticks = (milli / 1000) * frequency;
+	uint32_t ms_ticks = ((milli % 1000) * frequency) / 1000;
+	return second_ticks + ms_ticks;
 }
 
 void otPlatAlarmMilliStartAt(otInstance *aInstance, uint32_t aT0, uint32_t aDt){
@@ -62,6 +64,7 @@ void otPlatAlarmMilliStop(otInstance *aInstance) {
 
 static void wrap_time_upcall(int __attribute__((unused)) now, int __attribute__((unused)) interval, int __attribute__(
 			(unused)) arg2, void __attribute__((unused)) *_ud) {
+	printf("upcall has fired\n");
 	// Timer for detecting wrapping event has fired. Call otPlatAlarmMilliGetNow()
 	// to check check if a wrap has occured. 
 	otPlatAlarmMilliGetNow();
@@ -74,10 +77,16 @@ void init_otPlatAlarm(void) {
 	// will occur to set an alarm. The reason for this
 	// alarm is elaborated upon in `otPlatAlarmMilliGetNow`.
 
+	// TODO add more indepth comment about timer set 
+	// and investigate issues with wrap_point calculation
 	uint32_t frequency;
 	alarm_internal_frequency(&frequency);
-	wrap_point = (UINT32_MAX) / frequency;
-	prev_time_value = otPlatAlarmMilliGetNow();
+	wrap_point = ((UINT32_MAX) / frequency) * 1000;
+	// account for leftover ticks
+	uint64_t left_over_ticks = ((UINT32_MAX % frequency) * 1000) / frequency;
+	wrap_point += (uint32_t) left_over_ticks;
+	timer_every(wrap_point >> 1, wrap_time_upcall, NULL, &timer_wrap);
+	prev_time_value = otPlatAlarmMilliGetNow();	
 }
 
 uint32_t otPlatAlarmMilliGetNow(void) {
@@ -106,28 +115,22 @@ uint32_t otPlatAlarmMilliGetNow(void) {
 
 	// We will check for overflows here and subsequently cancel and
 	// reset the alarm.
-	timer_cancel(&timer_wrap);
 
 	struct timeval tv;
 	gettimeasticks(&tv, NULL);    
-
 
 	uint32_t nowSeconds    = tv.tv_sec;
 	uint32_t nowMicro      = tv.tv_usec;
 	uint32_t nowMilli32bit = (nowSeconds * 1000) + (nowMicro / 1000);
 
+	nowMilli32bit += wrap_count * wrap_point;
+
 	// detect wrapping event
 	if (nowMilli32bit < prev_time_value) {
 		wrap_count++;
+		nowMilli32bit += wrap_count * wrap_point;
 	}
 
 	prev_time_value = nowMilli32bit;
-	nowMilli32bit += wrap_count * wrap_point;
-
-	// Set timer to ensure we do not miss a wrapping event. 
-	// (TODO: add more detailed comment and confirm this will guarad
-	// against missed wrapping event)
-	timer_in(wrap_point >> 1, wrap_time_upcall, NULL, &timer_wrap); 
-
 	return nowMilli32bit;
 }

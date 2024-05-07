@@ -53,7 +53,7 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   /* Start the Thread stack (CLI cmd -> thread start) */
   otThreadSetEnabled(instance, true);
 
-  for (;;) {
+  for ( ;;) {
     otTaskletsProcess(instance);
     otSysProcessDrivers(instance);
 

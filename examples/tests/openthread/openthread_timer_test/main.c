@@ -4,25 +4,30 @@
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
 #include <openthread/ip6.h>
-#include <openthread/message.h>
 #include <openthread/platform/alarm-milli.h>
 #include <openthread/tasklet.h>
 #include <openthread/thread.h>
-#include <openthread/udp.h>
 #include <plat.h>
 
 #include <stdio.h>
 #include <string.h>
 #include <timer.h>
 
-#define UDP_PORT 1212
-
-static const char UDP_DEST_ADDR[] = "ff03::1";
-static const char UDP_PAYLOAD[]   = "Hello OpenThread World from Tock!";
-static void sendUdp(otInstance *aInstance);
-
-static otUdpSocket sUdpSocket;
-static void initUdp(otInstance *aInstance);
+////////////////////////////////////////////////////////////
+// OPENTHREAD TIMER TEST //
+// Openthread implements logic to provide a global time
+// counter. OpenThread must handle wrapping logic to
+// do this. This test verifies that the timer is
+// able to accurately count upwards for 10 minutes.
+// To provide a realistic test, the standard openthread
+// app setup/configuration is used. However, the timer
+// logic is tested rather than launching the thread network
+// and executing the thread main loop.
+//
+// As of right now, the test sometimes fails. This test
+// should be more viewed as an ongoing resource for improving
+// the timer subsystem.
+////////////////////////////////////////////////////////////
 
 // helper utility demonstrating network config setup
 static void setNetworkConfiguration(otInstance *aInstance);
@@ -61,32 +66,40 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
 
   print_ip_addr(instance);
 
-  // Initialize UDP socket (see guide: https://openthread.io/codelabs/openthread-apis#7)
-  initUdp(instance);
-
   /* Start the Thread stack (CLI cmd -> thread start) */
-  otThreadSetEnabled(instance, true);
+  // otThreadSetEnabled(instance, true);
 
-  uint32_t prev_time = 0;
-  uint32_t curr_time = 0;
-  for ( ;;) {
-    // Send UDP packet every 2.5 seconds
-    curr_time = otPlatAlarmMilliGetNow();
-    if (curr_time - prev_time > 2500) {
-      sendUdp(instance);
-      prev_time = curr_time;
+// TIMER TEST LOGIC
+  printf("Beginning OpenThread timer test.\n");
+
+  uint32_t passed_test      = 0; // Counter for progress along the way.
+  uint32_t now              = 0;
+  uint32_t prev             = otPlatAlarmMilliGetNow();
+  const uint32_t END_TIME   = 1030 * 1000; // 10 minutes and 30 seconds.
+  const uint32_t DELAY_TIME = 1000; // 1 second delay.
+  delay_ms(DELAY_TIME);
+  while (now < END_TIME) {
+    now = otPlatAlarmMilliGetNow();
+    // Confirm that obtained time is greater than last (checking for overflow) and
+    // that the difference is within 3 ms of the expected 1000 ms (some latency
+    // due to syscalls/kernel work is expected).
+    if (now >= prev && (now - prev - DELAY_TIME) > 3) {
+      printf("[FAIL] Now Value: %ld, Prev Value: %ld, Diff: %ld.\n", now, prev, now - prev - 1000);
+      return -1;
     }
+    ;
+    prev = now;
+    delay_ms(DELAY_TIME);
 
-    // main loop work
-    otTaskletsProcess(instance);
-    otSysProcessDrivers(instance);
-
-    if (!otTaskletsArePending(instance)) {
-      yield();
+    // Print progress every minute.
+    if (now > (30000 * (passed_test + 1))) {
+      passed_test++;
+      printf("[TEST UPDATE] %ld sec.\n", now / 1000);
     }
-
   }
 
+  // Completed test.
+  printf("[PASS] OpenThread Timer Test Passed.\n");
   return 0;
 }
 
@@ -113,46 +126,6 @@ void setNetworkConfiguration(otInstance *aInstance)
   otError error = otDatasetSetActive(aInstance, &aDataset);
   assert(error == 0);
 
-}
-
-void initUdp(otInstance *aInstance)
-{
-  otSockAddr listenSockAddr;
-
-  memset(&sUdpSocket, 0, sizeof(sUdpSocket));
-  memset(&listenSockAddr, 0, sizeof(listenSockAddr));
-
-  listenSockAddr.mPort = UDP_PORT;
-
-  otUdpOpen(aInstance, &sUdpSocket, NULL, aInstance);
-  otUdpBind(aInstance, &sUdpSocket, &listenSockAddr, OT_NETIF_THREAD);
-}
-
-void sendUdp(otInstance *aInstance)
-{
-  otError error = OT_ERROR_NONE;
-  otMessage *   message;
-  otMessageInfo messageInfo;
-  otIp6Address destinationAddr;
-
-  memset(&messageInfo, 0, sizeof(messageInfo));
-
-  otIp6AddressFromString(UDP_DEST_ADDR, &destinationAddr);
-  messageInfo.mPeerAddr = destinationAddr;
-  messageInfo.mPeerPort = UDP_PORT;
-
-  message = otUdpNewMessage(aInstance, NULL);
-  if (message == NULL) {
-    return;
-  }
-
-  error = otMessageAppend(message, UDP_PAYLOAD, sizeof(UDP_PAYLOAD));
-
-  error = otUdpSend(aInstance, &sUdpSocket, message, &messageInfo);
-
-  if (error != OT_ERROR_NONE && message != NULL) {
-    otMessageFree(message);
-  }
 }
 
 static void stateChangeCallback(uint32_t flags, void *context)
