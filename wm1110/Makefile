@@ -28,7 +28,7 @@ smtc_shield_lr11xx_common.c soft_se.c stream.c
 UNCHANGED_CSRCS := $(foreach file,$(C_UNCHANGED_FILES),$(shell find $(SEEED_DIR) -type f -name $(file)))
 
 # include changed headers and parameters
-override CFLAGS += -I$(WM1110_DIR)/$(WM1110_DIR_NAME)/inc_changed -DREGION_US_915 -DRP2_103 -DTASK_EXTENDED_2
+override CFLAGS += -I$(WM1110_DIR)/inc_changed -DREGION_US_915 -DRP2_103 -DTASK_EXTENDED_2
 
 # modify functions from TockLibrary.mk to include headers into C flags, not CPP flags
 UNCHANGED_C_DIRS := $(sort $(dir $(UNCHANGED_CSRCS)))

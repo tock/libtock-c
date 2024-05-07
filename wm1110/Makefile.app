@@ -56,6 +56,6 @@ override CFLAGS += \
 -I$(SEEED_DIR)/wm1110/interface \
 
 # include changed headers and parameters
-override CFLAGS += -I$(WM1110_DIR)/$(WM1110_DIR_NAME)/inc_changed -DREGION_US_915 -DRP2_103 -DTASK_EXTENDED_2
+override CFLAGS += -I$(WM1110_DIR)/inc_changed -DREGION_US_915 -DRP2_103 -DTASK_EXTENDED_2
 
 override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
