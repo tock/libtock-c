@@ -64,6 +64,7 @@ void otPlatAlarmMilliStop(otInstance *aInstance) {
 
 static void wrap_time_upcall(int __attribute__((unused)) now, int __attribute__((unused)) interval, int __attribute__(
 			(unused)) arg2, void __attribute__((unused)) *_ud) {
+	printf("upcall has fired\n");
 	// Timer for detecting wrapping event has fired. Call otPlatAlarmMilliGetNow()
 	// to check check if a wrap has occured. 
 	otPlatAlarmMilliGetNow();
@@ -78,7 +79,8 @@ void init_otPlatAlarm(void) {
 
 	uint32_t frequency;
 	alarm_internal_frequency(&frequency);
-	wrap_point = (UINT32_MAX) / frequency;
+	wrap_point = ((UINT32_MAX) / frequency) * 1000;
+	printf("WRAP POINT: %ld\n", wrap_point/1000);
 	prev_time_value = otPlatAlarmMilliGetNow();
 }
 
@@ -113,18 +115,24 @@ uint32_t otPlatAlarmMilliGetNow(void) {
 	struct timeval tv;
 	gettimeasticks(&tv, NULL);    
 
-
 	uint32_t nowSeconds    = tv.tv_sec;
 	uint32_t nowMicro      = tv.tv_usec;
 	uint32_t nowMilli32bit = (nowSeconds * 1000) + (nowMicro / 1000);
 
+	nowMilli32bit += wrap_count * wrap_point;
+
 	// detect wrapping event
 	if (nowMilli32bit < prev_time_value) {
+		printf("Wrapping event detected\n");
+		printf("wrap count: %ld\n", wrap_count);
 		wrap_count++;
+		nowMilli32bit += wrap_count * wrap_point;
+		printf("incr %ld\n", wrap_count * wrap_point);
+		printf("nowMilli32bit: %ld\n", nowMilli32bit);
+
 	}
 
 	prev_time_value = nowMilli32bit;
-	nowMilli32bit += wrap_count * wrap_point;
 
 	// Set timer to ensure we do not miss a wrapping event. 
 	// (TODO: add more detailed comment and confirm this will guarad

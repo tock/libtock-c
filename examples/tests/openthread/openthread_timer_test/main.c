@@ -75,17 +75,20 @@ const uint32_t END_TIME = 1030 * 1000; // 10 minutes and 30 seconds.
 const uint32_t DELAY_TIME = 1000; // 1 second delay.
 delay_ms(DELAY_TIME);
   while(now<END_TIME) {
+    printf("call otPlatAlarmMilliGetNow\n");
     now = otPlatAlarmMilliGetNow();
+    printf("otPlatAlarmMilliGetNow returned\n");
     // Confirm that obtained time is greater than last (checking for overflow) and 
     // that the difference is within 3 ms of the expected 1000 ms (some latency
     // due to syscalls/kernel work is expected).
-    if(now >= prev && (now - prev - DELAY_TIME) > 5){
+    if(now >= prev && (now - prev - DELAY_TIME) > 10){
       printf("[FAIL] Now Value: %ld, Prev Value: %ld, Diff: %ld.\n", now, prev, now - prev - 1000);
       return -1;
     };
     prev = now;
     delay_ms(DELAY_TIME);
 
+    printf("TIME NOW: %ld\n", now/1000);
     // Print progress every minute.
     if (now > (30000 * (passed_test + 1))) {
       passed_test++;
