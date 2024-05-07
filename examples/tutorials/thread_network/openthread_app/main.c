@@ -19,9 +19,8 @@
 #include <temperature.h>
 #include <timer.h>
 
-
 #define UDP_PORT 1212
-static const char UDP_DEST_ADDR[] = "ff02::1";
+static const char UDP_ROUTER_MULTICAST[] = "ff02::2";
 static char UDP_CHAR;
 
 static otUdpSocket sUdpSocket;
@@ -31,7 +30,6 @@ static void sendUdp(otInstance *aInstance);
 // Callback method for received udp packets.
 static void handleUdpReceive(void* aContext, otMessage *aMessage,
                              const otMessageInfo *aMessageInfo);
-
 
 // TEMP
 #include <button.h>
@@ -276,7 +274,7 @@ void sendUdp(otInstance *aInstance)
 
   memset(&messageInfo, 0, sizeof(messageInfo));
 
-  otIp6AddressFromString(UDP_DEST_ADDR, &destinationAddr);
+  otIp6AddressFromString(UDP_ROUTER_MULTICAST, &destinationAddr);
   messageInfo.mPeerAddr = destinationAddr;
   messageInfo.mPeerPort = UDP_PORT;
 
