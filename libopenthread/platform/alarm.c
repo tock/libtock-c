@@ -24,7 +24,9 @@ static void callback(int __attribute__((unused)) now, int __attribute__((unused)
 static uint32_t milliToTicks(uint32_t milli) {
 	uint32_t frequency;
 	alarm_internal_frequency(&frequency);
-	return (milli / 1000) * frequency + (milli % 1000) * (frequency / 1000);;
+	uint32_t second_ticks = (milli / 1000) * frequency;
+	uint32_t ms_ticks = ((milli % 1000) * frequency) / 1000;
+	return second_ticks + ms_ticks;
 }
 
 void otPlatAlarmMilliStartAt(otInstance *aInstance, uint32_t aT0, uint32_t aDt){
