@@ -1,10 +1,13 @@
-#include <alarm.h>
 #include <assert.h>
-#include <internal/alarm.h>
-#include <openthread/platform/alarm-milli.h>
 #include <stdio.h>
-#include <plat.h>
+
+#include <openthread/platform/alarm-milli.h>
+
+#include <alarm.h>
+#include <internal/alarm.h>
 #include <timer.h>
+
+#include "plat.h"
 
 static alarm_t alarm;
 static tock_timer_t timer_wrap;

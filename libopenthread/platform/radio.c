@@ -1,8 +1,11 @@
-#include <ieee802154.h>
+#include <stdio.h>
+
 #include <openthread-system.h>
 #include <openthread/platform/radio.h>
-#include <plat.h>
-#include <stdio.h>
+
+#include <ieee802154.h>
+
+#include "plat.h"
 
 #define ACK_SIZE 3
 
