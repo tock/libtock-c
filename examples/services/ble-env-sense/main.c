@@ -84,8 +84,8 @@ void services_init (void) {
 
 typedef enum {
   SENSOR_TEMPERATURE = 0,
-  SENSOR_IRRADIANCE = 1,
-  SENSOR_HUMIDITY = 2,
+  SENSOR_IRRADIANCE  = 1,
+  SENSOR_HUMIDITY    = 2,
 } sensor_type_e;
 
 typedef struct {
