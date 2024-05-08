@@ -144,7 +144,7 @@ int main(void) {
   }
 }
 
-static int init_controller_ipc(void){
+static int init_controller_ipc(void) {
   int err = -1;
   int discover_retry_count = 0;
   int err_sensor = -1;

@@ -40,7 +40,7 @@ static void do_sensing_cb(__attribute__ ((unused)) uint32_t now,
 
   printf("[BLE ESS Test] Sampling Sensors\n");
 
-  sensor_update_t *update = (sensor_update_t*) buf;
+  sensor_update_t* update = (sensor_update_t*) buf;
 
   int light = 0;
   int temp  = 0;
@@ -97,7 +97,7 @@ int main(void) {
 
   libtocksync_alarm_delay_ms(1500);
 
-  sensor_update_t *update = (sensor_update_t*) buf;
+  sensor_update_t* update = (sensor_update_t*) buf;
   ipc_register_client_callback(_svc_num, ipc_callback, update);
   ipc_share(_svc_num, buf, 64);
 

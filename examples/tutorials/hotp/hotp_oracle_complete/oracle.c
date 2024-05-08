@@ -12,7 +12,7 @@ struct crypt_upcall_ud {
 static void crypt_upcall(__attribute__((unused)) int  num,
                          int                          len,
                          __attribute__ ((unused)) int arg2,
-                         void *                       ud) {
+                         void*                        ud) {
   ((struct crypt_upcall_ud*)ud)->done = true;
   ((struct crypt_upcall_ud*)ud)->len  = len;
 }

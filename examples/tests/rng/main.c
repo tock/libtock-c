@@ -6,7 +6,7 @@
 
 uint8_t randbuf[256];
 
-int main (void) {
+int main(void) {
   printf("[TEST] RNG\n");
 
   while (1) {

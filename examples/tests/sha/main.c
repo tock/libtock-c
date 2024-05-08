@@ -19,8 +19,8 @@ int main(void) {
   }
 
   ret = libtocksync_sha_simple_hash(LIBTOCK_SHA256,
-    data_buf, strlen((char*) data_buf),
-    dest_buf, DEST_LEN);
+                                    data_buf, strlen((char*) data_buf),
+                                    dest_buf, DEST_LEN);
   if (ret != RETURNCODE_SUCCESS) {
     printf("Unable to compute SHA.\n");
     return -1;

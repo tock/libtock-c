@@ -12,8 +12,7 @@
 static int current_temperature = 0;
 
 static void sensor_ipc_callback(int pid, int len, int buf,
-                                __attribute__((unused)) void *ud)
-{
+                                __attribute__((unused)) void* ud) {
   // A client has requested us to provide them the current temperature value.
   // We must make sure that it provides us with a buffer sufficiently large to
   // store a single integer:
@@ -36,10 +35,9 @@ int main(void) {
   libtocksync_temperature_read(&current_temperature);
 
   // Register this application as an IPC service under its name:
-  ipc_register_service_callback(
-    "org.tockos.thread-tutorial.sensor",
-    sensor_ipc_callback,
-    NULL);
+  ipc_register_service_callback("org.tockos.thread-tutorial.sensor",
+                                sensor_ipc_callback,
+                                NULL);
 
   // We measure the temperature in the main loop and simply provide the latest
   // reading in an IPC. This means that the control app does not have to wait

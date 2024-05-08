@@ -2,7 +2,7 @@
 
 #include <libtock/tock.h>
 
-int main (void) {
+int main(void) {
   int num_regions = tock_app_number_writeable_flash_regions();
   if (num_regions == 0) {
     printf("No writeable flash regions defined in this app's header.\n");

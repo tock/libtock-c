@@ -22,7 +22,7 @@ void libtocksync_alarm_delay_ms(int ms) {
 
 int main(void) {
   // Open lua
-  lua_State *L = luaL_newstate();
+  lua_State* L = luaL_newstate();
 
   luaL_requiref(L, "_G", luaopen_base, true);
 
