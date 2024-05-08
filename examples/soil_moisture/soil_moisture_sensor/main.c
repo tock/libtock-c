@@ -3,13 +3,13 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <adc.h>
-#include <timer.h>
-#include <gpio.h>
-#include <ipc.h>
-#include <tock.h>
+#include <libtock-sync/peripherals/adc.h>
+#include <libtock/services/alarm.h>
+#include <libtock/peripherals/gpio.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/tock.h>
 
-tock_timer_t timer;
+libtock_alarm_repeating_t timer;
 
 struct sensor_client {
   int pid;
@@ -19,7 +19,7 @@ struct sensor_client {
 struct sensor_client clients[10];
 int client_count = 0;
 
-int reference_voltage;
+uint32_t reference_voltage;
 
 uint32_t reading_count = 0;
 
@@ -38,12 +38,12 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
 
 
 
-static uint32_t take_measurement(int ref) {
+static uint32_t take_measurement(uint32_t ref) {
   uint16_t samples[30];
 
-  gpio_set(0);
+  libtock_gpio_set(0);
 
-  int err = adc_sample_buffer_sync(0, 25, samples, 30);
+  int err = libtocksync_adc_sample_buffer(0, 25, samples, 30);
   if (err != RETURNCODE_SUCCESS) {
     printf("Error sampling ADC: %d\n", err);
     return -1;
@@ -82,15 +82,14 @@ static uint32_t take_measurement(int ref) {
   printf("  voltage %ld.%03ldV\n", voltage_mv / 1000, voltage_mv % 1000);
   printf("  soil: %lu.%lu%%\n\n", soil/10, soil%10);
 
-  gpio_clear(0);
+  libtock_gpio_clear(0);
 
   return soil;
 }
 
-static void timer_upcall(__attribute__ ((unused)) int temp,
-                        __attribute__ ((unused)) int unused,
-                        __attribute__ ((unused)) int unused1,
-                        __attribute__ ((unused))  void* ud) {
+static void timer_cb(__attribute__ ((unused)) uint32_t now,
+                        __attribute__ ((unused)) uint32_t scheduled,
+                        __attribute__ ((unused))  void* opaque) {
   uint32_t moisture_percent = take_measurement(reference_voltage);
 
   // Copy in to each IPC app's shared buffer.
@@ -107,7 +106,7 @@ int main(void) {
   printf("[Soil Moisture] Sensor App\n");
 
   // Check if ADC driver exists.
-  if (!adc_exists()) {
+  if (!libtock_adc_exists()) {
     printf("[Soil Moisture] No ADC driver!\n");
     return -1;
   }
@@ -117,16 +116,16 @@ int main(void) {
   printf("Could not register %i ?\n", err);
  }
 
-  reference_voltage = adc_get_reference_voltage();
-  if (reference_voltage > 0) {
-    printf("ADC reference voltage %d.%03dV\n", reference_voltage / 1000, reference_voltage % 1000);
+  err = libtock_adc_command_get_reference_voltage(&reference_voltage);
+  if (err == RETURNCODE_SUCCESS) {
+    printf("ADC reference voltage %ld.%03ldV\n", reference_voltage / 1000, reference_voltage % 1000);
   } else {
     reference_voltage = 3300;
     printf("ADC no reference voltage, assuming 3.3V\n");
   }
 
 
-  timer_every(5000,timer_upcall,NULL,&timer);
+  libtock_alarm_repeating_every(5000, timer_cb, NULL, &timer);
 
   while(1) yield();
 }
