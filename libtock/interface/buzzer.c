@@ -3,7 +3,7 @@
 static void libtock_buzzer_temp_upcall(__attribute__ ((unused)) int arg0,
                                        __attribute__ ((unused)) int arg1,
                                        __attribute__ ((unused)) int arg2,
-                                       void *                       opaque) {
+                                       void*                        opaque) {
   libtock_buzzer_done_callback cb = (libtock_buzzer_done_callback) opaque;
   cb();
 }

@@ -1,6 +1,6 @@
 #include "crc.h"
 
-static void crc_upcall(int status, int v1, __attribute__((unused)) int v2, void *opaque) {
+static void crc_upcall(int status, int v1, __attribute__((unused)) int v2, void* opaque) {
   libtock_crc_callback_computed cb = (libtock_crc_callback_computed) opaque;
   cb(status, v1);
 }

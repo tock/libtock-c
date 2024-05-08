@@ -4,7 +4,7 @@ bool libtock_proximity_exists(void) {
   return driver_exists(DRIVER_NUM_PROXIMITY);
 }
 
-returncode_t libtock_proximity_set_upcall(subscribe_upcall upcall, void *opaque) {
+returncode_t libtock_proximity_set_upcall(subscribe_upcall upcall, void* opaque) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_PROXIMITY, 0, upcall, opaque);
   return tock_subscribe_return_to_returncode(sval);
 }

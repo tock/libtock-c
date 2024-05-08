@@ -12,7 +12,7 @@ extern "C" {
 bool libtock_proximity_exists(void);
 
 // Configure the upcall for the driver.
-returncode_t libtock_proximity_set_upcall(subscribe_upcall upcall, void *opaque);
+returncode_t libtock_proximity_set_upcall(subscribe_upcall upcall, void* opaque);
 
 // Read the proximity sensor.
 returncode_t libtock_proximity_command_read(void);

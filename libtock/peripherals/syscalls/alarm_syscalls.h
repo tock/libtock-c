@@ -17,7 +17,7 @@ bool libtock_alarm_exists(void);
  * When invoked, the callback's first argument will be the alarm value at which
  * the alarm was fired.
  */
-int libtock_alarm_set_upcall(subscribe_upcall callback, void *opaque);
+int libtock_alarm_set_upcall(subscribe_upcall callback, void* opaque);
 
 /*
  * Get the the alarm frequency in Hz.

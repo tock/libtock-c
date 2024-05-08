@@ -12,7 +12,7 @@ extern "C" {
 bool libtock_button_exists(void);
 
 // Set the upcall for the button driver.
-returncode_t libtock_button_set_upcall(subscribe_upcall callback, void *opaque);
+returncode_t libtock_button_set_upcall(subscribe_upcall callback, void* opaque);
 
 // Set `count` to the number of buttons.
 returncode_t libtock_button_command_count(int* count);

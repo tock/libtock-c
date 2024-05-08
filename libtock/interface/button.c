@@ -11,7 +11,7 @@ returncode_t libtock_button_read(int button_num, int* button_value) {
 static void button_upcall(int                          btn_num,
                           int                          val,
                           __attribute__ ((unused)) int arg2,
-                          void *                       opaque) {
+                          void*                        opaque) {
   libtock_button_callback cb = (libtock_button_callback) opaque;
   cb(RETURNCODE_SUCCESS, btn_num, val == 1);
 }

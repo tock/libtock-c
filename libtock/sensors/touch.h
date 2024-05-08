@@ -81,8 +81,8 @@ returncode_t libtock_touch_get_gestures(libtock_touch_gesture_callback cb);
 returncode_t libtock_touch_multi_touch_next(void);
 
 returncode_t libtock_touch_read_touch_from_buffer(libtock_touch_event_t* buffer, int index,
-                                                  uint8_t *id, uint8_t *status, uint8_t *x, uint8_t *y,
-                                                  uint8_t *size, uint8_t *pressure);
+                                                  uint8_t* id, uint8_t* status, uint8_t* x, uint8_t* y,
+                                                  uint8_t* size, uint8_t* pressure);
 
 #ifdef __cplusplus
 }

@@ -7,7 +7,7 @@
 #include "tock.h"
 
 typedef struct {
-  subscribe_upcall *cb;
+  subscribe_upcall* cb;
   int arg0;
   int arg1;
   int arg2;
@@ -137,7 +137,7 @@ int tock_allow_userspace_r_return_to_returncode(allow_userspace_r_return_t allow
   }
 }
 
-void yield_for(bool *cond) {
+void yield_for(bool* cond) {
   while (!*cond) {
     yield();
   }

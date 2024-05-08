@@ -2,7 +2,7 @@
 
 #include "udp.h"
 
-returncode_t libtock_udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned char *buf_bind_cfg) {
+returncode_t libtock_udp_bind(sock_handle_t* handle, sock_addr_t* addr, unsigned char* buf_bind_cfg) {
   // Pass interface to listen on and space for kernel to write src addr
   // of received packets
   // In current design, buf_bind_cfg will still be written with addresses of external
@@ -14,7 +14,7 @@ returncode_t libtock_udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned
   memcpy(&(handle->addr), addr, sizeof(sock_addr_t));
   int bytes = sizeof(sock_addr_t);
 
-  ret = libtock_udp_set_readwrite_allow_rx_cfg((void *) buf_bind_cfg, 2 * bytes);
+  ret = libtock_udp_set_readwrite_allow_rx_cfg((void*) buf_bind_cfg, 2 * bytes);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   memcpy(buf_bind_cfg + bytes, &(handle->addr), bytes);
@@ -26,13 +26,13 @@ returncode_t libtock_udp_bind(sock_handle_t *handle, sock_addr_t *addr, unsigned
   // HACK!! This is not static.
   unsigned char BUF_TX_CFG[2 * sizeof(sock_addr_t)];
   memcpy(BUF_TX_CFG, &(handle->addr), bytes);
-  ret = libtock_udp_set_readwrite_allow_cfg((void *) BUF_TX_CFG, 2 * bytes);
+  ret = libtock_udp_set_readwrite_allow_cfg((void*) BUF_TX_CFG, 2 * bytes);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   return libtock_udp_command_bind();
 }
 
-returncode_t libtock_udp_close(__attribute__ ((unused)) sock_handle_t *handle) {
+returncode_t libtock_udp_close(__attribute__ ((unused)) sock_handle_t* handle) {
   returncode_t ret;
   // HACK!! This is not static.
   unsigned char zero_addr[2 * sizeof(sock_addr_t)] = {0};
@@ -40,7 +40,7 @@ returncode_t libtock_udp_close(__attribute__ ((unused)) sock_handle_t *handle) {
 
   // call allow here to prevent any issues if close is called before bind
   // Driver 'closes' when 0 addr is bound to
-  ret = libtock_udp_set_readwrite_allow_rx_cfg((void *) zero_addr, 2 * bytes);
+  ret = libtock_udp_set_readwrite_allow_rx_cfg((void*) zero_addr, 2 * bytes);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   memset(zero_addr, 0, 2 * bytes);
@@ -54,16 +54,16 @@ returncode_t libtock_udp_close(__attribute__ ((unused)) sock_handle_t *handle) {
   return libtock_udp_set_upcall_frame_received(NULL, NULL);
 }
 
-static void udp_send_done_upcall (int                          status,
-                                  __attribute__ ((unused)) int unused1,
-                                  __attribute__ ((unused)) int unused2,
-                                  void *                       opaque) {
+static void udp_send_done_upcall(int                          status,
+                                 __attribute__ ((unused)) int unused1,
+                                 __attribute__ ((unused)) int unused2,
+                                 void*                        opaque) {
   libtock_udp_callback_send_done cb = (libtock_udp_callback_send_done) opaque;
   cb(status);
 }
 
-returncode_t libtock_udp_send(void *buf, size_t len,
-                              sock_addr_t *dst_addr, libtock_udp_callback_send_done cb) {
+returncode_t libtock_udp_send(void* buf, size_t len,
+                              sock_addr_t* dst_addr, libtock_udp_callback_send_done cb) {
   returncode_t ret;
   unsigned char BUF_TX_CFG[2 * sizeof(sock_addr_t)];
 
@@ -83,26 +83,26 @@ returncode_t libtock_udp_send(void *buf, size_t len,
 static void udp_recv_done_upcall(int                          length,
                                  __attribute__ ((unused)) int unused1,
                                  __attribute__ ((unused)) int unused2,
-                                 void *                       opaque) {
+                                 void*                        opaque) {
   libtock_udp_callback_recv_done cb = (libtock_udp_callback_recv_done) opaque;
   cb(TOCK_STATUSCODE_SUCCESS, length);
 }
 
-returncode_t libtock_udp_recv(void *buf, size_t len, libtock_udp_callback_recv_done cb) {
+returncode_t libtock_udp_recv(void* buf, size_t len, libtock_udp_callback_recv_done cb) {
   // TODO: verify that this functions returns error if this app is not
   // bound to a socket yet. Probably allow should fail..?
   returncode_t ret;
 
-  ret = libtock_udp_set_readwrite_allow_rx((void *) buf, len);
+  ret = libtock_udp_set_readwrite_allow_rx((void*) buf, len);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   return libtock_udp_set_upcall_frame_received(udp_recv_done_upcall, cb);
 }
 
-returncode_t libtock_udp_list_ifaces(ipv6_addr_t *ifaces, size_t len) {
+returncode_t libtock_udp_list_ifaces(ipv6_addr_t* ifaces, size_t len) {
   if (!ifaces) return RETURNCODE_EINVAL;
 
-  returncode_t ret = libtock_udp_set_readwrite_allow_cfg((void *)ifaces, len * sizeof(ipv6_addr_t));
+  returncode_t ret = libtock_udp_set_readwrite_allow_cfg((void*)ifaces, len * sizeof(ipv6_addr_t));
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   return libtock_udp_command_get_ifaces(len);

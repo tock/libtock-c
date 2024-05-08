@@ -2,7 +2,7 @@
 
 #include "ieee802154.h"
 
-bool libtock_ieee802154_driver_exists(void){
+bool libtock_ieee802154_driver_exists(void) {
   return driver_exists(DRIVER_NUM_IEEE802154);
 }
 
@@ -16,7 +16,7 @@ int libtock_ieee802154_down(void) {
   return RETURNCODE_ENOSUPPORT;
 }
 
-returncode_t libtock_ieee802154_is_up(bool *status) {
+returncode_t libtock_ieee802154_is_up(bool* status) {
   returncode_t ret = libtock_ieee802154_command_status();
   if (ret == RETURNCODE_EOFF) {
     *status = false;
@@ -31,10 +31,10 @@ returncode_t libtock_ieee802154_set_address_short(uint16_t addr_short) {
   return libtock_ieee802154_command_set_address_short(addr_short);
 }
 
-returncode_t libtock_ieee802154_set_address_long(uint8_t *addr_long) {
+returncode_t libtock_ieee802154_set_address_long(uint8_t* addr_long) {
   if (!addr_long) return RETURNCODE_EINVAL;
 
-  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) addr_long, 8);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void*) addr_long, 8);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   ret = libtock_ieee802154_command_set_address_long();
@@ -63,7 +63,7 @@ returncode_t libtock_ieee802154_config_commit(void) {
   return libtock_ieee802154_command_config_commit();
 }
 
-returncode_t libtock_ieee802154_get_address_short(uint16_t *addr) {
+returncode_t libtock_ieee802154_get_address_short(uint16_t* addr) {
   if (!addr) return RETURNCODE_EINVAL;
 
   uint32_t addr_ret;  // Command returncode holds u32 return value.
@@ -75,10 +75,10 @@ returncode_t libtock_ieee802154_get_address_short(uint16_t *addr) {
   return ret;
 }
 
-returncode_t libtock_ieee802154_get_address_long(uint8_t *addr_long) {
+returncode_t libtock_ieee802154_get_address_long(uint8_t* addr_long) {
   if (!addr_long) return RETURNCODE_EINVAL;
 
-  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) addr_long, 8);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void*) addr_long, 8);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   ret = libtock_ieee802154_command_get_address_long();
@@ -90,7 +90,7 @@ returncode_t libtock_ieee802154_get_address_long(uint8_t *addr_long) {
   return ret;
 }
 
-returncode_t libtock_ieee802154_get_pan(uint16_t *pan) {
+returncode_t libtock_ieee802154_get_pan(uint16_t* pan) {
   if (!pan) return RETURNCODE_EINVAL;
 
   uint32_t pan_ret;  // Command returncode holds u32 return value.
@@ -102,7 +102,7 @@ returncode_t libtock_ieee802154_get_pan(uint16_t *pan) {
   return ret;
 }
 
-returncode_t libtock_ieee802154_get_channel(uint8_t *channel) {
+returncode_t libtock_ieee802154_get_channel(uint8_t* channel) {
   if (!channel) return RETURNCODE_EINVAL;
 
   uint32_t channel_ret;  // Command returncode holds u32 return value.
@@ -113,7 +113,7 @@ returncode_t libtock_ieee802154_get_channel(uint8_t *channel) {
   return ret;
 }
 
-returncode_t libtock_ieee802154_get_power(uint32_t *power) {
+returncode_t libtock_ieee802154_get_power(uint32_t* power) {
   if (!power) return RETURNCODE_EINVAL;
 
   returncode_t ret = libtock_ieee802154_command_get_power(power);
@@ -146,7 +146,7 @@ returncode_t libtock_ieee802154_num_neighbors(uint32_t* num_neighbors) {
   return ret;
 }
 
-returncode_t libtock_ieee802154_get_neighbor_address_short(uint32_t index, uint16_t *addr) {
+returncode_t libtock_ieee802154_get_neighbor_address_short(uint32_t index, uint16_t* addr) {
   if (!addr) return RETURNCODE_EINVAL;
 
   uint32_t addr_ret;  // Command returncode holds u32 return value.
@@ -158,10 +158,10 @@ returncode_t libtock_ieee802154_get_neighbor_address_short(uint32_t index, uint1
   return ret;
 }
 
-returncode_t libtock_ieee802154_get_neighbor_address_long(uint32_t index, uint8_t *addr_long) {
+returncode_t libtock_ieee802154_get_neighbor_address_long(uint32_t index, uint8_t* addr_long) {
   if (!addr_long) return RETURNCODE_EINVAL;
 
-  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) addr_long, 8);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void*) addr_long, 8);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   ret = libtock_ieee802154_command_get_neighbor_address_long(index);
@@ -174,18 +174,18 @@ returncode_t libtock_ieee802154_get_neighbor_address_long(uint32_t index, uint8_
 }
 
 returncode_t libtock_ieee802154_get_neighbor(uint32_t  index,
-                                             uint16_t *addr_short,
-                                             uint8_t * addr_long) {
+                                             uint16_t* addr_short,
+                                             uint8_t*  addr_long) {
   returncode_t ret = libtock_ieee802154_get_neighbor_address_short(index, addr_short);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   return libtock_ieee802154_get_neighbor_address_long(index, addr_long);
 }
 
-returncode_t libtock_ieee802154_add_neighbor(uint16_t addr_short, uint8_t *addr_long, uint32_t *index) {
+returncode_t libtock_ieee802154_add_neighbor(uint16_t addr_short, uint8_t* addr_long, uint32_t* index) {
   if (!addr_long) return RETURNCODE_EINVAL;
 
-  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) addr_long, 8);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void*) addr_long, 8);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   ret = libtock_ieee802154_command_add_neighbor(addr_short, index);
@@ -226,7 +226,7 @@ returncode_t libtock_ieee802154_num_keys(uint32_t* key_count) {
   return ret;
 }
 
-returncode_t libtock_ieee802154_get_key_security_level(uint32_t index, security_level_t *level) {
+returncode_t libtock_ieee802154_get_key_security_level(uint32_t index, security_level_t* level) {
   if (!level) return RETURNCODE_EINVAL;
 
   uint32_t ret_level;
@@ -255,11 +255,11 @@ returncode_t libtock_ieee802154_key_id_bytes(key_id_mode_t key_id_mode) {
 }
 
 returncode_t libtock_ieee802154_get_key_id(uint32_t       index,
-                                           key_id_mode_t *key_id_mode,
-                                           uint8_t *      key_id) {
+                                           key_id_mode_t* key_id_mode,
+                                           uint8_t*       key_id) {
   if (!key_id_mode || !key_id) return RETURNCODE_EINVAL;
 
-  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) BUF_CFG, 10);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void*) BUF_CFG, 10);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   ret = libtock_ieee802154_command_get_key_id(index);
@@ -274,10 +274,10 @@ returncode_t libtock_ieee802154_get_key_id(uint32_t       index,
   return ret;
 }
 
-returncode_t libtock_ieee802154_get_key(uint32_t index, uint8_t *key) {
+returncode_t libtock_ieee802154_get_key(uint32_t index, uint8_t* key) {
   if (!key) return RETURNCODE_EINVAL;
 
-  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) BUF_CFG, 16);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void*) BUF_CFG, 16);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   ret = libtock_ieee802154_command_get_key(index);
@@ -293,10 +293,10 @@ returncode_t libtock_ieee802154_get_key(uint32_t index, uint8_t *key) {
 }
 
 returncode_t libtock_ieee802154_get_key_desc(uint32_t          index,
-                                             security_level_t *level,
-                                             key_id_mode_t *   key_id_mode,
-                                             uint8_t *         key_id,
-                                             uint8_t *         key) {
+                                             security_level_t* level,
+                                             key_id_mode_t*    key_id_mode,
+                                             uint8_t*          key_id,
+                                             uint8_t*          key) {
   returncode_t ret = libtock_ieee802154_get_key_security_level(index, level);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
@@ -308,9 +308,9 @@ returncode_t libtock_ieee802154_get_key_desc(uint32_t          index,
 
 returncode_t libtock_ieee802154_add_key(security_level_t level,
                                         key_id_mode_t    key_id_mode,
-                                        uint8_t *        key_id,
-                                        uint8_t *        key,
-                                        uint32_t *       index) {
+                                        uint8_t*         key_id,
+                                        uint8_t*         key,
+                                        uint32_t*        index) {
   if (!key) return RETURNCODE_EINVAL;
 
   BUF_CFG[0] = level;
@@ -321,7 +321,7 @@ returncode_t libtock_ieee802154_add_key(security_level_t level,
   }
   memcpy(BUF_CFG + 2 + 9, key, 16);
 
-  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) BUF_CFG, 27);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void*) BUF_CFG, 27);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   ret = libtock_ieee802154_command_add_key(index);
@@ -344,7 +344,7 @@ returncode_t libtock_ieee802154_remove_key(uint32_t index) {
 static void tx_done_upcall(int                          status,
                            int                          acked,
                            __attribute__ ((unused)) int unused2,
-                           void *                       opaque) {
+                           void*                        opaque) {
   libtock_ieee802154_callback_send_done cb = (libtock_ieee802154_callback_send_done) opaque;
   cb(status, acked);
 }
@@ -352,8 +352,8 @@ static void tx_done_upcall(int                          status,
 returncode_t libtock_ieee802154_send(uint32_t                              addr,
                                      security_level_t                      level,
                                      key_id_mode_t                         key_id_mode,
-                                     uint8_t *                             key_id,
-                                     const uint8_t *                       payload,
+                                     uint8_t*                              key_id,
+                                     const uint8_t*                        payload,
                                      uint8_t                               len,
                                      libtock_ieee802154_callback_send_done cb) {
   // Setup parameters in CFG
@@ -365,11 +365,11 @@ returncode_t libtock_ieee802154_send(uint32_t                              addr,
   }
 
   // Allow CFG buffer to the kernel
-  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void *) BUF_CFG, 27);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void*) BUF_CFG, 27);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Allow payload buffer to the kernel
-  ret = libtock_ieee802154_set_readonly_allow((void *) payload, len);
+  ret = libtock_ieee802154_set_readonly_allow((void*) payload, len);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Subscribe the provided callback using the internal tx_done_upcall.
@@ -384,11 +384,11 @@ returncode_t libtock_ieee802154_send(uint32_t                              addr,
 }
 
 returncode_t libtock_ieee802154_send_raw(
-  const uint8_t *                       payload,
+  const uint8_t*                        payload,
   uint8_t                               len,
   libtock_ieee802154_callback_send_done cb) {
   // Setup parameters in ALLOW_RO_TX.
-  returncode_t ret = libtock_ieee802154_set_readonly_allow((void *) payload, len);
+  returncode_t ret = libtock_ieee802154_set_readonly_allow((void*) payload, len);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Subscribe the provided callback using the internal tx_done_upcall.
@@ -408,10 +408,10 @@ static void rx_done_upcall(int   pans,
   cb(pans, dst_addr, src_addr);
 }
 
-returncode_t libtock_ieee802154_receive(const libtock_ieee802154_rxbuf *      frame,
+returncode_t libtock_ieee802154_receive(const libtock_ieee802154_rxbuf*       frame,
                                         libtock_ieee802154_callback_recv_done cb) {
   // Provide the ring buffer to the kernel
-  returncode_t ret = libtock_ieee802154_set_readwrite_allow_rx((uint8_t *) frame, libtock_ieee802154_RING_BUFFER_LEN);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_rx((uint8_t*) frame, libtock_ieee802154_RING_BUFFER_LEN);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Subscribe the provided callback using the internal rx_done_upcall.
@@ -419,7 +419,7 @@ returncode_t libtock_ieee802154_receive(const libtock_ieee802154_rxbuf *      fr
 }
 
 returncode_t libtock_reset_ring_buf(const libtock_ieee802154_rxbuf* frame, subscribe_upcall callback, void* ud) {
-  returncode_t ret = libtock_ieee802154_set_readwrite_allow_rx((uint8_t *) frame,
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_rx((uint8_t*) frame,
                                                                (frame) ? libtock_ieee802154_RING_BUFFER_LEN : 0);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
@@ -429,7 +429,7 @@ returncode_t libtock_reset_ring_buf(const libtock_ieee802154_rxbuf* frame, subsc
 uint8_t* libtock_ieee802154_read_next_frame(const libtock_ieee802154_rxbuf* frame) {
   if (!frame) return NULL;
 
-  uint8_t *rx_buf = (uint8_t *) frame;
+  uint8_t* rx_buf = (uint8_t*) frame;
   int read_index  = rx_buf[0];
   int write_index = rx_buf[1];
   if (read_index == write_index) {
@@ -442,18 +442,18 @@ uint8_t* libtock_ieee802154_read_next_frame(const libtock_ieee802154_rxbuf* fram
   return &rx_buf[libtock_ieee802154_RING_BUF_META_LEN + (read_index * libtock_ieee802154_FRAME_LEN)];
 }
 
-int libtock_ieee802154_frame_get_length(const uint8_t *frame) {
+int libtock_ieee802154_frame_get_length(const uint8_t* frame) {
   if (!frame) return 0;
   // data_offset + data_len - 2 header bytes
   return frame[0] + frame[1] - 2;
 }
 
-int libtock_ieee802154_frame_get_payload_offset(const uint8_t *frame) {
+int libtock_ieee802154_frame_get_payload_offset(const uint8_t* frame) {
   if (!frame) return 0;
   return frame[0];
 }
 
-int libtock_ieee802154_frame_get_payload_length(const uint8_t *frame) {
+int libtock_ieee802154_frame_get_payload_length(const uint8_t* frame) {
   if (!frame) return 0;
   return frame[1];
 }
@@ -468,11 +468,11 @@ int libtock_ieee802154_frame_get_payload_length(const uint8_t *frame) {
 // If the source pan is dropped, that means that it is the same as the
 // destination pan, which must be present.
 static bool libtock_ieee802154_get_addressing(uint16_t     frame_control,
-                                              bool *       dst_pan_present,
-                                              addr_mode_t *dst_mode,
-                                              bool *       src_pan_present,
-                                              bool *       src_pan_dropped,
-                                              addr_mode_t *src_mode) {
+                                              bool*        dst_pan_present,
+                                              addr_mode_t* dst_mode,
+                                              bool*        src_pan_present,
+                                              bool*        src_pan_dropped,
+                                              addr_mode_t* src_mode) {
   if (!dst_pan_present || !dst_mode || !src_pan_present || !src_pan_dropped ||
       !src_mode) {
     return false;
@@ -533,22 +533,22 @@ static bool libtock_ieee802154_get_addressing(uint16_t     frame_control,
 }
 
 // Utility function to obtain the frame control field from a frame
-static void libtock_ieee802154_get_frame_control(const uint8_t *frame, uint16_t *frame_control) {
+static void libtock_ieee802154_get_frame_control(const uint8_t* frame, uint16_t* frame_control) {
   if (!frame || !frame_control) return;
   *frame_control = ((uint16_t) frame[libtock_ieee802154_FRAME_META_LEN]) |
                    (((uint16_t) frame[libtock_ieee802154_FRAME_META_LEN + 1]) << 8);
 }
 
 // Utility function to obtain the address offset from a frame
-static void libtock_ieee802154_get_addr_offset(const uint8_t *frame, uint16_t *addr_offset, uint16_t *frame_control,
-                                               const uint16_t *SEQ_SUPPRESSED) {
+static void libtock_ieee802154_get_addr_offset(const uint8_t* frame, uint16_t* addr_offset, uint16_t* frame_control,
+                                               const uint16_t* SEQ_SUPPRESSED) {
   if (!frame || !addr_offset || !frame_control || !SEQ_SUPPRESSED) return;
-  *addr_offset =  ((*frame_control & *SEQ_SUPPRESSED) ? 2 : 3) + libtock_ieee802154_FRAME_META_LEN;
+  *addr_offset = ((*frame_control & *SEQ_SUPPRESSED) ? 2 : 3) + libtock_ieee802154_FRAME_META_LEN;
 }
 
-addr_mode_t libtock_ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const uint8_t * frame,
-                                                  __attribute__ ((unused)) uint16_t *      short_addr,
-                                                  __attribute__ ((unused)) uint8_t *       long_addr) {
+addr_mode_t libtock_ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const uint8_t* frame,
+                                                  __attribute__ ((unused)) uint16_t*      short_addr,
+                                                  __attribute__ ((unused)) uint8_t*       long_addr) {
   if (!frame) return ADDR_NONE;
 
   uint16_t frame_control;
@@ -557,7 +557,7 @@ addr_mode_t libtock_ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const
   bool dst_pan_present, src_pan_present, src_pan_dropped;
   addr_mode_t dst_mode, src_mode;
   if (!libtock_ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
-                                 &src_pan_present, &src_pan_dropped, &src_mode)) {
+                                         &src_pan_present, &src_pan_dropped, &src_mode)) {
     return ADDR_NONE;
   }
 
@@ -582,9 +582,9 @@ addr_mode_t libtock_ieee802154_frame_get_dst_addr(__attribute__ ((unused)) const
   return dst_mode;
 }
 
-addr_mode_t libtock_ieee802154_frame_get_src_addr(__attribute__ ((unused)) const uint8_t * frame,
-                                                  __attribute__ ((unused)) uint16_t *      short_addr,
-                                                  __attribute__ ((unused)) uint8_t *       long_addr) {
+addr_mode_t libtock_ieee802154_frame_get_src_addr(__attribute__ ((unused)) const uint8_t* frame,
+                                                  __attribute__ ((unused)) uint16_t*      short_addr,
+                                                  __attribute__ ((unused)) uint8_t*       long_addr) {
   if (!frame) return ADDR_NONE;
 
   uint16_t frame_control;
@@ -593,7 +593,7 @@ addr_mode_t libtock_ieee802154_frame_get_src_addr(__attribute__ ((unused)) const
   bool dst_pan_present, src_pan_present, src_pan_dropped;
   addr_mode_t dst_mode, src_mode;
   if (!libtock_ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
-                                 &src_pan_present, &src_pan_dropped, &src_mode)) {
+                                         &src_pan_present, &src_pan_dropped, &src_mode)) {
     return ADDR_NONE;
   }
 
@@ -624,8 +624,8 @@ addr_mode_t libtock_ieee802154_frame_get_src_addr(__attribute__ ((unused)) const
   return src_mode;
 }
 
-bool libtock_ieee802154_frame_get_dst_pan(__attribute__ ((unused)) const uint8_t * frame,
-                                          __attribute__ ((unused)) uint16_t *      pan) {
+bool libtock_ieee802154_frame_get_dst_pan(__attribute__ ((unused)) const uint8_t* frame,
+                                          __attribute__ ((unused)) uint16_t*      pan) {
   if (!frame) return false;
 
   uint16_t frame_control;
@@ -634,7 +634,7 @@ bool libtock_ieee802154_frame_get_dst_pan(__attribute__ ((unused)) const uint8_t
   bool dst_pan_present, src_pan_present, src_pan_dropped;
   addr_mode_t dst_mode, src_mode;
   if (!libtock_ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
-                                 &src_pan_present, &src_pan_dropped, &src_mode)) {
+                                         &src_pan_present, &src_pan_dropped, &src_mode)) {
     return false;
   }
 
@@ -651,8 +651,8 @@ bool libtock_ieee802154_frame_get_dst_pan(__attribute__ ((unused)) const uint8_t
   return dst_pan_present;
 }
 
-bool libtock_ieee802154_frame_get_src_pan(__attribute__ ((unused)) const uint8_t * frame,
-                                          __attribute__ ((unused)) uint16_t *      pan) {
+bool libtock_ieee802154_frame_get_src_pan(__attribute__ ((unused)) const uint8_t* frame,
+                                          __attribute__ ((unused)) uint16_t*      pan) {
   if (!frame) return false;
 
   uint16_t frame_control;
@@ -661,7 +661,7 @@ bool libtock_ieee802154_frame_get_src_pan(__attribute__ ((unused)) const uint8_t
   bool dst_pan_present, src_pan_present, src_pan_dropped;
   addr_mode_t dst_mode, src_mode;
   if (!libtock_ieee802154_get_addressing(frame_control, &dst_pan_present, &dst_mode,
-                                 &src_pan_present, &src_pan_dropped, &src_mode)) {
+                                         &src_pan_present, &src_pan_dropped, &src_mode)) {
     return false;
   }
 

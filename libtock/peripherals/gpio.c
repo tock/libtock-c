@@ -12,7 +12,7 @@ returncode_t libtock_gpio_count(int* count) {
   return libtock_gpio_command_count((uint32_t*) count);
 }
 
-returncode_t libtock_gpio_set_interrupt_callback(libtock_gpio_callback_interrupt cb)  {
+returncode_t libtock_gpio_set_interrupt_callback(libtock_gpio_callback_interrupt cb) {
   return libtock_gpio_set_upcall(gpio_upcall, cb);
 }
 
@@ -20,7 +20,7 @@ returncode_t libtock_gpio_enable_input(uint32_t pin, libtock_gpio_input_mode_t p
   return libtock_gpio_command_enable_input(pin, (uint32_t) pin_config);
 }
 
-returncode_t libtock_gpio_enable_output(uint32_t pin){
+returncode_t libtock_gpio_enable_output(uint32_t pin) {
   return libtock_gpio_command_enable_output(pin);
 }
 
