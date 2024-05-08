@@ -22,16 +22,16 @@ typedef void (subscribe_upcall)(int, int, int, void*);
 // There are multiple failure and success versions based on how many and the
 // size of any included values.
 typedef enum {
-  TOCK_SYSCALL_FAILURE =   0,
-  TOCK_SYSCALL_FAILURE_U32 =   1,
-  TOCK_SYSCALL_FAILURE_U32_U32 =   2,
-  TOCK_SYSCALL_FAILURE_U64 =   3,
-  TOCK_SYSCALL_SUCCESS = 128,
-  TOCK_SYSCALL_SUCCESS_U32 = 129,
-  TOCK_SYSCALL_SUCCESS_U32_U32 = 130,
-  TOCK_SYSCALL_SUCCESS_U64 = 131,
+  TOCK_SYSCALL_FAILURE             =   0,
+  TOCK_SYSCALL_FAILURE_U32         =   1,
+  TOCK_SYSCALL_FAILURE_U32_U32     =   2,
+  TOCK_SYSCALL_FAILURE_U64         =   3,
+  TOCK_SYSCALL_SUCCESS             = 128,
+  TOCK_SYSCALL_SUCCESS_U32         = 129,
+  TOCK_SYSCALL_SUCCESS_U32_U32     = 130,
+  TOCK_SYSCALL_SUCCESS_U64         = 131,
   TOCK_SYSCALL_SUCCESS_U32_U32_U32 = 132,
-  TOCK_SYSCALL_SUCCESS_U32_U64 = 133
+  TOCK_SYSCALL_SUCCESS_U32_U64     = 133
 } syscall_rtype_t;
 
 // ReturnCode type in libtock-c.
@@ -39,40 +39,40 @@ typedef enum {
 // 0 is success, and a negative value is an error (consistent with C
 // conventions). The error cases are -1*ErrorCode values.
 typedef enum {
-  RETURNCODE_SUCCESS = 0,
-  RETURNCODE_FAIL = -1,
-  RETURNCODE_EBUSY = -2,
-  RETURNCODE_EALREADY = -3,
-  RETURNCODE_EOFF = -4,
-  RETURNCODE_ERESERVE = -5,
-  RETURNCODE_EINVAL = -6,
-  RETURNCODE_ESIZE = -7,
-  RETURNCODE_ECANCEL = -8,
-  RETURNCODE_ENOMEM = -9,
-  RETURNCODE_ENOSUPPORT = -10,
-  RETURNCODE_ENODEVICE = -11,
+  RETURNCODE_SUCCESS      = 0,
+  RETURNCODE_FAIL         = -1,
+  RETURNCODE_EBUSY        = -2,
+  RETURNCODE_EALREADY     = -3,
+  RETURNCODE_EOFF         = -4,
+  RETURNCODE_ERESERVE     = -5,
+  RETURNCODE_EINVAL       = -6,
+  RETURNCODE_ESIZE        = -7,
+  RETURNCODE_ECANCEL      = -8,
+  RETURNCODE_ENOMEM       = -9,
+  RETURNCODE_ENOSUPPORT   = -10,
+  RETURNCODE_ENODEVICE    = -11,
   RETURNCODE_EUNINSTALLED = -12,
-  RETURNCODE_ENOACK = -13,
-  RETURNCODE_EBADRVAL = -1024
+  RETURNCODE_ENOACK       = -13,
+  RETURNCODE_EBADRVAL     = -1024
 } returncode_t;
 
 // StatusCode from the kernel. Uses same mapping for errors as ErrorCode, but
 // includes a success case with identifier 0.
 typedef enum {
-  TOCK_STATUSCODE_SUCCESS = 0,
-  TOCK_STATUSCODE_FAIL = 1,
-  TOCK_STATUSCODE_BUSY = 2,
-  TOCK_STATUSCODE_ALREADY = 3,
-  TOCK_STATUSCODE_OFF = 4,
-  TOCK_STATUSCODE_RESERVE = 5,
-  TOCK_STATUSCODE_INVAL = 6,
-  TOCK_STATUSCODE_SIZE = 7,
-  TOCK_STATUSCODE_CANCEL = 8,
-  TOCK_STATUSCODE_NOMEM = 9,
-  TOCK_STATUSCODE_NOSUPPORT = 10,
-  TOCK_STATUSCODE_NODEVICE = 11,
+  TOCK_STATUSCODE_SUCCESS     = 0,
+  TOCK_STATUSCODE_FAIL        = 1,
+  TOCK_STATUSCODE_BUSY        = 2,
+  TOCK_STATUSCODE_ALREADY     = 3,
+  TOCK_STATUSCODE_OFF         = 4,
+  TOCK_STATUSCODE_RESERVE     = 5,
+  TOCK_STATUSCODE_INVAL       = 6,
+  TOCK_STATUSCODE_SIZE        = 7,
+  TOCK_STATUSCODE_CANCEL      = 8,
+  TOCK_STATUSCODE_NOMEM       = 9,
+  TOCK_STATUSCODE_NOSUPPORT   = 10,
+  TOCK_STATUSCODE_NODEVICE    = 11,
   TOCK_STATUSCODE_UNINSTALLED = 12,
-  TOCK_STATUSCODE_NOACK = 13,
+  TOCK_STATUSCODE_NOACK       = 13,
 } statuscode_t;
 
 // Generic return structure from a system call.

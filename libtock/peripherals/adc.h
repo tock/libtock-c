@@ -14,9 +14,9 @@ extern "C" {
 // mode of the ADC
 // Used to tell which operation a callback corresponds to
 typedef enum {
-  libtock_adc_SingleSample = 0,
+  libtock_adc_SingleSample     = 0,
   libtock_adc_ContinuousSample = 1,
-  libtock_adc_SingleBuffer = 2,
+  libtock_adc_SingleBuffer     = 2,
   libtock_adc_ContinuousBuffer = 3
 } libtock_adc_mode;
 

@@ -132,19 +132,19 @@ returncode_t libtock_ieee802154_remove_neighbor(uint32_t index);
 
 // Enum for representing IEEE 802.15.4 security levels in C.
 typedef enum {
-  SEC_LEVEL_NONE = 0,
-  SEC_LEVEL_MIC32 = 1,
-  SEC_LEVEL_MIC64 = 2,
-  SEC_LEVEL_MIC128 = 3,
-  SEC_LEVEL_ENCMIC32 = 5,
-  SEC_LEVEL_ENCMIC64 = 6,
+  SEC_LEVEL_NONE      = 0,
+  SEC_LEVEL_MIC32     = 1,
+  SEC_LEVEL_MIC64     = 2,
+  SEC_LEVEL_MIC128    = 3,
+  SEC_LEVEL_ENCMIC32  = 5,
+  SEC_LEVEL_ENCMIC64  = 6,
   SEC_LEVEL_ENCMIC128 = 7,
 } security_level_t;
 
 // Enum for representing IEEE 802.15.4 key ID modes in C.
 typedef enum {
-  KEY_ID_IMPLICIT = 0,
-  KEY_ID_INDEX = 1,
+  KEY_ID_IMPLICIT    = 0,
+  KEY_ID_INDEX       = 1,
   KEY_ID_SRC_4_INDEX = 2,
   KEY_ID_SRC_8_INDEX = 3,
 } key_id_mode_t;
@@ -300,9 +300,9 @@ returncode_t libtock_ieee802154_receive(
 // a non-null pointer to a frame that was received through this userspace driver.
 
 typedef enum {
-  ADDR_NONE = 0,
+  ADDR_NONE  = 0,
   ADDR_SHORT = 2,
-  ADDR_LONG = 3,
+  ADDR_LONG  = 3,
 } addr_mode_t;
 
 // Gets the length of the received frame.
