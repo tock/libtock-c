@@ -4,6 +4,7 @@
 #include <openthread/platform/radio.h>
 
 #include <ieee802154.h>
+#include <eui64.h>
 
 #include "plat.h"
 
@@ -25,16 +26,13 @@ static otRadioFrame ackFrame = {
 };
 
 void otPlatRadioGetIeeeEui64(otInstance *aInstance, uint8_t *aIeeeEui64) {
-  // TODO HARDCODED FOR NOW
   OT_UNUSED_VARIABLE(aInstance);
-  aIeeeEui64[0] = 0xf4;
-  aIeeeEui64[1] = 0xce;
-  aIeeeEui64[2] = 0x36;
-  aIeeeEui64[3] = 0x67;
-  aIeeeEui64[4] = 0x13;
-  aIeeeEui64[5] = 0x12;
-  aIeeeEui64[6] = 0x3f;
-  aIeeeEui64[7] = 0xa6;
+
+  uint64_t eui64;
+  libtock_eui64_get(&eui64);
+  for (int i = 0; i < 8; i++) {
+    aIeeeEui64[i] = (eui64 >> (8 * i)) & 0xFF;
+  }
 }
 
 void otPlatRadioSetPanId(otInstance *aInstance, uint16_t aPanid) {
