@@ -43,4 +43,3 @@ returncode_t libtock_button_command_read(int button_num, int* button_value);
 #ifdef __cplusplus
 }
 #endif
-

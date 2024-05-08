@@ -24,7 +24,8 @@ returncode_t libtock_proximity_read(libtock_proximity_callback cb);
 // Read proximity asynchronously within a specified window. This function can be
 // used to wait for the sensor to detect a proximity reading in the
 // user-specified range.
-returncode_t libtock_proximity_read_on_interrupt(uint32_t lower_threshold, uint32_t higher_threshold, libtock_proximity_callback cb);
+returncode_t libtock_proximity_read_on_interrupt(uint32_t lower_threshold, uint32_t higher_threshold,
+                                                 libtock_proximity_callback cb);
 
 #ifdef _cplusplus
 }

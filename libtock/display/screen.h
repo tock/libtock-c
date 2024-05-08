@@ -119,7 +119,8 @@ returncode_t libtock_screen_set_rotation(libtock_screen_rotation_t rotation, lib
 // The frame is specified by the X,Y coordinates as the upper left, and the
 // width and height of the frame box. The callback will be called when setting
 // the frame is complete.
-returncode_t libtock_screen_set_frame(uint16_t x, uint16_t y, uint16_t width, uint16_t height, libtock_screen_callback_done cb);
+returncode_t libtock_screen_set_frame(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
+                                      libtock_screen_callback_done cb);
 
 // Fill the screen to a given color.
 //

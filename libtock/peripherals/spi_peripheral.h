@@ -30,7 +30,7 @@ returncode_t libtock_spi_peripheral_set_polarity(bool polarity);
 
 // Write a buffer on the SPI bus. The callback will be triggered after it is
 // written.
-returncode_t libtock_spi_peripheral_write(const uint8_t*                         buffer,
+returncode_t libtock_spi_peripheral_write(const uint8_t*                  buffer,
                                           size_t                          len,
                                           libtock_spi_peripheral_callback cb);
 

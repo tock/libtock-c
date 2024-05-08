@@ -20,7 +20,8 @@ returncode_t libtock_gpio_async_command_clear(uint32_t port, uint8_t pin);
 returncode_t libtock_gpio_async_command_toggle(uint32_t port, uint8_t pin);
 returncode_t libtock_gpio_async_command_make_input(uint32_t port, uint8_t pin, libtock_gpio_input_mode_t pin_config);
 returncode_t libtock_gpio_async_command_read(uint32_t port, uint8_t pin);
-returncode_t libtock_gpio_async_command_enable_interrupt(uint32_t port, uint8_t pin, libtock_gpio_interrupt_mode_t irq_config);
+returncode_t libtock_gpio_async_command_enable_interrupt(uint32_t port, uint8_t pin,
+                                                         libtock_gpio_interrupt_mode_t irq_config);
 returncode_t libtock_gpio_async_command_disable_interrupt(uint32_t port, uint8_t pin);
 returncode_t libtock_gpio_async_command_disable(uint32_t port, uint8_t pin);
 

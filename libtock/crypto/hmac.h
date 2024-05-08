@@ -13,9 +13,9 @@ extern "C" {
 typedef void (*libtock_hmac_callback_hmac)(returncode_t);
 
 typedef enum {
-	LIBTOCK_HMAC_SHA256 = 0,
-	LIBTOCK_HMAC_SHA384 = 1,
-	LIBTOCK_HMAC_SHA512 = 2,
+  LIBTOCK_HMAC_SHA256 = 0,
+  LIBTOCK_HMAC_SHA384 = 1,
+  LIBTOCK_HMAC_SHA512 = 2,
 } libtock_hmac_algorithm_t;
 
 
@@ -25,16 +25,11 @@ typedef enum {
 //
 // The callback will be called when the HMAC is available.
 returncode_t libtock_hmac_simple(libtock_hmac_algorithm_t hmac_type,
-  uint8_t* key_buffer, uint32_t key_length,
-                                     uint8_t* input_buffer, uint32_t input_length,
-                                     uint8_t* hash_buffer, uint32_t hash_length,
-                                     libtock_hmac_callback_hmac cb);
+                                 uint8_t* key_buffer, uint32_t key_length,
+                                 uint8_t* input_buffer, uint32_t input_length,
+                                 uint8_t* hash_buffer, uint32_t hash_length,
+                                 libtock_hmac_callback_hmac cb);
 
 #ifdef __cplusplus
 }
 #endif
-
-
-
-
-

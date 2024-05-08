@@ -27,4 +27,3 @@ returncode_t libtock_analog_comparator_command_count(uint32_t* count);
 #ifdef __cplusplus
 }
 #endif
-

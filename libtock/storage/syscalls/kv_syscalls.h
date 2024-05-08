@@ -31,4 +31,3 @@ returncode_t libtock_kv_command_update(void);
 #ifdef __cplusplus
 }
 #endif
-
