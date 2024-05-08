@@ -12,13 +12,13 @@ struct test_case {
   char *input;
 };
 
-#define CASE(alg, output, input) char input_ ## alg ## _ ## output [] = input;
+#define CASE(alg, output, input) char input_##alg##_##output [] = input;
 #include "test_cases.h"
 #undef CASE
 
 static struct test_case test_cases[] = {
 #define CASE(alg, output, input) \
-  { alg, output, input_ ## alg ## _ ## output },
+  { alg, output, input_##alg##_##output },
 #include "test_cases.h"
 #undef CASE
 };
