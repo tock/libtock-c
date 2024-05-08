@@ -19,7 +19,7 @@ size_t openthread_svc_num = 1;
 
 uint8_t local_temperature_setpoint = 22;
 uint8_t global_temperature_setpoint = 0;
-uint8_t measured_temperature = 0;
+int measured_temperature = 0;
 
 bool network_up = false;
 
@@ -86,7 +86,6 @@ int main(void) {
     ipc_notify_service(sensor_svc_num);
     delay_ms(250);
   }
-  
 }
 
 static int init_controller_ipc(void){
