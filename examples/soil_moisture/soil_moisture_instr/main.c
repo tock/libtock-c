@@ -14,10 +14,8 @@ char ipc_buf[64] __attribute__((aligned(64)));
 
 u8g2_t u8g2;
 
-  int display_width ;
-  int display_height;
-
-
+int display_width;
+int display_height;
 
 
 
@@ -41,19 +39,19 @@ static void all_good(void) {
   u8g2_SendBuffer(&u8g2);
 }
 
-static void ipc_callback(__attribute__ ((unused)) int pid,
-                           __attribute__ ((unused)) int len,
-                           __attribute__ ((unused)) int arg2,
-                          __attribute__ ((unused))  void* ud) {
+static void ipc_callback(__attribute__ ((unused)) int   pid,
+                         __attribute__ ((unused)) int   len,
+                         __attribute__ ((unused)) int   arg2,
+                         __attribute__ ((unused)) void* ud) {
 
-  uint32_t* moisture_buf = (uint32_t*) ipc_buf;
+  uint32_t* moisture_buf    = (uint32_t*) ipc_buf;
   uint32_t moisture_reading = moisture_buf[0];
 
-    if (moisture_reading < 500) {
-      water_me();
-    } else {
-      all_good();
-    }
+  if (moisture_reading < 500) {
+    water_me();
+  } else {
+    all_good();
+  }
 }
 
 
@@ -68,8 +66,6 @@ int main(void) {
 
   u8g2_SetFont(&u8g2, u8g2_font_helvR14_tf);
   u8g2_SetFontPosCenter(&u8g2);
-
-
 
   err = ipc_discover("soil_moisture_sensor", &svc_num);
   if (err < 0) {
@@ -93,5 +89,5 @@ int main(void) {
     return -1;
   }
 
-  while(1) yield();
+  while (1) yield();
 }

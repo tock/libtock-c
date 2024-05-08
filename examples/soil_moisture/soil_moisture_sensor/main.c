@@ -4,9 +4,9 @@
 #include <unistd.h>
 
 #include <libtock-sync/peripherals/adc.h>
-#include <libtock/services/alarm.h>
-#include <libtock/peripherals/gpio.h>
 #include <libtock/kernel/ipc.h>
+#include <libtock/peripherals/gpio.h>
+#include <libtock/services/alarm.h>
 #include <libtock/tock.h>
 
 libtock_alarm_repeating_t timer;
@@ -26,15 +26,13 @@ uint32_t reading_count = 0;
 static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
   uint8_t* buffer = (uint8_t*) buf;
 
-
   if (client_count == 10 || len < 4) return;
 
-  clients[client_count].pid = pid;
+  clients[client_count].pid    = pid;
   clients[client_count].buffer = buffer;
   client_count += 1;
 
 }
-
 
 
 
@@ -54,15 +52,14 @@ static uint32_t take_measurement(uint32_t ref) {
   // }
 
   uint32_t total = 0;
-  for (int i=0; i<30; i++) {
+  for (int i = 0; i < 30; i++) {
     total += samples[i];
   }
 
-  uint32_t average = total / 30;
-  uint32_t voltage_mv = (average * ref) / ((1<<16)-1);
+  uint32_t average    = total / 30;
+  uint32_t voltage_mv = (average * ref) / ((1 << 16) - 1);
 
   reading_count += 1;
-
 
   // vcc
 // 2.546
@@ -80,7 +77,7 @@ static uint32_t take_measurement(uint32_t ref) {
 
   printf("[Soil Moisture Sensor] Reading #%lu\n", reading_count);
   printf("  voltage %ld.%03ldV\n", voltage_mv / 1000, voltage_mv % 1000);
-  printf("  soil: %lu.%lu%%\n\n", soil/10, soil%10);
+  printf("  soil: %lu.%lu%%\n\n", soil / 10, soil % 10);
 
   libtock_gpio_clear(0);
 
@@ -88,12 +85,12 @@ static uint32_t take_measurement(uint32_t ref) {
 }
 
 static void timer_cb(__attribute__ ((unused)) uint32_t now,
-                        __attribute__ ((unused)) uint32_t scheduled,
-                        __attribute__ ((unused))  void* opaque) {
+                     __attribute__ ((unused)) uint32_t scheduled,
+                     __attribute__ ((unused)) void*    opaque) {
   uint32_t moisture_percent = take_measurement(reference_voltage);
 
   // Copy in to each IPC app's shared buffer.
-  for (int i=0; i<client_count; i++) {
+  for (int i = 0; i < client_count; i++) {
     uint32_t* moisture_buf = (uint32_t*) clients[i].buffer;
     moisture_buf[0] = moisture_percent;
     ipc_notify_client(clients[i].pid);
@@ -111,10 +108,10 @@ int main(void) {
     return -1;
   }
 
- err = ipc_register_service_callback("soil_moisture_sensor", ipc_callback, NULL);
- if (err != RETURNCODE_SUCCESS) {
-  printf("Could not register %i ?\n", err);
- }
+  err = ipc_register_service_callback("soil_moisture_sensor", ipc_callback, NULL);
+  if (err != RETURNCODE_SUCCESS) {
+    printf("Could not register %i ?\n", err);
+  }
 
   err = libtock_adc_command_get_reference_voltage(&reference_voltage);
   if (err == RETURNCODE_SUCCESS) {
@@ -124,8 +121,7 @@ int main(void) {
     printf("ADC no reference voltage, assuming 3.3V\n");
   }
 
-
   libtock_alarm_repeating_every(5000, timer_cb, NULL, &timer);
 
-  while(1) yield();
+  while (1) yield();
 }
