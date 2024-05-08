@@ -13,7 +13,7 @@ extern "C" {
 // returned via the callback. A proximity value is in the range [0,255] where
 // '255' indicates the closest measurable distance and '0' that no object is
 // detected.
-returncode_t libtocksync_proximity_read(uint8_t *proximity);
+returncode_t libtocksync_proximity_read(uint8_t* proximity);
 
 // Return proximity value on interrupt synchronously.
 //
@@ -23,7 +23,7 @@ returncode_t libtocksync_proximity_read(uint8_t *proximity);
 // range [0,255] where '255' indicates the closest measurable distance and '0'
 // that no object is detected.
 returncode_t libtocksync_proximity_read_on_interrupt(uint32_t lower_threshold, uint32_t higher_threshold,
-                                                     uint8_t *proximity);
+                                                     uint8_t* proximity);
 
 #ifdef __cplusplus
 }

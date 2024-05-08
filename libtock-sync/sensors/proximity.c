@@ -14,7 +14,7 @@ static void proximity_cb(returncode_t ret, uint8_t proximity) {
   result.fired     = true;
 }
 
-returncode_t libtocksync_proximity_read(uint8_t *proximity) {
+returncode_t libtocksync_proximity_read(uint8_t* proximity) {
   returncode_t err;
   result.fired = false;
 
@@ -30,7 +30,7 @@ returncode_t libtocksync_proximity_read(uint8_t *proximity) {
 }
 
 returncode_t libtocksync_proximity_read_on_interrupt(uint32_t lower_threshold, uint32_t higher_threshold,
-                                                     uint8_t *proximity) {
+                                                     uint8_t* proximity) {
   returncode_t err;
   result.fired = false;
 
