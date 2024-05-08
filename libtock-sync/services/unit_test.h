@@ -91,7 +91,7 @@ typedef struct unit_test_fun_s {
 } unit_test_fun;
 
 #define TEST(NAME) { \
-    test_ ## NAME,     \
+    test_##NAME,     \
     #NAME            \
 }
 
