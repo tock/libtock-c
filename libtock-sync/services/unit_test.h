@@ -86,12 +86,12 @@ extern "C" {
  * for FAIL.
  */
 typedef struct unit_test_fun_s {
-    bool (*fun)(void);
-    char name[24];
+  bool (*fun)(void);
+  char name[24];
 } unit_test_fun;
 
 #define TEST(NAME) { \
-    test_##NAME,     \
+    test_ ## NAME,     \
     #NAME            \
 }
 
@@ -148,7 +148,7 @@ void test_teardown(void);
  *    }
  */
 void unit_test_runner(unit_test_fun *tests, uint32_t test_count,
-                  uint32_t timeout_ms, const char *svc_name);
+                      uint32_t timeout_ms, const char *svc_name);
 
 /** \brief Test supervisor entry point.
  *

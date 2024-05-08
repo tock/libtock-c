@@ -1,7 +1,7 @@
 #pragma once
 
-#include <libtock/tock.h>
 #include <libtock/peripherals/spi_peripheral.h>
+#include <libtock/tock.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,6 +19,3 @@ returncode_t libtocksync_spi_peripheral_read_write(const uint8_t* write,
 #ifdef __cplusplus
 }
 #endif
-
-
-

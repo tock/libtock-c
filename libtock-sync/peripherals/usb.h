@@ -1,7 +1,7 @@
 #pragma once
 
-#include <libtock/tock.h>
 #include <libtock/peripherals/usb.h>
+#include <libtock/tock.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,6 +13,3 @@ returncode_t libtocksync_usb_enable_and_attach(void);
 #ifdef __cplusplus
 }
 #endif
-
-
-
