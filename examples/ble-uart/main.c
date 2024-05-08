@@ -12,10 +12,11 @@
 #include <simple_adv.h>
 #include <simple_ble.h>
 
-#include <nrf51_serialization.h>
+#include <libtock/net/nrf51_serialization.h>
 
-#include <console.h>
-#include <tock.h>
+#include <libtock-sync/interface/console.h>
+#include <libtock/interface/console.h>
+#include <libtock/tock.h>
 
 #include "ble_nus.h"
 #include "nrf.h"
@@ -63,9 +64,10 @@ void ble_evt_user_handler (ble_evt_t* p_ble_evt) {
 // This gets called with the serial data from the BLE central.
 static void nus_data_handler(ble_nus_t* p_nus, uint8_t* p_data, uint16_t length) {
   UNUSED_PARAMETER(p_nus);
+  int bytes_written;
 
   // In this app, just print it to the console.
-  putnstr((char*) p_data, length);
+  libtocksync_console_write(p_data, length, &bytes_written);
 }
 
 void ble_evt_connected(ble_evt_t* p_ble_evt) {

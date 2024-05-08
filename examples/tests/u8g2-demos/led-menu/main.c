@@ -1,11 +1,9 @@
-#include <screen.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <button.h>
-#include <led.h>
-#include <screen.h>
-#include <timer.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/interface/button.h>
+#include <libtock/interface/led.h>
 
 // These have to be included before mui.h
 #include <u8g2-tock.h>
@@ -17,10 +15,9 @@
 u8g2_t u8g2;
 mui_t ui;
 
-tock_timer_t debounce_timer;
+libtock_alarm_t debounce_alarm;
 
-bool action     = false;
-bool debouncing = false;
+bool action = false;
 
 uint8_t my_value    = 2;
 uint8_t my_value2   = 2;
@@ -123,26 +120,31 @@ fds_t *fds =
   MUI_GOTO(64, 59, 1, " Ok ")
 ;
 
-static void debounce_timer_callback(__attribute__ ((unused)) int   arg0,
-                                    __attribute__ ((unused)) int   arg1,
-                                    __attribute__ ((unused)) int   arg2,
-                                    __attribute__ ((unused)) void *ud) {
-  debouncing = false;
+struct alarm_cb_data {
+  bool debouncing;
+};
+
+static struct alarm_cb_data data = { .debouncing = true };
+
+static void debounce_cb(__attribute__ ((unused)) uint32_t now,
+                        __attribute__ ((unused)) uint32_t scheduled,
+                        __attribute__ ((unused)) void*    opaque) {
+  data.debouncing = false;
 }
 
 static void start_debounce(void) {
-  debouncing = true;
-  timer_in(300, debounce_timer_callback, NULL, &debounce_timer);
+  data.debouncing = true;
+  libtock_alarm_in_ms(300, debounce_cb, NULL, &debounce_alarm);
 }
 
-static void button_callback(int                            btn_num,
-                            int                            val,
-                            __attribute__ ((unused)) int   arg2,
-                            __attribute__ ((unused)) void *ud) {
-  if (debouncing) return;
+static void button_callback(
+  __attribute__ ((unused)) returncode_t ret,
+  int                                   btn_num,
+  bool                                  val) {
+  if (data.debouncing) return;
   start_debounce();
 
-  if (val == 1) {
+  if (val) {
     printf("b\n");
 
     if (btn_num == 0) {
@@ -162,16 +164,13 @@ static void button_callback(int                            btn_num,
 int main(void) {
   returncode_t ret;
 
-  ret = button_subscribe(button_callback, NULL);
-  if (ret < 0) return ret;
-
   // Enable interrupts on each button.
   int count;
-  ret = button_count(&count);
+  ret = libtock_button_count(&count);
   if (ret < 0) return ret;
 
   for (int i = 0; i < count; i++) {
-    button_enable_interrupt(i);
+    libtock_button_notify_on_press(i, button_callback);
   }
 
   ret = u8g2_tock_init(&u8g2);
@@ -197,24 +196,24 @@ int main(void) {
     printf("fruit %i\n", fruit_input);
 
     if (checkbox_led0) {
-      led_on(0);
+      libtock_led_on(0);
     } else {
-      led_off(0);
+      libtock_led_off(0);
     }
     if (checkbox_led1) {
-      led_on(1);
+      libtock_led_on(1);
     } else {
-      led_off(1);
+      libtock_led_off(1);
     }
     if (checkbox_led2) {
-      led_on(2);
+      libtock_led_on(2);
     } else {
-      led_off(2);
+      libtock_led_off(2);
     }
     if (checkbox_led3) {
-      led_on(3);
+      libtock_led_on(3);
     } else {
-      led_off(3);
+      libtock_led_off(3);
     }
 
   }

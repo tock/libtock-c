@@ -18,6 +18,7 @@ $(LIBNAME)_SRCS_ALL  += $($(LIBNAME)_DIR)/u8g2-tock.c
 $(LIBNAME)_SRCS := $(filter-out $(LIB_SRC_DIR)/csrc/u8g2_buffer.c,$($(LIBNAME)_SRCS_ALL))
 
 # Need libtock headers
+override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)
 override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
 override CPPFLAGS += -I$(LIB_SRC_DIR)/csrc
 

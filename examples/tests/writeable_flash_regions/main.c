@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <tock.h>
+#include <libtock/tock.h>
 
 int main (void) {
   int num_regions = tock_app_number_writeable_flash_regions();

@@ -170,6 +170,11 @@ override WLFLAGS += \
       -Wl,--gc-sections\
       -Wl,--build-id=none
 
+# Include path for all architectures. To support `#include <libtock/*.h>` and
+# `#include <libtock-sync/*.h>` in app source files, we include the root
+# libtock-c folder in the preprocessor's search path.
+override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)
+
 # Flags to improve the quality and information in listings (debug target)
 OBJDUMP_FLAGS += --disassemble-all --source -C --section-headers
 

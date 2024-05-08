@@ -1,9 +1,10 @@
-#include <gap.h>
-#include <rng.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <timer.h>
-#include <tock.h>
+
+#include <gap.h>
+
+#include <libtock-sync/services/alarm.h>
+#include <libtock/tock.h>
 
 int test_off_by_one_name(void);
 int test_off_by_one_service_data(void);

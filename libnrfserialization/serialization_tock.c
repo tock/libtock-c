@@ -2,10 +2,11 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#include <libtock/timer.h>
-#include <libtock/gpio.h>
-#include <libtock/nrf51_serialization.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/peripherals/gpio.h>
+#include <libtock/net/nrf51_serialization.h>
 
 #include "nrf.h"
 #include "ser_phy.h"
@@ -57,7 +58,7 @@ static bool _need_wakeup = false;
 static bool _queued_packets = false;
 // Timer to detect when we fail to get a response message after sending a
 // command.
-static tock_timer_t* _timeout_timer = NULL;
+static libtock_alarm_t* _timeout_timer = NULL;
 // yield() variable.
 static bool nrf_serialization_done = false;
 
@@ -65,11 +66,11 @@ static bool nrf_serialization_done = false;
  * Prototypes
  ******************************************************************************/
 
-void timeout_timer_cb (int a, int b, int c, void* ud);
+void timeout_timer_cb (uint32_t a, uint32_t b, void* opaque);
 void ble_serialization_callback (int callback_type, int rx_len, int c, void* other);
-
+static void serialization_timer_cb (uint32_t a, uint32_t b, void* opaque);
 uint32_t sd_app_evt_wait (void);
-void serialization_timer_cb (int a, int b, int c, void* timer_id);
+
 
 uint32_t ser_app_hal_hw_init (void);
 void ser_app_hal_delay (uint32_t ms);
@@ -88,11 +89,10 @@ void critical_region_exit (void);
  * Callback from the UART layer in the kernel
  ******************************************************************************/
 
-void timeout_timer_cb (int a, int b, int c, void* ud) {
+void timeout_timer_cb (uint32_t a, uint32_t b, void* opaque) {
     UNUSED_PARAMETER(a);
     UNUSED_PARAMETER(b);
-    UNUSED_PARAMETER(c);
-    UNUSED_PARAMETER(ud);
+    UNUSED_PARAMETER(opaque);
 
     // Uh oh did not get a response to a command packet.
     // Send up an error.
@@ -148,7 +148,7 @@ void ble_serialization_callback (int callback_type, int rx_len, int c, void* oth
 
                         // Got a response, cancel any pending timer
                         if (_timeout_timer != NULL) {
-                            timer_cancel(_timeout_timer);
+                            libtock_alarm_cancel(_timeout_timer);
                             free(_timeout_timer);
                             _timeout_timer = NULL;
                         }
@@ -286,7 +286,7 @@ uint32_t ser_app_hal_hw_init (void) {
 }
 
 void ser_app_hal_delay (uint32_t ms)  {
-    delay_ms(ms);
+    libtocksync_alarm_delay_ms(ms);
 }
 
 void ser_app_hal_nrf_reset_pin_clear (void) {}
@@ -310,6 +310,7 @@ void ser_app_hal_nrf_evt_pending (void) {
 
 uint32_t ser_phy_open (ser_phy_events_handler_t events_handler) {
     int ret;
+    int bytes_read;
 
     if (events_handler == NULL) {
         return NRF_ERROR_NULL;
@@ -321,17 +322,17 @@ uint32_t ser_phy_open (ser_phy_events_handler_t events_handler) {
     }
 
     // Start by doing a reset.
-    ret = nrf51_serialization_reset();
+    ret = libtock_nrf51_serialization_reset();
     if (ret < 0) return NRF_ERROR_INTERNAL;
 
     // Configure the serialization layer in the kernel
-    ret = nrf51_serialization_subscribe(ble_serialization_callback);
+    ret = libtock_nrf51_serialization_set_upcall(ble_serialization_callback, NULL);
     if (ret < 0) return NRF_ERROR_INTERNAL;
 
-    ret = nrf51_serialization_setup_receive_buffer((char*) rx, SER_HAL_TRANSPORT_RX_MAX_PKT_SIZE);
+    ret = libtock_nrf51_serialization_set_readwrite_allow_receive_buffer(rx, SER_HAL_TRANSPORT_RX_MAX_PKT_SIZE);
     if (ret < 0) return NRF_ERROR_INTERNAL;
 
-    ret = nrf51_serialization_read(SER_HAL_TRANSPORT_RX_MAX_PKT_SIZE);
+    ret = libtock_nrf51_serialization_read(SER_HAL_TRANSPORT_RX_MAX_PKT_SIZE, &bytes_read);
     if (ret < 0) return NRF_ERROR_INTERNAL;
 
     // Save the callback handler
@@ -352,8 +353,8 @@ uint32_t ser_phy_tx_pkt_send (const uint8_t* p_buffer, uint16_t num_of_bytes) {
     if (tx_len == 0) {
         // We need to set a timer in case we never get the response packet.
         if (ser_sd_transport_is_busy()) {
-            _timeout_timer = (tock_timer_t*)malloc(sizeof(tock_timer_t));
-            timer_in(100, timeout_timer_cb, NULL, _timeout_timer);
+            _timeout_timer = (libtock_alarm_t*)malloc(sizeof(libtock_alarm_t));
+            libtock_alarm_in_ms(100, timeout_timer_cb, NULL, _timeout_timer);
         }
 
         // Encode the number of bytes as the first two bytes of the outgoing
@@ -368,7 +369,7 @@ uint32_t ser_phy_tx_pkt_send (const uint8_t* p_buffer, uint16_t num_of_bytes) {
         tx_len = num_of_bytes + SER_PHY_HEADER_SIZE;
 
         // Call tx procedure to start transmission of a packet
-        int ret = nrf51_serialization_write((char*) tx, tx_len);
+        int ret = libtock_nrf51_serialization_write(tx, tx_len);
         if (ret < 0) {
             return NRF_ERROR_INTERNAL;
         }
@@ -486,12 +487,11 @@ uint32_t app_timer_create (app_timer_id_t const *      p_timer_id,
 
 
 
-void serialization_timer_cb (int a, int b, int c, void* timer_id) {
+static void serialization_timer_cb (uint32_t a, uint32_t b, void* opaque) {
     UNUSED_PARAMETER(a);
     UNUSED_PARAMETER(b);
-    UNUSED_PARAMETER(c);
 
-    timer_node_t* p_node = (timer_node_t*) timer_id;
+    timer_node_t* p_node = (timer_node_t*) opaque;
 
     p_node->p_timeout_handler(p_node->p_context);
 }
@@ -529,8 +529,8 @@ uint32_t app_timer_start (app_timer_id_t timer_id,
         p_node->p_context = p_context;
         // timer_repeating_subscribe(p_node->p_timeout_handler, &timer_id);
         // Use 0 for the prescaler
-        tock_timer_t* timer = (tock_timer_t*)malloc(sizeof(tock_timer_t));
-        timer_every(APP_TIMER_MS(timeout_ticks, 0), serialization_timer_cb, timer_id, timer);
+        libtock_alarm_repeating_t* timer = (libtock_alarm_repeating_t*)malloc(sizeof(libtock_alarm_repeating_t));
+        libtock_alarm_repeating_every(APP_TIMER_MS(timeout_ticks, 0), serialization_timer_cb, timer_id, timer);
     } else {
         // timer_oneshot_subscribe(p_node->p_timeout_handler, &timer_id);
     }

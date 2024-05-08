@@ -87,6 +87,7 @@ CPPFLAGS_$(LIBNAME) += -DBLEADDR_FLASH_LOCATION=$(BLEADDR_FLASH_LOCATION)
 
 # Need libtock headers
 override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)
+override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
 
 # Avoid failing in CI due to warnings in the library.
 CPPFLAGS_$(LIBNAME) += -Wno-error

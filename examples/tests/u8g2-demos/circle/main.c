@@ -1,9 +1,7 @@
-#include <screen.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <screen.h>
-#include <timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #include <u8g2-tock.h>
 #include <u8g2.h>
@@ -32,14 +30,14 @@ int main(void) {
       u8g2_DrawCircle(&u8g2, center_x, center_y, r, U8G2_DRAW_ALL);
       u8g2_SendBuffer(&u8g2);
 
-      delay_ms(100);
+      libtocksync_alarm_delay_ms(100);
     }
     for (int r = radius - 1; r > 0; r--) {
       u8g2_ClearBuffer(&u8g2);
       u8g2_DrawCircle(&u8g2, center_x, center_y, r, U8G2_DRAW_ALL);
       u8g2_SendBuffer(&u8g2);
 
-      delay_ms(100);
+      libtocksync_alarm_delay_ms(100);
     }
   }
 }

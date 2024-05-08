@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <eui64.h>
+#include <libtock/net/eui64.h>
 
 int main(void) {
   int ret;

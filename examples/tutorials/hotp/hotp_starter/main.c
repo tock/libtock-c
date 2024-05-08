@@ -18,13 +18,12 @@
 #include <string.h>
 
 // Libtock includes
-#include <app_state.h>
-#include <button.h>
-#include <console.h>
-#include <hmac.h>
-#include <led.h>
-#include <timer.h>
-#include <usb_keyboard_hid.h>
+#include <libtock-sync/interface/usb_keyboard_hid.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/crypto/hmac.h>
+#include <libtock/interface/button.h>
+#include <libtock/interface/console.h>
+#include <libtock/interface/led.h>
 
 // Local includes
 #include "base32.h"
@@ -43,45 +42,41 @@ typedef struct {
   counter_t counter;
 } hotp_key_t;
 
-hotp_key_t hotp_key = {0};
+hotp_key_t stored_key = {0};
 
 
 // --- Button Handling ---
 
 // Global to keep track of most recently pressed button
 int pressed_btn_num;
+bool button_pressed = false;
 
 // Callback for button presses.
 //   num: The index of the button associated with the callback
 //   val: 1 if pressed, 0 if depressed
-static void button_upcall(int                          num,
-                          int                          val,
-                          __attribute__ ((unused)) int arg2,
-                          void *                       ud) {
-  if (val == 1) {
+static void button_callback(__attribute__ ((unused)) returncode_t ret,
+                            int                                   num,
+                            bool                                  val) {
+  if (val) {
     pressed_btn_num = num;
-    *((bool*)ud)    = true;
+    button_pressed  = true;
   }
 }
 
 // Initializes interrupts on a button
-static int initialize_buttons(bool* flag_pointer) {
-  // Enable button interrupts
-  int err = button_subscribe(button_upcall, (void*)flag_pointer);
-  if (err != RETURNCODE_SUCCESS) {
-    return err;
-  }
+static int initialize_buttons(void) {
+  returncode_t err;
 
   // Determine the number of supported buttons
   int count = 0;
-  err = button_count(&count);
+  err = libtock_button_count(&count);
   if (err != RETURNCODE_SUCCESS) {
     return err;
   }
 
   // Enable interrupts if a button exists
   if (count > 0) {
-    button_enable_interrupt(0);
+    libtock_button_notify_on_press(0, button_callback);
   }
 
   return RETURNCODE_SUCCESS;
@@ -90,64 +85,33 @@ static int initialize_buttons(bool* flag_pointer) {
 
 // --- HMAC Handling ---
 
-static void hmac_upcall(__attribute__ ((unused)) int arg0,
-                        __attribute__ ((unused)) int arg1,
-                        __attribute__ ((unused)) int arg2,
-                        void*                        done_flag) {
-  *((bool *) done_flag) = true;
+static bool hmac_done = false;
+static void hmac_callback(__attribute__ ((unused)) returncode_t ret) {
+  hmac_done = true;
 }
 
 static int hmac(const uint8_t* key, int key_len, const uint8_t* data, int data_len, uint8_t* output_buffer,
                 int output_buffer_len) {
-  int ret;
-  bool hmac_done = false;
+  returncode_t ret;
+  hmac_done = false;
 
-  ret = hmac_set_callback(hmac_upcall, &hmac_done);
-  if (ret < 0) {
-    goto done;
-  }
-
-  ret = hmac_set_key_buffer(key, key_len);
-  if (ret < 0) {
-    goto deregister_upcall;
-  }
-
-  ret = hmac_set_dest_buffer(output_buffer, output_buffer_len);
-  if (ret < 0) {
-    goto unallow_key_buffer;
-  }
-
-  ret = hmac_set_data_buffer(data, data_len);
-  if (ret < 0) {
-    goto unallow_dest_buffer;
-  }
-
-  ret = hmac_set_algorithm(TOCK_HMAC_ALG_SHA256);
-  if (ret < 0) {
-    goto unallow_data_buffer;
-  }
-
-  ret = hmac_run();
-  if (ret < 0) {
+  ret = libtock_hmac_simple(LIBTOCK_HMAC_SHA256,
+                            (uint8_t*) key, key_len,
+                            (uint8_t*) data, data_len,
+                            output_buffer, output_buffer_len,
+                            hmac_callback);
+  if (ret != RETURNCODE_SUCCESS) {
     printf("HMAC failure: %d\r\n", ret);
-    goto unallow_data_buffer;
+    goto done;
   }
 
   yield_for(&hmac_done);
 
-unallow_data_buffer:
-  hmac_set_data_buffer(NULL, 0);
-
-unallow_dest_buffer:
-  hmac_set_dest_buffer(NULL, 0);
-
-unallow_key_buffer:
-  hmac_set_key_buffer(NULL, 0);
-
-deregister_upcall:
-  hmac_set_callback(NULL, NULL);
-
 done:
+  libtock_hmac_set_readonly_allow_data_buffer(NULL, 0);
+  libtock_hmac_set_readwrite_allow_destination_buffer(NULL, 0);
+  libtock_hmac_set_readonly_allow_key_buffer(NULL, 0);
+  libtock_hmac_set_upcall(NULL, NULL);
   return ret;
 }
 
@@ -160,41 +124,40 @@ static int decrypt(const uint8_t* cipher, int cipherlen, uint8_t* plaintext, int
   return copylen;
 }
 
-
 // --- HOTP Actions ---
 
-static void program_default_secret(void) {
-  led_on(0);
+static void program_default_secret(hotp_key_t* hotp_key) {
+  libtock_led_on(0);
   const char* default_secret = "test";
 
   // Decode base32 to get HOTP key value
-  int ret = base32_decode((const uint8_t*)default_secret, hotp_key.key, 64);
+  int ret = base32_decode((const uint8_t*)default_secret, hotp_key->key, 64);
   if (ret < 0 ) {
     printf("ERROR cannot base32 decode secret\r\n");
-    hotp_key.len = 0;
+    hotp_key->len = 0;
     return;
   }
 
   // Initialize remainder of HOTP key
-  hotp_key.len     = ret;
-  hotp_key.counter = 0;
+  hotp_key->len     = ret;
+  hotp_key->counter = 0;
 
   printf("Programmed \"%s\" as key \r\n", default_secret);
-  led_off(0);
+  libtock_led_off(0);
 }
 
-static void get_next_code(void) {
-  led_on(0);
+static void get_next_code(hotp_key_t* hotp_key) {
+  libtock_led_on(0);
 
   // Decrypt the key
   uint8_t key[64];
-  int keylen = decrypt(hotp_key.key, hotp_key.len, key, 64);
+  int keylen = decrypt(hotp_key->key, hotp_key->len, key, 64);
 
   // Generate the HMAC'ed data from the "moving factor" (timestamp in TOTP,
   // counter in HOTP), shuffled in a specific way:
   uint8_t moving_factor[sizeof(counter_t)];
   for (size_t i = 0; i < sizeof(counter_t); i++) {
-    moving_factor[i] = (hotp_key.counter >> ((sizeof(counter_t) - i - 1) * 8)) & 0xFF;
+    moving_factor[i] = (hotp_key->counter >> ((sizeof(counter_t) - i - 1) * 8)) & 0xFF;
   }
 
   // Perform the HMAC operation
@@ -203,7 +166,7 @@ static void get_next_code(void) {
   hmac(key, keylen, moving_factor, sizeof(counter_t), hmac_output_buf, HMAC_OUTPUT_BUF_LEN);
 
   // Increment the counter
-  hotp_key.counter++;
+  hotp_key->counter++;
 
   // Get output value
   uint8_t offset = hmac_output_buf[HMAC_OUTPUT_BUF_LEN - 1] & 0x0f;
@@ -226,37 +189,37 @@ static void get_next_code(void) {
   }
 
   // Write the value to the USB keyboard.
-  int ret = usb_keyboard_hid_send_string_sync(hotp_format_buffer, len);
+  int ret = libtocksync_usb_keyboard_hid_send_string(hotp_format_buffer, len);
   if (ret < 0) {
     printf("ERROR sending string with USB keyboard HID: %i\r\n", ret);
   } else {
-    printf("Counter: %u. Typed \"%s\" on the USB HID the keyboard\r\n", (size_t)hotp_key.counter - 1,
+    printf("Counter: %u. Typed \"%s\" on the USB HID the keyboard\r\n", (size_t)hotp_key->counter - 1,
            hotp_format_buffer);
   }
 
   // Complete
-  led_off(0);
+  libtock_led_off(0);
 }
+
 
 
 // --- Main Loop ---
 
 // Performs initialization and interactivity.
 int main(void) {
-  delay_ms(1000);
+  libtocksync_alarm_delay_ms(1000);
   printf("Tock HOTP App Started. Usage:\r\n"
       "* Press Button 1 to get the next HOTP code for that slot.\r\n"
       "* Hold Button 1 to enter a new HOTP secret for that slot.\r\n");
 
   // Initialize buttons
-  bool button_pressed = false;
-  if (initialize_buttons(&button_pressed) != RETURNCODE_SUCCESS) {
+  if (initialize_buttons() != RETURNCODE_SUCCESS) {
     printf("ERROR initializing buttons\r\n");
     return 1;
   }
 
   // Configure a default HOTP secret
-  program_default_secret();
+  program_default_secret(&stored_key);
 
   // Main loop. Waits for button presses
   while (true) {
@@ -265,11 +228,11 @@ int main(void) {
     yield_for(&button_pressed);
 
     // Handle short presses on already configured keys (output next code)
-    if (hotp_key.len > 0) {
-      get_next_code();
+    if (stored_key.len > 0) {
+      get_next_code(&stored_key);
 
       // Error for short press on a non-configured key
-    } else if (hotp_key.len == 0) {
+    } else if (stored_key.len == 0) {
       printf("HOTP / TOTP key not yet configured.\r\n");
     }
   }

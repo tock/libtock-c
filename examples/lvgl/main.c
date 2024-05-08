@@ -1,6 +1,11 @@
-#include "lvgl_driver.h"
 #include <stdio.h>
-#include <timer.h>
+
+#include <libtock-sync/display/screen.h>
+#include <libtock-sync/services/alarm.h>
+
+#include <lvgl/lvgl.h>
+
+#include "lvgl_driver.h"
 
 static void event_handler(lv_event_t * e)
 {
@@ -19,7 +24,7 @@ int main (void)
 {
   unsigned int seconds = 0;
 
-  screen_set_brightness(100);
+  libtocksync_screen_set_brightness(100);
   int status = lvgl_driver_init(5);
   if (status == RETURNCODE_SUCCESS) {
     /* LittlevGL's Hello World tutorial example */
@@ -53,7 +58,7 @@ int main (void)
         snprintf(buffer, 99, "Seconds: %d", seconds / 200);
         lv_label_set_text(label1, buffer);
       }
-      delay_ms(5);
+      libtocksync_alarm_delay_ms(5);
       lvgl_driver_event(5);
     }
   } else {

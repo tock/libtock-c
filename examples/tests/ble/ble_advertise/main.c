@@ -1,7 +1,8 @@
-#include <ble.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <tock.h>
+
+#include <libtock/net/ble.h>
+#include <libtock/tock.h>
 
 /*******************************************************************************
  * MAIN

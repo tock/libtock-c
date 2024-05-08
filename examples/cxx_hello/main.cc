@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <timer.h>
+#include <libtock-sync/services/alarm.h>
 
 class Base {
 public:
@@ -40,7 +40,7 @@ int main() {
     }
     test_branch++;
 
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 
   return 0;
