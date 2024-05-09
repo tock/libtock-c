@@ -1,35 +1,32 @@
-#include <assert.h>
-#include <stdio.h>
+#include <services/alarm.h>
 
 #include <openthread/platform/alarm-milli.h>
+#include <plat.h>
 
-#include <alarm.h>
-#include <internal/alarm.h>
-#include <timer.h>
+#include <stdio.h>
+#include <assert.h>
 
-#include "plat.h"
 
-static alarm_t alarm;
-static tock_timer_t timer_wrap;
+static libtock_alarm_t alarm;
+static libtock_alarm_repeating_t timer_wrap;
+static uint32_t frequency = 0;
 
 // maintain global variables to be used for timer wrapping logic
 uint32_t wrap_point = 0;
 uint32_t wrap_count;
 uint32_t prev_time_value;
 
-static void callback(int __attribute__((unused)) now, int __attribute__((unused)) interval, int __attribute__(
-			(unused)) arg2, void *aInstance) {
+static void callback(uint32_t __attribute__((unused)) now, uint32_t __attribute__((unused)) scheduled, void *aInstance) {
 	otPlatAlarmMilliFired(aInstance);
 }
 
 // convert ms to physical clock ticks (this should be done using the timer_in method,
 // but this works in the meantime)
-static uint32_t milliToTicks(uint32_t milli) {
-	uint32_t frequency;
-	alarm_internal_frequency(&frequency);
-	uint32_t second_ticks = (milli / 1000) * frequency;
-	uint32_t ms_ticks = ((milli % 1000) * frequency) / 1000;
-	return second_ticks + ms_ticks;
+static uint32_t milliToTicks(uint32_t ms) {
+  if (frequency == 0) {
+    libtock_alarm_command_get_frequency(&frequency);
+  }
+  return (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
 }
 
 void otPlatAlarmMilliStartAt(otInstance *aInstance, uint32_t aT0, uint32_t aDt){
@@ -55,41 +52,36 @@ void otPlatAlarmMilliStartAt(otInstance *aInstance, uint32_t aT0, uint32_t aDt){
 	// milliseconds into clock ticks, the multiplication will overflow.
 	//
 	// OpenThread expects to be able to use the full 32 bit range in milliseconds.
-	alarm_at(ref, dt, callback, (void *)aInstance, &alarm);
+	libtock_alarm_at(ref, dt, callback, (void *)aInstance, &alarm);
 }
 
 void otPlatAlarmMilliStop(otInstance *aInstance) {
 	OT_UNUSED_VARIABLE(aInstance);
-	alarm_cancel(&alarm);
+	libtock_alarm_cancel(&alarm);
 }
 
 
 
-static void wrap_time_upcall(int __attribute__((unused)) now, int __attribute__((unused)) interval, int __attribute__(
-			(unused)) arg2, void __attribute__((unused)) *_ud) {
-	printf("upcall has fired\n");
+static void wrap_time_upcall(uint32_t __attribute__((unused)) now, uint32_t __attribute__((unused)) scheduled, void __attribute__((unused)) *_ud) {
 	// Timer for detecting wrapping event has fired. Call otPlatAlarmMilliGetNow()
-	// to check check if a wrap has occured. 
+	// to check check if a wrap has occured.
 	otPlatAlarmMilliGetNow();
 }
 
-// OpenThread timing initializer to obtain the wrap point 
+// OpenThread timing initializer to obtain the wrap point
 void init_otPlatAlarm(void) {
-	// libtock alarms overflow at 2^{32} ticks. We 
+	// libtock alarms overflow at 2^{32} ticks. We
 	// desire to find the time at which this overflow
 	// will occur to set an alarm. The reason for this
 	// alarm is elaborated upon in `otPlatAlarmMilliGetNow`.
 
-	// TODO add more indepth comment about timer set 
-	// and investigate issues with wrap_point calculation
-	uint32_t frequency;
-	alarm_internal_frequency(&frequency);
+	libtock_alarm_command_get_frequency(&frequency);
 	wrap_point = ((UINT32_MAX) / frequency) * 1000;
 	// account for leftover ticks
 	uint64_t left_over_ticks = ((UINT32_MAX % frequency) * 1000) / frequency;
 	wrap_point += (uint32_t) left_over_ticks;
-	timer_every(wrap_point >> 1, wrap_time_upcall, NULL, &timer_wrap);
-	prev_time_value = otPlatAlarmMilliGetNow();	
+	libtock_alarm_repeating_every(wrap_point >> 1, wrap_time_upcall, NULL, &timer_wrap);
+	prev_time_value = otPlatAlarmMilliGetNow();
 }
 
 uint32_t otPlatAlarmMilliGetNow(void) {
@@ -97,30 +89,30 @@ uint32_t otPlatAlarmMilliGetNow(void) {
 	// libtock timers wrapping at 2^{32} bits. This creates
 	// challenges at the wrap point as `gettimeasticks` will
 	// wrap to be zero. We subsequently need `otPlatAlarmMilliGetNow`
-	// to account for this so that we can provide time values 
+	// to account for this so that we can provide time values
 	// past 2^{32} ticks.
 	//
-	// We implement this logic by obtaining the timepoint at which 
+	// We implement this logic by obtaining the timepoint at which
 	// timer wraps occur and counting the number of wrapping events
-	// that have occured. Together, these two values allow for the 
-	// "getNow" time to be calculated. For this to work, we must 
-	// ensure that we detect every wrapping event. We set a timer 
-	// for this purpose to occur when the ticks value is halfway 
+	// that have occured. Together, these two values allow for the
+	// "getNow" time to be calculated. For this to work, we must
+	// ensure that we detect every wrapping event. We set a timer
+	// for this purpose to occur when the ticks value is halfway
 	// to wrapping. This is done to guard against the corner case
 	// of other latencies resulting in missed overflow events.
 	//
 	// This approach has the obvious drawback of "waking up"
-	// more often than otherwise necessary. This concern would 
-	// be particularly pronounced for low power thread devices. 
-	// However, the current Tock OpenThread port is not optimized 
-	// for allowing sleep and this is subsequently not a major 
+	// more often than otherwise necessary. This concern would
+	// be particularly pronounced for low power thread devices.
+	// However, the current Tock OpenThread port is not optimized
+	// for allowing sleep and this is subsequently not a major
 	// concern at this juncture.
 
 	// We will check for overflows here and subsequently cancel and
 	// reset the alarm.
 
 	struct timeval tv;
-	gettimeasticks(&tv, NULL);    
+	libtock_alarm_gettimeasticks(&tv, NULL);
 
 	uint32_t nowSeconds    = tv.tv_sec;
 	uint32_t nowMicro      = tv.tv_usec;
@@ -135,5 +127,9 @@ uint32_t otPlatAlarmMilliGetNow(void) {
 	}
 
 	prev_time_value = nowMilli32bit;
+
+	// Set timer to ensure we do not miss a wrapping event.
+	// (TODO: add more detailed comment and confirm this will guarad
+	// against missed wrapping event)
 	return nowMilli32bit;
 }

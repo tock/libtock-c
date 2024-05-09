@@ -1,6 +1,5 @@
 #pragma once
-
-#include <stdbool.h>
+#include<stdbool.h>
 
 // Userspace ring buffer for handling async received upcalls 
 // from the kernel while performing potentially sync (yielding)

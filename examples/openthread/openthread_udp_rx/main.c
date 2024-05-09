@@ -11,9 +11,10 @@
 #include <openthread/udp.h>
 #include <plat.h>
 
+#include <libtock/tock.h>
+
 #include <stdio.h>
 #include <string.h>
-#include <timer.h>
 
 #define UDP_PORT 1212
 

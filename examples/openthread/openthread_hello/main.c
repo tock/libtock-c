@@ -9,9 +9,10 @@
 #include <openthread/thread.h>
 #include <plat.h>
 
+#include <libtock/tock.h>
+
 #include <stdio.h>
 #include <string.h>
-#include <timer.h>
 
 // helper utility demonstrating network config setup
 static void setNetworkConfiguration(otInstance *aInstance);

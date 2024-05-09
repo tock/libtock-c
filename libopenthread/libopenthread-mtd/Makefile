@@ -37,8 +37,12 @@ override CPPFLAGS_$(LIBNAME) += -DOPENTHREAD_MTD=1
 override CPPFLAGS_$(LIBNAME) += -DOPENTHREAD_PLATFORM_CORE_CONFIG_FILE=\"openthread-core-tock-config.h\"
 override CPPFLAGS_$(LIBNAME) += -DMBEDTLS_CONFIG_FILE=\"mbedtls-config.h\"
 
-# Avoid failing in CI due to warnings in the library.
+# Uncomment to enable full openthread logging (at cost of code size)
+# override CPPFLAGS_$(LIBNAME) += -DOPENTHREAD_CONFIG_LOG_LEVEL=5
+
+# Avoid failing in CI due to warnings in library.
 override CPPFLAGS_$(LIBNAME) += -Wno-error
+
 # Ignore warnings that openthread seems to not care about.
 override CPPFLAGS_$(LIBNAME) += -Wno-useless-cast -Wno-old-style-cast
 override CPPFLAGS_$(LIBNAME) += -Wno-missing-declarations -Wno-date-time

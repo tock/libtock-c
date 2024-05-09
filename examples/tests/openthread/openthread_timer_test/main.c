@@ -9,9 +9,10 @@
 #include <openthread/thread.h>
 #include <plat.h>
 
+#include <libtock-sync/services/alarm.h>
+
 #include <stdio.h>
 #include <string.h>
-#include <timer.h>
 
 ////////////////////////////////////////////////////////////
 // OPENTHREAD TIMER TEST //
@@ -23,10 +24,6 @@
 // app setup/configuration is used. However, the timer
 // logic is tested rather than launching the thread network
 // and executing the thread main loop.
-//
-// As of right now, the test sometimes fails. This test
-// should be more viewed as an ongoing resource for improving
-// the timer subsystem.
 ////////////////////////////////////////////////////////////
 
 // helper utility demonstrating network config setup
@@ -77,7 +74,7 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   uint32_t prev             = otPlatAlarmMilliGetNow();
   const uint32_t END_TIME   = 1030 * 1000; // 10 minutes and 30 seconds.
   const uint32_t DELAY_TIME = 1000; // 1 second delay.
-  delay_ms(DELAY_TIME);
+  libtocksync_alarm_delay_ms(DELAY_TIME);
   while (now < END_TIME) {
     now = otPlatAlarmMilliGetNow();
     // Confirm that obtained time is greater than last (checking for overflow) and
@@ -89,7 +86,7 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
     }
     ;
     prev = now;
-    delay_ms(DELAY_TIME);
+    libtocksync_alarm_delay_ms(DELAY_TIME);
 
     // Print progress every minute.
     if (now > (30000 * (passed_test + 1))) {

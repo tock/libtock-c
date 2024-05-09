@@ -11,9 +11,10 @@
 #include <openthread/udp.h>
 #include <plat.h>
 
+#include <libtock/tock.h>
+
 #include <stdio.h>
 #include <string.h>
-#include <timer.h>
 
 #define UDP_PORT 1212
 
@@ -69,6 +70,7 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
 
   uint32_t prev_time = 0;
   uint32_t curr_time = 0;
+
   for ( ;;) {
     // Send UDP packet every 2.5 seconds
     curr_time = otPlatAlarmMilliGetNow();
