@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <timer.h>
+#include <libtock/tock.h>
 
 #define UDP_PORT 1212
 
