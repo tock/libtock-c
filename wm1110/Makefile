@@ -13,7 +13,7 @@ endif
 # list of names of unchanged files from Seeed Studio 
 C_UNCHANGED_FILES := aes.c alc_sync.c almanac_update.c apps_utilities.c cmac.c \
 dm_downlink.c fifo_ctrl.c file_upload.c gnss_helpers.c gnss_middleware.c gnss_queue.c \
-lorawan_api.c lorawan_certification.c lr11xx_bootloader.c lr11xx_ce.c \
+lorawan_api.c lorawan_certification.c lr11xx_bootloader.c \
 lr11xx_crypto_engine.c lr11xx_driver_extension.c lr11xx_driver_version.c \
 lr11xx_gnss.c lr11xx_lr_fhss.c lr11xx_radio.c lr11xx_radio_timings.c lr11xx_regmem.c \
 lr11xx_wifi.c lr1_stack_mac_layer.c lr1mac_class_c.c lr1mac_core.c lr1mac_utilities.c \
