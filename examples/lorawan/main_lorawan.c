@@ -50,7 +50,7 @@
 // #include "apps_utilities.h"
 // #include "smtc_modem_utilities.h"
 
-#include <wm1110/wm1110.h>
+#include <lr1110/lr1110.h>
 // #include <timer.h>
 #include <stdio.h>
 #include <stdint.h>
