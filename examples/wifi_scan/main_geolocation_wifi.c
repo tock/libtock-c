@@ -43,7 +43,7 @@
  * @{
  */
 
-#include <wm1110/wm1110.h>
+#include <lr1110/lr1110.h>
 #include <timer.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -53,7 +53,7 @@
  * --- DEPENDENCIES ------------------------------------------------------------
  */
 
-// included in wm1110 library
+// included in lr1110 library
 
 // #include "main_geolocation_wifi.h"
 // #include "smtc_board.h"

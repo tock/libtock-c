@@ -4,9 +4,9 @@
 TOCK_USERLAND_BASE_DIR = ../..
 
 # External libraries used
-EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/wm1110
+EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/lr1110
 
-override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/wm1110
+override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/lr1110
 
 # Which files to compile.
 C_SRCS += $(wildcard *.c)

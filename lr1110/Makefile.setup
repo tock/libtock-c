@@ -1,16 +1,16 @@
 TOCK_USERLAND_BASE_DIR ?= ..
-WM1110_DIR = $(TOCK_USERLAND_BASE_DIR)/wm1110/wm1110
+LR1110_DIR = $(TOCK_USERLAND_BASE_DIR)/lr1110/lr1110
 
 VERSION_HASH := 7c33c9ef136c841a7b44f530d2415789c86f48af
 
-SEEED_DIR := $(WM1110_DIR)/seeed
+SEEED_DIR := $(LR1110_DIR)/seeed
 ZIP_FILE := $(SEEED_DIR).zip
 EXTRACTED_DIR := $(SEEED_DIR)/Seeed_Wio_WM1110_Dev_Board-$(VERSION_HASH)
 
-UNCHANGED_C_FILES := $(WM1110_DIR)/unchanged_c_files.txt
-UNCHANGED_H_FILES := $(WM1110_DIR)/unchanged_h_files.txt
-SRC_UNCHANGED := $(WM1110_DIR)/src_unchanged
-INC_UNCHANGED := $(WM1110_DIR)/inc_unchanged
+UNCHANGED_C_FILES := $(LR1110_DIR)/unchanged_c_files.txt
+UNCHANGED_H_FILES := $(LR1110_DIR)/unchanged_h_files.txt
+SRC_UNCHANGED := $(LR1110_DIR)/src_unchanged
+INC_UNCHANGED := $(LR1110_DIR)/inc_unchanged
 
 $(ZIP_FILE):
 	curl -L --output $(ZIP_FILE) "https://codeload.github.com/Seeed-Studio/Seeed_Wio_WM1110_Dev_Board/zip/$(VERSION_HASH)"
