@@ -15,7 +15,7 @@
 u8g2_t u8g2;
 
 size_t sensor_svc_num = 0;
-size_t openthread_svc_num = 1;
+size_t openthread_svc_num = 0;
 
 uint8_t local_temperature_setpoint = 22;
 uint8_t global_temperature_setpoint = 0;
@@ -26,6 +26,11 @@ int prior_measured_temperature = 0;
 
 bool network_up = false;
 
+// Callback event indicators:
+bool callback_event = false;
+
+tock_timer_t read_temperature_timer;
+
 // We use this variable as a buffer that is naturally aligned to the int
 // alignment, and has an alignment >= its size.
 uint8_t temperature_buffer[64] __attribute__((aligned(64)));
@@ -34,16 +39,27 @@ uint8_t openthread_buffer[64] __attribute__((aligned(64)));
 static void update_screen(void);
 static int init_controller_ipc(void);
 
+
+static void read_temperature_timer_callback(__attribute__ ((unused)) int   arg0,
+					    __attribute__ ((unused)) int   arg1,
+					    __attribute__ ((unused)) int   arg2,
+					    __attribute__ ((unused)) void *ud) {
+    // Request a new temperature reading from the sensor:
+    ipc_notify_service(sensor_svc_num);
+}
+
 static void sensor_callback(__attribute__ ((unused)) int pid,
                             __attribute__ ((unused)) int len,
                             __attribute__ ((unused)) int arg2,
                             __attribute__ ((unused)) void* ud) {
-  // update displayed measured temperature
+  // update measured temperature
   measured_temperature = *((int*) &temperature_buffer[0]);
-  if(measured_temperature != prior_measured_temperature){
-    prior_measured_temperature = measured_temperature;
-    update_screen();
-  }
+
+  // Indicate that we have received a callback.
+  callback_event = true;
+
+  // Request a new temperature reading in 250ms:
+  timer_in(250, read_temperature_timer_callback, NULL, &read_temperature_timer);
 }
 
 static void openthread_callback( __attribute__ ((unused)) int pid,
@@ -51,12 +67,12 @@ static void openthread_callback( __attribute__ ((unused)) int pid,
                             __attribute__ ((unused)) int arg2,
                             __attribute__ ((unused)) void* ud) {
   network_up = true;
-  // update displayed setpoint temperature
+
+  // update setpoint temperature
   global_temperature_setpoint = *((int*) &openthread_buffer[0]);
-  if(global_temperature_setpoint != prior_global_temperature_setpoint){
-    prior_global_temperature_setpoint = global_temperature_setpoint;
-    update_screen();
-  }
+
+  // Indicate that we have received a callback.
+  callback_event = true;
 }
 
 static void button_callback(int                            btn_num,
@@ -75,15 +91,16 @@ static void button_callback(int                            btn_num,
   openthread_buffer[0] = local_temperature_setpoint;
   ipc_notify_service(openthread_svc_num);
 
-  update_screen();
+  // Indicate that we have received a callback.
+  callback_event = true;
 }
 
 int main(void) {
-    u8g2_tock_init(&u8g2);
-    u8g2_SetFont(&u8g2, u8g2_font_profont12_tr);
-    u8g2_SetFontPosTop(&u8g2);
+  u8g2_tock_init(&u8g2);
+  u8g2_SetFont(&u8g2, u8g2_font_profont12_tr);
+  u8g2_SetFontPosTop(&u8g2);
 
-    init_controller_ipc();
+  init_controller_ipc();
 
   int err = -1;
 
@@ -94,9 +111,20 @@ int main(void) {
   button_enable_interrupt(1);
   button_enable_interrupt(2);
 
+  ipc_notify_service(sensor_svc_num);
+
   for(;;) {
-    ipc_notify_service(sensor_svc_num);
-    delay_ms(250);
+    callback_event = false;
+    yield_for(&callback_event);
+
+    // TODO: this doesn't work for temperature changes, why?
+    /* if(measured_temperature != prior_measured_temperature */
+    /*    || global_temperature_setpoint != prior_global_temperature_setpoint) */
+    /* { */
+    /*   prior_measured_temperature = measured_temperature; */
+    /*   prior_global_temperature_setpoint = global_temperature_setpoint; */
+      update_screen();
+    /* } */
   }
 }
 
