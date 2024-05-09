@@ -171,18 +171,12 @@ void libtock_alarm_repeating_cancel(libtock_alarm_repeating_t* repeating) {
 int libtock_alarm_gettimeasticks(struct timeval *tv, __attribute__ ((unused)) void *tzvp)
 {
   uint32_t frequency, now, seconds, remainder;
+  const uint32_t microsecond_scaler = 1000000;
 
   libtock_alarm_command_get_frequency(&frequency);
   libtock_alarm_command_read(&now);
 
-  // Confirm frequency assumptions. Since remainder is
-  // ticks % frequency, remainder <= frequency. This assertion
-  // guards against overflowing the us calculation. At worst,
-  // remainder == frequency and scaling remainder to convert
-  // to us will overflow. We confirm the greatest possible
-  // remainder value (frequency) scaled by 1e6 will fit within
-  // a uint64 and guard against division by zero.
-  assert(frequency > 0 && (frequency * 1e6) <= UINT64_MAX);
+  assert(frequency > 0);
 
   // Obtain seconds and remainder due to integer divison
   seconds   = now / frequency;
@@ -191,18 +185,19 @@ int libtock_alarm_gettimeasticks(struct timeval *tv, __attribute__ ((unused)) vo
   // (ticks) * (1e6 us / s) * (s / ticks) = us
   // Because remainder is by definition less than
   // frequency, we must be sure to first scale remainder
-  // or else floor(remainder / frequency) = 0.
-  uint64_t us = remainder * 1e6 / frequency;
+  // or else floor(remainder / frequency) = 0. To prevent
+  // an overflow, we cast remainder to be a `uint64_t`. By
+  // integer promotion rules, microsecond_scaler and frequency
+  // will subsequently be cast to `uint64_t`.
+  uint64_t us = ((uint64_t) remainder * microsecond_scaler) / frequency;
 
   tv->tv_sec = seconds;
-  // A concern is that tv_usec may be uint32_t
-  // (dependent on __USE_TIME_BITS64) and that
-  // we we are assigning a uint64_t to it. However,
-  // the maximum micro second value is 999999us,
+
+  // The maximum micro second value is 999999us,
   // as any value greater than this is a second.
   // Subsequently, we can safely cast the uint64_t
   // to a uint32_t.
-  tv->tv_usec = us;
+  tv->tv_usec = (uint32_t) us;
 
   return 0;
 }
