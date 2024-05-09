@@ -171,33 +171,33 @@ void libtock_alarm_repeating_cancel(libtock_alarm_repeating_t* repeating) {
 int libtock_alarm_gettimeasticks(struct timeval *tv, __attribute__ ((unused)) void *tzvp)
 {
   uint32_t frequency, now, seconds, remainder;
+  const uint32_t microsecond_scaler = 1000000;
 
   libtock_alarm_command_get_frequency(&frequency);
   libtock_alarm_command_read(&now);
 
-  // The microsecond calculation will overflow in the intermediate scaling of
-  // (remainder * 1000) if the remainder is approximately greater than 4e6. Because
-  // remainder is calculated as now % frequency, we can define 0 <= remainder < frequency.
-  // This implies that the tv_usec must be of type uint64_t if frequency > 4MHz to avoid
-  // an overflow from occurring. We check this in the below assertion statement.
-  const uint32_t MAX_VALID_FREQ = 4000000;
-  assert(frequency < MAX_VALID_FREQ || sizeof(tv->tv_usec) == sizeof(uint64_t));
-
-  // Confirm frequency assumption
   assert(frequency > 0);
 
+  // Obtain seconds and remainder due to integer divison
   seconds   = now / frequency;
   remainder = now % frequency;
 
-  // NOTE: the drawback to this microsecond calculation is the potential loss of precision
-  // when scaling frequency / 1000 (lose 3 degrees of precision). At the time of this
-  // implementation (1/31/24), the Tock timer frequency struct provides support for
-  // frequencies such as 1KHz, 16KHz, 1MHz, etc. With such frequencies, there is not a loss
-  // of precision as the 3 least significant digits do not encode data. The only case of a lose
-  // in precision is for the frequency 32.768KHz. In this case, the loss of precision introduces ~1us
-  // of error.
-  tv->tv_sec  = seconds;
-  tv->tv_usec = (remainder * 1000) / (frequency / 1000);
+  // (ticks) * (1e6 us / s) * (s / ticks) = us
+  // Because remainder is by definition less than
+  // frequency, we must be sure to first scale remainder
+  // or else floor(remainder / frequency) = 0. To prevent
+  // an overflow, we cast remainder to be a `uint64_t`. By
+  // integer promotion rules, microsecond_scaler and frequency
+  // will subsequently be cast to `uint64_t`.
+  uint64_t us = ((uint64_t) remainder * microsecond_scaler) / frequency;
+
+  tv->tv_sec = seconds;
+
+  // The maximum micro second value is 999999us,
+  // as any value greater than this is a second.
+  // Subsequently, we can safely cast the uint64_t
+  // to a uint32_t.
+  tv->tv_usec = (uint32_t) us;
 
   return 0;
 }
