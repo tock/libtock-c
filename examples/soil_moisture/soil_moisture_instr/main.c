@@ -2,14 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <libtock/kernel/ipc.h>
-
 #include <u8g2-tock.h>
 #include <u8g2.h>
 
+#include "sensor_service.h"
+
+// Water if the soil moisture is below 45.5%.
+#define WATER_THRESHOLD_TENTH_PERCENT 455
+
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
-size_t svc_num = 0;
 char ipc_buf[64] __attribute__((aligned(64)));
 
 u8g2_t u8g2;
@@ -18,7 +20,7 @@ int display_width;
 int display_height;
 
 
-
+// Notify viewers to water the plant!
 static void water_me(void) {
   u8g2_ClearBuffer(&u8g2);
 
@@ -34,20 +36,17 @@ static void water_me(void) {
   u8g2_SendBuffer(&u8g2);
 }
 
+// No water needed, just clear the screen.
 static void all_good(void) {
   u8g2_ClearBuffer(&u8g2);
   u8g2_SendBuffer(&u8g2);
 }
 
-static void ipc_callback(__attribute__ ((unused)) int   pid,
-                         __attribute__ ((unused)) int   len,
-                         __attribute__ ((unused)) int   arg2,
-                         __attribute__ ((unused)) void* ud) {
-
+static void ipc_callback(void) {
   uint32_t* moisture_buf    = (uint32_t*) ipc_buf;
   uint32_t moisture_reading = moisture_buf[0];
 
-  if (moisture_reading < 500) {
+  if (moisture_reading < WATER_THRESHOLD_TENTH_PERCENT) {
     water_me();
   } else {
     all_good();
@@ -67,27 +66,8 @@ int main(void) {
   u8g2_SetFont(&u8g2, u8g2_font_helvR14_tf);
   u8g2_SetFontPosCenter(&u8g2);
 
-  err = ipc_discover("soil_moisture_sensor", &svc_num);
-  if (err < 0) {
-    printf("No soil moisture service\n");
-    return -1;
-  }
-
-  err = ipc_register_client_callback(svc_num, ipc_callback, NULL);
-  if (err < 0) {
-    printf("No ipc_register_client_callback\n");
-    return -1;
-  }
-  err = ipc_share(svc_num, ipc_buf, 64);
-  if (err < 0) {
-    printf("No ipc_share\n");
-    return -1;
-  }
-  err = ipc_notify_service(svc_num);
-  if (err < 0) {
-    printf("No ipc_notify_service\n");
-    return -1;
-  }
+  err = connect_to_sensor_service(ipc_buf, ipc_callback);
+  if (err != RETURNCODE_SUCCESS) return -1;
 
   while (1) yield();
 }

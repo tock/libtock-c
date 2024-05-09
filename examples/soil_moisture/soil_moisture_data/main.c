@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <libtock/kernel/ipc.h>
-
 #include <u8g2-tock.h>
 #include <u8g2.h>
+
+#include "sensor_service.h"
 
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
@@ -20,7 +20,6 @@ char ipc_buf[64] __attribute__((aligned(64)));
 
 
 static void show_moisture(uint32_t reading) {
-
   u8g2_ClearBuffer(&u8g2);
 
   char buf[30];
@@ -38,19 +37,11 @@ static void show_moisture(uint32_t reading) {
 
 }
 
-
-static void ipc_callback(__attribute__ ((unused)) int   pid,
-                         __attribute__ ((unused)) int   len,
-                         __attribute__ ((unused)) int   arg2,
-                         __attribute__ ((unused)) void* ud) {
-
+static void ipc_callback(void) {
   uint32_t* moisture_buf    = (uint32_t*) ipc_buf;
   uint32_t moisture_reading = moisture_buf[0];
   show_moisture(moisture_reading);
-
 }
-
-
 
 int main(void) {
   int err;
@@ -72,27 +63,8 @@ int main(void) {
   u8g2_ClearBuffer(&u8g2);
   u8g2_SendBuffer(&u8g2);
 
-  err = ipc_discover("soil_moisture_sensor", &svc_num);
-  if (err < 0) {
-    printf("No soil moisture service\n");
-    return -1;
-  }
-
-  err = ipc_register_client_callback(svc_num, ipc_callback, NULL);
-  if (err) {
-    printf("ipc_register_client_callback\n");
-    return -3;
-  }
-  err = ipc_share(svc_num, ipc_buf, 64);
-  if (err) {
-    printf("ipc_share\n");
-    return -4;
-  }
-  err = ipc_notify_service(svc_num);
-  if (err) {
-    printf("ipc_notify_service\n");
-    return -5;
-  }
+  err = connect_to_sensor_service(ipc_buf, ipc_callback);
+  if (err != RETURNCODE_SUCCESS) return -1;
 
   while (1) yield();
 }
