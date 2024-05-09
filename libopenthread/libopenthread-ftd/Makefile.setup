@@ -1,0 +1,14 @@
+.PHONY: clean
+
+TOCK_USERLAND_BASE_DIR ?= ../..
+
+LIBOPENTHREAD-FTD_DIR:=$(TOCK_USERLAND_BASE_DIR)/libopenthread/libopenthread-ftd
+
+all: $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md:
+
+# confirm openthread git submodule is checked out.
+$(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread/README.md:
+	git submodule update --init -- $(TOCK_USERLAND_BASE_DIR)/libopenthread/openthread
+
+clean::
+	rm -rf build
