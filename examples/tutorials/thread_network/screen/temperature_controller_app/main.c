@@ -19,7 +19,10 @@ size_t openthread_svc_num = 1;
 
 uint8_t local_temperature_setpoint = 22;
 uint8_t global_temperature_setpoint = 0;
+uint8_t prior_global_temperature_setpoint = 255;
+
 int measured_temperature = 0;
+int prior_measured_temperature = 0;
 
 bool network_up = false;
 
@@ -37,17 +40,23 @@ static void sensor_callback(__attribute__ ((unused)) int pid,
                             __attribute__ ((unused)) void* ud) {
   // update displayed measured temperature
   measured_temperature = *((int*) &temperature_buffer[0]);
-  update_screen();
+  if(measured_temperature != prior_measured_temperature){
+    prior_measured_temperature = measured_temperature;
+    update_screen();
+  }
 }
 
-static void openthread_callback(                     int network_status,
+static void openthread_callback( __attribute__ ((unused)) int pid,
                             __attribute__ ((unused)) int len,
                             __attribute__ ((unused)) int arg2,
                             __attribute__ ((unused)) void* ud) {
-  network_up = network_status;
+  network_up = true;
   // update displayed setpoint temperature
   global_temperature_setpoint = *((int*) &openthread_buffer[0]);
-  update_screen();
+  if(global_temperature_setpoint != prior_global_temperature_setpoint){
+    prior_global_temperature_setpoint = global_temperature_setpoint;
+    update_screen();
+  }
 }
 
 static void button_callback(int                            btn_num,
@@ -63,6 +72,9 @@ static void button_callback(int                            btn_num,
       local_temperature_setpoint = 22;
     }
   }
+  openthread_buffer[0] = local_temperature_setpoint;
+  ipc_notify_service(openthread_svc_num);
+
   update_screen();
 }
 
@@ -147,4 +159,6 @@ static void update_screen(void) {
   u8g2_DrawStr(&u8g2, 0, 25, temperature_global_set_point_str);
   u8g2_DrawStr(&u8g2, 0, 50, temperature_current_measure_str);
   u8g2_SendBuffer(&u8g2);
+
+  printf("completed update\n");
 }
