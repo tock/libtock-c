@@ -94,7 +94,7 @@ typedef struct {
 } sensor_update_t;
 
 
-static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
+static void ipc_callback(int pid, int len, void *buf, __attribute__ ((unused)) void* ud) {
   if (len < (int) sizeof(sensor_update_t)) {
     printf("Error! IPC message too short.\n");
     ipc_notify_client(pid);
