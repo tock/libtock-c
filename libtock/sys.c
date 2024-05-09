@@ -2,7 +2,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "console.h"
+#include "interface/console.h"
 #include "tock.h"
 
 // XXX Suppress unused parameter warnings for this file as the implementations
@@ -39,11 +39,6 @@ int _isatty(int fd)
 int _open(const char* path, int flags, ...)
 {
   return -1;
-}
-int _write(int fd, const void *buf, uint32_t count)
-{
-  putnstr((const char*)buf, count);
-  return count;
 }
 int _close(int fd)
 {

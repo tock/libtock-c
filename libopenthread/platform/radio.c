@@ -1,7 +1,11 @@
-#include <ieee802154.h>
+#include <net/ieee802154.h>
+#include <libtock-sync/net/ieee802154.h>
+#include <libtock/net/eui64.h>
+
 #include <openthread-system.h>
 #include <openthread/platform/radio.h>
 #include <plat.h>
+
 #include <stdio.h>
 
 #define ACK_SIZE 3
@@ -13,7 +17,7 @@ static otRadioFrame transmitFrame = {
   .mLength = OT_RADIO_FRAME_MAX_SIZE
 };
 
-// nrf52840 ACK on transmit is currently unimplemented. We fake this 
+// nrf52840 ACK on transmit is currently unimplemented. We fake this
 // for now by always saying the sent packet was ACKed by the receiver.
 static uint8_t ack_mPSdu[ACK_SIZE] = {0x02, 0x00, 0x00};
 static otRadioFrame ackFrame = {
@@ -22,22 +26,19 @@ static otRadioFrame ackFrame = {
 };
 
 void otPlatRadioGetIeeeEui64(otInstance *aInstance, uint8_t *aIeeeEui64) {
-  // TODO HARDCODED FOR NOW
   OT_UNUSED_VARIABLE(aInstance);
-  aIeeeEui64[0] = 0xf4;
-  aIeeeEui64[1] = 0xce;
-  aIeeeEui64[2] = 0x36;
-  aIeeeEui64[3] = 0x67;
-  aIeeeEui64[4] = 0x13;
-  aIeeeEui64[5] = 0x12;
-  aIeeeEui64[6] = 0x3f;
-  aIeeeEui64[7] = 0xa6;
+  uint64_t eui64;
+  libtock_eui64_get(&eui64);
+  for (int i = 0; i < 8; i++) {
+	  aIeeeEui64[i] = (eui64 >> (8 * i)) & 0xFF;
+  }
+
 }
 
 void otPlatRadioSetPanId(otInstance *aInstance, uint16_t aPanid) {
   OT_UNUSED_VARIABLE(aInstance);
-  ieee802154_set_pan(aPanid);
-  ieee802154_config_commit();
+  libtock_ieee802154_set_pan(aPanid);
+  libtock_ieee802154_config_commit();
 }
 
 void otPlatRadioSetExtendedAddress(otInstance *aInstance, const otExtAddress *aExtAddress) {
@@ -49,26 +50,28 @@ void otPlatRadioSetExtendedAddress(otInstance *aInstance, const otExtAddress *aE
     temp.m8[i] = aExtAddress->m8[7 - i];
   }
 
-  int retCode = ieee802154_set_address_long((unsigned char*) &temp);
+  int retCode = libtock_ieee802154_set_address_long((unsigned char*) &temp);
 
   if (retCode != RETURNCODE_SUCCESS) printf("Error setting long address.\n");
 }
 
 void otPlatRadioSetShortAddress(otInstance *aInstance, uint16_t aShortAddress) {
   OT_UNUSED_VARIABLE(aInstance);
-  ieee802154_set_address(aShortAddress);
-  ieee802154_config_commit();
+  libtock_ieee802154_set_address_short(aShortAddress);
+  libtock_ieee802154_config_commit();
 }
 
 bool otPlatRadioIsEnabled(otInstance *aInstance) {
   OT_UNUSED_VARIABLE(aInstance);
-  return ieee802154_is_up();
+  bool res;
+  libtock_ieee802154_is_up(&res);
+  return res;
 }
 
 otError otPlatRadioEnable(otInstance *aInstance) {
   OT_UNUSED_VARIABLE(aInstance);
 
-  int retCode = ieee802154_up();
+  int retCode = libtocksync_ieee802154_up();
   if (retCode == RETURNCODE_SUCCESS) {
     return OT_ERROR_NONE;
   } else {
@@ -80,7 +83,7 @@ otError otPlatRadioEnable(otInstance *aInstance) {
 otError otPlatRadioDisable(otInstance *aInstance) {
   OT_UNUSED_VARIABLE(aInstance);
 
-  int retCode = ieee802154_down();
+  int retCode = libtock_ieee802154_down();
 
   if (retCode == RETURNCODE_SUCCESS) {
     return OT_ERROR_NONE;
@@ -117,7 +120,7 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
   // fix is not ideal, but fixes the issue.
   aFrame->mLength = aFrame->mLength - 2;
 
-  // since we do not support channel switching, if the channel is not 26, we fake 
+  // since we do not support channel switching, if the channel is not 26, we fake
   // the result and tell openthread that we "sent" the packet successfully when
   // in actuality we do not.
   if (aFrame->mChannel != 26) {
@@ -126,7 +129,7 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
   }
 
   // send raw will yield_for until the transmission completes
-  int send_result =  ieee802154_send_raw((char*) aFrame->mPsdu, aFrame->mLength);
+  int send_result =  libtocksync_ieee802154_send_raw((uint8_t*) aFrame->mPsdu, aFrame->mLength);
 
   // nrf52840 does not currently support ACK so no ACK is also considered a successful transmission
   if (send_result != RETURNCODE_SUCCESS && send_result != RETURNCODE_ENOACK) {
@@ -153,7 +156,7 @@ int8_t otPlatRadioGetRssi(otInstance *aInstance) {
 }
 
 otRadioCaps otPlatRadioGetCaps(otInstance *aInstance) {
-  // TODO: Keeping this here as a placeholder to think 
+  // TODO: Keeping this here as a placeholder to think
   // more about what capabilites we want to define for openthread.
   // Currently, we implement CSMA-CA backoff in the radio driver,
   // but we may add the security capability.

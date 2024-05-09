@@ -1,22 +1,22 @@
-#include <timer.h>
-#include <tock.h>
-#include <unit_test.h>
-
 #include <stdbool.h>
 
+#include <libtock-sync/services/alarm.h>
+#include <libtock-sync/services/unit_test.h>
+#include <libtock/tock.h>
+
+
 static bool test_pass(void) {
-  delay_ms(100);
+  libtocksync_alarm_delay_ms(100);
   return true;
 }
 
 static bool test_fail(void) {
-  delay_ms(100);
+  libtocksync_alarm_delay_ms(100);
   return false;
 }
 
-
 static bool test_timeout(void) {
-  delay_ms(500);
+  libtocksync_alarm_delay_ms(500);
   return true;
 }
 

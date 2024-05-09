@@ -3,18 +3,16 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <console.h>
+#include <libtock/interface/console.h>
 
 char hello[] = "Hello from HiFive1b!\r\n";
 
 static void nop(
-  int   a __attribute__((unused)),
-  int   b __attribute__((unused)),
-  int   c __attribute__((unused)),
-  void* d __attribute__((unused))) {}
+  returncode_t a __attribute__((unused)),
+  uint32_t     b __attribute__((unused))) {}
 
 int main(void) {
-  putnstr_async(hello, strlen(hello), nop, NULL);
+  libtock_console_write((uint8_t*) hello, strlen(hello), nop);
 
   while (1) {
     yield();

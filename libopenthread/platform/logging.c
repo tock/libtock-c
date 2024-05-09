@@ -2,6 +2,7 @@
 #include <openthread/config.h>
 #include <openthread/platform/logging.h>
 #include <openthread/platform/toolchain.h>
+
 #include <stdio.h>
 
 #pragma GCC diagnostic push

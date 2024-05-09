@@ -3,14 +3,27 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <console.h>
-#include <i2c_master.h>
+#include <libtock-sync/interface/console.h>
+#include <libtock/peripherals/i2c_master.h>
 
 #define DATA_LEN 64
 
 char command_buf[DATA_LEN];
 uint8_t recieve_buf[DATA_LEN];
 uint8_t send_buf[DATA_LEN];
+
+static int getch(void) {
+  uint8_t buffer[1];
+  int number_read;
+  libtocksync_console_read(buffer, 1, &number_read);
+  return buffer[0];
+}
+
+static int putnstr(char* str, int len) {
+  int number_written;
+  libtocksync_console_read((uint8_t*) str, len, &number_written);
+  return number_written;
+}
 
 static int get_command(void) {
   int idx = 0;

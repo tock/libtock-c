@@ -9,14 +9,15 @@
 #include <openthread/thread.h>
 #include <plat.h>
 
+#include <libtock-sync/services/alarm.h>
+
 #include <stdio.h>
 #include <string.h>
-#include <timer.h>
 
 ////////////////////////////////////////////////////////////
 // OPENTHREAD TIMER TEST //
 // Openthread implements logic to provide a global time
-// counter. OpenThread must handle wrapping logic to 
+// counter. OpenThread must handle wrapping logic to
 // do this. This test verifies that the timer is
 // able to accurately count upwards for 10 minutes.
 // To provide a realistic test, the standard openthread
@@ -63,36 +64,34 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   print_ip_addr(instance);
 
   /* Start the Thread stack (CLI cmd -> thread start) */
-  otThreadSetEnabled(instance, true);
+  // otThreadSetEnabled(instance, true);
 
 // TIMER TEST LOGIC
-printf("Beginning OpenThread timer test.\n");
+  printf("Beginning OpenThread timer test.\n");
 
-uint32_t passed_test = 0; // Counter for progress along the way.
-uint32_t now = 0;
-uint32_t prev = otPlatAlarmMilliGetNow();
-const uint32_t END_TIME = 1030 * 1000; // 10 minutes and 30 seconds.
-const uint32_t DELAY_TIME = 1000; // 1 second delay.
-delay_ms(DELAY_TIME);
-  while(now<END_TIME) {
-    printf("call otPlatAlarmMilliGetNow\n");
+  uint32_t passed_test      = 0; // Counter for progress along the way.
+  uint32_t now              = 0;
+  uint32_t prev             = otPlatAlarmMilliGetNow();
+  const uint32_t END_TIME   = 1030 * 1000; // 10 minutes and 30 seconds.
+  const uint32_t DELAY_TIME = 1000; // 1 second delay.
+  libtocksync_alarm_delay_ms(DELAY_TIME);
+  while (now < END_TIME) {
     now = otPlatAlarmMilliGetNow();
-    printf("otPlatAlarmMilliGetNow returned\n");
-    // Confirm that obtained time is greater than last (checking for overflow) and 
+    // Confirm that obtained time is greater than last (checking for overflow) and
     // that the difference is within 3 ms of the expected 1000 ms (some latency
     // due to syscalls/kernel work is expected).
-    if(now >= prev && (now - prev - DELAY_TIME) > 10){
+    if (now >= prev && (now - prev - DELAY_TIME) > 3) {
       printf("[FAIL] Now Value: %ld, Prev Value: %ld, Diff: %ld.\n", now, prev, now - prev - 1000);
       return -1;
-    };
+    }
+    ;
     prev = now;
-    delay_ms(DELAY_TIME);
+    libtocksync_alarm_delay_ms(DELAY_TIME);
 
-    printf("TIME NOW: %ld\n", now/1000);
     // Print progress every minute.
     if (now > (30000 * (passed_test + 1))) {
       passed_test++;
-      printf("[TEST UPDATE] %ld sec.\n", now/1000);
+      printf("[TEST UPDATE] %ld sec.\n", now / 1000);
     }
   }
 

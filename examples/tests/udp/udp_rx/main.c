@@ -2,12 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "led.h"
-#include "timer.h"
-#include "tock.h"
+#include <libtock-sync/services/alarm.h>
+#include <libtock/interface/led.h>
+#include <libtock/net/udp.h>
 
-#include <ieee802154.h>
-#include <udp.h>
+#include <libtock-sync/net/ieee802154.h>
+#include <libtock/net/ieee802154.h>
+#include <libtock/net/udp.h>
 
 /*
  * UDP sample packet reception app.
@@ -31,11 +32,16 @@ void print_ipv6(ipv6_addr_t *ipv6_addr) {
   printf("%02x%02x", ipv6_addr->addr[14], ipv6_addr->addr[15]);
 }
 
-static void callback(int                            payload_len,
-                     __attribute__ ((unused)) int   arg2,
-                     __attribute__ ((unused)) int   arg3,
-                     __attribute__ ((unused)) void* ud) {
-  led_toggle(0);
+static void callback(statuscode_t status,
+                     int          payload_len) {
+
+  returncode_t ret = tock_status_to_returncode(status);
+  if (ret != RETURNCODE_SUCCESS) {
+    printf("Error in receiving packet: %d\n", ret);
+    return;
+  }
+
+  libtock_led_toggle(0);
 
 #define PRINT_STRING 1
 #if PRINT_STRING
@@ -54,7 +60,7 @@ static void callback(int                            payload_len,
 int main(void) {
 
   ipv6_addr_t ifaces[10];
-  udp_list_ifaces(ifaces, 10);
+  libtock_udp_list_ifaces(ifaces, 10);
 
   sock_addr_t addr = {
     ifaces[1],
@@ -66,23 +72,23 @@ int main(void) {
   printf(" : %d, and binding to that socket.\n", addr.port);
   sock_handle_t h;
   handle = &h;
-  int ret = udp_bind(handle, &addr, BUF_BIND_CFG);
+  int ret = libtock_udp_bind(handle, &addr, BUF_BIND_CFG);
   if (ret < 0) {
     printf("Error in bind: %d\n", ret);
   }
   ;
 
-  if (ieee802154_driver_exists()) {
-    ieee802154_set_address(49138); // Corresponds to the dst mac addr set in kernel
-    ieee802154_set_pan(0xABCD);
-    ieee802154_config_commit();
-    ieee802154_up();
+  if (libtock_ieee802154_driver_exists()) {
+    libtock_ieee802154_set_address_short(49138); // Corresponds to the dst mac addr set in kernel
+    libtock_ieee802154_set_pan(0xABCD);
+    libtock_ieee802154_config_commit();
+    libtocksync_ieee802154_up();
   } else {
     printf("No 15.4 driver present, set mac address manually in kernel.\n");
   }
 
   memset(packet_rx, 0, MAX_RX_PACKET_LEN);
-  ssize_t result = udp_recv(callback, packet_rx, MAX_RX_PACKET_LEN);
+  returncode_t result = libtock_udp_recv(packet_rx, (size_t) MAX_RX_PACKET_LEN, callback);
 
   switch (result) {
     case RETURNCODE_SUCCESS:
@@ -104,8 +110,8 @@ int main(void) {
   /* This app tests receiving for 10 seconds
    * then closing the connection, so we include a busy wait for that
    * reason. */
-  delay_ms(30000);
-  ssize_t err = udp_close(handle);
+  libtocksync_alarm_delay_ms(30000);
+  returncode_t err = libtock_udp_close(handle);
   if (err < 0) {
     printf("Error closing socket\n");
   } else {

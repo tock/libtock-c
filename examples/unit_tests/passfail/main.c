@@ -1,9 +1,10 @@
-#include <stdio.h>
-#include <timer.h>
-#include <tock.h>
-#include <unit_test.h>
-
 #include <stdbool.h>
+#include <stdio.h>
+
+#include <libtock-sync/services/alarm.h>
+#include <libtock-sync/services/unit_test.h>
+
+
 
 static bool test_pass(void) {
   return true;

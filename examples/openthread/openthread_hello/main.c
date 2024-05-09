@@ -9,9 +9,10 @@
 #include <openthread/thread.h>
 #include <plat.h>
 
+#include <libtock/tock.h>
+
 #include <stdio.h>
 #include <string.h>
-#include <timer.h>
 
 // helper utility demonstrating network config setup
 static void setNetworkConfiguration(otInstance *aInstance);
@@ -53,7 +54,7 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   /* Start the Thread stack (CLI cmd -> thread start) */
   otThreadSetEnabled(instance, true);
 
-  for (;;) {
+  for ( ;;) {
     otTaskletsProcess(instance);
     otSysProcessDrivers(instance);
 

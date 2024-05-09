@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <ipc.h>
-#include <timer.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/kernel/ipc.h>
 
 size_t _svc_num = 0;
 
@@ -35,7 +35,7 @@ int main(void) {
 
   printf("Found BLE ESS service (%u)\n", _svc_num);
 
-  delay_ms(1500);
+  libtocksync_alarm_delay_ms(1500);
 
   sensor_update_t *update = (sensor_update_t*) buf;
   ipc_register_client_callback(_svc_num, ipc_callback, update);

@@ -1,19 +1,20 @@
 #include <assert.h>
 
-#include <openthread/platform/alarm-milli.h>
 #include <openthread-system.h>
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
 #include <openthread/ip6.h>
 #include <openthread/message.h>
+#include <openthread/platform/alarm-milli.h>
 #include <openthread/tasklet.h>
 #include <openthread/thread.h>
 #include <openthread/udp.h>
 #include <plat.h>
 
+#include <libtock/tock.h>
+
 #include <stdio.h>
 #include <string.h>
-#include <timer.h>
 
 #define UDP_PORT 1212
 
@@ -35,7 +36,7 @@ static void print_ip_addr(otInstance *instance);
 
 int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
-	otSysInit(argc, argv);
+  otSysInit(argc, argv);
   otInstance *instance;
   instance = otInstanceInitSingle();
   assert(instance);
@@ -69,7 +70,8 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
 
   uint32_t prev_time = 0;
   uint32_t curr_time = 0;
-  for (;;) {
+
+  for ( ;;) {
     // Send UDP packet every 2.5 seconds
     curr_time = otPlatAlarmMilliGetNow();
     if (curr_time - prev_time > 2500) {
@@ -78,12 +80,12 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
     }
 
     // main loop work
-	  otTaskletsProcess(instance);
+    otTaskletsProcess(instance);
     otSysProcessDrivers(instance);
 
     if (!otTaskletsArePending(instance)) {
-     yield();
-   }
+      yield();
+    }
 
   }
 
@@ -142,18 +144,17 @@ void sendUdp(otInstance *aInstance)
   messageInfo.mPeerPort = UDP_PORT;
 
   message = otUdpNewMessage(aInstance, NULL);
-  if(message == NULL){
+  if (message == NULL) {
     return;
-  } 
+  }
 
   error = otMessageAppend(message, UDP_PAYLOAD, sizeof(UDP_PAYLOAD));
 
   error = otUdpSend(aInstance, &sUdpSocket, message, &messageInfo);
 
-    if (error != OT_ERROR_NONE && message != NULL)
-    {
-        otMessageFree(message);
-    }
+  if (error != OT_ERROR_NONE && message != NULL) {
+    otMessageFree(message);
+  }
 }
 
 static void stateChangeCallback(uint32_t flags, void *context)

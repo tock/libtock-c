@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include <app_state.h>
-#include <tock.h>
+#include <libtock-sync/storage/app_state.h>
+#include <libtock/tock.h>
 
 #define MAGIC 0xcafe
 
@@ -20,12 +20,12 @@ struct demo_app_state_t {
 // `app_state_load_sync()`. It can the write the struct like any normal
 // variable. When the app wishes to "checkpoint" the state and write it back to
 // the persistent flash, it should call `app_state_save_sync()`.
-APP_STATE_DECLARE(struct demo_app_state_t, app_state);
+LIBTOCK_APP_STATE_DECLARE(struct demo_app_state_t, app_state);
 
 int main(void) {
   int ret;
 
-  ret = app_state_load_sync();
+  ret = libtock_app_state_load();
   if (ret < 0) {
     printf("Error loading application state: %s\n", tock_strrcode(ret));
     return ret;
@@ -44,7 +44,7 @@ int main(void) {
     app_state.count += 1;
   }
 
-  ret = app_state_save_sync();
+  ret = libtocksync_app_state_save();
   if (ret != 0) {
     printf("ERROR saving application state: %s\n", tock_strrcode(ret));
     return ret;

@@ -11,9 +11,10 @@
 #include <openthread/udp.h>
 #include <plat.h>
 
+#include <libtock/tock.h>
+
 #include <stdio.h>
 #include <string.h>
-#include <timer.h>
 
 #define UDP_PORT 1212
 
@@ -67,7 +68,7 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   /* Start the Thread stack (CLI cmd -> thread start) */
   otThreadSetEnabled(instance, true);
 
-  for (;;) {
+  for ( ;;) {
     otTaskletsProcess(instance);
     otSysProcessDrivers(instance);
 

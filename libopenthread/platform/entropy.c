@@ -1,5 +1,7 @@
 #include <openthread/platform/entropy.h>
-#include <rng.h>
+
+#include <libtock-sync/peripherals/rng.h>
+
 #include <stdio.h>
 
 otError otPlatEntropyGet(uint8_t *aOutput, uint16_t aOutputLength) {
@@ -9,7 +11,7 @@ otError otPlatEntropyGet(uint8_t *aOutput, uint16_t aOutputLength) {
 
   // Synchronously fill buffer
   int count;
-  int returnCode = rng_sync(aOutput, (uint32_t)aOutputLength, (uint32_t)aOutputLength, &count);
+  int returnCode = libtocksync_rng_get_random_bytes(aOutput, (uint32_t)aOutputLength, (uint32_t)aOutputLength, &count);
 
   if (returnCode == RETURNCODE_SUCCESS) {
     return OT_ERROR_NONE;

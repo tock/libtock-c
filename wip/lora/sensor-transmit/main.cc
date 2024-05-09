@@ -13,8 +13,8 @@
 #include "libtockHal.h"
 
 // Include some libtock-c helpers
-#include <humidity.h>
-#include <temperature.h>
+#include <sensors/humidity.h>
+#include <sensors/temperature.h>
 
 #define BUFFER_LEN 64
 
