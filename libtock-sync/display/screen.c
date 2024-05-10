@@ -15,9 +15,9 @@ struct screen_rotation {
   bool fired;
 };
 
-struct screen_done result;
-struct screen_format result_format;
-struct screen_rotation result_rotation;
+static struct screen_done result;
+static struct screen_format result_format;
+static struct screen_rotation result_rotation;
 
 
 static void screen_cb_done(returncode_t ret) {

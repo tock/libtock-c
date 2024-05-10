@@ -8,7 +8,7 @@ struct usb_keyboard_hid_result {
   returncode_t ret;
 };
 
-struct usb_keyboard_hid_result result = {.fired = false};
+static struct usb_keyboard_hid_result result = {.fired = false};
 
 static void usb_keyboard_hil_cb(returncode_t ret) {
   result.fired = true;
