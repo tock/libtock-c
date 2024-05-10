@@ -29,8 +29,5 @@ LIBS_rv32imac += ../RadioLib/examples/NonArduino/Tock/build-riscv/RadioLib/libRa
 # building the application.
 include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
 
-../RadioLib/examples/NonArduino/Tock/build-arm/RadioLib/libRadioLib.a:
-	cd ../ && ./build-RadioLib.sh
-
-../RadioLib/examples/NonArduino/Tock/build-riscv/RadioLib/libRadioLib.a:
+../RadioLib/examples/NonArduino/Tock/build-arm/RadioLib/libRadioLib.a ../RadioLib/examples/NonArduino/Tock/build-riscv/RadioLib/libRadioLib.a:
 	cd ../ && ./build-RadioLib.sh
