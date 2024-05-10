@@ -55,17 +55,20 @@ int main(void) {
   }
 
   // Initialize buttons
-  if (initialize_buttons() != RETURNCODE_SUCCESS) {
+  if (initialize_buttons(true) != RETURNCODE_SUCCESS) {
     printf("ERROR initializing buttons\r\n");
     return 1;
   }
 
-  // Configure a default HOTP secret
-  program_default_secret(&stored_keys[0]);
+  if (stored_keys[0].len == 0) {
+    // Configure a default HOTP secret
+    program_default_secret(&stored_keys[0]);
+  }
 
   // Main loop. Waits for button presses
   while (true) {
     // Yield until a button is pressed
+    button_pressed = false;
     yield_for(&button_pressed);
     int btn_num = pressed_btn_num;
 
