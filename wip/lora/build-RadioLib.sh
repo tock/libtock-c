@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
+set -e
+
 pushd RadioLib/examples/NonArduino/Tock/
 
-rm -rf build-*
+rm -rf build-arm build-riscv
 
 # Change the source to point to the current libtock-c directory
 # Note, x-platform `sed -i` has odd, but particular syntax
