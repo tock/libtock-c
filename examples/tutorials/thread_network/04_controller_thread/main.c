@@ -16,7 +16,7 @@
 u8g2_t u8g2;
 
 size_t sensor_svc_num = 0;
-size_t openthread_svc_num = 0;
+// size_t openthread_svc_num = 0;
 
 uint8_t global_temperature_setpoint       = 0;
 uint8_t prior_global_temperature_setpoint = 255;
@@ -37,15 +37,16 @@ libtock_alarm_t read_temperature_timer;
 // We use this variable as a buffer that is naturally aligned to the int
 // alignment, and has an alignment >= its size.
 uint8_t temperature_buffer[64] __attribute__((aligned(64)));
-uint8_t openthread_buffer[64] __attribute__((aligned(64)));
+// uint8_t openthread_buffer[64] __attribute__((aligned(64)));
 
 static void update_screen(void);
 static int init_controller_ipc(void);
 
 
-static void read_temperature_timer_callback(__attribute__ ((unused)) uint32_t now,
-                                            __attribute__ ((unused)) uint32_t scheduled,
-                                            __attribute__ ((unused)) void*    opaque) {
+static void read_temperature_timer_callback(
+                        __attribute__ ((unused)) uint32_t   arg0,
+					    __attribute__ ((unused)) uint32_t   arg1,
+                        __attribute__ ((unused)) void*      arg2) {
     // Request a new temperature reading from the sensor:
     ipc_notify_service(sensor_svc_num);
 }
@@ -64,18 +65,18 @@ static void sensor_callback(__attribute__ ((unused)) int pid,
   libtock_alarm_in_ms(250, read_temperature_timer_callback, NULL, &read_temperature_timer);
 }
 
-static void openthread_callback( __attribute__ ((unused)) int pid,
-                            __attribute__ ((unused)) int len,
-                            __attribute__ ((unused)) int arg2,
-                            __attribute__ ((unused)) void* ud) {
-  network_up = true;
-
-  // update setpoint temperature
-  global_temperature_setpoint = *((int*) &openthread_buffer[0]);
-
-  // Indicate that we have received a callback.
-  callback_event = true;
-}
+// static void openthread_callback( __attribute__ ((unused)) int pid,
+//                             __attribute__ ((unused)) int len,
+//                             __attribute__ ((unused)) int arg2,
+//                             __attribute__ ((unused)) void* ud) {
+//   network_up = true;
+//
+//   // update setpoint temperature
+//   global_temperature_setpoint = *((int*) &openthread_buffer[0]);
+//
+//   // Indicate that we have received a callback.
+//   callback_event = true;
+// }
 
 static void button_callback(returncode_t ret,
                             int          btn_num,
@@ -92,8 +93,8 @@ static void button_callback(returncode_t ret,
     }
   }
 
-  openthread_buffer[0] = local_temperature_setpoint;
-  ipc_notify_service(openthread_svc_num);
+  // openthread_buffer[0] = local_temperature_setpoint;
+  // ipc_notify_service(openthread_svc_num);
 
   // Indicate that we have received a callback.
   callback_event = true;
@@ -139,11 +140,11 @@ static int init_controller_ipc(void){
   int err = -1;
   int discover_retry_count = 0;
   int err_sensor = -1;
-  int err_openthread = -1;
+  // int err_openthread = -1;
 
   while (err_sensor < 0 && err_openthread < 0 && discover_retry_count < 100) {
     err_sensor = ipc_discover("org.tockos.thread-tutorial.sensor", &sensor_svc_num);
-    err_openthread = ipc_discover("org.tockos.thread-tutorial.openthread", &openthread_svc_num);
+    // err_openthread = ipc_discover("org.tockos.thread-tutorial.openthread", &openthread_svc_num);
     discover_retry_count++;
     if (err < 0) {
       libtocksync_alarm_delay_ms(10);
@@ -155,21 +156,21 @@ static int init_controller_ipc(void){
     return -1;
   }
 
-  if (err_openthread < 0) {
-    printf("No openthread service\r\n");
-    return -1;
-  }
+  // if (err_openthread < 0) {
+  //   printf("No openthread service\r\n");
+  //   return -1;
+  // }
 
   printf("[controller] Discovered sensor service: %d\r\n", sensor_svc_num);
-  printf("[controller] Discovered openthread service: %d\r\n", openthread_svc_num);
+  // printf("[controller] Discovered openthread service: %d\r\n", openthread_svc_num);
 
   ipc_register_client_callback(sensor_svc_num, sensor_callback, NULL);
-  ipc_register_client_callback(openthread_svc_num, openthread_callback, NULL);
+  // ipc_register_client_callback(openthread_svc_num, openthread_callback, NULL);
 
   //rb->length = snprintf(rb->buf, sizeof(rb->buf), "Hello World!");
   ipc_share(sensor_svc_num, &temperature_buffer, sizeof(temperature_buffer));
 
-  ipc_share(openthread_svc_num, &openthread_buffer, sizeof(openthread_buffer));
+  // ipc_share(openthread_svc_num, &openthread_buffer, sizeof(openthread_buffer));
 
 
   return err;
