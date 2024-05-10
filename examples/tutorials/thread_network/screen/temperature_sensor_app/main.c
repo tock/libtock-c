@@ -1,9 +1,9 @@
 #include <stdio.h>
 
-#include <ipc.h>
-#include <tock.h>
-#include <temperature.h>
-#include <timer.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/tock.h>
+#include <libtock-sync/sensors/temperature.h>
+#include <libtock-sync/services/alarm.h>
 
 // Global variable storing the current temperature. This is written to in the
 // main loop, and read from in the IPC handler. Because the app is single
@@ -54,7 +54,7 @@ int main(void) {
   // Measure the temperature once before registering ourselves as an IPC
   // service. This ensures that we always return a correct (but potentially
   // stale) temperature value.
-  temperature_read_sync(&current_temperature); 
+  libtocksync_temperature_read(&current_temperature); 
 
   // Register this application as an IPC service under its name:
   ipc_register_service_callback(
@@ -66,8 +66,8 @@ int main(void) {
   // reading in an IPC. This means that the control app does not have to wait
   // for the temperature read system call to complete.
   while (1) {
-    temperature_read_sync(&current_temperature); 
+    libtocksync_temperature_read(&current_temperature); 
     // printf("Current temperature: %d\r\n", current_temperature);
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 }

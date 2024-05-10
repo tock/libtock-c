@@ -14,10 +14,10 @@
 
 #include <openthread/udp.h>
 
-#include <ipc.h>
-#include <tock.h>
-#include <temperature.h>
-#include <timer.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/tock.h>
+#include <libtock/services/alarm.h>
+#include <libtock-sync/services/alarm.h>
 
 #define UDP_PORT 1212
 static const char UDP_ROUTER_MULTICAST[] = "ff02::2";
@@ -69,8 +69,6 @@ static void openthread_ipc_callback(int pid, int len, int buf,
 
 }
 
-
- 
 // helper utility demonstrating network config setup
 static void setNetworkConfiguration(otInstance *aInstance);
 
@@ -113,7 +111,7 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   /* Start the Thread network interface (CLI cmd -> ifconfig up) */
   while(otIp6SetEnabled(instance, true) != OT_ERROR_NONE) {
     printf("Failed to start Thread network interface!\n");
-    delay_ms(100);
+    libtocksync_alarm_delay_ms(100);
   }
 
   otSetStateChangedCallback(instance, stateChangeCallback, instance);
@@ -126,7 +124,7 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   /* Start the Thread stack (CLI cmd -> thread start) */
   while(otThreadSetEnabled(instance, true) != OT_ERROR_NONE) {
     printf("Failed to start Thread stack!\n");
-    delay_ms(100);
+    libtocksync_alarm_delay_ms(100);
   }
 
   for (;;) {

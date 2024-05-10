@@ -2,12 +2,13 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <timer.h>
 
-#include <button.h>
-#include <led.h>
+#include <libtock/services/alarm.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/interface/button.h>
+#include <libtock/interface/led.h>
 
-#include <ipc.h>
+#include <libtock/kernel/ipc.h>
 
 #include <u8g2-tock.h>
 #include <u8g2.h>
@@ -29,7 +30,7 @@ bool network_up = false;
 // Callback event indicators:
 bool callback_event = false;
 
-tock_timer_t read_temperature_timer;
+libtock_alarm_t read_temperature_timer;
 
 // We use this variable as a buffer that is naturally aligned to the int
 // alignment, and has an alignment >= its size.
@@ -40,10 +41,9 @@ static void update_screen(void);
 static int init_controller_ipc(void);
 
 
-static void read_temperature_timer_callback(__attribute__ ((unused)) int   arg0,
-					    __attribute__ ((unused)) int   arg1,
-					    __attribute__ ((unused)) int   arg2,
-					    __attribute__ ((unused)) void *ud) {
+static void read_temperature_timer_callback(__attribute__ ((unused)) uint32_t now,
+                                            __attribute__ ((unused)) uint32_t scheduled,
+                                            __attribute__ ((unused)) void*    opaque) {
     // Request a new temperature reading from the sensor:
     ipc_notify_service(sensor_svc_num);
 }
@@ -59,7 +59,7 @@ static void sensor_callback(__attribute__ ((unused)) int pid,
   callback_event = true;
 
   // Request a new temperature reading in 250ms:
-  timer_in(250, read_temperature_timer_callback, NULL, &read_temperature_timer);
+  libtock_alarm_in_ms(250, read_temperature_timer_callback, NULL, &read_temperature_timer);
 }
 
 static void openthread_callback( __attribute__ ((unused)) int pid,
@@ -75,11 +75,10 @@ static void openthread_callback( __attribute__ ((unused)) int pid,
   callback_event = true;
 }
 
-static void button_callback(int                            btn_num,
-                            int                            val,
-                            __attribute__ ((unused)) int   arg2,
-                            __attribute__ ((unused)) void *ud) {
-  if (val == 1) {
+static void button_callback(__attribute__ ((unused)) returncode_t ret, 
+                                                     int btn_num,
+                                                     bool pressed) {
+  if (pressed) {
     if (btn_num == 0 && local_temperature_setpoint < 35) {
       local_temperature_setpoint++;
     } else if (btn_num == 1 && local_temperature_setpoint > 0) {
@@ -103,13 +102,14 @@ int main(void) {
   init_controller_ipc();
 
   int err = -1;
-
-  err = button_subscribe(button_callback, NULL);
+  err = libtock_button_notify_on_press(0, button_callback);
   if (err < 0) return err;
 
-  button_enable_interrupt(0);
-  button_enable_interrupt(1);
-  button_enable_interrupt(2);
+  err = libtock_button_notify_on_press(1, button_callback);
+  if (err < 0) return err;
+
+  err = libtock_button_notify_on_press(2, button_callback);
+  if (err < 0) return err;
 
   ipc_notify_service(sensor_svc_num);
 
@@ -140,7 +140,7 @@ static int init_controller_ipc(void){
     err_openthread = ipc_discover("org.tockos.thread-tutorial.openthread", &openthread_svc_num);
     discover_retry_count++;
     if (err < 0) {
-      delay_ms(10);
+    libtocksync_alarm_delay_ms(10);
     }
   }
 
