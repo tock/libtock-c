@@ -56,7 +56,7 @@ static uint32_t take_measurement(uint32_t ref) {
   for (int i = 0; i < 30; i++) {
     total += samples[i];
   }
-  uint32_t average    = total / 30;
+  uint32_t average = total / 30;
   // Convert from ADC counts to millivolts.
   uint32_t voltage_mv = (average * ref) / ((1 << 16) - 1);
 
