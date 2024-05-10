@@ -3,12 +3,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <libtock/kernel/ipc.h>
 #include <libtock/services/alarm.h>
-#include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/interface/led.h>
 
-#include <libtock/kernel/ipc.h>
+#include <libtock-sync/services/alarm.h>
 
 #include <u8g2-tock.h>
 #include <u8g2.h>
@@ -18,16 +18,18 @@ u8g2_t u8g2;
 size_t sensor_svc_num = 0;
 size_t openthread_svc_num = 0;
 
-uint8_t local_temperature_setpoint = 22;
-uint8_t global_temperature_setpoint = 0;
+uint8_t global_temperature_setpoint       = 0;
 uint8_t prior_global_temperature_setpoint = 255;
 
-int measured_temperature = 0;
+uint8_t local_temperature_setpoint       = 22;
+uint8_t prior_local_temperature_setpoint = 255;
+
+int measured_temperature       = 0;
 int prior_measured_temperature = 0;
 
 bool network_up = false;
 
-// Callback event indicators:
+// Callback event indicator
 bool callback_event = false;
 
 libtock_alarm_t read_temperature_timer;
@@ -75,9 +77,11 @@ static void openthread_callback( __attribute__ ((unused)) int pid,
   callback_event = true;
 }
 
-static void button_callback(__attribute__ ((unused)) returncode_t ret, 
-                                                     int btn_num,
-                                                     bool pressed) {
+static void button_callback(returncode_t ret,
+                            int          btn_num,
+                            bool         pressed) {
+  if (ret != RETURNCODE_SUCCESS) return;
+
   if (pressed) {
     if (btn_num == 0 && local_temperature_setpoint < 35) {
       local_temperature_setpoint++;
@@ -87,29 +91,31 @@ static void button_callback(__attribute__ ((unused)) returncode_t ret,
       local_temperature_setpoint = 22;
     }
   }
+
   openthread_buffer[0] = local_temperature_setpoint;
   ipc_notify_service(openthread_svc_num);
 
   // Indicate that we have received a callback.
   callback_event = true;
+
+  return;
 }
 
 int main(void) {
+  int err;
+  int i;
+
   u8g2_tock_init(&u8g2);
   u8g2_SetFont(&u8g2, u8g2_font_profont12_tr);
   u8g2_SetFontPosTop(&u8g2);
 
   init_controller_ipc();
 
-  int err = -1;
-  err = libtock_button_notify_on_press(0, button_callback);
-  if (err < 0) return err;
-
-  err = libtock_button_notify_on_press(1, button_callback);
-  if (err < 0) return err;
-
-  err = libtock_button_notify_on_press(2, button_callback);
-  if (err < 0) return err;
+  // Enable buttons
+  for (i = 0; i < 3; i++) {
+    err = libtock_button_notify_on_press(i, button_callback);
+    if (err < 0) return err;
+  }
 
   ipc_notify_service(sensor_svc_num);
 
@@ -117,30 +123,30 @@ int main(void) {
     callback_event = false;
     yield_for(&callback_event);
 
-    // TODO: this doesn't work for temperature changes, why?
-    /* if(measured_temperature != prior_measured_temperature */
-    /*    || global_temperature_setpoint != prior_global_temperature_setpoint) */
-    /* { */
-    /*   prior_measured_temperature = measured_temperature; */
-    /*   prior_global_temperature_setpoint = global_temperature_setpoint; */
+    if (measured_temperature          != prior_measured_temperature
+       || global_temperature_setpoint != prior_global_temperature_setpoint
+       || local_temperature_setpoint  != prior_local_temperature_setpoint)
+    {
+      prior_measured_temperature        = measured_temperature;
+      prior_global_temperature_setpoint = global_temperature_setpoint;
+      prior_local_temperature_setpoint  = local_temperature_setpoint;
       update_screen();
-    /* } */
+    }
   }
 }
 
 static int init_controller_ipc(void){
-    int err = -1;
-
-    int discover_retry_count = 0;
-
-    int err_sensor = -1;
+  int err = -1;
+  int discover_retry_count = 0;
+  int err_sensor = -1;
   int err_openthread = -1;
+
   while (err_sensor < 0 && err_openthread < 0 && discover_retry_count < 100) {
     err_sensor = ipc_discover("org.tockos.thread-tutorial.sensor", &sensor_svc_num);
     err_openthread = ipc_discover("org.tockos.thread-tutorial.openthread", &openthread_svc_num);
     discover_retry_count++;
     if (err < 0) {
-    libtocksync_alarm_delay_ms(10);
+      libtocksync_alarm_delay_ms(10);
     }
   }
 

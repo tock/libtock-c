@@ -11,27 +11,6 @@
 // worry about synchronization -- reads never happen during a write.
 static int current_temperature = 0;
 
-// struct rot13_buf {
-//   int8_t length;
-//   char buf[31];
-// };
-// 
-// static void rot13_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
-//   struct rot13_buf *rb = (struct rot13_buf*)buf;
-//   int length = rb->length;
-//   if (length > len - 1) {
-//     length = len - 1;
-//   }
-//   for (int i = 0; i < length; ++i) {
-//     if (rb->buf[i] >= 'a' && rb->buf[i] <= 'z') {
-//       rb->buf[i] = (((rb->buf[i] - 'a') + 13) % 26) + 'a';
-//     } else if (rb->buf[i] >= 'A' && rb->buf[i] <= 'Z') {
-//       rb->buf[i] = (((rb->buf[i] - 'A') + 13) % 26) + 'A';
-//     }
-//   }
-//   ipc_notify_client(pid);
-// }
-
 static void sensor_ipc_callback(int pid, int len, int buf,
 		                __attribute__((unused)) void *ud)
 {
@@ -49,12 +28,12 @@ static void sensor_ipc_callback(int pid, int len, int buf,
   // Let the client know:
   ipc_notify_client(pid);
 }
- 
+
 int main(void) {
   // Measure the temperature once before registering ourselves as an IPC
   // service. This ensures that we always return a correct (but potentially
   // stale) temperature value.
-  libtocksync_temperature_read(&current_temperature); 
+  libtocksync_temperature_read(&current_temperature);
 
   // Register this application as an IPC service under its name:
   ipc_register_service_callback(
@@ -66,7 +45,7 @@ int main(void) {
   // reading in an IPC. This means that the control app does not have to wait
   // for the temperature read system call to complete.
   while (1) {
-    libtocksync_temperature_read(&current_temperature); 
+    libtocksync_temperature_read(&current_temperature);
     // printf("Current temperature: %d\r\n", current_temperature);
     libtocksync_alarm_delay_ms(1000);
   }
