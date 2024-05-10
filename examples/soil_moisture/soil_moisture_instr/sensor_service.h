@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-typedef void (*sensor_service_callback)(void);
+typedef void (*sensor_service_callback)(uint32_t);
 
 returncode_t connect_to_sensor_service(char* ipc_buf, sensor_service_callback cb);
 

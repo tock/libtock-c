@@ -34,12 +34,9 @@ static void show_moisture(uint32_t reading) {
 
   u8g2_DrawStr(&u8g2, x, y_center, buf);
   u8g2_SendBuffer(&u8g2);
-
 }
 
-static void ipc_callback(void) {
-  uint32_t* moisture_buf    = (uint32_t*) ipc_buf;
-  uint32_t moisture_reading = moisture_buf[0];
+static void ipc_callback(uint32_t moisture_reading) {
   show_moisture(moisture_reading);
 }
 

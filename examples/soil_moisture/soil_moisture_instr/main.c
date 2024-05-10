@@ -42,10 +42,7 @@ static void all_good(void) {
   u8g2_SendBuffer(&u8g2);
 }
 
-static void ipc_callback(void) {
-  uint32_t* moisture_buf    = (uint32_t*) ipc_buf;
-  uint32_t moisture_reading = moisture_buf[0];
-
+static void ipc_callback(uint32_t moisture_reading) {
   if (moisture_reading < WATER_THRESHOLD_TENTH_PERCENT) {
     water_me();
   } else {

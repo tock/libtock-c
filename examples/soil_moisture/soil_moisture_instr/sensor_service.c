@@ -4,15 +4,16 @@
 
 #include "sensor_service.h"
 
-typedef void (*sensor_service_callback)(void);
-
-static sensor_service_callback callback;
+static sensor_service_callback _callback;
+static char* _ipc_buf;
 
 static void ipc_callback(__attribute__ ((unused)) int   pid,
                          __attribute__ ((unused)) int   len,
                          __attribute__ ((unused)) int   arg2,
                          __attribute__ ((unused)) void* ud) {
-  callback();
+  uint32_t* moisture_buf    = (uint32_t*) _ipc_buf;
+  uint32_t moisture_reading = moisture_buf[0];
+  _callback(moisture_reading);
 }
 
 returncode_t connect_to_sensor_service(char* ipc_buf, sensor_service_callback cb) {
@@ -20,7 +21,8 @@ returncode_t connect_to_sensor_service(char* ipc_buf, sensor_service_callback cb
   size_t svc_num = 0;
 
   // Save the callback to use when we get notified.
-  callback = cb;
+  _callback = cb;
+  _ipc_buf = ipc_buf;
 
   // Find the sensing service.
   err = ipc_discover("soil_moisture_sensor", &svc_num);
