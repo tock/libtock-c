@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
+set -e
+
 pushd RadioLib/examples/NonArduino/Tock/
 
-rm -rf build-*
+rm -rf build-arm build-riscv
 
 # Change the source to point to the current libtock-c directory
 # Note, x-platform `sed -i` has odd, but particular syntax
@@ -21,7 +23,8 @@ cmake -G "CodeBlocks - Unix Makefiles" ..
 # This will fail to link, as it can't find the libtock-c libraries
 # That's fine for us though, as we just need to build the RadioLib
 # library, not the entire example application
-make -j4 2> /dev/null
+make -j4 2> /dev/null || true
+test -f RadioLib/libRadioLib.a || make
 cd ../
 
 mkdir -p build-riscv
@@ -33,7 +36,8 @@ cmake -G "CodeBlocks - Unix Makefiles" -DRISCV_BUILD=1 ..
 # This will fail to link, as it can't find the libtock-c libraries
 # That's fine for us though, as we just need to build the RadioLib
 # library, not the entire example application
-make -j4 2> /dev/null
+make -j4 2> /dev/null || true
+test -f RadioLib/libRadioLib.a || make
 cd ../
 
 popd
