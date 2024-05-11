@@ -136,4 +136,5 @@ static int init_controller_ipc(void){
 }
 
 static void update_screen(void) {
+  printf("[controller] TODO: update screen! Measured temperature: %d\r\n", measured_temperature);
 }
