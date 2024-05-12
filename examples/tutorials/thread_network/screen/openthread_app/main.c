@@ -30,6 +30,7 @@ uint8_t local_temperature_setpoint = 0;
 uint8_t global_temperature_setpoint = 0;
 uint8_t prior_global_temperature_setpoint = 0;
 bool network_up = false;
+bool pending_udp_send = false;
 
 // Callback method for received udp packets.
 static void handleUdpReceive(void* aContext, otMessage *aMessage,
@@ -78,9 +79,7 @@ static void print_ip_addr(otInstance *instance);
 
 int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
-
   otSysInit(argc, argv);
-
   otInstance *instance;
   instance = otInstanceInitSingle();
   assert(instance);
@@ -126,8 +125,8 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   }
 
   for (;;) {
-      otTaskletsProcess(instance);
       otSysProcessDrivers(instance);
+      otTaskletsProcess(instance);
 
     if (!otTaskletsArePending(instance)) {
       	    yield();
@@ -234,6 +233,7 @@ void initUdp(otInstance *aInstance)
 
 void sendUdp(otInstance *aInstance)
 {
+
   otError error = OT_ERROR_NONE;
   otMessage *   message;
   otMessageInfo messageInfo;

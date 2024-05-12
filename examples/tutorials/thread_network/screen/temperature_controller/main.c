@@ -34,6 +34,7 @@ bool setpoint_input_received = false;
 bool callback_event = false;
 
 libtock_alarm_t read_temperature_timer;
+libtock_alarm_t network_timer;
 
 // We use this variable as a buffer that is naturally aligned to the int
 // alignment, and has an alignment >= its size.
@@ -49,6 +50,16 @@ static void read_temperature_timer_callback(__attribute__ ((unused)) uint32_t no
                                             __attribute__ ((unused)) void*    opaque) {
     // Request a new temperature reading from the sensor:
     ipc_notify_service(sensor_svc_num);
+}
+
+
+static void update_network_timer_callback(__attribute__ ((unused)) uint32_t now,
+                                          __attribute__ ((unused)) uint32_t scheduled,
+                                          __attribute__ ((unused)) void*    opaque) {
+    openthread_buffer[0] = local_temperature_setpoint;
+    ipc_notify_service(openthread_svc_num);
+    libtock_alarm_in_ms(500, update_network_timer_callback, NULL, &network_timer);
+
 }
 
 static void sensor_callback(__attribute__ ((unused)) int pid,
@@ -76,6 +87,7 @@ static void openthread_callback( __attribute__ ((unused)) int pid,
 
   // Indicate that we have received a callback.
   callback_event = true;
+
 }
 
 static void button_callback(returncode_t ret,
@@ -93,9 +105,6 @@ static void button_callback(returncode_t ret,
       local_temperature_setpoint = 22;
     }
   }
-
-  openthread_buffer[0] = local_temperature_setpoint;
-  ipc_notify_service(openthread_svc_num);
 
   // Indicate that we have received a callback.
   callback_event = true;
@@ -120,6 +129,7 @@ int main(void) {
   }
 
   ipc_notify_service(sensor_svc_num);
+  libtock_alarm_in_ms(500, update_network_timer_callback, NULL, &network_timer);
 
   for(;;) {
     callback_event = false;
@@ -181,8 +191,7 @@ static void update_screen(void) {
   char temperature_set_point_str [35];
   char temperature_global_set_point_str [35];
   char temperature_current_measure_str [35];
-  if (setpoint_input_received) sprintf(temperature_set_point_str, "Set Point: %d", local_temperature_setpoint);
-  else sprintf(temperature_set_point_str, "Set Point: N/A");
+  sprintf(temperature_set_point_str, "Set Point: %d", local_temperature_setpoint);
 
   if (network_up) sprintf(temperature_global_set_point_str, "Global Set Point: %d", global_temperature_setpoint);
   else sprintf(temperature_global_set_point_str, "Global Set Point: N/A");
