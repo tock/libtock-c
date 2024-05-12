@@ -28,6 +28,7 @@ int measured_temperature       = 0;
 int prior_measured_temperature = 0;
 
 bool network_up = false;
+bool setpoint_input_received = false;
 
 // Callback event indicator
 bool callback_event = false;
@@ -83,6 +84,7 @@ static void button_callback(returncode_t ret,
   if (ret != RETURNCODE_SUCCESS) return;
 
   if (pressed) {
+    setpoint_input_received = true;
     if (btn_num == 0 && local_temperature_setpoint < 35) {
       local_temperature_setpoint++;
     } else if (btn_num == 1 && local_temperature_setpoint > 0) {
@@ -176,16 +178,17 @@ static int init_controller_ipc(void){
 }
 
 static void update_screen(void) {
-  char temperature_set_point_str [25];
-  char temperature_global_set_point_str [25];
-  char temperature_current_measure_str [25];
-  sprintf(temperature_set_point_str, "Set Point: %d", local_temperature_setpoint);
-  if (network_up) {
-    sprintf(temperature_global_set_point_str, "Global Set Point: %d", global_temperature_setpoint);
-  } else {
-    sprintf(temperature_global_set_point_str, "Global Set Point: N/A");
-  }
-  sprintf(temperature_current_measure_str, "Measured Temp: %d", measured_temperature);
+  char temperature_set_point_str [35];
+  char temperature_global_set_point_str [35];
+  char temperature_current_measure_str [35];
+  if (setpoint_input_received) sprintf(temperature_set_point_str, "Set Point: %d", local_temperature_setpoint);
+  else sprintf(temperature_set_point_str, "Set Point: N/A");
+
+  if (network_up) sprintf(temperature_global_set_point_str, "Global Set Point: %d", global_temperature_setpoint);
+  else sprintf(temperature_global_set_point_str, "Global Set Point: N/A");
+
+  // print measured temperature as value XX.25
+  sprintf(temperature_current_measure_str, "Measured Temp: %d.%02d", measured_temperature / 100, measured_temperature % 100);
 
   u8g2_ClearBuffer(&u8g2);
   u8g2_SetDrawColor(&u8g2, 1);
@@ -193,6 +196,4 @@ static void update_screen(void) {
   u8g2_DrawStr(&u8g2, 0, 25, temperature_global_set_point_str);
   u8g2_DrawStr(&u8g2, 0, 50, temperature_current_measure_str);
   u8g2_SendBuffer(&u8g2);
-
-  printf("completed update\n");
 }
