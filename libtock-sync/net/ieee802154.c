@@ -2,6 +2,8 @@
 
 #include "ieee802154.h"
 
+
+#include <stdio.h>
 struct ieee802154_receive_data {
   bool fired;
   int pan;
@@ -18,7 +20,8 @@ struct ieee802154_send_data {
   statuscode_t status;
 };
 
-static struct ieee802154_send_data send_result = { .fired = false };
+static struct ieee802154_send_data send_result     = { .fired = false };
+static struct ieee802154_send_data send_result_raw = { .fired = false };
 
 static void ieee802154_receive_done_cb(int pan, int src_addr, int dest_addr) {
   receive_result.fired     = true;
@@ -33,6 +36,11 @@ static void ieee802154_send_done_cb(statuscode_t status, bool acked) {
   send_result.status = status;
 }
 
+static void ieee802154_send_raw_done_cb(statuscode_t status, bool acked) {
+  send_result_raw.fired  = true;
+  send_result_raw.acked  = acked;
+  send_result_raw.status = status;
+}
 
 returncode_t libtocksync_ieee802154_send(uint16_t         addr,
                                          security_level_t level,
@@ -55,13 +63,16 @@ returncode_t libtocksync_ieee802154_send(uint16_t         addr,
 returncode_t libtocksync_ieee802154_send_raw(
   const uint8_t *payload,
   uint8_t        len) {
-  send_result.fired = false;
+  send_result_raw.fired = false;
 
-  returncode_t ret = libtock_ieee802154_send_raw(payload, len, ieee802154_send_done_cb);
+  returncode_t ret = libtock_ieee802154_send_raw(payload, len, ieee802154_send_raw_done_cb);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Wait for the frame to be sent
-  yield_for(&send_result.fired);
+  returncode_t sync_timeout_ret =  libtocksync_alarm_yield_for_with_timeout(&send_result_raw.fired, 100);
+  if (sync_timeout_ret != RETURNCODE_SUCCESS) {
+    return sync_timeout_ret;
+  }
 
   return tock_status_to_returncode(send_result.status);
 }
