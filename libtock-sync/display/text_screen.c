@@ -12,8 +12,8 @@ struct text_screen_size_data {
   uint32_t height;
 };
 
-struct text_screen_data result = {.fired = false};
-struct text_screen_size_data result_size = {.fired = false};
+static struct text_screen_data result = {.fired = false};
+static struct text_screen_size_data result_size = {.fired = false};
 
 static void text_screen_cb(returncode_t ret) {
   result.fired = true;

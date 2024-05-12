@@ -6,7 +6,7 @@ struct nv_data {
   int length;
 };
 
-struct nv_data result = {.fired = false};
+static struct nv_data result = {.fired = false};
 
 static void write_cb(returncode_t ret, int length) {
   result.fired  = true;

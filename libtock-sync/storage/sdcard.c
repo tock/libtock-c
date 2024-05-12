@@ -13,7 +13,7 @@ struct sdcard_data {
   returncode_t ret;
 };
 
-struct sdcard_data result = {.fired = false};
+static struct sdcard_data result = {.fired = false};
 
 static void sdcard_cb_init(returncode_t ret, uint32_t block_size, uint32_t size_in_kB) {
   result.fired      = true;

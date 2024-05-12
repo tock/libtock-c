@@ -55,7 +55,7 @@ static void program_new_secret(hotp_key_t* hotp_key) {
     libtocksync_console_read((uint8_t*) &c, 1, &number_read);
 
     // break on enter
-    if (c == '\n') {
+    if (c == '\n' || c == '\r') {
       break;
     }
 
@@ -100,7 +100,7 @@ int main(void) {
       "* Hold Button 1 to enter a new HOTP secret for that slot.\r\n");
 
   // Initialize buttons
-  if (initialize_buttons() != RETURNCODE_SUCCESS) {
+  if (initialize_buttons(false) != RETURNCODE_SUCCESS) {
     printf("ERROR initializing buttons\r\n");
     return 1;
   }
@@ -111,6 +111,7 @@ int main(void) {
   // Main loop. Waits for button presses
   while (true) {
     // Yield until a button is pressed
+    button_pressed = false;
     yield_for(&button_pressed);
     int btn_num = pressed_btn_num;
 

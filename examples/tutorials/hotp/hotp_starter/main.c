@@ -64,7 +64,7 @@ static void button_callback(__attribute__ ((unused)) returncode_t ret,
 }
 
 // Initializes interrupts on a button
-static int initialize_buttons(void) {
+static int initialize_buttons(bool all) {
   returncode_t err;
 
   // Determine the number of supported buttons
@@ -76,7 +76,13 @@ static int initialize_buttons(void) {
 
   // Enable interrupts if a button exists
   if (count > 0) {
-    libtock_button_notify_on_press(0, button_callback);
+    if (all) {
+      for (int i = 0; i < count; i++) {
+        libtock_button_notify_on_press(i, button_callback);
+      }
+    } else {
+      libtock_button_notify_on_press(0, button_callback);
+    }
   }
 
   return RETURNCODE_SUCCESS;
@@ -209,11 +215,10 @@ static void get_next_code(hotp_key_t* hotp_key) {
 int main(void) {
   libtocksync_alarm_delay_ms(1000);
   printf("Tock HOTP App Started. Usage:\r\n"
-      "* Press Button 1 to get the next HOTP code for that slot.\r\n"
-      "* Hold Button 1 to enter a new HOTP secret for that slot.\r\n");
+      "* Press Button 1 to get the next HOTP code for that slot.\r\n");
 
   // Initialize buttons
-  if (initialize_buttons() != RETURNCODE_SUCCESS) {
+  if (initialize_buttons(false) != RETURNCODE_SUCCESS) {
     printf("ERROR initializing buttons\r\n");
     return 1;
   }

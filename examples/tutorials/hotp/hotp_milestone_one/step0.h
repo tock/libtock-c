@@ -23,7 +23,9 @@ typedef struct {
 extern bool button_pressed;
 extern int pressed_btn_num;
 
-int initialize_buttons(void);
+// Configure buttons to wait for presses. If `all` is false, only use the first
+// button. If all is `true`, initialize all of the buttons.
+int initialize_buttons(bool all);
 int hmac(const uint8_t* key, int key_len, const uint8_t* data, int data_len, uint8_t* output_buffer,
                 int output_buffer_len);
 int decrypt(const uint8_t* cipher, int cipherlen, uint8_t* plaintext, int plaintext_capacity);

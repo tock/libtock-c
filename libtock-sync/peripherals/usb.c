@@ -5,7 +5,7 @@ struct usb_data {
   returncode_t ret;
 };
 
-struct usb_data result = { .fired = false };
+static struct usb_data result = { .fired = false };
 
 static void usb_callback(returncode_t ret){
   result.fired = true;

@@ -60,12 +60,12 @@ static void program_default_encrypted_secret(void);
 static void save_key(int slot_num) {
   int ret;
   uint8_t key[64];
-  uint8_t value[sizeof(hotp_key_t)];
+  uint8_t value[sizeof(hotp_encrypted_key_t)];
 
-  // Key is "hotp-key-<slot_num>". Value is the `hotp_key_t` data.
+  // Key is "hotp-key-<slot_num>". Value is the `hotp_encrypted_key_t` data.
   int key_len = snprintf((char*) key, 64, "hotp-key-%i", slot_num);
-  memcpy(value, &keys[slot_num], sizeof(hotp_key_t));
-  ret = libtocksync_kv_set(key, key_len, value, sizeof(hotp_key_t));
+  memcpy(value, &keys[slot_num], sizeof(hotp_encrypted_key_t));
+  ret = libtocksync_kv_set(key, key_len, value, sizeof(hotp_encrypted_key_t));
 
   if (ret != 0) {
     printf("ERROR(%i): %s.\r\n", ret, tock_strrcode(ret));
@@ -79,16 +79,16 @@ static int initialize_keys(void) {
   // Recover keys from key value store if they exist.
   for (int i = 0; i < NUM_KEYS; i++) {
     uint8_t key[64];
-    uint8_t value[sizeof(hotp_key_t)];
+    uint8_t value[sizeof(hotp_encrypted_key_t)];
 
     // Try to read the key.
     int key_len = snprintf((char*) key, 64, "hotp-key-%i", i);
 
     uint32_t value_len = 0;
-    ret = libtocksync_kv_get(key, key_len, value, sizeof(hotp_key_t), &value_len);
+    ret = libtocksync_kv_get(key, key_len, value, sizeof(hotp_encrypted_key_t), &value_len);
 
     // Check if we read what looks like a valid key.
-    if (ret != RETURNCODE_SUCCESS || value_len != sizeof(hotp_key_t)) {
+    if (ret != RETURNCODE_SUCCESS || value_len != sizeof(hotp_encrypted_key_t)) {
       keys[i].len = 0;
       save_key(i);
 
@@ -97,7 +97,7 @@ static int initialize_keys(void) {
       }
     } else {
       // Looks valid, copy into our local array of keys.
-      memcpy(&keys[i], value, sizeof(hotp_key_t));
+      memcpy(&keys[i], value, sizeof(hotp_encrypted_key_t));
     }
 
   }
@@ -158,7 +158,7 @@ static void program_new_secret(int slot_num) {
     libtocksync_console_read((uint8_t*) &c, 1, &number_read);
 
     // break on enter
-    if (c == '\n') {
+    if (c == '\n' || c == '\r') {
       break;
     }
 
@@ -265,7 +265,7 @@ int main(void) {
   }
 
   // Initialize buttons
-  if (initialize_buttons() != RETURNCODE_SUCCESS) {
+  if (initialize_buttons(true) != RETURNCODE_SUCCESS) {
     printf("ERROR initializing buttons\r\n");
     return 1;
   }

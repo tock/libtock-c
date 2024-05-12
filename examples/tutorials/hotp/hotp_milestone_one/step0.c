@@ -29,7 +29,7 @@ static void button_callback(__attribute__ ((unused)) returncode_t ret,
 }
 
 // Initializes interrupts on a button
-int initialize_buttons(void) {
+int initialize_buttons(bool all) {
   returncode_t err;
 
   // Determine the number of supported buttons
@@ -41,7 +41,13 @@ int initialize_buttons(void) {
 
   // Enable interrupts if a button exists
   if (count > 0) {
-    libtock_button_notify_on_press(0, button_callback);
+    if (all) {
+      for (int i = 0; i < count; i++) {
+        libtock_button_notify_on_press(i, button_callback);
+      }
+    } else {
+      libtock_button_notify_on_press(0, button_callback);
+    }
   }
 
   return RETURNCODE_SUCCESS;
