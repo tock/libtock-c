@@ -6,7 +6,7 @@ TOCK_USERLAND_BASE_DIR = ../../../../
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
 
-PACKAGE_NAME = org.tockos.thread-tutorial.controller
+PACKAGE_NAME = thread_controller
 
 STACK_SIZE = 4096
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/u8g2
