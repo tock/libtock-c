@@ -124,7 +124,7 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
   // the result and tell openthread that we "sent" the packet successfully when
   // in actuality we do not.
   if (aFrame->mChannel != 26) {
-    otPlatRadioTxDone(aInstance, aFrame, NULL, OT_ERROR_NONE);
+    otPlatRadioTxDone(aInstance, aFrame, NULL, OT_ERROR_CHANNEL_ACCESS_FAILURE);
     return OT_ERROR_NONE;
   }
 
@@ -133,7 +133,8 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
 
   // nrf52840 does not currently support ACK so no ACK is also considered a successful transmission
   if (send_result != RETURNCODE_SUCCESS && send_result != RETURNCODE_ENOACK) {
-    return OT_ERROR_FAILED;
+    otPlatRadioTxDone(aInstance, aFrame, &ackFrame, OT_ERROR_ABORT);
+    return OT_ERROR_NONE;
   }
 
   // notify openthread that transmission is completed, faking the ACK value
@@ -161,7 +162,7 @@ otRadioCaps otPlatRadioGetCaps(otInstance *aInstance) {
   // Currently, we implement CSMA-CA backoff in the radio driver,
   // but we may add the security capability.
   OT_UNUSED_VARIABLE(aInstance);
-  return (otRadioCaps)(OT_RADIO_CAPS_CSMA_BACKOFF);
+  return (otRadioCaps)(OT_RADIO_CAPS_CSMA_BACKOFF | OT_RADIO_CAPS_SLEEP_TO_TX);
 }
 
 bool otPlatRadioGetPromiscuous(otInstance *aInstance) {
