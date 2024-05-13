@@ -16,7 +16,7 @@
 
 uint8_t _number_of_leds = 0;
 
-static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
+static void ipc_callback(int pid, int len, void *buf, __attribute__ ((unused)) void* ud) {
   uint8_t* buffer = (uint8_t*) buf;
 
   if (len < 1) {

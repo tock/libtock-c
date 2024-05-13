@@ -351,14 +351,14 @@ static void timeout_callback(__attribute__ ((unused)) uint32_t now,
  */
 static void unit_test_service_callback(int                            pid,
                                        __attribute__ ((unused)) int   len,
-                                       int                            buf,
+                                       void*                          buf,
                                        __attribute__ ((unused)) void *ud) {
   if (buf == 0) {
     return;
   }
 
-  unit_test_t *test      = (unit_test_t *)buf;
-  linked_list_t *pending = (linked_list_t *)ud;
+  unit_test_t *test      = buf;
+  linked_list_t *pending = ud;
 
   switch (test->cmd) {
     case TestInit:

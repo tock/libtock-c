@@ -11,6 +11,11 @@ extern "C" {
 
 #define IPC_DRIVER_NUM 0x10000
 
+// Specific upcall type used for IPC service callbacks. This upcall
+// has a pointer as its third argument, which contains the address to
+// the buffer that an app has shared.
+typedef void (ipc_service_upcall)(int, int, void*, void*);
+
 // Performs service discovery
 //
 // Retrieves the process identifier of the process with the given package name,
@@ -26,7 +31,7 @@ int ipc_discover(const char* pkg_name, size_t* svc_id);
 //   callback  - the address callback function to execute when clients notify
 //   void* ud  - `userdata`. data passed to callback function
 int ipc_register_service_callback(const char *pkg_name,
-                                  subscribe_upcall callback, void *ud);
+                                  ipc_service_upcall callback, void *ud);
 
 // Registers a client callback for a particular service.
 //

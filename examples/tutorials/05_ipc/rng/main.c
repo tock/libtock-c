@@ -18,7 +18,7 @@
 // If the buffer is not long enough to hold the number of requested bytes
 // the service will stop processing the request and not notify the client.
 
-static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
+static void ipc_callback(int pid, int len, void *buf, __attribute__ ((unused)) void* ud) {
   uint8_t* buffer = (uint8_t*) buf;
   uint8_t* rng;
 
