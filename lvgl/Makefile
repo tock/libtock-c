@@ -33,5 +33,8 @@ $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/lvgl/src/hal/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/lvgl/src/misc/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/lvgl/src/widgets/*.c)
 
+# Avoid failing in CI due to warnings in the library.
+override CPPFLAGS_$(LIBNAME) += -Wno-error
+
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
 
