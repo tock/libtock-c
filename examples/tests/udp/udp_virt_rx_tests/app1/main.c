@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <libtock-sync/services/alarm.h>
 #include <libtock/interface/led.h>
 #include <libtock/net/udp.h>
 #include <libtock/net/udp.h>
-#include <libtock-sync/services/alarm.h>
 
 /*
  * UDP sample packet reception app.

@@ -3,8 +3,8 @@
 
 #include <gap.h>
 
-#include <libtock/net/ble.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/net/ble.h>
 #include <libtock/tock.h>
 
 int main(void) {

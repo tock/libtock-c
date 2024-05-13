@@ -2,10 +2,10 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <libtock/interface/button.h>
-#include <libtock/net/udp.h>
 #include <libtock-sync/net/udp.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/interface/button.h>
+#include <libtock/net/udp.h>
 
 #define DEBUG 0
 
@@ -36,7 +36,7 @@ int main(void) {
     11111
   };
 
-  int len        = snprintf(packet, sizeof(packet), "Hello World - App1\n");
+  int len = snprintf(packet, sizeof(packet), "Hello World - App1\n");
   returncode_t result = libtocksync_udp_send(packet, len, &destination);
   assert(result != RETURNCODE_SUCCESS); // should fail because we have not bound
 
