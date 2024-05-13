@@ -30,6 +30,7 @@ uint8_t local_temperature_setpoint = 0;
 uint8_t global_temperature_setpoint = 0;
 uint8_t prior_global_temperature_setpoint = 0;
 bool network_up = false;
+bool pending_udp_send = false;
 
 // Callback method for received udp packets.
 static void handleUdpReceive(void* aContext, otMessage *aMessage,
@@ -47,11 +48,9 @@ static void openthread_ipc_callback(int pid, int len, int buf,
   }
 
   uint8_t passed_local_setpoint = *((uint8_t*) buf);
-  printf("Passed local setpoint: %d\n", passed_local_setpoint);
   if (passed_local_setpoint != local_temperature_setpoint) {
     // The local setpoint has changed, update it:
     local_temperature_setpoint = passed_local_setpoint;
-    printf("Local temperature setpoint changed to: %d\n", local_temperature_setpoint);
     sendUdp((otInstance*) ud);
   }
 
@@ -80,9 +79,7 @@ static void print_ip_addr(otInstance *instance);
 
 int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
-
   otSysInit(argc, argv);
-
   otInstance *instance;
   instance = otInstanceInitSingle();
   assert(instance);
@@ -128,8 +125,8 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   }
 
   for (;;) {
-      otTaskletsProcess(instance);
       otSysProcessDrivers(instance);
+      otTaskletsProcess(instance);
 
     if (!otTaskletsArePending(instance)) {
       	    yield();
@@ -199,6 +196,7 @@ static void print_ip_addr(otInstance *instance){
   char addr_string[64];
   const otNetifAddress *unicastAddrs = otIp6GetUnicastAddresses(instance);
 
+  printf("[THREAD] Device IPv6 Addresses: ");
   for (const otNetifAddress *addr = unicastAddrs; addr; addr = addr->mNext) {
     const otIp6Address ip6_addr = addr->mAddress;
     otIp6AddressToString(&ip6_addr, addr_string, sizeof(addr_string));
@@ -216,9 +214,8 @@ void handleUdpReceive(void *aContext, otMessage *aMessage,
   const otIp6Address sender_addr = aMessageInfo->mPeerAddr;
   otIp6AddressToString(&sender_addr, buf, sizeof(buf));
 
-  uint16_t length = otMessageRead(aMessage, otMessageGetOffset(aMessage), buf, sizeof(buf) - 1);
+  otMessageRead(aMessage, otMessageGetOffset(aMessage), buf, sizeof(buf) - 1);
   global_temperature_setpoint = buf[0];
-  printf("global temp updated to %d\n", global_temperature_setpoint);
 }
 
 void initUdp(otInstance *aInstance)
@@ -236,6 +233,7 @@ void initUdp(otInstance *aInstance)
 
 void sendUdp(otInstance *aInstance)
 {
+
   otError error = OT_ERROR_NONE;
   otMessage *   message;
   otMessageInfo messageInfo;
@@ -249,15 +247,22 @@ void sendUdp(otInstance *aInstance)
 
   message = otUdpNewMessage(aInstance, NULL);
   if(message == NULL){
-    return;
+    	printf("Error creating udp message\n");
+	    return;
   } 
 
-  error = otMessageAppend(message, &local_temperature_setpoint, sizeof(local_temperature_setpoint));
+  error = otMessageAppend(message, &local_temperature_setpoint, sizeof(local_temperature_setpoint));  
+if (error != OT_ERROR_NONE && message != NULL)
+  {
+      printf("Error appending to udp message\n");
+      otMessageFree(message);
+      return;
+  }
 
   error = otUdpSend(aInstance, &sUdpSocket, message, &messageInfo);
-
-    if (error != OT_ERROR_NONE && message != NULL)
-    {
-        otMessageFree(message);
-    }
+  if (error != OT_ERROR_NONE && message != NULL)
+  {
+      printf("Error sending udp packet\n");
+      otMessageFree(message);
+  }
 }
