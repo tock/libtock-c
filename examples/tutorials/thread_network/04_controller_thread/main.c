@@ -33,6 +33,7 @@ bool network_up = false;
 bool callback_event = false;
 
 libtock_alarm_t read_temperature_timer;
+// libtock_alarm_t network_timer;
 
 // We use this variable as a buffer that is naturally aligned to the int
 // alignment, and has an alignment >= its size.
@@ -43,13 +44,22 @@ static void update_screen(void);
 static int init_controller_ipc(void);
 
 
-static void read_temperature_timer_callback(
-                        __attribute__ ((unused)) uint32_t   arg0,
-					    __attribute__ ((unused)) uint32_t   arg1,
-                        __attribute__ ((unused)) void*      arg2) {
+static void read_temperature_timer_callback(__attribute__ ((unused)) uint32_t now,
+                                            __attribute__ ((unused)) uint32_t scheduled,
+                                            __attribute__ ((unused)) void*    opaque) {
     // Request a new temperature reading from the sensor:
     ipc_notify_service(sensor_svc_num);
 }
+
+
+// static void update_network_timer_callback(__attribute__ ((unused)) uint32_t now,
+//                                           __attribute__ ((unused)) uint32_t scheduled,
+//                                           __attribute__ ((unused)) void*    opaque) {
+//     openthread_buffer[0] = local_temperature_setpoint;
+//     ipc_notify_service(openthread_svc_num);
+//     libtock_alarm_in_ms(500, update_network_timer_callback, NULL, &network_timer);
+//
+// }
 
 static void sensor_callback(__attribute__ ((unused)) int pid,
                             __attribute__ ((unused)) int len,
@@ -76,6 +86,7 @@ static void sensor_callback(__attribute__ ((unused)) int pid,
 //
 //   // Indicate that we have received a callback.
 //   callback_event = true;
+//
 // }
 
 static void button_callback(returncode_t ret,
@@ -92,9 +103,6 @@ static void button_callback(returncode_t ret,
       local_temperature_setpoint = 22;
     }
   }
-
-  // openthread_buffer[0] = local_temperature_setpoint;
-  // ipc_notify_service(openthread_svc_num);
 
   // Indicate that we have received a callback.
   callback_event = true;
@@ -119,6 +127,7 @@ int main(void) {
   }
 
   ipc_notify_service(sensor_svc_num);
+  // libtock_alarm_in_ms(500, update_network_timer_callback, NULL, &network_timer);
 
   for(;;) {
     callback_event = false;
@@ -142,7 +151,8 @@ static int init_controller_ipc(void){
   int err_sensor = -1;
   // int err_openthread = -1;
 
-  while (err_sensor < 0 && err_openthread < 0 && discover_retry_count < 100) {
+  // while (err_sensor < 0 && err_openthread < 0 && discover_retry_count < 100) {
+  while (err_sensor < 0 && discover_retry_count < 100) {
     err_sensor = ipc_discover("org.tockos.thread-tutorial.sensor", &sensor_svc_num);
     // err_openthread = ipc_discover("org.tockos.thread-tutorial.openthread", &openthread_svc_num);
     discover_retry_count++;
@@ -167,26 +177,23 @@ static int init_controller_ipc(void){
   ipc_register_client_callback(sensor_svc_num, sensor_callback, NULL);
   // ipc_register_client_callback(openthread_svc_num, openthread_callback, NULL);
 
-  //rb->length = snprintf(rb->buf, sizeof(rb->buf), "Hello World!");
   ipc_share(sensor_svc_num, &temperature_buffer, sizeof(temperature_buffer));
-
   // ipc_share(openthread_svc_num, &openthread_buffer, sizeof(openthread_buffer));
-
 
   return err;
 }
 
 static void update_screen(void) {
-  char temperature_set_point_str [25];
-  char temperature_global_set_point_str [25];
-  char temperature_current_measure_str [25];
+  char temperature_set_point_str [35];
+  char temperature_global_set_point_str [35];
+  char temperature_current_measure_str [35];
   sprintf(temperature_set_point_str, "Set Point: %d", local_temperature_setpoint);
-  if (network_up) {
-    sprintf(temperature_global_set_point_str, "Global Set Point: %d", global_temperature_setpoint);
-  } else {
-    sprintf(temperature_global_set_point_str, "Global Set Point: N/A");
-  }
-  sprintf(temperature_current_measure_str, "Measured Temp: %d", measured_temperature);
+
+  if (network_up) sprintf(temperature_global_set_point_str, "Global Set Point: %d", global_temperature_setpoint);
+  else sprintf(temperature_global_set_point_str, "Global Set Point: N/A");
+
+  // print measured temperature as value XX.25
+  sprintf(temperature_current_measure_str, "Measured Temp: %d.%02d", measured_temperature / 100, measured_temperature % 100);
 
   u8g2_ClearBuffer(&u8g2);
   u8g2_SetDrawColor(&u8g2, 1);
@@ -194,6 +201,4 @@ static void update_screen(void) {
   u8g2_DrawStr(&u8g2, 0, 25, temperature_global_set_point_str);
   u8g2_DrawStr(&u8g2, 0, 50, temperature_current_measure_str);
   u8g2_SendBuffer(&u8g2);
-
-  printf("completed update\n");
 }

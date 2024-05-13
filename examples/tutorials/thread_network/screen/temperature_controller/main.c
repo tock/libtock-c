@@ -28,7 +28,6 @@ int measured_temperature       = 0;
 int prior_measured_temperature = 0;
 
 bool network_up = false;
-bool setpoint_input_received = false;
 
 // Callback event indicator
 bool callback_event = false;
@@ -96,7 +95,6 @@ static void button_callback(returncode_t ret,
   if (ret != RETURNCODE_SUCCESS) return;
 
   if (pressed) {
-    setpoint_input_received = true;
     if (btn_num == 0 && local_temperature_setpoint < 35) {
       local_temperature_setpoint++;
     } else if (btn_num == 1 && local_temperature_setpoint > 0) {

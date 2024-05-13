@@ -21,8 +21,6 @@ uint8_t prior_local_temperature_setpoint = 255;
 int measured_temperature       = 0;
 int prior_measured_temperature = 0;
 
-bool network_up = false;
-
 // Callback event indicator
 bool callback_event = false;
 
@@ -36,13 +34,13 @@ static void update_screen(void);
 static int init_controller_ipc(void);
 
 
-static void read_temperature_timer_callback(
-                        __attribute__ ((unused)) uint32_t   arg0,
-					    __attribute__ ((unused)) uint32_t   arg1,
-                        __attribute__ ((unused)) void*      arg2) {
+static void read_temperature_timer_callback(__attribute__ ((unused)) uint32_t now,
+                                            __attribute__ ((unused)) uint32_t scheduled,
+                                            __attribute__ ((unused)) void*    opaque) {
     // Request a new temperature reading from the sensor:
     ipc_notify_service(sensor_svc_num);
 }
+
 
 static void sensor_callback(__attribute__ ((unused)) int pid,
                             __attribute__ ((unused)) int len,
@@ -136,5 +134,6 @@ static int init_controller_ipc(void){
 }
 
 static void update_screen(void) {
-  printf("[controller] TODO: update screen! Measured temperature: %d\r\n", measured_temperature);
+  printf("[controller] TODO: update screen! Measured temperature: %d.%02d\r\n",
+         measured_temperature / 100, measured_temperature % 100);
 }
