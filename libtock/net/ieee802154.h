@@ -15,9 +15,9 @@
 // Given the non-deterministic nature of upcalls, the userprocess must carefully
 // handle receiving upcalls. There exists a risk of dropping 15.4 packets while
 // reading from the ring buffer (as the ring buffer is unallowed while reading).
-// This can be handled by utilizing two ring buffers and alternating which 
-// belongs to the kernel and which is being read from. An example of this can be 
-// found in libtock-c/libopenthread/platform/system.c. Alternatively, 
+// This can be handled by utilizing two ring buffers and alternating which
+// belongs to the kernel and which is being read from. An example of this can be
+// found in libtock-c/libopenthread/platform/system.c. Alternatively,
 // the user can also utilize a single ring buffer if dropped frames may be permissible
 // (see libtock-c/examples/tests/ieee802154/radio_rx/main.c for an example of this).
 
