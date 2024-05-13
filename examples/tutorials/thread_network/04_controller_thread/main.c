@@ -1,12 +1,12 @@
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
 
-#include <libtock/kernel/ipc.h>
-#include <libtock/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/interface/led.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/services/alarm.h>
 
 #include <libtock-sync/services/alarm.h>
 
@@ -47,8 +47,8 @@ static int init_controller_ipc(void);
 static void read_temperature_timer_callback(__attribute__ ((unused)) uint32_t now,
                                             __attribute__ ((unused)) uint32_t scheduled,
                                             __attribute__ ((unused)) void*    opaque) {
-    // Request a new temperature reading from the sensor:
-    ipc_notify_service(sensor_svc_num);
+  // Request a new temperature reading from the sensor:
+  ipc_notify_service(sensor_svc_num);
 }
 
 
@@ -61,9 +61,9 @@ static void read_temperature_timer_callback(__attribute__ ((unused)) uint32_t no
 //
 // }
 
-static void sensor_callback(__attribute__ ((unused)) int pid,
-                            __attribute__ ((unused)) int len,
-                            __attribute__ ((unused)) int arg2,
+static void sensor_callback(__attribute__ ((unused)) int   pid,
+                            __attribute__ ((unused)) int   len,
+                            __attribute__ ((unused)) int   arg2,
                             __attribute__ ((unused)) void* ud) {
   // update measured temperature
   measured_temperature = *((int*) &temperature_buffer[0]);
@@ -129,14 +129,13 @@ int main(void) {
   ipc_notify_service(sensor_svc_num);
   // libtock_alarm_in_ms(500, update_network_timer_callback, NULL, &network_timer);
 
-  for(;;) {
+  for ( ;;) {
     callback_event = false;
     yield_for(&callback_event);
 
-    if (measured_temperature          != prior_measured_temperature
-       || global_temperature_setpoint != prior_global_temperature_setpoint
-       || local_temperature_setpoint  != prior_local_temperature_setpoint)
-    {
+    if (measured_temperature != prior_measured_temperature
+        || global_temperature_setpoint != prior_global_temperature_setpoint
+        || local_temperature_setpoint != prior_local_temperature_setpoint) {
       prior_measured_temperature        = measured_temperature;
       prior_global_temperature_setpoint = global_temperature_setpoint;
       prior_local_temperature_setpoint  = local_temperature_setpoint;
@@ -184,16 +183,20 @@ static int init_controller_ipc(void){
 }
 
 static void update_screen(void) {
-  char temperature_set_point_str [35];
-  char temperature_global_set_point_str [35];
-  char temperature_current_measure_str [35];
+  char temperature_set_point_str[35];
+  char temperature_global_set_point_str[35];
+  char temperature_current_measure_str[35];
   sprintf(temperature_set_point_str, "Set Point: %d", local_temperature_setpoint);
 
-  if (network_up) sprintf(temperature_global_set_point_str, "Global Set Point: %d", global_temperature_setpoint);
-  else sprintf(temperature_global_set_point_str, "Global Set Point: N/A");
+  if (network_up) {
+    sprintf(temperature_global_set_point_str, "Global Set Point: %d", global_temperature_setpoint);
+  } else {
+    sprintf(temperature_global_set_point_str, "Global Set Point: N/A");
+  }
 
   // print measured temperature as value XX.25
-  sprintf(temperature_current_measure_str, "Measured Temp: %d.%02d", measured_temperature / 100, measured_temperature % 100);
+  sprintf(temperature_current_measure_str, "Measured Temp: %d.%02d", measured_temperature / 100,
+          measured_temperature % 100);
 
   u8g2_ClearBuffer(&u8g2);
   u8g2_SetDrawColor(&u8g2, 1);

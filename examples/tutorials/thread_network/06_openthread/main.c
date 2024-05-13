@@ -14,10 +14,10 @@
 
 #include <openthread/udp.h>
 
-#include <libtock/kernel/ipc.h>
-#include <libtock/tock.h>
-#include <libtock/services/alarm.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/services/alarm.h>
+#include <libtock/tock.h>
 
 #define UDP_PORT 1212
 static const char UDP_ROUTER_MULTICAST[] = "ff02::2";
@@ -26,28 +26,29 @@ static otUdpSocket sUdpSocket;
 static void initUdp(otInstance *aInstance);
 static void sendUdp(otInstance *aInstance);
 
-uint8_t local_temperature_setpoint = 0;
-uint8_t global_temperature_setpoint = 0;
+uint8_t local_temperature_setpoint        = 0;
+uint8_t global_temperature_setpoint       = 0;
 uint8_t prior_global_temperature_setpoint = 0;
-bool network_up = false;
+bool network_up       = false;
 bool pending_udp_send = false;
 
 // Callback method for received udp packets.
 static void handleUdpReceive(void* aContext, otMessage *aMessage,
                              const otMessageInfo *aMessageInfo);
-
-static void openthread_ipc_callback(int pid, int len, int buf,
-		                 void *ud)
+__attribute__ ((unused))
+static void openthread_ipc_callback(__attribute__ ((unused)) int   pid,
+                                    __attribute__ ((unused)) int   len,
+                                    __attribute__ ((unused)) int   buf,
+                                    __attribute__ ((unused)) void *ud)
 {
-  // TODO // 
- 
-  // error check provided buffer is of length at least equal to 1
-  
-  // copy value in buffer to local_temperature_setpoint
-  
+  // TODO //
 
-  // copy the value of the global_temperature_setpoint into the 
-  // buffer and notify client only if the network is up	 
+  // error check provided buffer is of length at least equal to 1
+
+  // copy value in buffer to local_temperature_setpoint
+
+  // copy the value of the global_temperature_setpoint into the
+  // buffer and notify client only if the network is up
 }
 
 // helper utility demonstrating network config setup
@@ -67,8 +68,8 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   instance = otInstanceInitSingle();
   assert(instance);
 
-   // Register this application as an IPC service under its name
-   // "org.tockos.thread-tutorial.openthread".
+  // Register this application as an IPC service under its name
+  // "org.tockos.thread-tutorial.openthread".
 
   /* As part of the initialization, we will:
       - Init dataset with the following properties:
@@ -85,7 +86,7 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   otThreadSetChildTimeout(instance, 60);
 
   /* Start the Thread network interface (CLI cmd -> ifconfig up) */
-  while(otIp6SetEnabled(instance, true) != OT_ERROR_NONE) {
+  while (otIp6SetEnabled(instance, true) != OT_ERROR_NONE) {
     printf("Failed to start Thread network interface!\n");
     libtocksync_alarm_delay_ms(100);
   }
@@ -100,13 +101,13 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   initUdp(instance);
 
   /* Start the Thread stack (CLI cmd -> thread start) */
-  while(otThreadSetEnabled(instance, true) != OT_ERROR_NONE) {
+  while (otThreadSetEnabled(instance, true) != OT_ERROR_NONE) {
     printf("Failed to start Thread stack!\n");
     libtocksync_alarm_delay_ms(100);
   }
 
   // OpenThread mainloop
-  for (;;) {
+  for ( ;;) {
     // Process libtock drivers.
     otSysProcessDrivers(instance);
 
@@ -179,7 +180,7 @@ static void print_ip_addr(otInstance *instance){
   const otNetifAddress *unicastAddrs = otIp6GetUnicastAddresses(instance);
 
   printf("[THREAD] Device IPv6 Addresses: ");
-  
+
   // Iterate through IPV6 address printing each byte.
   for (const otNetifAddress *addr = unicastAddrs; addr; addr = addr->mNext) {
     const otIp6Address ip6_addr = addr->mAddress;
@@ -201,7 +202,7 @@ void handleUdpReceive(void *aContext, otMessage *aMessage,
 
   // Copy the received message into our buffer.
   otMessageRead(aMessage, otMessageGetOffset(aMessage), buf, sizeof(buf) - 1);
-  
+
   // Update the global temperature setpoint.
   global_temperature_setpoint = buf[0];
 }
@@ -219,6 +220,7 @@ void initUdp(otInstance *aInstance)
   otUdpBind(aInstance, &sUdpSocket, &listenSockAddr, OT_NETIF_THREAD);
 }
 
+__attribute__ ((unused))
 void sendUdp(otInstance *aInstance)
 {
 
@@ -233,25 +235,23 @@ void sendUdp(otInstance *aInstance)
   otIp6AddressFromString(UDP_ROUTER_MULTICAST, &destinationAddr);
   messageInfo.mPeerAddr = destinationAddr;
   messageInfo.mPeerPort = UDP_PORT;
- 
-  message = otUdpNewMessage(aInstance, NULL);
-  if(message == NULL){
-    	printf("Error creating udp message\n");
-	    return;
-  } 
 
-  error = otMessageAppend(message, &local_temperature_setpoint, sizeof(local_temperature_setpoint));  
-if (error != OT_ERROR_NONE && message != NULL)
-  {
-      printf("Error appending to udp message\n");
-      otMessageFree(message);
-      return;
+  message = otUdpNewMessage(aInstance, NULL);
+  if (message == NULL) {
+    printf("Error creating udp message\n");
+    return;
+  }
+
+  error = otMessageAppend(message, &local_temperature_setpoint, sizeof(local_temperature_setpoint));
+  if (error != OT_ERROR_NONE && message != NULL) {
+    printf("Error appending to udp message\n");
+    otMessageFree(message);
+    return;
   }
 
   error = otUdpSend(aInstance, &sUdpSocket, message, &messageInfo);
-  if (error != OT_ERROR_NONE && message != NULL)
-  {
-      printf("Error sending udp packet\n");
-      otMessageFree(message);
+  if (error != OT_ERROR_NONE && message != NULL) {
+    printf("Error sending udp packet\n");
+    otMessageFree(message);
   }
 }

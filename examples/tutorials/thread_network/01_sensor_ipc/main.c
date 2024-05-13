@@ -1,9 +1,9 @@
 #include <stdio.h>
 
-#include <libtock/kernel/ipc.h>
-#include <libtock/tock.h>
 #include <libtock-sync/sensors/temperature.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/tock.h>
 
 // Global variable storing the current temperature. This is written to in the
 // main loop, and read from in the IPC handler. Because the app is single
@@ -12,7 +12,7 @@
 static int current_temperature = 0;
 
 // static void sensor_ipc_callback(int pid, int len, int buf,
-// 		                __attribute__((unused)) void *ud)
+//                    __attribute__((unused)) void *ud)
 // {
 // }
 

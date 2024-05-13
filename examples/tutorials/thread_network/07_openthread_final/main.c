@@ -14,10 +14,10 @@
 
 #include <openthread/udp.h>
 
-#include <libtock/kernel/ipc.h>
-#include <libtock/tock.h>
-#include <libtock/services/alarm.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/services/alarm.h>
+#include <libtock/tock.h>
 
 #define UDP_PORT 1212
 static const char UDP_ROUTER_MULTICAST[] = "ff02::2";
@@ -26,10 +26,10 @@ static otUdpSocket sUdpSocket;
 static void initUdp(otInstance *aInstance);
 static void sendUdp(otInstance *aInstance);
 
-uint8_t local_temperature_setpoint = 0;
-uint8_t global_temperature_setpoint = 0;
+uint8_t local_temperature_setpoint        = 0;
+uint8_t global_temperature_setpoint       = 0;
 uint8_t prior_global_temperature_setpoint = 0;
-bool network_up = false;
+bool network_up       = false;
 bool pending_udp_send = false;
 
 // Callback method for received udp packets.
@@ -37,7 +37,7 @@ static void handleUdpReceive(void* aContext, otMessage *aMessage,
                              const otMessageInfo *aMessageInfo);
 
 static void openthread_ipc_callback(int pid, int len, int buf,
-		                 void *ud)
+                                    void *ud)
 {
   // A client has requested us to provide them the current temperature value.
   // We must make sure that it provides us with a buffer sufficiently large to
@@ -54,8 +54,8 @@ static void openthread_ipc_callback(int pid, int len, int buf,
     sendUdp((otInstance*) ud);
   }
 
-  if(network_up){
-    if(prior_global_temperature_setpoint != global_temperature_setpoint){
+  if (network_up) {
+    if (prior_global_temperature_setpoint != global_temperature_setpoint) {
       prior_global_temperature_setpoint = global_temperature_setpoint;
 
       // The buffer is large enough, copy the current temperature into it:
@@ -64,7 +64,7 @@ static void openthread_ipc_callback(int pid, int len, int buf,
       // Notify the client that the temperature has changed:
       ipc_notify_client(pid);
     }
-  } 
+  }
 
 }
 
@@ -84,12 +84,11 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   instance = otInstanceInitSingle();
   assert(instance);
 
-   // Register this application as an IPC service under its name:
+  // Register this application as an IPC service under its name:
   ipc_register_service_callback(
     "org.tockos.thread-tutorial.openthread",
     openthread_ipc_callback,
     instance);
-
 
   /* As part of the initialization, we will:
       - Init dataset with the following properties:
@@ -106,7 +105,7 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   otThreadSetChildTimeout(instance, 60);
 
   /* Start the Thread network interface (CLI cmd -> ifconfig up) */
-  while(otIp6SetEnabled(instance, true) != OT_ERROR_NONE) {
+  while (otIp6SetEnabled(instance, true) != OT_ERROR_NONE) {
     printf("Failed to start Thread network interface!\n");
     libtocksync_alarm_delay_ms(100);
   }
@@ -119,17 +118,17 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   initUdp(instance);
 
   /* Start the Thread stack (CLI cmd -> thread start) */
-  while(otThreadSetEnabled(instance, true) != OT_ERROR_NONE) {
+  while (otThreadSetEnabled(instance, true) != OT_ERROR_NONE) {
     printf("Failed to start Thread stack!\n");
     libtocksync_alarm_delay_ms(100);
   }
 
-  for (;;) {
-      otSysProcessDrivers(instance);
-      otTaskletsProcess(instance);
+  for ( ;;) {
+    otSysProcessDrivers(instance);
+    otTaskletsProcess(instance);
 
     if (!otTaskletsArePending(instance)) {
-      	    yield();
+      yield();
     }
 
   }
@@ -246,23 +245,21 @@ void sendUdp(otInstance *aInstance)
   messageInfo.mPeerPort = UDP_PORT;
 
   message = otUdpNewMessage(aInstance, NULL);
-  if(message == NULL){
-    	printf("Error creating udp message\n");
-	    return;
-  } 
+  if (message == NULL) {
+    printf("Error creating udp message\n");
+    return;
+  }
 
-  error = otMessageAppend(message, &local_temperature_setpoint, sizeof(local_temperature_setpoint));  
-if (error != OT_ERROR_NONE && message != NULL)
-  {
-      printf("Error appending to udp message\n");
-      otMessageFree(message);
-      return;
+  error = otMessageAppend(message, &local_temperature_setpoint, sizeof(local_temperature_setpoint));
+  if (error != OT_ERROR_NONE && message != NULL) {
+    printf("Error appending to udp message\n");
+    otMessageFree(message);
+    return;
   }
 
   error = otUdpSend(aInstance, &sUdpSocket, message, &messageInfo);
-  if (error != OT_ERROR_NONE && message != NULL)
-  {
-      printf("Error sending udp packet\n");
-      otMessageFree(message);
+  if (error != OT_ERROR_NONE && message != NULL) {
+    printf("Error sending udp packet\n");
+    otMessageFree(message);
   }
 }

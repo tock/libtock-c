@@ -1,12 +1,12 @@
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
 
-#include <libtock/kernel/ipc.h>
-#include <libtock/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/interface/led.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/services/alarm.h>
 
 #include <libtock-sync/services/alarm.h>
 
@@ -37,14 +37,14 @@ static int init_controller_ipc(void);
 static void read_temperature_timer_callback(__attribute__ ((unused)) uint32_t now,
                                             __attribute__ ((unused)) uint32_t scheduled,
                                             __attribute__ ((unused)) void*    opaque) {
-    // Request a new temperature reading from the sensor:
-    ipc_notify_service(sensor_svc_num);
+  // Request a new temperature reading from the sensor:
+  ipc_notify_service(sensor_svc_num);
 }
 
 
-static void sensor_callback(__attribute__ ((unused)) int pid,
-                            __attribute__ ((unused)) int len,
-                            __attribute__ ((unused)) int arg2,
+static void sensor_callback(__attribute__ ((unused)) int   pid,
+                            __attribute__ ((unused)) int   len,
+                            __attribute__ ((unused)) int   arg2,
                             __attribute__ ((unused)) void* ud) {
   // update measured temperature
   measured_temperature = *((int*) &temperature_buffer[0]);
@@ -91,14 +91,13 @@ int main(void) {
 
   ipc_notify_service(sensor_svc_num);
 
-  for(;;) {
+  for ( ;;) {
     callback_event = false;
     yield_for(&callback_event);
 
-    if (measured_temperature          != prior_measured_temperature
-       || global_temperature_setpoint != prior_global_temperature_setpoint
-       || local_temperature_setpoint  != prior_local_temperature_setpoint)
-    {
+    if (measured_temperature != prior_measured_temperature
+        || global_temperature_setpoint != prior_global_temperature_setpoint
+        || local_temperature_setpoint != prior_local_temperature_setpoint) {
       prior_measured_temperature        = measured_temperature;
       prior_global_temperature_setpoint = global_temperature_setpoint;
       prior_local_temperature_setpoint  = local_temperature_setpoint;
