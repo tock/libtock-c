@@ -3,15 +3,13 @@
 
 #include <assert.h>
 
-#include <openthread-system.h>
+#include <libopenthread/platform/openthread-system.h>
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
 #include <openthread/ip6.h>
 #include <openthread/platform/alarm-milli.h>
 #include <openthread/tasklet.h>
 #include <openthread/thread.h>
-#include <plat.h>
-
 #include <openthread/udp.h>
 
 #include <libtock-sync/services/alarm.h>
