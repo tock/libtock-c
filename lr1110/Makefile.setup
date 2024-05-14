@@ -7,10 +7,7 @@ SEEED_DIR := $(LR1110_DIR)/seeed
 ZIP_FILE := $(SEEED_DIR).zip
 EXTRACTED_DIR := $(SEEED_DIR)/Seeed_Wio_WM1110_Dev_Board-$(VERSION_HASH)
 
-UNCHANGED_C_FILES := $(LR1110_DIR)/unchanged_c_files.txt
-UNCHANGED_H_FILES := $(LR1110_DIR)/unchanged_h_files.txt
-SRC_UNCHANGED := $(LR1110_DIR)/src_unchanged
-INC_UNCHANGED := $(LR1110_DIR)/inc_unchanged
+all : $(ZIP_FILE)
 
 $(ZIP_FILE):
 	curl -L --output $(ZIP_FILE) "https://codeload.github.com/Seeed-Studio/Seeed_Wio_WM1110_Dev_Board/zip/$(VERSION_HASH)"
