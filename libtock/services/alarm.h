@@ -12,8 +12,8 @@
 
 #pragma once
 
-#include "../tock.h"
 #include "../peripherals/syscalls/alarm_syscalls.h"
+#include "../tock.h"
 
 #include <sys/time.h>
 
@@ -114,7 +114,8 @@ int libtock_alarm_in_ms(uint32_t ms, libtock_alarm_callback cb, void* opaque, li
  * \param a pointer to a new alarm_repeating_t to be used by the implementation to
  *        keep track of the alarm.
  */
-void libtock_alarm_repeating_every(uint32_t ms, libtock_alarm_callback cb, void* opaque, libtock_alarm_repeating_t* alarm_repeating);
+void libtock_alarm_repeating_every(uint32_t ms, libtock_alarm_callback cb, void* opaque,
+                                   libtock_alarm_repeating_t* alarm_repeating);
 
 /** \brief Cancels an existing repeating alarm.
  *

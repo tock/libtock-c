@@ -23,4 +23,3 @@ returncode_t libtock_app_state_command_save(uint32_t flash_pointer);
 #ifdef __cplusplus
 }
 #endif
-

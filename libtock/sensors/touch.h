@@ -45,12 +45,12 @@ typedef void (*libtock_touch_gesture_callback)(returncode_t, int);
 
 
 typedef struct __attribute__((__packed__)) {
-    unsigned char id;
-    unsigned char status;
-    unsigned short x;
-    unsigned short y;
-    unsigned char size;
-    unsigned char pressure;
+  unsigned char id;
+  unsigned char status;
+  unsigned short x;
+  unsigned short y;
+  unsigned char size;
+  unsigned char pressure;
 } libtock_touch_event_t;
 
 // buffer data format
@@ -68,7 +68,8 @@ returncode_t libtock_touch_enable_single_touch(libtock_touch_touch_callback cb);
 
 returncode_t libtock_touch_disable_single_touch(void);
 
-returncode_t libtock_touch_enable_multi_touch(libtock_touch_event_t* buffer, int max_touches, libtock_touch_multi_touch_callback cb);
+returncode_t libtock_touch_enable_multi_touch(libtock_touch_event_t* buffer, int max_touches,
+                                              libtock_touch_multi_touch_callback cb);
 
 returncode_t libtock_touch_disable_multi_touch(void);
 
@@ -80,8 +81,8 @@ returncode_t libtock_touch_get_gestures(libtock_touch_gesture_callback cb);
 returncode_t libtock_touch_multi_touch_next(void);
 
 returncode_t libtock_touch_read_touch_from_buffer(libtock_touch_event_t* buffer, int index,
-  uint8_t *id, uint8_t *status, uint8_t *x, uint8_t *y,
-  uint8_t *size, uint8_t *pressure);
+                                                  uint8_t *id, uint8_t *status, uint8_t *x, uint8_t *y,
+                                                  uint8_t *size, uint8_t *pressure);
 
 #ifdef __cplusplus
 }

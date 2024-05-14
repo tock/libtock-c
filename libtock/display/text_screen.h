@@ -40,7 +40,8 @@ returncode_t libtock_text_screen_home (libtock_text_screen_callback_done cb);
 
 returncode_t libtock_text_screen_set_cursor (uint8_t col, uint8_t row, libtock_text_screen_callback_done cb);
 
-returncode_t libtock_text_screen_write (uint8_t* buffer, uint32_t buffer_len, uint32_t write_len, libtock_text_screen_callback_done cb);
+returncode_t libtock_text_screen_write (uint8_t* buffer, uint32_t buffer_len, uint32_t write_len,
+                                        libtock_text_screen_callback_done cb);
 
 returncode_t libtock_text_screen_get_size (libtock_text_screen_callback_size cb);
 

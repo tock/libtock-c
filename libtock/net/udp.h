@@ -57,7 +57,7 @@ returncode_t libtock_udp_recv(void *buf, size_t len, libtock_udp_callback_recv_d
 // Sends a message to the destination address asynchronously
 // The callback is passed the return code for the transmission.
 returncode_t libtock_udp_send(void *buf, size_t len,
-                    sock_addr_t *dst_addr, libtock_udp_callback_send_done cb);
+                              sock_addr_t *dst_addr, libtock_udp_callback_send_done cb);
 
 // Lists `len` interfaces at the array pointed to by `ifaces`.
 // Returns the _total_ number of interfaces, negative on failure.

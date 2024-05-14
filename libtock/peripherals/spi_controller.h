@@ -50,14 +50,14 @@ returncode_t libtock_spi_controller_release_low(void);
 
 returncode_t libtock_spi_controller_write_byte(unsigned char byte);
 
-returncode_t libtock_spi_controller_write(const uint8_t*             buffer,
-                                     size_t               len,
-                                     libtock_spi_controller_callback cb);
-
-returncode_t libtock_spi_controller_read_write(const uint8_t*             write,
-                                          uint8_t*             read,
-                                          size_t               len,
+returncode_t libtock_spi_controller_write(const uint8_t*                  buffer,
+                                          size_t                          len,
                                           libtock_spi_controller_callback cb);
+
+returncode_t libtock_spi_controller_read_write(const uint8_t*                  write,
+                                               uint8_t*                        read,
+                                               size_t                          len,
+                                               libtock_spi_controller_callback cb);
 
 #ifdef __cplusplus
 }

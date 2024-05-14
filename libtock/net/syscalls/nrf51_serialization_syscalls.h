@@ -33,4 +33,3 @@ returncode_t libtock_nrf51_serialization_command_read(uint32_t rx_len, uint32_t*
 #ifdef __cplusplus
 }
 #endif
-

@@ -20,4 +20,3 @@ returncode_t libtock_usb_command_enable_and_attach(void);
 #ifdef __cplusplus
 }
 #endif
-

@@ -13,9 +13,9 @@ extern "C" {
 typedef void (*libtock_sha_callback_hash)(returncode_t);
 
 typedef enum {
-	LIBTOCK_SHA256 = 0,
-	LIBTOCK_SHA384 = 1,
-	LIBTOCK_SHA512 = 2,
+  LIBTOCK_SHA256 = 0,
+  LIBTOCK_SHA384 = 1,
+  LIBTOCK_SHA512 = 2,
 } libtock_sha_algorithm_t;
 
 
@@ -24,9 +24,9 @@ typedef enum {
 //
 // The callback will be called when the hash is available.
 returncode_t libtock_sha_simple_hash(libtock_sha_algorithm_t hash_type,
-	uint8_t* input_buffer, uint32_t input_length,
-	uint8_t* hash_buffer, uint32_t hash_length,
-	libtock_sha_callback_hash cb);
+                                     uint8_t* input_buffer, uint32_t input_length,
+                                     uint8_t* hash_buffer, uint32_t hash_length,
+                                     libtock_sha_callback_hash cb);
 
 #ifdef __cplusplus
 }

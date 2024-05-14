@@ -20,4 +20,3 @@ returncode_t libtock_buzzer_command_tone(uint32_t frequency_hz, uint32_t duratio
 #ifdef __cplusplus
 }
 #endif
-

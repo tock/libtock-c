@@ -71,4 +71,3 @@ returncode_t libtock_screen_command_fill(void);
 #ifdef __cplusplus
 }
 #endif
-
