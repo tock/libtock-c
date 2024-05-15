@@ -42,11 +42,11 @@ int main(void) {
         libtocksync_alarm_delay_ms(250);
         printf("Retransmitting received packet.\n");
         libtocksync_ieee802154_send(0xFFFF,
-                        SEC_LEVEL_NONE,
-                        0,
-                        NULL,
-                        packet_rx + payload_offset,
-                        payload_length);
+                                    SEC_LEVEL_NONE,
+                                    0,
+                                    NULL,
+                                    packet_rx + payload_offset,
+                                    payload_length);
         packet_rx = libtock_ieee802154_read_next_frame(&rx_ring_buf);
       }
       libtock_led_toggle(0);

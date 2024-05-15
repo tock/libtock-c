@@ -22,7 +22,7 @@ int ble_stop_advertising(void) {
   return tock_command_return_novalue_to_returncode(res);
 }
 
-int ble_start_passive_scan(uint8_t *data, uint8_t max_len, subscribe_upcall callback) {
+int ble_start_passive_scan(uint8_t* data, uint8_t max_len, subscribe_upcall callback) {
   if (data == NULL || callback == NULL) {
     return RETURNCODE_FAIL;
   } else {
@@ -31,7 +31,7 @@ int ble_start_passive_scan(uint8_t *data, uint8_t max_len, subscribe_upcall call
     if (!sub_err.success) return tock_status_to_returncode(sub_err.status);
 
     allow_rw_return_t allow_err =
-      allow_readwrite(BLE_DRIVER_NUMBER, BLE_CFG_SCAN_BUF_ALLOWRW, (void *)data, max_len);
+      allow_readwrite(BLE_DRIVER_NUMBER, BLE_CFG_SCAN_BUF_ALLOWRW, (void*)data, max_len);
     if (!allow_err.success) return tock_status_to_returncode(allow_err.status);
 
     syscall_return_t res = command(BLE_DRIVER_NUMBER, BLE_SCAN_CMD, 1, 0);

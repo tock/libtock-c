@@ -1,9 +1,9 @@
 #include "gpio_async.h"
 
-static void gpio_async_upcall_interrupt( int                          pin_number,
-                                         int                          value,
-                                         __attribute__ ((unused)) int unused2,
-                                         void*                        opaque) {
+static void gpio_async_upcall_interrupt(int                          pin_number,
+                                        int                          value,
+                                        __attribute__ ((unused)) int unused2,
+                                        void*                        opaque) {
   libtock_gpio_async_callback_interrupt cb = (libtock_gpio_async_callback_interrupt) opaque;
   cb(0, (uint32_t) pin_number, value == 1);
 }

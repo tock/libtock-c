@@ -25,9 +25,8 @@ int main(void) {
   libtocksync_ieee802154_up();
   while (1) {
     libtock_led_toggle(0);
-    int err = libtocksync_ieee802154_send_raw(
-                          packet,
-                          BUF_SIZE);
+    int err = libtocksync_ieee802154_send_raw(packet,
+                                              BUF_SIZE);
     if (err == RETURNCODE_SUCCESS) {
       printf("Transmitted successfully.\n");
     } else if (err == RETURNCODE_ENOACK) {

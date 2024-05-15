@@ -19,25 +19,24 @@
 #define UDP_PORT 1212
 
 static otUdpSocket sUdpSocket;
-static void initUdp(otInstance *aInstance);
+static void initUdp(otInstance* aInstance);
 
 // Callback method for received udp packets.
-static void handleUdpReceive(void* aContext, otMessage *aMessage,
-                             const otMessageInfo *aMessageInfo);
+static void handleUdpReceive(void* aContext, otMessage* aMessage,
+                             const otMessageInfo* aMessageInfo);
 
 // helper utility demonstrating network config setup
-static void setNetworkConfiguration(otInstance *aInstance);
+static void setNetworkConfiguration(otInstance* aInstance);
 
 // callback for Thread state change events
-static void stateChangeCallback(uint32_t flags, void *context);
+static void stateChangeCallback(uint32_t flags, void* context);
 
 // helper utility to print ip address
-static void print_ip_addr(otInstance *instance);
+static void print_ip_addr(otInstance* instance);
 
-int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
-{
+int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {
   otSysInit(argc, argv);
-  otInstance *instance;
+  otInstance* instance;
   instance = otInstanceInitSingle();
   assert(instance);
 
@@ -81,8 +80,7 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   return 0;
 }
 
-void setNetworkConfiguration(otInstance *aInstance)
-{
+void setNetworkConfiguration(otInstance* aInstance) {
   otOperationalDataset aDataset;
 
   memset(&aDataset, 0, sizeof(otOperationalDataset));
@@ -106,8 +104,7 @@ void setNetworkConfiguration(otInstance *aInstance)
 
 }
 
-void initUdp(otInstance *aInstance)
-{
+void initUdp(otInstance* aInstance) {
   otSockAddr listenSockAddr;
 
   memset(&sUdpSocket, 0, sizeof(sUdpSocket));
@@ -120,9 +117,8 @@ void initUdp(otInstance *aInstance)
 }
 
 
-void handleUdpReceive(void *aContext, otMessage *aMessage,
-                      const otMessageInfo *aMessageInfo)
-{
+void handleUdpReceive(void* aContext, otMessage* aMessage,
+                      const otMessageInfo* aMessageInfo) {
   OT_UNUSED_VARIABLE(aContext);
   OT_UNUSED_VARIABLE(aMessageInfo);
   char buf[150];
@@ -144,9 +140,8 @@ void handleUdpReceive(void *aContext, otMessage *aMessage,
 
 }
 
-static void stateChangeCallback(uint32_t flags, void *context)
-{
-  otInstance *instance = (otInstance *)context;
+static void stateChangeCallback(uint32_t flags, void* context) {
+  otInstance* instance = (otInstance*)context;
   if (!(flags & OT_CHANGED_THREAD_ROLE)) {
     return;
   }
@@ -173,11 +168,11 @@ static void stateChangeCallback(uint32_t flags, void *context)
   }
 }
 
-static void print_ip_addr(otInstance *instance){
+static void print_ip_addr(otInstance* instance) {
   char addr_string[64];
-  const otNetifAddress *unicastAddrs = otIp6GetUnicastAddresses(instance);
+  const otNetifAddress* unicastAddrs = otIp6GetUnicastAddresses(instance);
 
-  for (const otNetifAddress *addr = unicastAddrs; addr; addr = addr->mNext) {
+  for (const otNetifAddress* addr = unicastAddrs; addr; addr = addr->mNext) {
     const otIp6Address ip6_addr = addr->mAddress;
     otIp6AddressToString(&ip6_addr, addr_string, sizeof(addr_string));
     printf("%s\n", addr_string);

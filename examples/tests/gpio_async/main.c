@@ -15,7 +15,7 @@ static void gpio_async_cb(uint32_t port, uint32_t pin, bool value) {
   }
 }
 
-int main (void) {
+int main(void) {
   printf("[TEST] GPIO Async\n");
 
   printf("Enabling rising edge interrupt on port 0 pin 1\n");

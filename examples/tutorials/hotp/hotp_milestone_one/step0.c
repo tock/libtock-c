@@ -103,7 +103,7 @@ void program_default_secret(hotp_key_t* hotp_key) {
 
   // Decode base32 to get HOTP key value
   int ret = base32_decode((const uint8_t*)default_secret, hotp_key->key, 64);
-  if (ret < 0 ) {
+  if (ret < 0) {
     printf("ERROR cannot base32 decode secret\r\n");
     hotp_key->len = 0;
     return;

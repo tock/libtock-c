@@ -16,7 +16,7 @@ static void text_screen_callback_size(int   status,
   cb(tock_status_to_returncode(status), (uint32_t) data1, (uint32_t) data2);
 }
 
-returncode_t libtock_text_screen_display_on (libtock_text_screen_callback_done cb) {
+returncode_t libtock_text_screen_display_on(libtock_text_screen_callback_done cb) {
   returncode_t err;
 
   err = libtock_text_screen_set_upcall(text_screen_callback, cb);
@@ -26,7 +26,7 @@ returncode_t libtock_text_screen_display_on (libtock_text_screen_callback_done c
   return err;
 }
 
-returncode_t libtock_text_screen_display_off (libtock_text_screen_callback_done cb) {
+returncode_t libtock_text_screen_display_off(libtock_text_screen_callback_done cb) {
   returncode_t err;
 
   err = libtock_text_screen_set_upcall(text_screen_callback, cb);
@@ -36,7 +36,7 @@ returncode_t libtock_text_screen_display_off (libtock_text_screen_callback_done 
   return err;
 }
 
-returncode_t libtock_text_screen_blink_on (libtock_text_screen_callback_done cb) {
+returncode_t libtock_text_screen_blink_on(libtock_text_screen_callback_done cb) {
   returncode_t err;
 
   err = libtock_text_screen_set_upcall(text_screen_callback, cb);
@@ -46,7 +46,7 @@ returncode_t libtock_text_screen_blink_on (libtock_text_screen_callback_done cb)
   return err;
 }
 
-returncode_t libtock_text_screen_blink_off (libtock_text_screen_callback_done cb) {
+returncode_t libtock_text_screen_blink_off(libtock_text_screen_callback_done cb) {
   returncode_t err;
 
   err = libtock_text_screen_set_upcall(text_screen_callback, cb);
@@ -56,7 +56,7 @@ returncode_t libtock_text_screen_blink_off (libtock_text_screen_callback_done cb
   return err;
 }
 
-returncode_t libtock_text_screen_show_cursor (libtock_text_screen_callback_done cb) {
+returncode_t libtock_text_screen_show_cursor(libtock_text_screen_callback_done cb) {
   returncode_t err;
 
   err = libtock_text_screen_set_upcall(text_screen_callback, cb);
@@ -66,7 +66,7 @@ returncode_t libtock_text_screen_show_cursor (libtock_text_screen_callback_done 
   return err;
 }
 
-returncode_t libtock_text_screen_hide_cursor (libtock_text_screen_callback_done cb) {
+returncode_t libtock_text_screen_hide_cursor(libtock_text_screen_callback_done cb) {
   returncode_t err;
 
   err = libtock_text_screen_set_upcall(text_screen_callback, cb);
@@ -76,7 +76,7 @@ returncode_t libtock_text_screen_hide_cursor (libtock_text_screen_callback_done 
   return err;
 }
 
-returncode_t libtock_text_screen_clear (libtock_text_screen_callback_done cb) {
+returncode_t libtock_text_screen_clear(libtock_text_screen_callback_done cb) {
   returncode_t err;
 
   err = libtock_text_screen_set_upcall(text_screen_callback, cb);
@@ -86,7 +86,7 @@ returncode_t libtock_text_screen_clear (libtock_text_screen_callback_done cb) {
   return err;
 }
 
-returncode_t libtock_text_screen_home (libtock_text_screen_callback_done cb) {
+returncode_t libtock_text_screen_home(libtock_text_screen_callback_done cb) {
   returncode_t err;
 
   err = libtock_text_screen_set_upcall(text_screen_callback, cb);
@@ -96,7 +96,7 @@ returncode_t libtock_text_screen_home (libtock_text_screen_callback_done cb) {
   return err;
 }
 
-returncode_t libtock_text_screen_set_cursor (uint8_t col, uint8_t row, libtock_text_screen_callback_done cb) {
+returncode_t libtock_text_screen_set_cursor(uint8_t col, uint8_t row, libtock_text_screen_callback_done cb) {
   returncode_t err;
 
   err = libtock_text_screen_set_upcall(text_screen_callback, cb);
@@ -106,8 +106,8 @@ returncode_t libtock_text_screen_set_cursor (uint8_t col, uint8_t row, libtock_t
   return err;
 }
 
-returncode_t libtock_text_screen_write (uint8_t* buffer, uint32_t buffer_len, uint32_t write_len,
-                                        libtock_text_screen_callback_done cb) {
+returncode_t libtock_text_screen_write(uint8_t* buffer, uint32_t buffer_len, uint32_t write_len,
+                                       libtock_text_screen_callback_done cb) {
   returncode_t err;
 
   err = libtock_text_screen_set_readonly_allow(buffer, buffer_len);
@@ -120,7 +120,7 @@ returncode_t libtock_text_screen_write (uint8_t* buffer, uint32_t buffer_len, ui
   return err;
 }
 
-returncode_t libtock_text_screen_get_size (libtock_text_screen_callback_size cb) {
+returncode_t libtock_text_screen_get_size(libtock_text_screen_callback_size cb) {
   returncode_t err;
 
   err = libtock_text_screen_set_upcall(text_screen_callback_size, cb);

@@ -96,7 +96,7 @@ typedef struct unit_test_fun_s {
 }
 
 /** \brief remember the reason a test has failed */
-void set_failure_reason(const char *reason);
+void set_failure_reason(const char* reason);
 
 
 #define CHECK(x) if (!(x)) { set_failure_reason(#x); return false; }
@@ -147,8 +147,8 @@ void test_teardown(void);
  *      return 0;
  *    }
  */
-void unit_test_runner(unit_test_fun *tests, uint32_t test_count,
-                      uint32_t timeout_ms, const char *svc_name);
+void unit_test_runner(unit_test_fun* tests, uint32_t test_count,
+                      uint32_t timeout_ms, const char* svc_name);
 
 /** \brief Test supervisor entry point.
  *

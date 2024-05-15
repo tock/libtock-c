@@ -34,14 +34,14 @@ returncode_t libtocksync_ieee802154_send(uint16_t         addr,
 // to the 15.4 capsule which sends the buffer (without altering the frame).
 // `payload` (in): Buffer containing the desired frame payload.
 // `len` (in): Length of frame payload.
-returncode_t libtocksync_ieee802154_send_raw(const uint8_t *payload,
+returncode_t libtocksync_ieee802154_send_raw(const uint8_t* payload,
                                              uint8_t        len);
 
 // Waits synchronously for an IEEE 802.15.4 frame.
 // `frame` (in): Buffer in which to put the full IEEE 802.15.4 frame data. Note
 //   that the data written might include more than just the IEEE 802.15.4 frame itself.
 //   Use `libtock_ieee802154_frame_get_*` to interact with the resulting frame.
-returncode_t libtocksync_ieee802154_receive(const libtock_ieee802154_rxbuf *frame);
+returncode_t libtocksync_ieee802154_receive(const libtock_ieee802154_rxbuf* frame);
 
 // Synchronously enable the 802.15.4 radio. Returns once the radio is fully
 // initialized.

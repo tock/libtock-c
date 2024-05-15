@@ -1,19 +1,19 @@
 #include "kv.h"
 
-static void kv_upcall_get( int                          err,
-                           int                          length,
-                           __attribute__ ((unused)) int unused2,
-                           void*                        opaque) {
+static void kv_upcall_get(int                          err,
+                          int                          length,
+                          __attribute__ ((unused)) int unused2,
+                          void*                        opaque) {
 
   libtock_kv_callback_get cb = (libtock_kv_callback_get) opaque;
   cb(tock_status_to_returncode(err), length);
 }
 
 
-static void kv_upcall_done( int                          err,
-                            __attribute__ ((unused)) int length,
-                            __attribute__ ((unused)) int unused2,
-                            void*                        opaque) {
+static void kv_upcall_done(int                          err,
+                           __attribute__ ((unused)) int length,
+                           __attribute__ ((unused)) int unused2,
+                           void*                        opaque) {
 
   libtock_kv_callback_done cb = (libtock_kv_callback_done) opaque;
   cb(tock_status_to_returncode(err));
@@ -37,7 +37,7 @@ returncode_t libtock_kv_get(const uint8_t* key_buffer, uint32_t key_len, uint8_t
 }
 
 static returncode_t kv_insert(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer,
-                              uint32_t val_len, returncode_t (*op_fn)(void), libtock_kv_callback_done cb){
+                              uint32_t val_len, returncode_t (*op_fn)(void), libtock_kv_callback_done cb) {
   returncode_t err;
 
   err = libtock_kv_set_upcall(kv_upcall_done, cb);

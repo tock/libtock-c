@@ -39,7 +39,7 @@ returncode_t libtocksync_kv_get(const uint8_t* key_buffer, uint32_t key_len, uin
 
 static returncode_t kv_insert(const uint8_t* key_buffer, uint32_t key_len, const uint8_t* val_buffer,
                               uint32_t val_len, returncode_t (*op_fn)(const uint8_t*, uint32_t, const uint8_t*,
-                          uint32_t, libtock_kv_callback_done)){
+                                                                      uint32_t, libtock_kv_callback_done)) {
   returncode_t err;
   result.fired = false;
 

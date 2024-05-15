@@ -81,7 +81,7 @@ static void sample_sensors(void) {
   check_err(libtocksync_temperature_read(&temp), "temperature_read_sync");
   double accel_mag;
   check_err(libtocksync_ninedof_read_accelerometer_magnitude(
-    &accel_mag), "libtocksync_ninedof_read_accelerometer_magnitude");
+              &accel_mag), "libtocksync_ninedof_read_accelerometer_magnitude");
   int x = 0;
   int y = 0;
   int z = 0;
@@ -140,7 +140,7 @@ int main(void) {
   uint8_t device_name[] = "Micro_bit:v2";
   check_err(gap_add_device_name(&adv_data, device_name, sizeof(device_name) - 1), "gap_add_device_name");
   check_err(ble_start_advertising(ADV_NON_CONN_IND, adv_data.buf, adv_data.offset, advertising_interval_ms),
-   "ble_start_advertising");
+            "ble_start_advertising");
   printf("Now advertising every %d ms as '%s'\n", advertising_interval_ms, device_name);
 
   // Enable button callbacks

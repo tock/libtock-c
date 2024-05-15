@@ -75,10 +75,10 @@ static void sensor_callback(__attribute__ ((unused)) int   pid,
   libtock_alarm_in_ms(250, read_temperature_timer_callback, NULL, &read_temperature_timer);
 }
 
-static void openthread_callback( __attribute__ ((unused)) int   pid,
-                                 __attribute__ ((unused)) int   len,
-                                 __attribute__ ((unused)) int   arg2,
-                                 __attribute__ ((unused)) void* ud) {
+static void openthread_callback(__attribute__ ((unused)) int   pid,
+                                __attribute__ ((unused)) int   len,
+                                __attribute__ ((unused)) int   arg2,
+                                __attribute__ ((unused)) void* ud) {
   network_up = true;
 
   // update setpoint temperature
@@ -144,7 +144,7 @@ int main(void) {
   }
 }
 
-static int init_controller_ipc(void){
+static int init_controller_ipc(void) {
   int err = -1;
   int discover_retry_count = 0;
   int err_sensor     = -1;

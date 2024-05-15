@@ -6,8 +6,7 @@ Advertisement::Advertisement() {
   std::memset(&data_, 0, DATA_MAX_SIZE);
 }
 
-Advertisement::Advertisement(const unsigned char* buf, int len)
-{
+Advertisement::Advertisement(const unsigned char* buf, int len) {
   std::memcpy(&header_, &buf[HEADER_START], HEADER_SIZE);
   std::memcpy(&address_, &buf[ADDRESS_START], ADDRESS_SIZE);
   unsigned char data_len = len - HEADER_SIZE - ADDRESS_SIZE;
@@ -17,8 +16,7 @@ Advertisement::Advertisement(const unsigned char* buf, int len)
   std::memcpy(&data_, &buf[DATA_START], data_len);
 }
 
-bool Advertisement::device_detected(const Advertisement& other) const
-{
+bool Advertisement::device_detected(const Advertisement& other) const {
   return std::memcmp(&address_, &other.address_, ADDRESS_SIZE) == 0;
 }
 
@@ -30,8 +28,7 @@ bool Advertisement::operator!=(const Advertisement& other) const {
   return std::memcmp(this, &other, sizeof(Advertisement)) != 0;
 }
 
-void Advertisement::print() const
-{
+void Advertisement::print() const {
   printf("PDU Type: %d %s\r\n", pduType(), pduTypeStr());
   printf("PDU TxAdd: %d\r\n", pduTxAddSet() ? 1 : 0);
   printf("PDU RxAdd: %d\r\n", pduRxAddSet() ? 1 : 0);
@@ -45,28 +42,23 @@ void Advertisement::print() const
   printf("\r\n\r\n");
 }
 
-unsigned char Advertisement::pduLength() const
-{
+unsigned char Advertisement::pduLength() const {
   return header_[1] & PDU_LEN_HEADER_MASK;
 }
 
-unsigned char Advertisement::pduType() const
-{
+unsigned char Advertisement::pduType() const {
   return header_[0] & PDU_TYPE_HEADER_MASK;
 }
 
-bool Advertisement::pduTxAddSet() const
-{
+bool Advertisement::pduTxAddSet() const {
   return header_[0] & PDU_TXADD_HEADER_MASK;
 }
 
-bool Advertisement::pduRxAddSet() const
-{
+bool Advertisement::pduRxAddSet() const {
   return header_[0] & PDU_RXADD_HEADER_MASK;
 }
 
-const char* Advertisement::pduTypeStr() const
-{
+const char* Advertisement::pduTypeStr() const {
   switch (pduType()) {
     case 0:
       return "ADV_IND";
@@ -87,8 +79,7 @@ const char* Advertisement::pduTypeStr() const
   }
 }
 
-bool Advertisement::checkScanResult(const unsigned char* buf, int len)
-{
+bool Advertisement::checkScanResult(const unsigned char* buf, int len) {
   if (buf == nullptr) {
     printf("Malformed scan result: Buffer was null!\n");
     return false;

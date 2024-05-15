@@ -4,7 +4,7 @@ bool libtock_alarm_exists(void) {
   return driver_exists(DRIVER_NUM_ALARM);
 }
 
-int libtock_alarm_set_upcall(subscribe_upcall callback, void *opaque) {
+int libtock_alarm_set_upcall(subscribe_upcall callback, void* opaque) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_ALARM, 0, callback, opaque);
   return tock_subscribe_return_to_returncode(sval);
 }

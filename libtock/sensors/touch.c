@@ -105,8 +105,8 @@ returncode_t libtock_touch_multi_touch_next(void) {
 // get multi touch
 
 returncode_t libtock_touch_read_touch_from_buffer(libtock_touch_event_t* buffer, int index,
-                                                  uint8_t *id, uint8_t *status, uint8_t *x, uint8_t *y,
-                                                  uint8_t *size, uint8_t *pressure) {
+                                                  uint8_t* id, uint8_t* status, uint8_t* x, uint8_t* y,
+                                                  uint8_t* size, uint8_t* pressure) {
   if (buffer != NULL) {
     *id       = buffer[index].id;
     *status   = buffer[index].status;

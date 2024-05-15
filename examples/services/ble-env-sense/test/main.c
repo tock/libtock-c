@@ -37,7 +37,7 @@ int main(void) {
 
   libtocksync_alarm_delay_ms(1500);
 
-  sensor_update_t *update = (sensor_update_t*) buf;
+  sensor_update_t* update = (sensor_update_t*) buf;
   ipc_register_client_callback(_svc_num, ipc_callback, update);
 
   update->type  = SENSOR_HUMIDITY;

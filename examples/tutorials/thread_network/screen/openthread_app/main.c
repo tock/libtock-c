@@ -23,8 +23,8 @@
 static const char UDP_ROUTER_MULTICAST[] = "ff02::2";
 
 static otUdpSocket sUdpSocket;
-static void initUdp(otInstance *aInstance);
-static void sendUdp(otInstance *aInstance);
+static void initUdp(otInstance* aInstance);
+static void sendUdp(otInstance* aInstance);
 
 uint8_t local_temperature_setpoint        = 0;
 uint8_t global_temperature_setpoint       = 0;
@@ -33,12 +33,11 @@ bool network_up       = false;
 bool pending_udp_send = false;
 
 // Callback method for received udp packets.
-static void handleUdpReceive(void* aContext, otMessage *aMessage,
-                             const otMessageInfo *aMessageInfo);
+static void handleUdpReceive(void* aContext, otMessage* aMessage,
+                             const otMessageInfo* aMessageInfo);
 
 static void openthread_ipc_callback(int pid, int len, int buf,
-                                    void *ud)
-{
+                                    void* ud) {
   // A client has requested us to provide them the current temperature value.
   // We must make sure that it provides us with a buffer sufficiently large to
   // store a single integer:
@@ -70,27 +69,25 @@ static void openthread_ipc_callback(int pid, int len, int buf,
 }
 
 // helper utility demonstrating network config setup
-static void setNetworkConfiguration(otInstance *aInstance);
+static void setNetworkConfiguration(otInstance* aInstance);
 
 // callback for Thread state change events
-static void stateChangeCallback(uint32_t flags, void *context);
+static void stateChangeCallback(uint32_t flags, void* context);
 
 // helper utility to print ip address
-static void print_ip_addr(otInstance *instance);
+static void print_ip_addr(otInstance* instance);
 
-int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
-{
+int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {
   // Initialize OpenThread instance.
   otSysInit(argc, argv);
-  otInstance *instance;
+  otInstance* instance;
   instance = otInstanceInitSingle();
   assert(instance);
 
   // Register this application as an IPC service under its name:
-  ipc_register_service_callback(
-    "org.tockos.thread-tutorial.openthread",
-    openthread_ipc_callback,
-    instance);
+  ipc_register_service_callback("org.tockos.thread-tutorial.openthread",
+                                openthread_ipc_callback,
+                                instance);
 
   /* As part of the initialization, we will:
       - Init dataset with the following properties:
@@ -138,8 +135,7 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   return 0;
 }
 
-void setNetworkConfiguration(otInstance *aInstance)
-{
+void setNetworkConfiguration(otInstance* aInstance) {
   otOperationalDataset aDataset;
 
   memset(&aDataset, 0, sizeof(otOperationalDataset));
@@ -163,9 +159,8 @@ void setNetworkConfiguration(otInstance *aInstance)
 
 }
 
-static void stateChangeCallback(uint32_t flags, void *context)
-{
-  otInstance *instance = (otInstance *)context;
+static void stateChangeCallback(uint32_t flags, void* context) {
+  otInstance* instance = (otInstance*)context;
   if (!(flags & OT_CHANGED_THREAD_ROLE)) {
     return;
   }
@@ -193,21 +188,20 @@ static void stateChangeCallback(uint32_t flags, void *context)
   }
 }
 
-static void print_ip_addr(otInstance *instance){
+static void print_ip_addr(otInstance* instance) {
   char addr_string[64];
-  const otNetifAddress *unicastAddrs = otIp6GetUnicastAddresses(instance);
+  const otNetifAddress* unicastAddrs = otIp6GetUnicastAddresses(instance);
 
   printf("[THREAD] Device IPv6 Addresses: ");
-  for (const otNetifAddress *addr = unicastAddrs; addr; addr = addr->mNext) {
+  for (const otNetifAddress* addr = unicastAddrs; addr; addr = addr->mNext) {
     const otIp6Address ip6_addr = addr->mAddress;
     otIp6AddressToString(&ip6_addr, addr_string, sizeof(addr_string));
     printf("%s\n", addr_string);
   }
 }
 
-void handleUdpReceive(void *aContext, otMessage *aMessage,
-                      const otMessageInfo *aMessageInfo)
-{
+void handleUdpReceive(void* aContext, otMessage* aMessage,
+                      const otMessageInfo* aMessageInfo) {
   OT_UNUSED_VARIABLE(aContext);
   OT_UNUSED_VARIABLE(aMessageInfo);
   char buf[2];
@@ -219,8 +213,7 @@ void handleUdpReceive(void *aContext, otMessage *aMessage,
   global_temperature_setpoint = buf[0];
 }
 
-void initUdp(otInstance *aInstance)
-{
+void initUdp(otInstance* aInstance) {
   otSockAddr listenSockAddr;
 
   memset(&sUdpSocket, 0, sizeof(sUdpSocket));
@@ -232,11 +225,10 @@ void initUdp(otInstance *aInstance)
   otUdpBind(aInstance, &sUdpSocket, &listenSockAddr, OT_NETIF_THREAD);
 }
 
-void sendUdp(otInstance *aInstance)
-{
+void sendUdp(otInstance* aInstance) {
 
   otError error = OT_ERROR_NONE;
-  otMessage *   message;
+  otMessage*   message;
   otMessageInfo messageInfo;
   otIp6Address destinationAddr;
 

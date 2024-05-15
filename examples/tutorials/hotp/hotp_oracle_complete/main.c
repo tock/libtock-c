@@ -111,14 +111,14 @@ static void program_secret(int slot_num, uint8_t* secret) {
   uint8_t plaintext_key[64];
   // Decode base32 to get HOTP key value
   int ret = base32_decode((const uint8_t*)secret, plaintext_key, 64);
-  if (ret < 0 ) {
+  if (ret < 0) {
     printf("ERROR cannot base32 decode secret\r\n");
     keys[slot_num].len = 0;
     return;
   }
 
   ret = oracle_encrypt(plaintext_key, ret, keys[slot_num].key, 64, keys[slot_num].iv);
-  if (ret < 0 ) {
+  if (ret < 0) {
     printf("ERROR(%i): %s.\r\n", ret, tock_strrcode(ret));
     printf("ERROR cannot encrypt key\r\n");
     keys[slot_num].len = 0;
@@ -255,8 +255,8 @@ static void get_next_code_encrypted(int slot_num) {
 // Performs initialization and interactivity.
 int main(void) {
   printf("Tock HOTP App Started. Usage:\r\n"
-      "* Press a button to get the next HOTP code for that slot.\r\n"
-      "* Hold a button to enter a new HOTP secret for that slot.\r\n");
+         "* Press a button to get the next HOTP code for that slot.\r\n"
+         "* Hold a button to enter a new HOTP secret for that slot.\r\n");
 
   // Initialize keys from KV store.
   if (initialize_keys() != RETURNCODE_SUCCESS) {

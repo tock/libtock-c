@@ -27,8 +27,8 @@ static void recv_callback(statuscode_t ret, int len) {
   recv_sync_result.status = ret;
 }
 
-returncode_t libtocksync_udp_send(void *buf, size_t len,
-                                  sock_addr_t *dst_addr) {
+returncode_t libtocksync_udp_send(void* buf, size_t len,
+                                  sock_addr_t* dst_addr) {
   returncode_t ret;
   send_sync_result.fired = false;
 
@@ -39,7 +39,7 @@ returncode_t libtocksync_udp_send(void *buf, size_t len,
   return tock_status_to_returncode(send_sync_result.status);
 }
 
-returncode_t libtocksync_udp_recv(void *buf, size_t len, size_t* received_len) {
+returncode_t libtocksync_udp_recv(void* buf, size_t len, size_t* received_len) {
   returncode_t ret;
   recv_sync_result.fired = false;
 
