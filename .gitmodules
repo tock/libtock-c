@@ -5,7 +5,7 @@
 	path = lvgl/lvgl
 	url = https://github.com/littlevgl/lvgl.git
 [submodule "examples/lora/RadioLib"]
-	path = wip/lora/RadioLib
+	path = examples/lora/RadioLib
 	url = https://github.com/jgromes/RadioLib.git
 [submodule "libopenthread/openthread"]
 	path = libopenthread/openthread
