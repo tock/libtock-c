@@ -2,7 +2,7 @@
 #include <stdint.h>   // C99 types
 #include <stdbool.h>  // bool type
 #include <string.h>
-#include "smtc_hal_uart.h"
+// #include "smtc_hal_uart.h"
 #include "smtc_hal_trace.h"
 
 #define PRINT_BUFFER_SIZE 256
