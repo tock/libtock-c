@@ -12,8 +12,13 @@ endif
 # include changed source files
 CHANGED_CSRCS := $(wildcard $(LR1110_DIR)/src_changed/*.c)
 
-# include changed headers and parameters
-override CFLAGS += -I$(LR1110_DIR)/inc_changed -DREGION_US_915 -DRP2_103 -DTASK_EXTENDED_2
+# include changed headers
+override CFLAGS += -I$(LR1110_DIR)/inc_changed
+
+# -DREGION_US_915: Defines the LoRaWAN region to US 915 MHz band
+# -DRP2_103: Specifies the use of Regional Parameters version RP2-1.0.3
+# -DTASK_EXTENDED_2: The LoRa Basics Modem extended uplink ID to be used for Wi-Fi uplinks
+override CFLAGS += -DREGION_US_915 -DRP2_103 -DTASK_EXTENDED_2
 
 # include unchanged source files from seeed's repo
 UNCHANGED_CSRCS := \
@@ -122,9 +127,6 @@ override CFLAGS += \
 override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
 override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
 
-CSRCS := $(UNCHANGED_CSRCS) $(CHANGED_CSRCS)
-
-# List all C and Assembly files
-$(LIBNAME)_SRCS  := $(CSRCS)
+$(LIBNAME)_SRCS := $(UNCHANGED_CSRCS) $(CHANGED_CSRCS)
 
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
