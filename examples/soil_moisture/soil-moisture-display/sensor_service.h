@@ -1,1 +1,1 @@
-../soil_moisture_instr/sensor_service.h
+../soil-moisture-watering/sensor_service.h

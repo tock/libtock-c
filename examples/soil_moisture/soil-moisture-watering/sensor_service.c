@@ -22,7 +22,7 @@ returncode_t connect_to_sensor_service(char* ipc_buf, sensor_service_callback cb
 
   // Save the callback to use when we get notified.
   _callback = cb;
-  _ipc_buf  = ipc_buf;
+  _ipc_buf = ipc_buf;
 
   // Find the sensing service.
   err = ipc_discover("soil_moisture_sensor", &svc_num);
