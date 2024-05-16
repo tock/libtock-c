@@ -30,4 +30,12 @@ LIBS_rv32imac += ../RadioLib/examples/NonArduino/Tock/build-riscv/RadioLib/libRa
 include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
 
 ../RadioLib/examples/NonArduino/Tock/build-arm/RadioLib/libRadioLib.a ../RadioLib/examples/NonArduino/Tock/build-riscv/RadioLib/libRadioLib.a:
-	cd ../ && ./build-RadioLib.sh
+	cd ../RadioLib/examples/NonArduino/Tock/ && \
+		rm -rf build-arm build-riscv && \
+		mkdir -p build-arm && cd build-arm && \
+		LIBTOCK_C_DIRECTORY="$(TOCK_USERLAND_BASE_DIR)/../../../../" cmake -G "CodeBlocks - Unix Makefiles" .. && \
+		$(MAKE) -j4 2> /dev/null || \
+		cd ../ && \
+		mkdir -p build-riscv && cd build-riscv && \
+		LIBTOCK_C_DIRECTORY="$(TOCK_USERLAND_BASE_DIR)/../../../../" cmake -G "CodeBlocks - Unix Makefiles" -DRISCV_BUILD=1 .. && \
+		$(MAKE) -j4 2> /dev/null || true
