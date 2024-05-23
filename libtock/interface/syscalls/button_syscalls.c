@@ -10,7 +10,7 @@ bool libtock_button_exists(void) {
   return count > 0;
 }
 
-returncode_t libtock_button_set_upcall(subscribe_upcall callback, void *opaque) {
+returncode_t libtock_button_set_upcall(subscribe_upcall callback, void* opaque) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_BUTTON, 0, callback, opaque);
   return tock_subscribe_return_to_returncode(sval);
 }

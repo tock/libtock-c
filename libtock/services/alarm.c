@@ -17,14 +17,14 @@ static void root_insert(libtock_alarm_t* alarm) {
     return;
   }
 
-  libtock_alarm_t **cur = &root;
-  libtock_alarm_t *prev = NULL;
+  libtock_alarm_t** cur = &root;
+  libtock_alarm_t* prev = NULL;
   while (*cur != NULL) {
     uint32_t cur_expiration = (*cur)->reference + (*cur)->dt;
     uint32_t new_expiration = alarm->reference + alarm->dt;
     if (!within_range(alarm->reference, cur_expiration, new_expiration)) {
       // insert before
-      libtock_alarm_t *tmp = *cur;
+      libtock_alarm_t* tmp = *cur;
       *cur        = alarm;
       alarm->next = tmp;
       alarm->prev = prev;
@@ -45,7 +45,7 @@ static libtock_alarm_t* root_pop(void) {
   if (root == NULL) {
     return NULL;
   } else {
-    libtock_alarm_t *res = root;
+    libtock_alarm_t* res = root;
     root = root->next;
     if (root != NULL) {
       root->prev = NULL;
@@ -59,10 +59,10 @@ static libtock_alarm_t* root_peek(void) {
   return root;
 }
 
-static void alarm_upcall( __attribute__ ((unused)) int   kernel_now,
-                          __attribute__ ((unused)) int   scheduled,
-                          __attribute__ ((unused)) int   unused2,
-                          __attribute__ ((unused)) void* opaque) {
+static void alarm_upcall(__attribute__ ((unused)) int   kernel_now,
+                         __attribute__ ((unused)) int   scheduled,
+                         __attribute__ ((unused)) int   unused2,
+                         __attribute__ ((unused)) void* opaque) {
   for (libtock_alarm_t* alarm = root_peek(); alarm != NULL; alarm = root_peek()) {
     uint32_t now;
     libtock_alarm_command_read(&now);
@@ -129,7 +129,7 @@ void libtock_alarm_cancel(libtock_alarm_t* alarm) {
 
 }
 
-int libtock_alarm_in_ms(uint32_t ms, libtock_alarm_callback cb, void* opaque, libtock_alarm_t *alarm) {
+int libtock_alarm_in_ms(uint32_t ms, libtock_alarm_callback cb, void* opaque, libtock_alarm_t* alarm) {
   uint32_t frequency;
   libtock_alarm_command_get_frequency(&frequency);
   uint32_t interval = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
@@ -138,7 +138,7 @@ int libtock_alarm_in_ms(uint32_t ms, libtock_alarm_callback cb, void* opaque, li
   return libtock_alarm_at(now, interval, cb, opaque, alarm);
 }
 
-static void alarm_repeating_cb( uint32_t now, __attribute__ ((unused)) uint32_t scheduled, void* opaque) {
+static void alarm_repeating_cb(uint32_t now, __attribute__ ((unused)) uint32_t scheduled, void* opaque) {
   libtock_alarm_repeating_t* repeating = (libtock_alarm_repeating_t*) opaque;
   uint32_t interval = repeating->interval;
   uint32_t cur_exp  = repeating->alarm.reference + interval;
@@ -168,8 +168,7 @@ void libtock_alarm_repeating_cancel(libtock_alarm_repeating_t* repeating) {
   libtock_alarm_cancel(&repeating->alarm);
 }
 
-int libtock_alarm_gettimeasticks(struct timeval *tv, __attribute__ ((unused)) void *tzvp)
-{
+int libtock_alarm_gettimeasticks(struct timeval* tv, __attribute__ ((unused)) void* tzvp) {
   uint32_t frequency, now, seconds, remainder;
   const uint32_t microsecond_scaler = 1000000;
 

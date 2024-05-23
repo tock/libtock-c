@@ -14,9 +14,9 @@ extern "C" {
 // mode of the ADC
 // Used to tell which operation a callback corresponds to
 typedef enum {
-  libtock_adc_SingleSample = 0,
+  libtock_adc_SingleSample     = 0,
   libtock_adc_ContinuousSample = 1,
-  libtock_adc_SingleBuffer = 2,
+  libtock_adc_SingleBuffer     = 2,
   libtock_adc_ContinuousBuffer = 3
 } libtock_adc_mode;
 
@@ -105,16 +105,14 @@ returncode_t libtock_adc_buffered_sample(uint8_t channel, uint32_t frequency, li
 //
 // channel - number of the channel to be sampled
 // frequency - rate in samples per second to collect data at
-returncode_t libtock_adc_continuous_buffered_sample(uint8_t channel, uint32_t frequency, libtock_adc_callbacks* callbacks);
+returncode_t libtock_adc_continuous_buffered_sample(uint8_t channel, uint32_t frequency,
+                                                    libtock_adc_callbacks* callbacks);
 
 // cancel an outstanding ADC operation
 // No callback will occur from the prior ADC operation. The ADC may not be
 // immediately ready to use again if a single sample was canceled. Usually used
 // to stop a continuous sampling operation
 returncode_t libtock_adc_stop_sampling(void);
-
-
-
 
 
 

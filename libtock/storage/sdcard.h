@@ -38,7 +38,8 @@ returncode_t libtock_sdcard_initialize(libtock_sdcard_callback_initialized cb);
 // - `buffer`: buffer to read into.
 // - `len`: len of buffer.
 // - `cb`: callback.
-returncode_t libtock_sdcard_read_block(uint32_t sector, uint8_t* buffer, uint32_t len, libtock_sdcard_callback_operations cb);
+returncode_t libtock_sdcard_read_block(uint32_t sector, uint8_t* buffer, uint32_t len,
+                                       libtock_sdcard_callback_operations cb);
 
 // Write a single block to an SD card asynchronously.
 //
@@ -52,7 +53,8 @@ returncode_t libtock_sdcard_read_block(uint32_t sector, uint8_t* buffer, uint32_
 // - `buffer`: buffer to write from.
 // - `len`: len of buffer.
 // - `cb`: callback.
-returncode_t libtock_sdcard_write_block(uint32_t sector, uint8_t* buffer, uint32_t len, libtock_sdcard_callback_operations cb);
+returncode_t libtock_sdcard_write_block(uint32_t sector, uint8_t* buffer, uint32_t len,
+                                        libtock_sdcard_callback_operations cb);
 
 #ifdef __cplusplus
 }

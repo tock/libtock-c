@@ -29,7 +29,7 @@ int main() {
 
   D1 d1class;
   D2 d2class;
-  Base *pClass;
+  Base* pClass;
   while (1) {
     if (test_branch % 2) {
       pClass = &d1class;

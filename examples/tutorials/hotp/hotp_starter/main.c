@@ -138,7 +138,7 @@ static void program_default_secret(hotp_key_t* hotp_key) {
 
   // Decode base32 to get HOTP key value
   int ret = base32_decode((const uint8_t*)default_secret, hotp_key->key, 64);
-  if (ret < 0 ) {
+  if (ret < 0) {
     printf("ERROR cannot base32 decode secret\r\n");
     hotp_key->len = 0;
     return;
@@ -215,7 +215,7 @@ static void get_next_code(hotp_key_t* hotp_key) {
 int main(void) {
   libtocksync_alarm_delay_ms(1000);
   printf("Tock HOTP App Started. Usage:\r\n"
-      "* Press Button 1 to get the next HOTP code for that slot.\r\n");
+         "* Press Button 1 to get the next HOTP code for that slot.\r\n");
 
   // Initialize buttons
   if (initialize_buttons(false) != RETURNCODE_SUCCESS) {

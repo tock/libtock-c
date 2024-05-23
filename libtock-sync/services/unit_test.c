@@ -94,7 +94,7 @@ struct unit_test_t {
 
   // Interior linked list element, points to the next test runner in the
   // queue.
-  unit_test_t *next;
+  unit_test_t* next;
 };
 
 /**
@@ -102,14 +102,14 @@ struct unit_test_t {
  * unit_test_t struct. Only needed for optimizing the append operation.
  */
 typedef struct linked_list {
-  unit_test_t *head;
-  unit_test_t *tail;
+  unit_test_t* head;
+  unit_test_t* tail;
 } linked_list_t;
 
 /**
  * Append a new unit_test_t to the linked list.
  */
-static void list_append(linked_list_t *list, unit_test_t *test) {
+static void list_append(linked_list_t* list, unit_test_t* test) {
   if (list->tail) {
     list->tail->next = test;
   } else {
@@ -123,7 +123,7 @@ static void list_append(linked_list_t *list, unit_test_t *test) {
 /**
  * Remove a unit_test_t from the front of the linked list.
  */
-static void list_pop(linked_list_t *list) {
+static void list_pop(linked_list_t* list) {
   if (!list->head) return;
 
   list->head = list->head->next;
@@ -134,8 +134,8 @@ static void list_pop(linked_list_t *list) {
 /**
  * Returns true if the linked list contains the given unit_test_t.
  */
-static bool list_contains(linked_list_t *list, unit_test_t *test) {
-  unit_test_t *curr = list->head;
+static bool list_contains(linked_list_t* list, unit_test_t* test) {
+  unit_test_t* curr = list->head;
   while (curr) {
     if (curr == test) return true;
     curr = curr->next;
@@ -189,7 +189,7 @@ void test_teardown(void) {}
 static void continue_callback(__attribute__ ((unused)) int   pid,
                               __attribute__ ((unused)) int   arg2,
                               __attribute__ ((unused)) int   arg3,
-                              __attribute__ ((unused)) void *ud) {
+                              __attribute__ ((unused)) void* ud) {
   done = true;
 }
 
@@ -201,8 +201,8 @@ static void sync_with_supervisor(int svc) {
   yield_for(&done);
 }
 
-static char failure_reason[sizeof(((unit_test_t *) 0)->reason)];
-void set_failure_reason(const char *reason) {
+static char failure_reason[sizeof(((unit_test_t*) 0)->reason)];
+void set_failure_reason(const char* reason) {
   strncpy(failure_reason, reason, sizeof(failure_reason));
 }
 
@@ -220,12 +220,12 @@ void set_failure_reason(const char *reason) {
  * \param svc_name The IPC service name of the test supervisor (e.g.
  *                 "org.tockos.unit_test")
  */
-void unit_test_runner(unit_test_fun *tests, uint32_t test_count,
-                      uint32_t timeout_ms, const char *svc_name) {
+void unit_test_runner(unit_test_fun* tests, uint32_t test_count,
+                      uint32_t timeout_ms, const char* svc_name) {
 
   // Initialize the test state.
   memset(&test_buf[0], 0, TEST_BUF_SZ);
-  unit_test_t *test = (unit_test_t *)(&test_buf[0]);
+  unit_test_t* test = (unit_test_t*)(&test_buf[0]);
   test->count      = test_count;
   test->timeout_ms = timeout_ms;
 
@@ -286,7 +286,7 @@ void unit_test_runner(unit_test_fun *tests, uint32_t test_count,
 
 /** \brief Print the individual test result to the console.
  */
-static void print_test_result(unit_test_t *test) {
+static void print_test_result(unit_test_t* test) {
   char name_buf[sizeof(test->name) + 1]     = {0};
   char reason_buf[sizeof(test->reason) + 1] = {0};
   memcpy(name_buf, test->name, sizeof(test->name));
@@ -309,7 +309,7 @@ static void print_test_result(unit_test_t *test) {
 
 /** \brief Print an aggregate summary of the unit test results to the console.
  */
-static void print_test_summary(unit_test_t *test) {
+static void print_test_summary(unit_test_t* test) {
   uint32_t total = (test->count > test->pass_count + test->fail_count) ?
                    test->count : test->pass_count + test->fail_count;
 
@@ -322,7 +322,7 @@ static void print_test_summary(unit_test_t *test) {
 }
 
 struct alarm_cb_data {
-  unit_test_t *test;
+  unit_test_t* test;
 };
 
 static struct alarm_cb_data data = { .test = NULL };
@@ -352,13 +352,13 @@ static void timeout_callback(__attribute__ ((unused)) uint32_t now,
 static void unit_test_service_callback(int                            pid,
                                        __attribute__ ((unused)) int   len,
                                        int                            buf,
-                                       __attribute__ ((unused)) void *ud) {
+                                       __attribute__ ((unused)) void* ud) {
   if (buf == 0) {
     return;
   }
 
-  unit_test_t *test      = (unit_test_t *)buf;
-  linked_list_t *pending = (linked_list_t *)ud;
+  unit_test_t* test      = (unit_test_t*)buf;
+  linked_list_t* pending = (linked_list_t*)ud;
 
   switch (test->cmd) {
     case TestInit:

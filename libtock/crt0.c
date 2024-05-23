@@ -13,7 +13,7 @@
 #error Fixed STACK_SIZE.
 #endif
 
-extern int main(int argc, char *argv[]);
+extern int main(int argc, char* argv[]);
 
 // Allow _start to go undeclared
 #pragma GCC diagnostic ignored "-Wmissing-declarations"

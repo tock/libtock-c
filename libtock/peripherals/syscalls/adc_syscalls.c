@@ -49,12 +49,12 @@ returncode_t libtock_adc_command_stop_sampling(void) {
   return tock_command_return_novalue_to_returncode(cval);
 }
 
-returncode_t libtock_adc_command_get_reference_voltage (uint32_t* reference_voltage) {
+returncode_t libtock_adc_command_get_reference_voltage(uint32_t* reference_voltage) {
   syscall_return_t cval = command(DRIVER_NUM_ADC, 102, 0, 0);
   return tock_command_return_u32_to_returncode(cval, reference_voltage);
 }
 
-returncode_t libtock_adc_command_get_resolution_bits (uint32_t* resolution) {
+returncode_t libtock_adc_command_get_resolution_bits(uint32_t* resolution) {
   syscall_return_t cval = command(DRIVER_NUM_ADC, 101, 0, 0);
   return tock_command_return_u32_to_returncode(cval, resolution);
 }

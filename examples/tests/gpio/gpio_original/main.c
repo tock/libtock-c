@@ -82,8 +82,8 @@ static void gpio_input(void) {
 // GPIO interrupt example
 // **************************************************
 static bool gpio_interrupt_fired = false;
-static void gpio_cb (__attribute__ ((unused)) uint32_t pin_num,
-                     __attribute__ ((unused)) bool     arg2) {
+static void gpio_cb(__attribute__ ((unused)) uint32_t pin_num,
+                    __attribute__ ((unused)) bool     arg2) {
   gpio_interrupt_fired = true;
 }
 

@@ -132,7 +132,7 @@ static bool test_basic_gpio1(void) {
 }
 
 
-static void test_button_callback (
+static void test_button_callback(
   __attribute__ ((unused)) returncode_t ret,
   int                                   pin_num,
   __attribute__ ((unused)) bool         val) {
@@ -140,7 +140,7 @@ static void test_button_callback (
   int_ctr += 1;
 }
 
-static void test_gpio_callback (
+static void test_gpio_callback(
   uint32_t                      pin_num,
   __attribute__ ((unused)) bool val) {
   int_nr   = pin_num;

@@ -25,8 +25,8 @@ int ipc_discover(const char* pkg_name, size_t* svc_id);
 //   pkg_name  - the package name of this service
 //   callback  - the address callback function to execute when clients notify
 //   void* ud  - `userdata`. data passed to callback function
-int ipc_register_service_callback(const char *pkg_name,
-                                  subscribe_upcall callback, void *ud);
+int ipc_register_service_callback(const char* pkg_name,
+                                  subscribe_upcall callback, void* ud);
 
 // Registers a client callback for a particular service.
 //
@@ -41,7 +41,7 @@ int ipc_register_service_callback(const char *pkg_name,
 //   char* buf  - the base address of the shared buffer, or NULL if no buffer
 //                is shared from the service.
 //   void* ud   - `userdata`. same as the argument to this function.
-int ipc_register_client_callback(size_t svc_id, subscribe_upcall callback, void *ud);
+int ipc_register_client_callback(size_t svc_id, subscribe_upcall callback, void* ud);
 
 // Send a notify to the client at the given process id
 int ipc_notify_client(size_t pid);

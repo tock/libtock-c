@@ -43,8 +43,8 @@ hotp_key_t stored_keys[NUM_KEYS];
 int main(void) {
   libtocksync_alarm_delay_ms(1000);
   printf("Tock HOTP App Started. Usage:\r\n"
-      "* Press a button to get the next HOTP code for that slot.\r\n"
-      "* Hold a button to enter a new HOTP secret for that slot.\r\n");
+         "* Press a button to get the next HOTP code for that slot.\r\n"
+         "* Hold a button to enter a new HOTP secret for that slot.\r\n");
 
   // Initialize keys from KV store.
   for (int i = 0; i < NUM_KEYS; i++) {

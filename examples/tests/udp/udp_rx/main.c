@@ -23,9 +23,9 @@ char packet_rx[MAX_RX_PACKET_LEN];
 static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
 sock_handle_t* handle;
 
-void print_ipv6(ipv6_addr_t *);
+void print_ipv6(ipv6_addr_t*);
 
-void print_ipv6(ipv6_addr_t *ipv6_addr) {
+void print_ipv6(ipv6_addr_t* ipv6_addr) {
   for (int j = 0; j < 14; j += 2) {
     printf("%02x%02x:", ipv6_addr->addr[j], ipv6_addr->addr[j + 1]);
   }

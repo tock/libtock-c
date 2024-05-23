@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-int i2c_master_set_callback (subscribe_upcall callback, void* callback_args);
+int i2c_master_set_callback(subscribe_upcall callback, void* callback_args);
 int i2c_master_set_buffer(uint8_t* buffer, uint32_t len);
 int i2c_master_write(uint8_t address, uint16_t length);
 int i2c_master_read(uint8_t address, uint16_t length);

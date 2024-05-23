@@ -4,7 +4,7 @@ bool libtock_buzzer_exists(void) {
   return driver_exists(DRIVER_NUM_BUZZER);
 }
 
-returncode_t libtock_buzzer_set_upcall(subscribe_upcall callback, void* opaque){
+returncode_t libtock_buzzer_set_upcall(subscribe_upcall callback, void* opaque) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_BUZZER, 0, callback, opaque);
   return tock_subscribe_return_to_returncode(sval);
 }

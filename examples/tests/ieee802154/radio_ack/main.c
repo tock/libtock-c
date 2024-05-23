@@ -26,11 +26,11 @@ int main(void) {
   libtocksync_ieee802154_up();
   while (1) {
     int err = libtocksync_ieee802154_send(0x0802,
-                              SEC_LEVEL_NONE,
-                              0,
-                              NULL,
-                              packet_tx,
-                              BUF_SIZE);
+                                          SEC_LEVEL_NONE,
+                                          0,
+                                          NULL,
+                                          packet_tx,
+                                          BUF_SIZE);
     if (err == RETURNCODE_SUCCESS) {
       libtock_led_toggle(0);
       printf("Packet sent and acked.\n");

@@ -15,18 +15,17 @@
 #include <string.h>
 
 // helper utility demonstrating network config setup
-static void setNetworkConfiguration(otInstance *aInstance);
+static void setNetworkConfiguration(otInstance* aInstance);
 
 // callback for Thread state change events
-static void stateChangeCallback(uint32_t flags, void *context);
+static void stateChangeCallback(uint32_t flags, void* context);
 
 // helper utility to print ip address
-static void print_ip_addr(otInstance *instance);
+static void print_ip_addr(otInstance* instance);
 
-int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
-{
+int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {
   otSysInit(argc, argv);
-  otInstance *instance;
+  otInstance* instance;
   instance = otInstanceInitSingle();
   assert(instance);
 
@@ -67,8 +66,7 @@ int main( __attribute__((unused)) int argc, __attribute__((unused)) char *argv[]
   return 0;
 }
 
-void setNetworkConfiguration(otInstance *aInstance)
-{
+void setNetworkConfiguration(otInstance* aInstance) {
   otOperationalDataset aDataset;
 
   memset(&aDataset, 0, sizeof(otOperationalDataset));
@@ -92,9 +90,8 @@ void setNetworkConfiguration(otInstance *aInstance)
 
 }
 
-static void stateChangeCallback(uint32_t flags, void *context)
-{
-  otInstance *instance = (otInstance *)context;
+static void stateChangeCallback(uint32_t flags, void* context) {
+  otInstance* instance = (otInstance*)context;
   if (!(flags & OT_CHANGED_THREAD_ROLE)) {
     return;
   }
@@ -121,11 +118,11 @@ static void stateChangeCallback(uint32_t flags, void *context)
   }
 }
 
-static void print_ip_addr(otInstance *instance){
+static void print_ip_addr(otInstance* instance) {
   char addr_string[64];
-  const otNetifAddress *unicastAddrs = otIp6GetUnicastAddresses(instance);
+  const otNetifAddress* unicastAddrs = otIp6GetUnicastAddresses(instance);
 
-  for (const otNetifAddress *addr = unicastAddrs; addr; addr = addr->mNext) {
+  for (const otNetifAddress* addr = unicastAddrs; addr; addr = addr->mNext) {
     const otIp6Address ip6_addr = addr->mAddress;
     otIp6AddressToString(&ip6_addr, addr_string, sizeof(addr_string));
     printf("%s\n", addr_string);

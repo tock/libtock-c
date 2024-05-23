@@ -34,7 +34,7 @@ uint8_t checkbox_led3 = 0;
 
 // local mui functions
 
-static uint8_t mui_hrule(mui_t *mui, uint8_t msg) {
+static uint8_t mui_hrule(mui_t* mui, uint8_t msg) {
   switch (msg) {
     case MUIF_MSG_DRAW:
       u8g2_DrawHLine(&u8g2, 0, mui_get_y(mui), u8g2_GetDisplayWidth(&u8g2));
@@ -73,20 +73,20 @@ muif_t muif_list[] = {
   MUIF(".L", 0, 0, mui_u8g2_draw_text)
 };
 
-fds_t *fds =
+fds_t* fds =
   MUI_FORM(1)
   MUI_STYLE(0)
   MUI_LABEL(12, 10, "TOCK MENU")
   MUI_XY("HR", 0, 12)
   MUI_STYLE(1)
   MUI_DATA("GP",
-    MUI_2 "Fruit Select|"
-    MUI_3 "LED Control|"
-    MUI_2 "unused0|"
-    MUI_2 "unused1|"
-    MUI_2 "unused2|"
-    MUI_2 "unused3|"
-    MUI_2 "unused4")
+           MUI_2 "Fruit Select|"
+           MUI_3 "LED Control|"
+           MUI_2 "unused0|"
+           MUI_2 "unused1|"
+           MUI_2 "unused2|"
+           MUI_2 "unused3|"
+           MUI_2 "unused4")
   MUI_XYA("GC", 5, 25, 0)
   MUI_XYA("GC", 5, 37, 1)
   MUI_XYA("GC", 5, 49, 2)

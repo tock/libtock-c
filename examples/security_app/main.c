@@ -20,8 +20,8 @@ static SensorData_t sensor_data = {
 };
 
 // callback for gpio interrupts
-static void gpio_cb (uint32_t pin_num,
-                     bool     pin_val) {
+static void gpio_cb(uint32_t pin_num,
+                    bool     pin_val) {
 
   // save sensor data
   if (pin_num == 1) {

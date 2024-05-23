@@ -2,16 +2,16 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <libtock/interface/button.h>
-#include <libtock/net/udp.h>
 #include <libtock-sync/net/udp.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/interface/button.h>
+#include <libtock/net/udp.h>
 
 #define DEBUG 0
 
 static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
 
-void print_ipv6(ipv6_addr_t *);
+void print_ipv6(ipv6_addr_t*);
 
 int main(void) {
 
@@ -36,7 +36,7 @@ int main(void) {
     11111
   };
 
-  int len        = snprintf(packet, sizeof(packet), "Hello World - App1\n");
+  int len = snprintf(packet, sizeof(packet), "Hello World - App1\n");
   returncode_t result = libtocksync_udp_send(packet, len, &destination);
   assert(result != RETURNCODE_SUCCESS); // should fail because we have not bound
 
@@ -83,7 +83,7 @@ int main(void) {
   printf("App1 test success!\n");
 }
 
-void print_ipv6(ipv6_addr_t *ipv6_addr) {
+void print_ipv6(ipv6_addr_t* ipv6_addr) {
   for (int j = 0; j < 14; j += 2) {
     printf("%02x%02x:", ipv6_addr->addr[j], ipv6_addr->addr[j + 1]);
   }

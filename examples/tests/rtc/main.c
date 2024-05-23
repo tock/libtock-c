@@ -3,7 +3,7 @@
 #include <libtock-sync/peripherals/rtc.h>
 #include <libtock-sync/services/alarm.h>
 
-int main(void){
+int main(void) {
   // Initialises a date struct with a certain timestamp
   libtock_rtc_date_t date = {
     .year  = 2023,

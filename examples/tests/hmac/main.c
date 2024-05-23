@@ -24,9 +24,9 @@ int main(void) {
   }
 
   ret = libtocksync_hmac_simple(LIBTOCK_HMAC_SHA256,
-    key_buf, 11,
-    data_buf, strlen((const char*) data_buf),
-    dest_buf, DEST_LEN);
+                                key_buf, 11,
+                                data_buf, strlen((const char*) data_buf),
+                                dest_buf, DEST_LEN);
   if (ret != RETURNCODE_SUCCESS) {
     printf("Unable to compute HMAC.\n");
     return -1;

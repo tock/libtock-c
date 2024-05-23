@@ -61,7 +61,7 @@ returncode_t libtocksync_ieee802154_send(uint16_t         addr,
 
 
 returncode_t libtocksync_ieee802154_send_raw(
-  const uint8_t *payload,
+  const uint8_t* payload,
   uint8_t        len) {
   send_result_raw.fired = false;
 
@@ -69,7 +69,7 @@ returncode_t libtocksync_ieee802154_send_raw(
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Wait for the frame to be sent
-  returncode_t sync_timeout_ret =  libtocksync_alarm_yield_for_with_timeout(&send_result_raw.fired, 100);
+  returncode_t sync_timeout_ret = libtocksync_alarm_yield_for_with_timeout(&send_result_raw.fired, 100);
   if (sync_timeout_ret != RETURNCODE_SUCCESS) {
     return sync_timeout_ret;
   }
@@ -77,7 +77,7 @@ returncode_t libtocksync_ieee802154_send_raw(
   return tock_status_to_returncode(send_result.status);
 }
 
-returncode_t libtocksync_ieee802154_receive(const libtock_ieee802154_rxbuf *frame) {
+returncode_t libtocksync_ieee802154_receive(const libtock_ieee802154_rxbuf* frame) {
   receive_result.fired = false;
 
   returncode_t ret = libtock_ieee802154_receive(frame, ieee802154_receive_done_cb);

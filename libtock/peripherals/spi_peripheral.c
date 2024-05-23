@@ -1,27 +1,27 @@
 #include "spi_peripheral.h"
 
 // Return the chip select. This will always return 0.
-returncode_t libtock_spi_peripheral_get_chip_select(uint32_t* chip_select){
+returncode_t libtock_spi_peripheral_get_chip_select(uint32_t* chip_select) {
   return libtock_spi_peripheral_command_get_chip_select(chip_select);
 }
 
 
-returncode_t libtock_spi_peripheral_get_phase(uint32_t* phase){
+returncode_t libtock_spi_peripheral_get_phase(uint32_t* phase) {
   return libtock_spi_peripheral_command_get_phase(phase);
 }
 
 
-returncode_t libtock_spi_peripheral_set_phase(bool phase){
+returncode_t libtock_spi_peripheral_set_phase(bool phase) {
   return libtock_spi_peripheral_command_set_phase(phase);
 }
 
 
-returncode_t libtock_spi_peripheral_get_polarity(uint32_t* polarity){
+returncode_t libtock_spi_peripheral_get_polarity(uint32_t* polarity) {
   return libtock_spi_peripheral_command_get_polarity(polarity);
 }
 
 
-returncode_t libtock_spi_peripheral_set_polarity(bool polarity){
+returncode_t libtock_spi_peripheral_set_polarity(bool polarity) {
   return libtock_spi_peripheral_command_set_polarity(polarity);
 }
 

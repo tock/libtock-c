@@ -10,9 +10,9 @@ extern "C" {
 
 bool libtock_nonvolatile_storage_exists(void);
 
-returncode_t libtock_nonvolatile_storage_set_upcall_read_done(subscribe_upcall cb, void *opaque);
+returncode_t libtock_nonvolatile_storage_set_upcall_read_done(subscribe_upcall cb, void* opaque);
 
-returncode_t libtock_nonvolatile_storage_set_upcall_write_done(subscribe_upcall cb, void *opaque);
+returncode_t libtock_nonvolatile_storage_set_upcall_write_done(subscribe_upcall cb, void* opaque);
 
 returncode_t libtock_nonvolatile_storage_set_allow_readwrite_read_buffer(uint8_t* buffer, uint32_t len);
 

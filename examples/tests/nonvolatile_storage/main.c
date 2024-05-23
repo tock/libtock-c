@@ -4,9 +4,9 @@
 #include <libtock-sync/storage/nonvolatile_storage.h>
 
 static int test_all(void);
-static int test(uint8_t *readbuf, uint8_t *writebuf, size_t size, size_t offset, size_t len);
+static int test(uint8_t* readbuf, uint8_t* writebuf, size_t size, size_t offset, size_t len);
 
-int main (void) {
+int main(void) {
   printf("[TEST] Nonvolatile Storage\n");
 
   int r = test_all();
@@ -41,7 +41,7 @@ static int test_all(void) {
   return 0;
 }
 
-static int test(uint8_t *readbuf, uint8_t *writebuf, size_t size, size_t offset, size_t len) {
+static int test(uint8_t* readbuf, uint8_t* writebuf, size_t size, size_t offset, size_t len) {
   int ret;
   int length_written, length_read;
 

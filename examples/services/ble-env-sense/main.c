@@ -35,11 +35,11 @@ simple_ble_config_t ble_config = {
   .max_conn_interval = MSEC_TO_UNITS(1250, UNIT_1_25_MS)
 };
 
-void ble_address_set (void) {
+void ble_address_set(void) {
   // nop
 }
 
-void ble_evt_user_handler (ble_evt_t* p_ble_evt) {
+void ble_evt_user_handler(ble_evt_t* p_ble_evt) {
   ble_gap_conn_params_t conn_params;
   memset(&conn_params, 0, sizeof(conn_params));
   conn_params.min_conn_interval = ble_config.min_conn_interval;
@@ -59,7 +59,7 @@ void ble_evt_connected(ble_evt_t* p_ble_evt) {
   UNUSED_PARAMETER(p_ble_evt);
   printf("Connected to central\n");
 
-  ble_common_evt_t *common = (ble_common_evt_t*)&p_ble_evt->evt;
+  ble_common_evt_t* common = (ble_common_evt_t*)&p_ble_evt->evt;
   conn_handle = common->conn_handle;
 }
 
@@ -69,12 +69,12 @@ void ble_evt_disconnected(ble_evt_t* p_ble_evt) {
   conn_handle = BLE_CONN_HANDLE_INVALID;
 }
 
-void ble_error (uint32_t error_code) {
+void ble_error(uint32_t error_code) {
   printf("BLE ERROR: Code = %d\n", (int)error_code);
 }
 
 // Will be called by the Simple BLE library.
-void services_init (void) {
+void services_init(void) {
   env_sense_service_init();
 }
 
@@ -84,8 +84,8 @@ void services_init (void) {
 
 typedef enum {
   SENSOR_TEMPERATURE = 0,
-  SENSOR_IRRADIANCE = 1,
-  SENSOR_HUMIDITY = 2,
+  SENSOR_IRRADIANCE  = 1,
+  SENSOR_HUMIDITY    = 2,
 } sensor_type_e;
 
 typedef struct {
@@ -101,7 +101,7 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
     return;
   }
 
-  sensor_update_t *update = (sensor_update_t*) buf;
+  sensor_update_t* update = (sensor_update_t*) buf;
 
   if (conn_handle != BLE_CONN_HANDLE_INVALID) {
     switch (update->type) {
@@ -123,7 +123,7 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
  * MAIN
  ******************************************************************************/
 
-int main (void) {
+int main(void) {
   printf("[BLE] Environmental Sensing IPC Service\n");
 
   // Listen for IPC requests to configure the sensor values.
