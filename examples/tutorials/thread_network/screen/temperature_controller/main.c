@@ -1,12 +1,12 @@
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
 
-#include <libtock/kernel/ipc.h>
-#include <libtock/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/interface/led.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/services/alarm.h>
 
 #include <libtock-sync/services/alarm.h>
 
@@ -15,7 +15,7 @@
 
 u8g2_t u8g2;
 
-size_t sensor_svc_num = 0;
+size_t sensor_svc_num     = 0;
 size_t openthread_svc_num = 0;
 
 uint8_t global_temperature_setpoint       = 0;
@@ -47,23 +47,23 @@ static int init_controller_ipc(void);
 static void read_temperature_timer_callback(__attribute__ ((unused)) uint32_t now,
                                             __attribute__ ((unused)) uint32_t scheduled,
                                             __attribute__ ((unused)) void*    opaque) {
-    // Request a new temperature reading from the sensor:
-    ipc_notify_service(sensor_svc_num);
+  // Request a new temperature reading from the sensor:
+  ipc_notify_service(sensor_svc_num);
 }
 
 
 static void update_network_timer_callback(__attribute__ ((unused)) uint32_t now,
                                           __attribute__ ((unused)) uint32_t scheduled,
                                           __attribute__ ((unused)) void*    opaque) {
-    openthread_buffer[0] = local_temperature_setpoint;
-    ipc_notify_service(openthread_svc_num);
-    libtock_alarm_in_ms(500, update_network_timer_callback, NULL, &network_timer);
+  openthread_buffer[0] = local_temperature_setpoint;
+  ipc_notify_service(openthread_svc_num);
+  libtock_alarm_in_ms(500, update_network_timer_callback, NULL, &network_timer);
 
 }
 
-static void sensor_callback(__attribute__ ((unused)) int pid,
-                            __attribute__ ((unused)) int len,
-                            __attribute__ ((unused)) int arg2,
+static void sensor_callback(__attribute__ ((unused)) int   pid,
+                            __attribute__ ((unused)) int   len,
+                            __attribute__ ((unused)) int   arg2,
                             __attribute__ ((unused)) void* ud) {
   // update measured temperature
   measured_temperature = *((int*) &temperature_buffer[0]);
@@ -75,10 +75,10 @@ static void sensor_callback(__attribute__ ((unused)) int pid,
   libtock_alarm_in_ms(250, read_temperature_timer_callback, NULL, &read_temperature_timer);
 }
 
-static void openthread_callback( __attribute__ ((unused)) int pid,
-                            __attribute__ ((unused)) int len,
-                            __attribute__ ((unused)) int arg2,
-                            __attribute__ ((unused)) void* ud) {
+static void openthread_callback(__attribute__ ((unused)) int   pid,
+                                __attribute__ ((unused)) int   len,
+                                __attribute__ ((unused)) int   arg2,
+                                __attribute__ ((unused)) void* ud) {
   network_up = true;
 
   // update setpoint temperature
@@ -129,14 +129,13 @@ int main(void) {
   ipc_notify_service(sensor_svc_num);
   libtock_alarm_in_ms(500, update_network_timer_callback, NULL, &network_timer);
 
-  for(;;) {
+  for ( ;;) {
     callback_event = false;
     yield_for(&callback_event);
 
-    if (measured_temperature          != prior_measured_temperature
-       || global_temperature_setpoint != prior_global_temperature_setpoint
-       || local_temperature_setpoint  != prior_local_temperature_setpoint)
-    {
+    if (measured_temperature != prior_measured_temperature
+        || global_temperature_setpoint != prior_global_temperature_setpoint
+        || local_temperature_setpoint != prior_local_temperature_setpoint) {
       prior_measured_temperature        = measured_temperature;
       prior_global_temperature_setpoint = global_temperature_setpoint;
       prior_local_temperature_setpoint  = local_temperature_setpoint;
@@ -145,14 +144,14 @@ int main(void) {
   }
 }
 
-static int init_controller_ipc(void){
+static int init_controller_ipc(void) {
   int err = -1;
   int discover_retry_count = 0;
-  int err_sensor = -1;
+  int err_sensor     = -1;
   int err_openthread = -1;
 
   while (err_sensor < 0 && err_openthread < 0 && discover_retry_count < 100) {
-    err_sensor = ipc_discover("org.tockos.thread-tutorial.sensor", &sensor_svc_num);
+    err_sensor     = ipc_discover("org.tockos.thread-tutorial.sensor", &sensor_svc_num);
     err_openthread = ipc_discover("org.tockos.thread-tutorial.openthread", &openthread_svc_num);
     discover_retry_count++;
     if (err < 0) {
@@ -176,26 +175,29 @@ static int init_controller_ipc(void){
   ipc_register_client_callback(sensor_svc_num, sensor_callback, NULL);
   ipc_register_client_callback(openthread_svc_num, openthread_callback, NULL);
 
-  //rb->length = snprintf(rb->buf, sizeof(rb->buf), "Hello World!");
+  // rb->length = snprintf(rb->buf, sizeof(rb->buf), "Hello World!");
   ipc_share(sensor_svc_num, &temperature_buffer, sizeof(temperature_buffer));
 
   ipc_share(openthread_svc_num, &openthread_buffer, sizeof(openthread_buffer));
-
 
   return err;
 }
 
 static void update_screen(void) {
-  char temperature_set_point_str [35];
-  char temperature_global_set_point_str [35];
-  char temperature_current_measure_str [35];
+  char temperature_set_point_str[35];
+  char temperature_global_set_point_str[35];
+  char temperature_current_measure_str[35];
   sprintf(temperature_set_point_str, "Set Point: %d", local_temperature_setpoint);
 
-  if (network_up) sprintf(temperature_global_set_point_str, "Global Set Point: %d", global_temperature_setpoint);
-  else sprintf(temperature_global_set_point_str, "Global Set Point: N/A");
+  if (network_up) {
+    sprintf(temperature_global_set_point_str, "Global Set Point: %d", global_temperature_setpoint);
+  } else {
+    sprintf(temperature_global_set_point_str, "Global Set Point: N/A");
+  }
 
   // print measured temperature as value XX.25
-  sprintf(temperature_current_measure_str, "Measured Temp: %d.%02d", measured_temperature / 100, measured_temperature % 100);
+  sprintf(temperature_current_measure_str, "Measured Temp: %d.%02d", measured_temperature / 100,
+          measured_temperature % 100);
 
   u8g2_ClearBuffer(&u8g2);
   u8g2_SetDrawColor(&u8g2, 1);

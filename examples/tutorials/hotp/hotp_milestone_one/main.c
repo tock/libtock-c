@@ -96,8 +96,8 @@ static void program_new_secret(hotp_key_t* hotp_key) {
 int main(void) {
   libtocksync_alarm_delay_ms(1000);
   printf("Tock HOTP App Started. Usage:\r\n"
-      "* Press Button 1 to get the next HOTP code for that slot.\r\n"
-      "* Hold Button 1 to enter a new HOTP secret for that slot.\r\n");
+         "* Press Button 1 to get the next HOTP code for that slot.\r\n"
+         "* Hold Button 1 to enter a new HOTP secret for that slot.\r\n");
 
   // Initialize buttons
   if (initialize_buttons(false) != RETURNCODE_SUCCESS) {

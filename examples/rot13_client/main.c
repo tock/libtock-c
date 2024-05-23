@@ -16,7 +16,7 @@ struct rot13_buf {
 static void rot13_callback(__attribute__ ((unused)) int pid,
                            __attribute__ ((unused)) int len,
                            __attribute__ ((unused)) int arg2, void* ud) {
-  struct rot13_buf *rb = (struct rot13_buf*)ud;
+  struct rot13_buf* rb = (struct rot13_buf*)ud;
   printf("%d: %.*s\n", rb->length, rb->length, rb->buf);
   libtocksync_alarm_delay_ms(500);
   ipc_notify_service(rot13_svc_num);
@@ -30,7 +30,7 @@ int main(void) {
     return -1;
   }
 
-  struct rot13_buf *rb = (struct rot13_buf*)buf;
+  struct rot13_buf* rb = (struct rot13_buf*)buf;
   ipc_register_client_callback(rot13_svc_num, rot13_callback, rb);
 
   rb->length = snprintf(rb->buf, sizeof(rb->buf), "Hello World!");

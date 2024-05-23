@@ -12,7 +12,7 @@ extern "C" {
 bool libtock_usb_exists(void);
 
 // Set the USB upcall.
-returncode_t libtock_usb_set_upcall(subscribe_upcall upcall, void *opaque);
+returncode_t libtock_usb_set_upcall(subscribe_upcall upcall, void* opaque);
 
 // Enable the USB connection.
 returncode_t libtock_usb_command_enable_and_attach(void);
@@ -20,4 +20,3 @@ returncode_t libtock_usb_command_enable_and_attach(void);
 #ifdef __cplusplus
 }
 #endif
-

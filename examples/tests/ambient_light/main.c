@@ -4,7 +4,7 @@
 #include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
 
-int main (void) {
+int main(void) {
   printf("[Ambient Light] Test\n");
 
   while (1) {

@@ -12,7 +12,7 @@ extern "C" {
 bool libtock_crc_exists(void);
 
 // Register a callback to receive CRC results.
-returncode_t libtock_crc_set_upcall(subscribe_upcall callback, void *opaque);
+returncode_t libtock_crc_set_upcall(subscribe_upcall callback, void* opaque);
 
 // Provide the buffer over which to compute a CRC.
 returncode_t libtock_crc_set_readonly_allow(const uint8_t* buf, uint32_t len);

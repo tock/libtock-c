@@ -15,8 +15,7 @@ static unsigned char scan[BUF_SIZE];
 AdvertisementList list;
 
 static void callback(int result, int len, __attribute__((unused)) int unused2,
-                     __attribute__((unused)) void* ud)
-{
+                     __attribute__((unused)) void* ud) {
   if (result == RETURNCODE_SUCCESS) {
     if (Advertisement::checkScanResult(scan, len)) {
       Advertisement advertisement(scan, len);
@@ -33,8 +32,7 @@ static void callback(int result, int len, __attribute__((unused)) int unused2,
   }
 }
 
-int main(void)
-{
+int main(void) {
   printf("[Tutorial] BLE Passive Scanner\r\n");
 
   // using the pre-configured advertisement interval

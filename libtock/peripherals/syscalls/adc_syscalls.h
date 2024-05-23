@@ -35,4 +35,3 @@ returncode_t libtock_adc_command_get_resolution_bits(uint32_t* resolution);
 #ifdef __cplusplus
 }
 #endif
-

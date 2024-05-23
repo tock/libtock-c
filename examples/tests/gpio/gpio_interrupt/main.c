@@ -4,8 +4,8 @@
 #include <libtock/peripherals/gpio.h>
 #include <libtock/tock.h>
 
-static void gpio_cb (__attribute__ ((unused)) uint32_t pin_num,
-                     __attribute__ ((unused)) bool     val) {}
+static void gpio_cb(__attribute__ ((unused)) uint32_t pin_num,
+                    __attribute__ ((unused)) bool     val) {}
 
 int main(void) {
   printf("[Test] GPIO Interrupt\n");

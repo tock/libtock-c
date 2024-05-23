@@ -9,7 +9,7 @@
 
 u8g2_t u8g2;
 
-const char *msg = "TOCKOS...";
+const char* msg = "TOCKOS...";
 char buf[20];
 
 int main(void) {

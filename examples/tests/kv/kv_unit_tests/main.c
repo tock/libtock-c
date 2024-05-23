@@ -307,7 +307,7 @@ static bool test_set_zero_value(void) {
 }
 
 static bool subtest_set_get_region(uint32_t start, uint32_t stop) {
-  const char * keys[] = {
+  const char* keys[] = {
     "kvtestappak",
     "kvtestappab",
     "kvtestappaB",

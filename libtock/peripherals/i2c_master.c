@@ -6,7 +6,7 @@
 #define TOCK_I2C_MASTER_BUF      1
 
 
-int i2c_master_set_callback (subscribe_upcall callback, void* callback_args) {
+int i2c_master_set_callback(subscribe_upcall callback, void* callback_args) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_I2CMASTER, TOCK_I2C_MASTER_CB, callback, callback_args);
   return tock_subscribe_return_to_returncode(sval);
 }

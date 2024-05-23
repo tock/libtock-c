@@ -15,9 +15,9 @@
 // Given the non-deterministic nature of upcalls, the userprocess must carefully
 // handle receiving upcalls. There exists a risk of dropping 15.4 packets while
 // reading from the ring buffer (as the ring buffer is unallowed while reading).
-// This can be handled by utilizing two ring buffers and alternating which 
-// belongs to the kernel and which is being read from. An example of this can be 
-// found in libtock-c/libopenthread/platform/system.c. Alternatively, 
+// This can be handled by utilizing two ring buffers and alternating which
+// belongs to the kernel and which is being read from. An example of this can be
+// found in libtock-c/libopenthread/platform/system.c. Alternatively,
 // the user can also utilize a single ring buffer if dropped frames may be permissible
 // (see libtock-c/examples/tests/ieee802154/radio_rx/main.c for an example of this).
 
@@ -35,7 +35,7 @@ bool libtock_ieee802154_driver_exists(void);
 int libtock_ieee802154_down(void);
 
 // Returns true if the 802.15.4 radio is up.
-returncode_t libtock_ieee802154_is_up(bool *status);
+returncode_t libtock_ieee802154_is_up(bool* status);
 
 // IEEE 802.15.4 device configuration interface. After any calls to
 // ieee_802154_set_*, libtock_ieee802154_config_commit must be called at least once.
@@ -47,7 +47,7 @@ returncode_t libtock_ieee802154_is_up(bool *status);
 returncode_t libtock_ieee802154_set_address_short(uint16_t addr);
 // Sets the long MAC address (64 bits)
 // `addr_long` (in): Long MAC address. Must point to 8 bytes of valid memory.
-returncode_t libtock_ieee802154_set_address_long(uint8_t *addr_long);
+returncode_t libtock_ieee802154_set_address_long(uint8_t* addr_long);
 // Sets the 802.15.4 PAN ID (16 bits)
 // `pan` (in): PAN ID.
 returncode_t libtock_ieee802154_set_pan(uint16_t pan);
@@ -63,25 +63,25 @@ returncode_t libtock_ieee802154_config_commit(void);
 // Gets the short MAC address. Returns TOCK_SUCCESS if the address was
 // successfully written into `addr`.
 // `addr` (out): Short MAC address.
-returncode_t libtock_ieee802154_get_address_short(uint16_t *addr);
+returncode_t libtock_ieee802154_get_address_short(uint16_t* addr);
 // Gets the long MAC address. Returns TOCK_SUCCESS if the address was
 // successfully written into `addr_long`.
 // `addr_long` (out): Long MAC address. Must point to 8 bytes of valid memory.
-returncode_t libtock_ieee802154_get_address_long(uint8_t *addr_long);
+returncode_t libtock_ieee802154_get_address_long(uint8_t* addr_long);
 // Gets the 802.15.4 PAN ID. Returns TOCK_SUCCESS if the PAN ID was successfully
 // written into `pan`.
 // `pan` (out): PAN ID.
-returncode_t libtock_ieee802154_get_pan(uint16_t *pan);
+returncode_t libtock_ieee802154_get_pan(uint16_t* pan);
 // Gets the 802.15.4 channel. Returns TOCK_SUCCESS if the channel was
 // successfully written into `channel`.
 // `channel` (out): 802.15.4 channel. If successful, `channel` will satisfy 11
 // <= channel <= 26.
-returncode_t libtock_ieee802154_get_channel(uint8_t *channel);
+returncode_t libtock_ieee802154_get_channel(uint8_t* channel);
 // Gets the 802.15.4 transmission power. Returns TOCK_SUCCESS if the power
 // was successfully written into `power`.
 // `power` (out): Transmission power. If successful, `power` will satisfy
 // -17 <= power <= 4.
-returncode_t libtock_ieee802154_get_power(uint32_t *power);
+returncode_t libtock_ieee802154_get_power(uint32_t* power);
 
 // IEEE 802.15.4 neighbor list management. The list of known neighbors is
 // implemented as a variable-sized (up to a maximum of
@@ -97,29 +97,29 @@ returncode_t libtock_ieee802154_num_neighbors(uint32_t* neighbors);
 // If successful, returns TOCK_SUCCESS.
 // `index` (in): Index in neighbor list.
 // `addr` (out): Short address of neighbor at `index`.
-returncode_t libtock_ieee802154_get_neighbor_address_short(uint32_t index, uint16_t *addr);
+returncode_t libtock_ieee802154_get_neighbor_address_short(uint32_t index, uint16_t* addr);
 // Retrieves the long address of the neighbor at index `index` into `addr_long`.
 // If successful, returns TOCK_SUCCESS.
 // `index` (in): Index in neighbor list.
 // `addr_long` (out): Long address of neighbor at `index`. Must point to 8
 // bytes of valid memory.
-returncode_t libtock_ieee802154_get_neighbor_address_long(uint32_t index, uint8_t *addr_long);
+returncode_t libtock_ieee802154_get_neighbor_address_long(uint32_t index, uint8_t* addr_long);
 // Retrieves the neighbor at index `index` into `addr` and `addr_long`.
 // If successful, returns TOCK_SUCCESS.
 // `index` (in): Index in neighbor list.
 // `addr` (out): Short address of neighbor at `index`.
 // `addr_long` (out): Long address of neighbor at `index`. Must point to 8
 // bytes of valid memory.
-returncode_t libtock_ieee802154_get_neighbor(uint32_t index,
-                            uint16_t *addr_short,
-                            uint8_t *addr_long);
+returncode_t libtock_ieee802154_get_neighbor(uint32_t  index,
+                                             uint16_t* addr_short,
+                                             uint8_t*  addr_long);
 // Adds a new neighbor to the neighbor list.
 // If successful, returns TOCK_SUCCESS and writes the list index of the new neighbor
 // or existing neighbor with matching addresses into `index`.
 // `addr` (in): Short address of new neighbor.
 // `addr_long` (in): Long address of new neighbor. Must point to 8 bytes of valid memory.
 // `index` (out): New index in neighbor list. Can be NULL if the index is not needed.
-returncode_t libtock_ieee802154_add_neighbor(uint16_t addr_short, uint8_t *addr_long, uint32_t *index);
+returncode_t libtock_ieee802154_add_neighbor(uint16_t addr_short, uint8_t* addr_long, uint32_t* index);
 // Removes the neighbor at `index`. If successful, returns TOCK_SUCCESS,
 // otherwise TOCK_EINVAL.
 returncode_t libtock_ieee802154_remove_neighbor(uint32_t index);
@@ -132,19 +132,19 @@ returncode_t libtock_ieee802154_remove_neighbor(uint32_t index);
 
 // Enum for representing IEEE 802.15.4 security levels in C.
 typedef enum {
-  SEC_LEVEL_NONE = 0,
-  SEC_LEVEL_MIC32 = 1,
-  SEC_LEVEL_MIC64 = 2,
-  SEC_LEVEL_MIC128 = 3,
-  SEC_LEVEL_ENCMIC32 = 5,
-  SEC_LEVEL_ENCMIC64 = 6,
+  SEC_LEVEL_NONE      = 0,
+  SEC_LEVEL_MIC32     = 1,
+  SEC_LEVEL_MIC64     = 2,
+  SEC_LEVEL_MIC128    = 3,
+  SEC_LEVEL_ENCMIC32  = 5,
+  SEC_LEVEL_ENCMIC64  = 6,
   SEC_LEVEL_ENCMIC128 = 7,
 } security_level_t;
 
 // Enum for representing IEEE 802.15.4 key ID modes in C.
 typedef enum {
-  KEY_ID_IMPLICIT = 0,
-  KEY_ID_INDEX = 1,
+  KEY_ID_IMPLICIT    = 0,
+  KEY_ID_INDEX       = 1,
   KEY_ID_SRC_4_INDEX = 2,
   KEY_ID_SRC_8_INDEX = 3,
 } key_id_mode_t;
@@ -157,7 +157,7 @@ returncode_t libtock_ieee802154_num_keys(uint32_t* keys);
 // If successful, returns TOCK_SUCCESS.
 // `index` (in): Index in key list.
 // `level` (out): Security level of key at `index`. Will not be SEC_LEVEL_NONE.
-returncode_t libtock_ieee802154_get_key_security_level(uint32_t index, security_level_t *level);
+returncode_t libtock_ieee802154_get_key_security_level(uint32_t index, security_level_t* level);
 // Retrieves the key id of the key at index `index` into `key_id_mode`
 // and `key_id`. If successful, returns TOCK_SUCCESS.
 // `index` (in): Index in key list.
@@ -170,9 +170,9 @@ returncode_t libtock_ieee802154_get_key_security_level(uint32_t index, security_
 //      be written to `key_id`.
 //    - KEY_ID_SRC_8_INDEX: The key source (8 bytes) and index (1 byte) will
 //      be written to `key_id`.
-returncode_t libtock_ieee802154_get_key_id(uint32_t index,
-                          key_id_mode_t *key_id_mode,
-                          uint8_t *key_id);
+returncode_t libtock_ieee802154_get_key_id(uint32_t       index,
+                                           key_id_mode_t* key_id_mode,
+                                           uint8_t*       key_id);
 // Returns the number of bytes that will be taken up by a key id with the given
 // `key_id_mode`. Returns either 0, 1, 5, or 9. If the key ID mode is invalid,
 // returns 0.  See `libtock_ieee802154_get_key_id()` for details.
@@ -181,7 +181,7 @@ returncode_t libtock_ieee802154_key_id_bytes(key_id_mode_t key_id_mode);
 // If successful, returns TOCK_SUCCESS.
 // `index` (in): Index in key list.
 // `key` (out): Key. Must point to 16 bytes of valid memory.
-returncode_t libtock_ieee802154_get_key(uint32_t index, uint8_t *key);
+returncode_t libtock_ieee802154_get_key(uint32_t index, uint8_t* key);
 // Retrieves the key at index `index` along with all the accompanying information.
 // If successful, returns TOCK_SUCCESS.
 // `index` (in): Index in key list.
@@ -190,11 +190,11 @@ returncode_t libtock_ieee802154_get_key(uint32_t index, uint8_t *key);
 // `key_id` (out): Optional data depending on the value of `key_id_mode`.
 // Must point to 9 bytes of valid memory. See `libtock_ieee802154_get_key_id()` for details.
 // `key` (out): Key. Must point to 16 bytes of valid memory.
-returncode_t libtock_ieee802154_get_key_desc(uint32_t index,
-                            security_level_t *level,
-                            key_id_mode_t *key_id_mode,
-                            uint8_t *key_id,
-                            uint8_t *key);
+returncode_t libtock_ieee802154_get_key_desc(uint32_t          index,
+                                             security_level_t* level,
+                                             key_id_mode_t*    key_id_mode,
+                                             uint8_t*          key_id,
+                                             uint8_t*          key);
 // Adds a new key into the list of keys, if space remains.
 // If successful, returns TOCK_SUCCESS and writes the list index of the new key
 // or existing key with matching addresses into `index`. If an existing key
@@ -210,10 +210,10 @@ returncode_t libtock_ieee802154_get_key_desc(uint32_t index,
 //      9 bytes of valid memory.
 // `key` (in): The key. Must point to 16 bytes of valid memory.
 returncode_t libtock_ieee802154_add_key(security_level_t level,
-                       key_id_mode_t key_id_mode,
-                       uint8_t *key_id,
-                       uint8_t *key,
-                       uint32_t *index);
+                                        key_id_mode_t    key_id_mode,
+                                        uint8_t*         key_id,
+                                        uint8_t*         key,
+                                        uint32_t*        index);
 // Removes the key at `index`. If successful, returns TOCK_SUCCESS,
 // otherwise TOCK_EINVAL.
 returncode_t libtock_ieee802154_remove_key(uint32_t index);
@@ -238,13 +238,13 @@ returncode_t libtock_ieee802154_remove_key(uint32_t index);
 // `cb` (in): Callback to call when the frame is sent. The callback will receive two arguments:
 //   - `result`: The result of the send operation (returncode).
 //   - `acked`: Whether the frame was acknowledged by the receiver.
-returncode_t libtock_ieee802154_send(uint32_t addr,
-                    security_level_t level,
-                    key_id_mode_t key_id_mode,
-                    uint8_t *key_id,
-                    const uint8_t *payload,
-                    uint8_t len,
-                    libtock_ieee802154_callback_send_done cb);
+returncode_t libtock_ieee802154_send(uint32_t                              addr,
+                                     security_level_t                      level,
+                                     key_id_mode_t                         key_id_mode,
+                                     uint8_t*                              key_id,
+                                     const uint8_t*                        payload,
+                                     uint8_t                               len,
+                                     libtock_ieee802154_callback_send_done cb);
 
 // Sends an IEEE 802.15.4 frame asynchronously. This is an alternative and contemporary
 // to the `libtock_ieee802154_send` function. This provides an interface for userprocesses to
@@ -256,9 +256,9 @@ returncode_t libtock_ieee802154_send(uint32_t addr,
 // `cb` (in): Callback to call when the frame is sent. The callback will receive two arguments:
 //   - `result`: The result of the send operation (returncode).
 //   - `acked`: Whether the frame was acknowledged by the receiver.
-returncode_t libtock_ieee802154_send_raw(const uint8_t *     payload,
-                    uint8_t    len,
-                    libtock_ieee802154_callback_send_done cb);
+returncode_t libtock_ieee802154_send_raw(const uint8_t*                        payload,
+                                         uint8_t                               len,
+                                         libtock_ieee802154_callback_send_done cb);
 
 // Maximum size required of a buffer to contain the IEEE 802.15.4 frame data
 // passed to userspace from the kernel. Consists of 3 extra bytes followed by
@@ -273,7 +273,8 @@ returncode_t libtock_ieee802154_send_raw(const uint8_t *     payload,
 // can be increased or decreased by changing the value of libtock_ieee802154_MAX_RING_BUF_FRAMES.
 #define libtock_ieee802154_RING_BUF_META_LEN 2
 #define libtock_ieee802154_MAX_RING_BUF_FRAMES 3
-#define libtock_ieee802154_RING_BUFFER_LEN (libtock_ieee802154_RING_BUF_META_LEN + libtock_ieee802154_MAX_RING_BUF_FRAMES * libtock_ieee802154_FRAME_LEN)
+#define libtock_ieee802154_RING_BUFFER_LEN (libtock_ieee802154_RING_BUF_META_LEN + \
+                                            libtock_ieee802154_MAX_RING_BUF_FRAMES * libtock_ieee802154_FRAME_LEN)
 
 // Type for the 15.4 ring buffer.
 typedef uint8_t libtock_ieee802154_rxbuf[libtock_ieee802154_RING_BUFFER_LEN];
@@ -290,8 +291,8 @@ typedef uint8_t libtock_ieee802154_rxbuf[libtock_ieee802154_RING_BUFFER_LEN];
 // `dst_addr`: (addressing mode << 16) | (short address if address is short else 0)
 // `src_addr`: (addressing mode << 16) | (short address if address is short else 0)
 returncode_t libtock_ieee802154_receive(
-                       const libtock_ieee802154_rxbuf *frame,
-                       libtock_ieee802154_callback_recv_done cb);
+  const libtock_ieee802154_rxbuf*       frame,
+  libtock_ieee802154_callback_recv_done cb);
 
 // IEEE 802.15.4 received frame inspection functions. The frames are returned
 // to userspace in a particular format that might include more bytes than just
@@ -299,20 +300,20 @@ returncode_t libtock_ieee802154_receive(
 // a non-null pointer to a frame that was received through this userspace driver.
 
 typedef enum {
-  ADDR_NONE = 0,
+  ADDR_NONE  = 0,
   ADDR_SHORT = 2,
-  ADDR_LONG = 3,
+  ADDR_LONG  = 3,
 } addr_mode_t;
 
 // Gets the length of the received frame.
 // `frame` (in): The frame data provided by libtock_ieee802154_receive_*.
-int libtock_ieee802154_frame_get_length(const uint8_t *frame);
+int libtock_ieee802154_frame_get_length(const uint8_t* frame);
 // Gets the offset into `frame` of the data payload in the frame.
 // `frame` (in): The frame data provided by libtock_ieee802154_receive_*.
-int libtock_ieee802154_frame_get_payload_offset(const uint8_t *frame);
+int libtock_ieee802154_frame_get_payload_offset(const uint8_t* frame);
 // Gets the length of the data payload in the frame.
 // `frame` (in): The frame data provided by libtock_ieee802154_receive_*.
-int libtock_ieee802154_frame_get_payload_length(const uint8_t *frame);
+int libtock_ieee802154_frame_get_payload_length(const uint8_t* frame);
 // Gets the destination address of the received frame. Returns the addressing
 // mode, and if an address is present, writes the address into `short_addr` or
 // `long_addr`. If the out parameters are provided as NULL, this just returns
@@ -321,9 +322,9 @@ int libtock_ieee802154_frame_get_payload_length(const uint8_t *frame);
 // `short_addr` (out): The destination address of the frame, if it is short.
 // `long_addr` (out): The destination address of the frame, if it is long. Must
 // point to 8 bytes of valid memory, if not null.
-addr_mode_t libtock_ieee802154_frame_get_dst_addr(const uint8_t *frame,
-                                          uint16_t *short_addr,
-                                          uint8_t *long_addr);
+addr_mode_t libtock_ieee802154_frame_get_dst_addr(const uint8_t* frame,
+                                                  uint16_t*      short_addr,
+                                                  uint8_t*       long_addr);
 // Gets the source address of the received frame. Returns the addressing mode,
 // and if an address is present, writes the address into `short_addr` or
 // `long_addr`. If the out parameters are provided as NULL, this just returns
@@ -332,17 +333,17 @@ addr_mode_t libtock_ieee802154_frame_get_dst_addr(const uint8_t *frame,
 // `short_addr` (out): The source address of the frame, if it is short.
 // `long_addr` (out): The source address of the frame, if it is long. Must
 // point to 8 bytes of valid memory, if not null.
-addr_mode_t libtock_ieee802154_frame_get_src_addr(const uint8_t *frame,
-                                          uint16_t *short_addr,
-                                          uint8_t *long_addr);
+addr_mode_t libtock_ieee802154_frame_get_src_addr(const uint8_t* frame,
+                                                  uint16_t*      short_addr,
+                                                  uint8_t*       long_addr);
 // Gets the destination PAN ID of the received frame. Returns `true` if it
 // is present and writes it into `pan`, otherwise returns `false`.
 // Also returns `false` if the frame is invalid in any way.
 // `frame` (in): The frame data provided by libtock_ieee802154_receive_*.
 // `pan` (out): The destination PAN ID if it is present. Can be set to NULL, in
 // which case nothing will be written.
-bool libtock_ieee802154_frame_get_dst_pan(const uint8_t *frame,
-                                  uint16_t *pan);
+bool libtock_ieee802154_frame_get_dst_pan(const uint8_t* frame,
+                                          uint16_t*      pan);
 // Gets the source PAN ID of the received frame. Returns `true` if it is
 // present and writes it into `pan`, otherwise returns `false`. The source PAN
 // ID is considered "present" if it is either included explicitly or is set to
@@ -351,8 +352,8 @@ bool libtock_ieee802154_frame_get_dst_pan(const uint8_t *frame,
 // `frame` (in): The frame data provided by libtock_ieee802154_receive_*.
 // `pan` (out): The source PAN ID if it is present. Can be set to NULL, in
 // which case nothing will be written.
-bool libtock_ieee802154_frame_get_src_pan(const uint8_t *frame,
-                                  uint16_t *pan);
+bool libtock_ieee802154_frame_get_src_pan(const uint8_t* frame,
+                                          uint16_t*      pan);
 
 // Reads the next frame from the ring buffer. If the ring buffer is empty,
 // returns NULL. The pointer returned points to the first index of the

@@ -23,4 +23,3 @@ returncode_t libtock_read_only_state_command_get_version(uint32_t* version);
 #ifdef __cplusplus
 }
 #endif
-

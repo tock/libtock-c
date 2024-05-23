@@ -47,4 +47,3 @@ returncode_t libtock_gpio_command_disable(uint32_t pin);
 #ifdef __cplusplus
 }
 #endif
-

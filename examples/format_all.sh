@@ -19,7 +19,7 @@ function opt_rebuild {
 echo ""
 echo "${bold}Formatting examples${normal}"
 
-for mkfile in `find . -maxdepth 4 -name Makefile`; do
+for mkfile in `find . -maxdepth 5 -name Makefile`; do
 	dir=`dirname $mkfile`
 	if [ $dir == "." ]; then continue; fi
 	# Skip directories with leading _'s, useful for leaving test apps around

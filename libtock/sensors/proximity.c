@@ -4,7 +4,7 @@
 static void proximity_cb(int                         proximity,
                          __attribute__((unused)) int unused,
                          __attribute__((unused)) int unused1,
-                         void *                      opaque) {
+                         void*                       opaque) {
   libtock_proximity_callback cb = (libtock_proximity_callback) opaque;
   cb(RETURNCODE_SUCCESS, (uint8_t) proximity);
 }

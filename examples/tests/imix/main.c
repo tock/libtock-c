@@ -33,7 +33,7 @@ simple_ble_config_t ble_config = {
 };
 
 // Empty handler for setting BLE addresses
-void ble_address_set (void) {
+void ble_address_set(void) {
   // nop
 }
 
@@ -51,7 +51,7 @@ static void button_callback(
   }
 }
 
-static void sample_sensors (void) {
+static void sample_sensors(void) {
   printf("[imix Sensor Reading]\n");
   // Sensors: temperature/humidity, acceleration, light
   int temp;

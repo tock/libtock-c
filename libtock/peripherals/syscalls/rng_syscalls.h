@@ -29,4 +29,3 @@ returncode_t libtock_rng_command_get_random(uint32_t num_bytes);
 #ifdef __cplusplus
 }
 #endif
-

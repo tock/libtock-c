@@ -11,19 +11,19 @@ extern "C" {
 
 // Supported pixel formats.
 typedef enum {
-  MONO=0,
-  RGB_233=1,
-  RGB_565=2,
-  RGB_888=3,
+  MONO     =0,
+  RGB_233  =1,
+  RGB_565  =2,
+  RGB_888  =3,
   ARGB_8888=4,
 } libtock_screen_format_t;
 
 // Supported screen rotations.
 typedef enum {
   ROTATION_NORMAL=0,
-  ROTATION_90=1,
-  ROTATION_180=2,
-  ROTATION_270=3,
+  ROTATION_90    =1,
+  ROTATION_180   =2,
+  ROTATION_270   =3,
 } libtock_screen_rotation_t;
 
 // Callback when an operation has completed.
@@ -119,7 +119,8 @@ returncode_t libtock_screen_set_rotation(libtock_screen_rotation_t rotation, lib
 // The frame is specified by the X,Y coordinates as the upper left, and the
 // width and height of the frame box. The callback will be called when setting
 // the frame is complete.
-returncode_t libtock_screen_set_frame(uint16_t x, uint16_t y, uint16_t width, uint16_t height, libtock_screen_callback_done cb);
+returncode_t libtock_screen_set_frame(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
+                                      libtock_screen_callback_done cb);
 
 // Fill the screen to a given color.
 //

@@ -11,7 +11,7 @@
 // SYNCHRONOUS LIBC SUPPORT STUBS
 // ------------------------------
 
-int _write(__attribute__ ((unused)) int fd, const void *buf, uint32_t count) {
+int _write(__attribute__ ((unused)) int fd, const void* buf, uint32_t count) {
   int written;
   libtocksync_console_write((const uint8_t*) buf, count, &written);
   return written;

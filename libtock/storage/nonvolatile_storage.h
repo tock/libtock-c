@@ -23,10 +23,12 @@ typedef void (*libtock_nonvolatile_storage_callback_read)(returncode_t, int);
 returncode_t libtock_nonvolatile_storage_get_number_bytes(uint32_t* number_bytes);
 
 // Write `length` bytes from `buffer` to the storage starting at `offset`.
-returncode_t libtock_nonvolatile_storage_write(uint32_t offset, uint32_t length, uint8_t* buffer, uint32_t buffer_length, libtock_nonvolatile_storage_callback_write cb);
+returncode_t libtock_nonvolatile_storage_write(uint32_t offset, uint32_t length, uint8_t* buffer,
+                                               uint32_t buffer_length, libtock_nonvolatile_storage_callback_write cb);
 
 // Read `length` bytes into `buffer` from the storage starting at `offset`.
-returncode_t libtock_nonvolatile_storage_read(uint32_t offset, uint32_t length, uint8_t* buffer, uint32_t buffer_length, libtock_nonvolatile_storage_callback_read cb);
+returncode_t libtock_nonvolatile_storage_read(uint32_t offset, uint32_t length, uint8_t* buffer, uint32_t buffer_length,
+                                              libtock_nonvolatile_storage_callback_read cb);
 
 #ifdef __cplusplus
 }

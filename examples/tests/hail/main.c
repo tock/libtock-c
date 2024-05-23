@@ -32,7 +32,7 @@ static uint32_t crc32_for_byte(uint32_t r) {
   return r ^ (uint32_t)0xFF000000L;
 }
 
-static void reference_crc32(const void *data, size_t n_bytes, uint32_t* crc) {
+static void reference_crc32(const void* data, size_t n_bytes, uint32_t* crc) {
   static uint32_t table[0x100];
   if (!*table)
     for (size_t i = 0; i < 0x100; ++i)
@@ -55,7 +55,7 @@ simple_ble_config_t ble_config = {
 };
 
 // Empty handler for setting BLE addresses
-void ble_address_set (void) {
+void ble_address_set(void) {
   // nop
 }
 
@@ -75,12 +75,12 @@ static void button_callback(__attribute__ ((unused)) returncode_t ret,
 // Callback for gpio interrupts.
 //   - pin_num: The index of the pin associated with the callback.
 //   - pin_state: 1 if high, 0 if low.
-static void gpio_callback(  uint32_t pin_num,
-                            bool     pin_state) {
+static void gpio_callback(uint32_t pin_num,
+                          bool     pin_state) {
   printf("GPIO Interrupt: pin: %li, state: %i\n", pin_num, pin_state);
 }
 
-static void sample_sensors (void) {
+static void sample_sensors(void) {
 
   // Sensors: temperature/humidity, acceleration, light
   int temp;

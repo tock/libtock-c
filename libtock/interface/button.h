@@ -38,4 +38,3 @@ returncode_t libtock_button_notify_on_press(int button_num, libtock_button_callb
 #ifdef __cplusplus
 }
 #endif
-

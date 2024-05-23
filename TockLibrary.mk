@@ -71,6 +71,7 @@ $(LIBNAME)_SRCS_DIRS := $(sort $(dir $($(LIBNAME)_SRCS))) # sort removes duplica
 # Only use vpath for certain types of files
 # But must be a global list
 VPATH_DIRS += $(TOCK_USERLAND_BASE_DIR)
+vpath %.h $(VPATH_DIRS)
 vpath %.s $(VPATH_DIRS)
 vpath %.c $(VPATH_DIRS)
 vpath %.cc $(VPATH_DIRS)
@@ -190,21 +191,28 @@ $(LIBNAME)_FORMATTED_FILES += $(patsubst $(TOCK_USERLAND_BASE_DIR)/%.cc, $($(LIB
 $(LIBNAME)_FORMATTED_FILES += $(patsubst $(TOCK_USERLAND_BASE_DIR)/%.cpp,$($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cpp, $($(LIBNAME)_SRCS)))
 $(LIBNAME)_FORMATTED_FILES += $(patsubst $(TOCK_USERLAND_BASE_DIR)/%.cxx,$($(LIBNAME)_BUILDDIR)/format/%.uncrustify,$(filter %.cxx, $($(LIBNAME)_SRCS)))
 
+# Add header files to the formatter.
+$(LIBNAME)_HEADER_FILES := $(wildcard $(addsuffix *.h,$(sort $(dir $($(LIBNAME)_SRCS)))))
+$(LIBNAME)_FORMATTED_FILES += $(patsubst $(TOCK_USERLAND_BASE_DIR)/%.h, $($(LIBNAME)_BUILDDIR)/format/%.h.uncrustify,$($(LIBNAME)_HEADER_FILES))
+
 $($(LIBNAME)_BUILDDIR)/format:
 	@mkdir -p $@
 
 .PHONY: fmt format
 fmt format:: $($(LIBNAME)_FORMATTED_FILES)
 
-$($(LIBNAME)_BUILDDIR)/format/%.uncrustify: %.c | _format_check_unstaged
+$($(LIBNAME)_BUILDDIR)/format/%.uncrustify: %.c $(TOCK_USERLAND_BASE_DIR)/tools/uncrustify/uncrustify.cfg | _format_check_unstaged
 	$(Q)$(UNCRUSTIFY) -f $< -o $@
 	$(Q)cmp -s $< $@ || (if [ "$$CI" = "true" ]; then diff -y $< $@; rm $@; exit 1; else cp $@ $<; fi)
-$($(LIBNAME)_BUILDDIR)/format/%.uncrustify: %.cc | _format_check_unstaged
+$($(LIBNAME)_BUILDDIR)/format/%.h.uncrustify: %.h $(TOCK_USERLAND_BASE_DIR)/tools/uncrustify/uncrustify.cfg | _format_check_unstaged
 	$(Q)$(UNCRUSTIFY) -f $< -o $@
 	$(Q)cmp -s $< $@ || (if [ "$$CI" = "true" ]; then diff -y $< $@; rm $@; exit 1; else cp $@ $<; fi)
-$($(LIBNAME)_BUILDDIR)/format/%.uncrustify: %.cpp | _format_check_unstaged
+$($(LIBNAME)_BUILDDIR)/format/%.uncrustify: %.cc $(TOCK_USERLAND_BASE_DIR)/tools/uncrustify/uncrustify.cfg | _format_check_unstaged
 	$(Q)$(UNCRUSTIFY) -f $< -o $@
 	$(Q)cmp -s $< $@ || (if [ "$$CI" = "true" ]; then diff -y $< $@; rm $@; exit 1; else cp $@ $<; fi)
-$($(LIBNAME)_BUILDDIR)/format/%.uncrustify: %.cxx | _format_check_unstaged
+$($(LIBNAME)_BUILDDIR)/format/%.uncrustify: %.cpp $(TOCK_USERLAND_BASE_DIR)/tools/uncrustify/uncrustify.cfg | _format_check_unstaged
+	$(Q)$(UNCRUSTIFY) -f $< -o $@
+	$(Q)cmp -s $< $@ || (if [ "$$CI" = "true" ]; then diff -y $< $@; rm $@; exit 1; else cp $@ $<; fi)
+$($(LIBNAME)_BUILDDIR)/format/%.uncrustify: %.cxx $(TOCK_USERLAND_BASE_DIR)/tools/uncrustify/uncrustify.cfg | _format_check_unstaged
 	$(Q)$(UNCRUSTIFY) -f $< -o $@
 	$(Q)cmp -s $< $@ || (if [ "$$CI" = "true" ]; then diff -y $< $@; rm $@; exit 1; else cp $@ $<; fi)

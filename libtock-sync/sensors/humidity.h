@@ -1,7 +1,7 @@
 #pragma once
 
-#include <libtock/tock.h>
 #include <libtock/sensors/humidity.h>
+#include <libtock/tock.h>
 
 #ifdef __cplusplus
 extern "C" {

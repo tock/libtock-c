@@ -20,4 +20,3 @@ returncode_t libtock_dac_command_set_value(uint32_t value);
 #ifdef __cplusplus
 }
 #endif
-

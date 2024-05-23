@@ -12,8 +12,8 @@
 
 #pragma once
 
-#include "../tock.h"
 #include "../peripherals/syscalls/alarm_syscalls.h"
+#include "../tock.h"
 
 #include <sys/time.h>
 
@@ -70,7 +70,7 @@ typedef struct alarm_repeating {
  *        track of the alarm.
  * \return An error code. Either RETURNCODE_SUCCESS or RETURNCODE_FAIL.
  */
-int libtock_alarm_at(uint32_t reference, uint32_t dt, libtock_alarm_callback cb, void* opaque, libtock_alarm_t *alarm);
+int libtock_alarm_at(uint32_t reference, uint32_t dt, libtock_alarm_callback cb, void* opaque, libtock_alarm_t* alarm);
 
 /** \brief Cancels an existing alarm.
  *
@@ -91,7 +91,7 @@ void libtock_alarm_cancel(libtock_alarm_t*);
 //   return libtock_alarm_gettimeasticks(tv, tzvp);
 // }
 // ```
-int libtock_alarm_gettimeasticks(struct timeval *tv, void *tzvp);
+int libtock_alarm_gettimeasticks(struct timeval* tv, void* tzvp);
 
 /** \brief Create a new alarm to fire in `ms` milliseconds.
  *
@@ -114,7 +114,8 @@ int libtock_alarm_in_ms(uint32_t ms, libtock_alarm_callback cb, void* opaque, li
  * \param a pointer to a new alarm_repeating_t to be used by the implementation to
  *        keep track of the alarm.
  */
-void libtock_alarm_repeating_every(uint32_t ms, libtock_alarm_callback cb, void* opaque, libtock_alarm_repeating_t* alarm_repeating);
+void libtock_alarm_repeating_every(uint32_t ms, libtock_alarm_callback cb, void* opaque,
+                                   libtock_alarm_repeating_t* alarm_repeating);
 
 /** \brief Cancels an existing repeating alarm.
  *

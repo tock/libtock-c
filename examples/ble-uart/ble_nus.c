@@ -28,8 +28,7 @@
  * @param[in] p_nus     Nordic UART Service structure.
  * @param[in] p_ble_evt Pointer to the event received from BLE stack.
  */
-static void on_connect(ble_nus_t * p_nus, ble_evt_t * p_ble_evt)
-{
+static void on_connect(ble_nus_t* p_nus, ble_evt_t* p_ble_evt) {
   p_nus->conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
@@ -39,8 +38,7 @@ static void on_connect(ble_nus_t * p_nus, ble_evt_t * p_ble_evt)
  * @param[in] p_nus     Nordic UART Service structure.
  * @param[in] p_ble_evt Pointer to the event received from BLE stack.
  */
-static void on_disconnect(ble_nus_t * p_nus, ble_evt_t * p_ble_evt)
-{
+static void on_disconnect(ble_nus_t* p_nus, ble_evt_t* p_ble_evt) {
   UNUSED_PARAMETER(p_ble_evt);
   p_nus->conn_handle = BLE_CONN_HANDLE_INVALID;
 }
@@ -51,9 +49,8 @@ static void on_disconnect(ble_nus_t * p_nus, ble_evt_t * p_ble_evt)
  * @param[in] p_nus     Nordic UART Service structure.
  * @param[in] p_ble_evt Pointer to the event received from BLE stack.
  */
-static void on_write(ble_nus_t * p_nus, ble_evt_t * p_ble_evt)
-{
-  ble_gatts_evt_write_t * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
+static void on_write(ble_nus_t* p_nus, ble_evt_t* p_ble_evt) {
+  ble_gatts_evt_write_t* p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
   if (
     (p_evt_write->handle == p_nus->rx_handles.cccd_handle)
@@ -82,8 +79,7 @@ static void on_write(ble_nus_t * p_nus, ble_evt_t * p_ble_evt)
  *
  * @return NRF_SUCCESS on success, otherwise an error code.
  */
-static uint32_t rx_char_add(ble_nus_t * p_nus, const ble_nus_init_t * p_nus_init)
-{
+static uint32_t rx_char_add(ble_nus_t* p_nus, const ble_nus_init_t* p_nus_init) {
   UNUSED_PARAMETER(p_nus_init);
   /**@snippet [Adding proprietary characteristic to S110 SoftDevice] */
   ble_gatts_char_md_t char_md;
@@ -144,8 +140,7 @@ static uint32_t rx_char_add(ble_nus_t * p_nus, const ble_nus_init_t * p_nus_init
  *
  * @return NRF_SUCCESS on success, otherwise an error code.
  */
-static uint32_t tx_char_add(ble_nus_t * p_nus, const ble_nus_init_t * p_nus_init)
-{
+static uint32_t tx_char_add(ble_nus_t* p_nus, const ble_nus_init_t* p_nus_init) {
   UNUSED_PARAMETER(p_nus_init);
   ble_gatts_char_md_t char_md;
   ble_gatts_attr_t attr_char_value;
@@ -190,8 +185,7 @@ static uint32_t tx_char_add(ble_nus_t * p_nus, const ble_nus_init_t * p_nus_init
 }
 
 
-void ble_nus_on_ble_evt(ble_nus_t * p_nus, ble_evt_t * p_ble_evt)
-{
+void ble_nus_on_ble_evt(ble_nus_t* p_nus, ble_evt_t* p_ble_evt) {
   if ((p_nus == NULL) || (p_ble_evt == NULL)) {
     return;
   }
@@ -216,8 +210,7 @@ void ble_nus_on_ble_evt(ble_nus_t * p_nus, ble_evt_t * p_ble_evt)
 }
 
 
-uint32_t ble_nus_init(ble_nus_t * p_nus, const ble_nus_init_t * p_nus_init)
-{
+uint32_t ble_nus_init(ble_nus_t* p_nus, const ble_nus_init_t* p_nus_init) {
   uint32_t err_code;
   ble_uuid_t ble_uuid;
   ble_uuid128_t nus_base_uuid = NUS_BASE_UUID;
@@ -257,8 +250,7 @@ uint32_t ble_nus_init(ble_nus_t * p_nus, const ble_nus_init_t * p_nus_init)
 }
 
 
-uint32_t ble_nus_string_send(ble_nus_t * p_nus, uint8_t * p_string, uint16_t length)
-{
+uint32_t ble_nus_string_send(ble_nus_t* p_nus, uint8_t* p_string, uint16_t length) {
   ble_gatts_hvx_params_t hvx_params;
 
   VERIFY_PARAM_NOT_NULL(p_nus);
