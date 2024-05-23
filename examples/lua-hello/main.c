@@ -4,9 +4,9 @@
 
 #include <libtock-sync/services/alarm.h>
 
-#include "lauxlib.h"
-#include "lua.h"
-#include "lualib.h"
+#include <lua/lauxlib.h>
+#include <lua/lua.h>
+#include <lua/lualib.h>
 
 // POSIX wrapper for `nanosleep` to make this compilable and runnable on
 // Linux/OS X/BSD for testing.
