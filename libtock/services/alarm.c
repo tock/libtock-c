@@ -9,8 +9,8 @@ static int within_range(uint32_t a, uint32_t b, uint32_t c) {
 
 /** \brief Convert milliseconds to clock ticks
  *
- * WARNING: This function will silently overflow if the output
- * number of ticks is larger than `UINT32_MAX`.
+ * WARNING: This function will assert if the output
+ * number of ticks overflows `UINT32_MAX`.
  *
  * This conversion is accurate to within 1 millisecond of a true
  * fractional conversion.
@@ -20,85 +20,19 @@ static int within_range(uint32_t a, uint32_t b, uint32_t c) {
  * correspond to the given number of milliseconds
  */
 static uint32_t ms_to_ticks(uint32_t ms) {
+  // This conversion has a max error of 1ms.
+  // View the justification here https://github.com/tock/libtock-c/pull/434
   uint32_t frequency;
   libtock_alarm_command_get_frequency(&frequency);
 
-  // Note the following code is mathematically equivalent to the following
-  // more readable conversion.
-  // ```
-  //   uint32_t seconds         = ms / 1000;
-  //   uint32_t leftover_millis = ms % 1000;
-  //   uint32_t millihertz      = frequency / 1000; // ticks per millisecond
-  //   return (seconds * frequency) + (leftover_millis * millihertz);
-  // ```
-  // We can check the logical correctness of this conversion by doing dimensional
-  // analysis of the units.
-  // For the first half, `seconds` (sec) * `frequency` (ticks per second) = a quantity in ticks.
-  // And for the second half, `leftover_millis` (milliseconds) * `millihertz` (ticks per millisecond)
-  // = a quantity in ticks.
-  // Thus, we know the calculation is logically correct as the units cancel out to return ticks.
-  //
-  // Although these are logically equivalent, this human readable implementation is
-  // faulty. I will prove this by (1.) showing an upper bound on the error of this conversion,
-  // and then (2.) explaining why this commented human readable implementation is
-  // equivalent to the true implementation.
-  //
-  // Part 1:
-  // The splitting of the input milliseconds has no error.
-  uint32_t seconds         = ms / 1000;
-  uint32_t leftover_millis = ms % 1000;
-  // In other words, `seconds` + `leftover_millis` is always == `ms`.
-
-  // The first half of the output converts the seconds component to ticks with no error.
-  // This multiplication has no error because the board frequency is given in Hertz (ticks per second).
-  uint32_t ticks = seconds * frequency;
-
-  // Now that we have converted the full seconds part of `ms` to ticks, we must
-  // convert the `leftover_millis`.
-  // The reason for splitting this conversion rather than doing a direct conversion
-  // is due to 32-bit overflow. `leftover_millis` can only take values in the range
-  // [0, 1000). Thus, this multiplication is upper bounded by `frequency`*1000. This
-  // calculation will not overflow as long as
-  //   `frequency`*1000 < `UINT32_MAX` -> frequency <= 4,294,967
-  // If this multiplication was performed on the whole input `ms`, it would overflow
-  // for large inputs. The only error introduced is by the division step. Division loses
-  // all fractional components, so you lose 3 decimal significant figures by doing the division.
-  // This does not matter as the remainder lost to integer division is a fraction of a
-  // millisecond. It is especially important that this conversion is lower than the
-  // true value of the conversion. In summary, the error in `ms_to_ticks` is from losing
-  // significant figures, but this loss is less than 1 millisecond of error.
-  //
-  // Note that the division happens after the multiplication. Let us take a look at a
-  // concrete example of a worst case conversion.
-  // For a board with an oscillator frequency of 32,768Hz (NRF52840dk), observe the
-  // error introduced by arithmetic in the "human readable" implementation of this
-  // same line of the code:
-  //   uint32_t millihertz      = frequency / 1000; // ticks per millisecond
-  //   ticks += leftover_millis * millihertz;
-  //
-  //   // The worst case is when the remainder `leftover_millis` is `frequency` - 1
-  //   ticks += 32767 * millihertz;
-  // But what is the value of millihertz here? It is `32768 / 1000` = `32`! This is
-  // 2.4% error, has only 2 significant figures, and, worst of all, the division causes the
-  // denominator to be smaller than it should be. Dividing by a smaller number causes the
-  // entire value of `ticks` to be an overestimate. This is a critical correctness issue.
-  // Let's trace an example execution of calculating overflows in `timer_in`. The code uses
-  // this line to calculate how many overflows are needed.
-  //     const uint32_t max_ticks_in_ms = ticks_to_ms(MAX_TICKS);
-  // If `ticks_to_ms` is an overestimate, then a timer set for slightly longer than the
-  // true value of `MAX_VALUE` in ms will cause the check for `length of timer` <
-  // `max_ticks_in_ms` to be true. This incorrect check will set an overflowed timer and fire
-  // too early.
+  uint32_t seconds                 = ms / 1000;
+  uint32_t leftover_millis         = ms % 1000;
   uint32_t milliseconds_per_second = 1000;
-  ticks += (leftover_millis * frequency) / milliseconds_per_second;
 
-  // Part 2:
-  // The human readable and actual implementation are logically equivalent.
-  // The only difference is the location of the division by 1000.
-  //   leftover_millis * millihertz = leftover_millis * (frequency / 1000)
-  //   = leftover_millis * frequency / 1000 = (leftover_millis * frequency) / 1000
-  // Thus, by a series of equivalences, these are doing the same calculation.
+  uint64_t ticks = (uint64_t) seconds * frequency;
+  ticks += ((uint64_t) leftover_millis * frequency) / milliseconds_per_second;
 
+  assert(ticks <= UINT32_MAX); // check for overflow before 64 -> 32 bit conversion
   return ticks;
 }
 
