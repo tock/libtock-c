@@ -114,7 +114,9 @@ bool otSysPseudoResetWasRequested(void) {
   return false;
 }
 
-void otSysProcessDrivers(otInstance *aInstance){
+void readRingBuf(otInstance *aInstance);
+
+void readRingBuf(otInstance *aInstance) {
   // If new data exists, we copy the data from the returned kernel
   // ring buffer into the user space ring buffer
   if (usr_rx_buffer.new) {
@@ -148,6 +150,39 @@ void otSysProcessDrivers(otInstance *aInstance){
       }
     }
     usr_rx_buffer.new = false;
+  }
+}
+
+void otSysProcessDrivers(otInstance *aInstance){
+  readRingBuf(aInstance);
+
+  printf("[LibOpenThread] Processing System Drivers--:\n");
+  if (pending_alarm_done_callback_status()) {
+    printf("[LibOpenThread] Processing pending alarm--:\n");
+    reset_pending_alarm_done_callback();
+    otPlatAlarmMilliFired(aInstance);
+  }
+
+  otRadioFrame ackFrame;
+  otRadioFrame txFrame;
+  returncode_t status;
+
+  if (pending_tx_done_callback_status(&ackFrame, &status, &txFrame)) {
+    printf("[LibOpenThread] Processing pending tx done--:\n");
+    reset_pending_tx_done_callback();
+    if (status == RETURNCODE_SUCCESS) otPlatRadioTxDone(aInstance, &txFrame, &ackFrame, OT_ERROR_NONE);
+    else otPlatRadioTxDone(aInstance, &txFrame, &ackFrame, OT_ERROR_ABORT);
+  }
+
+  char* print_buf = pending_logging_print_status();
+
+  if (print_buf != NULL) {
+    printf("[LibOpenThread] Printing pending log statements--:\n");
+
+    // print print_buf char array from 0 to print_len
+    puts(print_buf);
+
+    reset_pending_logging_print_status();
   }
 
 }

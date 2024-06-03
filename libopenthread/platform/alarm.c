@@ -16,8 +16,20 @@ uint32_t wrap_point = 0;
 uint32_t wrap_count;
 uint32_t prev_time_value;
 
-static void callback(uint32_t __attribute__((unused)) now, uint32_t __attribute__((unused)) scheduled, void *aInstance) {
-	otPlatAlarmMilliFired(aInstance);
+static bool pending_alarm_done_callback = false;
+
+static void alarm_done_callback(uint32_t __attribute__((unused)) now, 
+						   uint32_t __attribute__((unused)) scheduled, 
+						   void __attribute__((unused)) *aInstance) {
+	pending_alarm_done_callback = true;
+}
+
+bool pending_alarm_done_callback_status(void) {
+	return pending_alarm_done_callback;
+}
+
+void reset_pending_alarm_done_callback(void) {
+	pending_alarm_done_callback = false;
 }
 
 // convert ms to physical clock ticks (this should be done using the timer_in method,
@@ -52,7 +64,7 @@ void otPlatAlarmMilliStartAt(otInstance *aInstance, uint32_t aT0, uint32_t aDt){
 	// milliseconds into clock ticks, the multiplication will overflow.
 	//
 	// OpenThread expects to be able to use the full 32 bit range in milliseconds.
-	libtock_alarm_at(ref, dt, callback, (void *)aInstance, &alarm);
+	libtock_alarm_at(ref, dt, alarm_done_callback, (void *)aInstance, &alarm);
 }
 
 void otPlatAlarmMilliStop(otInstance *aInstance) {

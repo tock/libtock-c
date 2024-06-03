@@ -1,5 +1,7 @@
 #pragma once
-#include<stdbool.h>
+#include <libtock/tock.h>
+#include <openthread/platform/radio.h>
+
 
 // Userspace ring buffer for handling async received upcalls 
 // from the kernel while performing potentially sync (yielding)
@@ -13,6 +15,16 @@ typedef struct {
     int read_index;
     bool new;
 } ring_buffer;
+
+bool pending_alarm_done_callback_status(void);
+void reset_pending_alarm_done_callback(void);
+
+bool pending_tx_done_callback_status(otRadioFrame *ackFrame, returncode_t *status, otRadioFrame* txFrame);
+void reset_pending_tx_done_callback(void);
+
+char* pending_logging_print_status(void);
+void reset_pending_logging_print_status(void);
+
 
 // Initializer needed for alarm PAL methods.
 void init_otPlatAlarm(void);

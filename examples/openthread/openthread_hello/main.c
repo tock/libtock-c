@@ -39,8 +39,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
 
   setNetworkConfiguration(instance);
 
+  otOperationalDataset dataset;
+  assert(otDatasetGetActive(instance, &dataset) == OT_ERROR_NONE);
+  assert(dataset.mChannel == 26);
+
+  printf("Channel : %d\n", dataset.mChannel);
+
   // set child timeout to 60 seconds
-  otThreadSetChildTimeout(instance, 60);
+  otThreadSetChildTimeout(instance, 15);
 
   /* Start the Thread network interface (CLI cmd -> ifconfig up) */
   otIp6SetEnabled(instance, true);
