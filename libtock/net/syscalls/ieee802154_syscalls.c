@@ -162,3 +162,25 @@ returncode_t libtock_ieee802154_command_send_raw(void) {
   syscall_return_t com = command(DRIVER_NUM_IEEE802154, COMMAND_SEND_RAW, 0, 0);
   return tock_command_return_novalue_to_returncode(com);
 }
+
+returncode_t libtock_ieee802154_command_set_address_long_u64(uint64_t address) {
+  uint32_t upper        = (address >> 32) & 0xFFFFFFFF;
+  uint32_t lower        = address & 0xFFFFFFFF;
+  syscall_return_t cval = command(DRIVER_NUM_IEEE802154, COMMAND_SET_ADDR_LONG_U64, lower, upper);
+  return tock_command_return_novalue_to_returncode(cval);
+}
+
+returncode_t libtock_ieee802154_command_get_address_long_u64(uint64_t* address) {
+  syscall_return_t cval = command(DRIVER_NUM_IEEE802154, COMMAND_GET_ADDR_LONG_U64, 0, 0);
+  return tock_command_return_u64_to_returncode(cval, address);
+}
+
+returncode_t libtock_ieee802154_command_radio_on(void) {
+  syscall_return_t cval = command(DRIVER_NUM_IEEE802154, COMMAND_RADIO_ON, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
+}
+
+returncode_t libtock_ieee802154_command_radio_off(void) {
+  syscall_return_t cval = command(DRIVER_NUM_IEEE802154, COMMAND_RADIO_OFF, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
+}

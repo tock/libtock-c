@@ -83,6 +83,12 @@ returncode_t libtock_ieee802154_get_channel(uint8_t* channel);
 // -17 <= power <= 4.
 returncode_t libtock_ieee802154_get_power(uint32_t* power);
 
+// Turn the radio off.
+returncode_t libtock_ieee802154_radio_on(void);
+
+// Turn the radio on.
+returncode_t libtock_ieee802154_radio_off(void);
+
 // IEEE 802.15.4 neighbor list management. The list of known neighbors is
 // implemented as a variable-sized (up to a maximum of
 // `libtock_ieee802154_max_neighbors()`) list of (short address, long address) pairs.

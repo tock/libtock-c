@@ -46,6 +46,11 @@ extern "C" {
 #define COMMAND_SEND           26
 #define COMMAND_SEND_RAW       27
 
+#define COMMAND_SET_ADDR_LONG_U64 28
+#define COMMAND_GET_ADDR_LONG_U64 29
+#define COMMAND_RADIO_ON 30
+#define COMMAND_RADIO_OFF 31
+
 // IEEE 802.15.4 subscribe upcalls syscalls //
 returncode_t libtock_ieee802154_set_upcall_frame_received(subscribe_upcall callback, void* opaque);
 returncode_t libtock_ieee802154_set_upcall_frame_transmitted(subscribe_upcall callback, void* opaque);
@@ -88,6 +93,10 @@ returncode_t libtock_ieee802154_command_add_key(uint32_t* index);
 returncode_t libtock_ieee802154_command_remove_key(uint32_t index);
 returncode_t libtock_ieee802154_command_send(uint16_t addr_short);
 returncode_t libtock_ieee802154_command_send_raw(void);
+returncode_t libtock_ieee802154_command_set_address_long_u64(uint64_t address);
+returncode_t libtock_ieee802154_command_get_address_long_u64(uint64_t* address);
+returncode_t libtock_ieee802154_command_radio_on(void);
+returncode_t libtock_ieee802154_command_radio_off(void);
 
 #ifdef __cplusplus
 }
