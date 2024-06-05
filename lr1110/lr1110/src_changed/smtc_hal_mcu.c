@@ -62,7 +62,7 @@ void __attribute__( ( optimize( "O0" ) ) ) hal_mcu_wait_us( const int32_t micros
 }
 void hal_mcu_wait_ms( const int32_t ms )
 {
-    delay_ms(ms);
+    libtocksync_alarm_delay_ms(ms);
 }
 
 // void hal_mcu_partial_sleep_enable( bool enable )

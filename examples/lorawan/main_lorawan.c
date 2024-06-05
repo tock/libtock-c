@@ -51,14 +51,13 @@
 // #include "smtc_modem_utilities.h"
 
 #include <lr1110/lr1110.h>
-// #include <timer.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <humidity.h>
-#include <temperature.h>
-#include <timer.h>
+#include <libtock-sync/sensors/temperature.h>
+#include <libtock-sync/sensors/humidity.h>
+#include <libtock-sync/services/alarm.h>
 
 /*
  * -----------------------------------------------------------------------------
@@ -286,7 +285,6 @@ int main( void )
     {
         lr11xx_system_clear_errors( &radio_context );
         
-        // delay_ms(10);
         /* Execute modem runtime, this function must be called again in sleep_time_ms milliseconds or sooner. */
         uint32_t sleep_time_ms = smtc_modem_run_engine( ); // cause process fault
 
@@ -295,7 +293,6 @@ int main( void )
         /* go in low power */
         hal_mcu_set_sleep_for_ms( sleep_time_ms );
 
-        // delay_ms(1000);
     }
 }
 
@@ -355,14 +352,14 @@ static void on_modem_alarm( void )
     int temp = 0;
     unsigned humi = 0;
     if (temperature_available) {
-        temperature_read_sync(&temp);
+        libtocksync_temperature_read(&temp);
         printf("Temperature: %d.%d deg C, send %d to TTN\n", temp / 100, temp % 100, temp);
     } else {
         printf("Temperature sensor not available.\n");
     }
 
     if (humidity_available) {
-        humidity_read_sync(&humi);
+        libtocksync_humidity_read(&humi);
         printf("Humidity: %d.%d%%, send %d to TTN\n", humi / 100, humi % 100, humi);
     } else {
         printf("Humidity sensor not available.\n");

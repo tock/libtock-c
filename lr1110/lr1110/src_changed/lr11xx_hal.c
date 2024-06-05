@@ -41,6 +41,7 @@
 #include <stdbool.h>  // bool type
 
 #include <libtock-sync/services/alarm.h>
+#include <libtock-sync/net/lora_phy.h>
 
 #include "lr11xx_hal.h"
 #include "smtc_hal_gpio.h"
@@ -149,7 +150,7 @@ lr11xx_hal_status_t lr11xx_hal_write( const void* context, const uint8_t* comman
     //     printf("irq status at hal_write before read_write_sync: %d\n", lr11xx_irq_mask);
     // }
 
-    lora_phy_read_write_sync((const char*)wbuffer, (const char*)rbuffer,  write_length);
+    libtocksync_lora_phy_read_write((const char*)wbuffer, (const char*)rbuffer,  write_length);
 
     if(command_length == 11) {
         lr11xx_system_irq_mask_t lr11xx_irq_mask = LR11XX_SYSTEM_IRQ_NONE;
@@ -191,13 +192,13 @@ lr11xx_hal_status_t lr11xx_hal_read( const void* context, const uint8_t* command
 
     memcpy(wbuffer, command, command_length);
 
-    lora_phy_read_write_sync((const char*)wbuffer, (char*)rbuffer, command_length);
+    libtocksync_lora_phy_read_write((const char*)wbuffer, (char*)rbuffer, command_length);
 
     lr11xx_hal_check_device_ready( lr11xx_context );
 
     memset(wbuffer, 0, sizeof(wbuffer));
 
-    lora_phy_read_write_sync((const char*)wbuffer, (char*)rbuffer, data_length+1);
+    libtocksync_lora_phy_read_write((const char*)wbuffer, (char*)rbuffer, data_length+1);
 
     memcpy(data, rbuffer+1, data_length);
 
@@ -312,7 +313,7 @@ lr11xx_hal_status_t lr11xx_hal_direct_read( const void* radio, uint8_t* data, co
     memset(wbuffer, 0, sizeof(wbuffer));
     wbuffer[0] = 0x01;
 
-     lora_phy_read_write_sync( wbuffer,data,data_length);
+    libtocksync_lora_phy_read_write( wbuffer,data,data_length);
 
 // #if defined( USE_LR11XX_CRC_OVER_SPI )
 //     // read crc sent by lr11xx by sending one more NOP
