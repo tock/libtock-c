@@ -88,7 +88,7 @@ void hal_lp_timer_irq_disable( void )
 //#include "nrf_drv_rtc.h"
 //#include "nrf_drv_clock.h"
 #include "smtc_hal_lp_time.h"
-#include <timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #define RTC_1_MAX_TICKS	0xffffff
 #define RTC_1_PER_TICK	1.007080078125
@@ -143,8 +143,6 @@ static void timer_tock_upcall(__attribute__ ((unused)) int unused0,
 
 void hal_lp_timer_start( const uint32_t milliseconds, const hal_lp_timer_irq_t* tmr_irq )
 {
-    // delay_ms(milliseconds); // currently all timer changed to delay_ms
-
     // // hal_lp_timer_init( );
     if( milliseconds > 1 )
     {
@@ -175,7 +173,7 @@ void hal_lp_timer_start( const uint32_t milliseconds, const hal_lp_timer_irq_t* 
 
         //   timer_in(milliseconds, timer_tock_upcall, &cond, &timer);
 
-          delay_ms(milliseconds);
+          libtocksync_alarm_delay_ms(milliseconds);
           tmr_irq->callback(tmr_irq->context);
 
     }

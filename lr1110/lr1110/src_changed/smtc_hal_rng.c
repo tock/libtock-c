@@ -1,10 +1,9 @@
 
 #include <stdlib.h>
-#include <time.h>
 //#include "nrf_drv_rng.h"
 #include "smtc_hal_rng.h"
 
-#include "rng.h"
+#include <libtock-sync/peripherals/rng.h>
 
 #define RANDOM_BUFF_SIZE	4
 static uint8_t rng_buff[RANDOM_BUFF_SIZE];
@@ -47,7 +46,7 @@ uint32_t hal_rng_get_random( void )
     // return rng;
 
     int num_received = 0;
-    rng_sync(rng_buff, RANDOM_BUFF_SIZE, RANDOM_BUFF_SIZE, &num_received);
+    libtocksync_rng_get_random_bytes(rng_buff, RANDOM_BUFF_SIZE, RANDOM_BUFF_SIZE, &num_received);
     return rng_buff[0] << 24 | rng_buff[1] << 16 | rng_buff[2] << 8 | rng_buff[3];
 
     // if(num_received == RANDOM_BUFF_SIZE) {
