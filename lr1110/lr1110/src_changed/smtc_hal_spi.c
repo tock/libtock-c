@@ -2,8 +2,8 @@
 // #include "nrfx_spim.h"
 #include "smtc_hal_spi.h"
 #include "smtc_hal_config.h"
-#include "lora_phy.h"
-
+#include <libtock/peripherals/spi_controller.h>
+#include <libtock-sync/net/lora_phy.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -19,11 +19,11 @@ void hal_spi_init( void )
     {
         spi_initialized = true;
         // Set the SPI clock rate to 4MHz (NRF_SPIM_FREQ_4M)
-        lora_phy_set_rate(4000000); // 4MHz as an integer
+        libtock_spi_controller_set_rate(4000000); // 4MHz as an integer
         // Set the SPI phase to sample on a leading (low to high) clock edge
-        lora_phy_set_phase(false);
+        libtock_spi_controller_set_phase(false);
         // Set the SPI polarity so that the idle clock is low
-        lora_phy_set_polarity(false);
+        libtock_spi_controller_set_polarity(false);
         // Set the chip select pin
         // spi_set_chip_select(LR1110_SPI_NSS_PIN);
 
@@ -56,7 +56,7 @@ void hal_spi_write( const uint8_t* buffer, uint16_t length )
 {
     if( spi_initialized == true )
     {
-        lora_phy_write_sync((const char*)buffer, (size_t)length);
+        libtocksync_lora_phy_write((const char*)buffer, (size_t)length);
 
         // nrfx_spim_xfer_desc_t xfer_desc = NRFX_SPIM_XFER_TX( buffer, length );
         // nrfx_spim_xfer( &spi, &xfer_desc, NRFX_SPIM_FLAG_NO_XFER_EVT_HANDLER );
@@ -76,7 +76,7 @@ void hal_spi_write_read( const uint8_t* cbuffer, uint8_t* rbuffer, uint16_t leng
 {
     if( spi_initialized == true )
     {
-        lora_phy_read_write_sync((const char*)cbuffer, (char*)rbuffer, (size_t)length);
+        libtocksync_lora_phy_read_write((const char*)cbuffer, (char*)rbuffer, (size_t)length);
 
 
         // nrfx_spim_xfer_desc_t xfer_desc = NRFX_SPIM_XFER_TRX( cbuffer, length, rbuffer, length );
@@ -91,7 +91,7 @@ void hal_spi_read_with_dummy_byte( uint8_t* buffer, uint16_t length, uint8_t dum
         if( length <= sizeof( m_tx_buf ))
         {
             memset( m_tx_buf, dummy_byte, length );
-            lora_phy_read_write_sync((const char*)m_tx_buf, (char*)buffer, (size_t)length);
+            libtocksync_lora_phy_read_write((const char*)m_tx_buf, (char*)buffer, (size_t)length);
             // nrfx_spim_xfer_desc_t xfer_desc = NRFX_SPIM_XFER_TRX( m_tx_buf, length, buffer, length );
             // nrfx_spim_xfer( &spi, &xfer_desc, NRFX_SPIM_FLAG_NO_XFER_EVT_HANDLER );
         }
@@ -108,7 +108,7 @@ uint16_t hal_spi_in_out( const uint32_t id, const uint16_t out_data )
     if( spi_initialized == true )
     {
         tv = ( uint8_t )( out_data & 0xFF );
-        lora_phy_read_write_sync((const char*)&tv, (char*)&rv, 1);
+        libtocksync_lora_phy_read_write((const char*)&tv, (char*)&rv, 1);
 
         // nrfx_spim_xfer_desc_t xfer_desc = NRFX_SPIM_XFER_TRX(( uint8_t *)(&tv), 1, ( uint8_t *)(&rv), 1 );
         // nrfx_spim_xfer( &spi, &xfer_desc, NRFX_SPIM_FLAG_NO_XFER_EVT_HANDLER );

@@ -40,7 +40,7 @@
 #include <stdint.h>   // C99 types
 #include <stdbool.h>  // bool type
 
-#include <timer.h>
+#include <libtock-sync/services/alarm.h>
 
 #include "lr11xx_hal.h"
 #include "smtc_hal_gpio.h"
@@ -164,7 +164,7 @@ lr11xx_hal_status_t lr11xx_hal_write( const void* context, const uint8_t* comman
         radio_mode = RADIO_SLEEP;
 
         // add a incompressible delay to prevent trying to wake the radio before it is full asleep
-        delay_ms( 1 );
+        libtocksync_alarm_delay_ms( 1 );
 
         //
         hal_spi_deinit( );
@@ -349,12 +349,12 @@ lr11xx_hal_status_t lr11xx_hal_reset( const void* context )
 {
     const lr11xx_hal_context_t* lr11xx_context = ( const lr11xx_hal_context_t* ) context;
     hal_gpio_set_value( lr11xx_context->reset, 0 );
-    delay_ms( 5 );
+    libtocksync_alarm_delay_ms( 5 );
     hal_gpio_set_value( lr11xx_context->reset, 1 );
-    delay_ms( 5 );
+    libtocksync_alarm_delay_ms( 5 );
 
     // Wait until internal lr11xx fw is ready
-    delay_ms( 250 );
+    libtocksync_alarm_delay_ms( 250 );
 
     radio_mode = RADIO_AWAKE;
 
@@ -378,7 +378,7 @@ static void lr11xx_hal_wait_on_busy( const uint32_t busy_pin )
     uint32_t cnt = 0;
     while( hal_gpio_get_value( busy_pin ) == 1 )
     {
-        delay_ms( 1 );
+        libtocksync_alarm_delay_ms( 1 );
         cnt ++;
         if( cnt >= 3000 )
         {
