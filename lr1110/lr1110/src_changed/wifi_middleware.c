@@ -537,7 +537,7 @@ static void wifi_mw_scan_rp_task_launch( void* context )
     // lr11xx_system_get_irq_status( &lr1110_context, &lr11xx_irq_mask );
     // printf("irq status at start of task launch: %d\n", lr11xx_irq_mask);
 
-    delay_ms(700);
+    libtocksync_alarm_delay_ms(700);
 
     // lr11xx_status_t status = lr11xx_system_clear_irq_status(modem_radio_ctx->ral.context, 0xFFFFFFFF);
     // printf("status of clear: %d\n", status);

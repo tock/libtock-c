@@ -44,7 +44,7 @@
  */
 
 #include <lr1110/lr1110.h>
-#include <timer.h>
+#include <libtock-sync/services/alarm.h>
 #include <stdio.h>
 #include <stdint.h>
 
