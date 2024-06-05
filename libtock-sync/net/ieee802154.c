@@ -74,7 +74,7 @@ returncode_t libtocksync_ieee802154_send_raw(
     return sync_timeout_ret;
   }
 
-  return tock_status_to_returncode(send_result.status);
+  return tock_status_to_returncode(send_result_raw.status);
 }
 
 returncode_t libtocksync_ieee802154_receive(const libtock_ieee802154_rxbuf* frame) {
