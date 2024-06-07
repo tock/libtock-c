@@ -7,6 +7,35 @@ static int within_range(uint32_t a, uint32_t b, uint32_t c) {
   return (b - a) < (b - c);
 }
 
+/** \brief Convert milliseconds to clock ticks
+ *
+ * WARNING: This function will assert if the output
+ * number of ticks overflows `UINT32_MAX`.
+ *
+ * This conversion is accurate to within 1 millisecond of a true
+ * fractional conversion.
+ *
+ * \param ms the milliseconds to convert to ticks
+ * \return ticks a number of clock ticks that
+ * correspond to the given number of milliseconds
+ */
+static uint32_t ms_to_ticks(uint32_t ms) {
+  // This conversion has a max error of 1ms.
+  // View the justification here https://github.com/tock/libtock-c/pull/434
+  uint32_t frequency;
+  libtock_alarm_command_get_frequency(&frequency);
+
+  uint32_t seconds                 = ms / 1000;
+  uint32_t leftover_millis         = ms % 1000;
+  uint32_t milliseconds_per_second = 1000;
+
+  uint64_t ticks = (uint64_t) seconds * frequency;
+  ticks += ((uint64_t) leftover_millis * frequency) / milliseconds_per_second;
+
+  assert(ticks <= UINT32_MAX); // check for overflow before 64 -> 32 bit conversion
+  return ticks;
+}
+
 static libtock_alarm_t* root = NULL;
 
 static void root_insert(libtock_alarm_t* alarm) {
@@ -130,9 +159,7 @@ void libtock_alarm_cancel(libtock_alarm_t* alarm) {
 }
 
 int libtock_alarm_in_ms(uint32_t ms, libtock_alarm_callback cb, void* opaque, libtock_alarm_t* alarm) {
-  uint32_t frequency;
-  libtock_alarm_command_get_frequency(&frequency);
-  uint32_t interval = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
+  uint32_t interval = ms_to_ticks(ms);
   uint32_t now;
   libtock_alarm_command_read(&now);
   return libtock_alarm_at(now, interval, cb, opaque, alarm);
@@ -150,9 +177,7 @@ static void alarm_repeating_cb(uint32_t now, __attribute__ ((unused)) uint32_t s
 
 void libtock_alarm_repeating_every(uint32_t ms, libtock_alarm_callback cb, void* opaque,
                                    libtock_alarm_repeating_t* repeating) {
-  uint32_t frequency;
-  libtock_alarm_command_get_frequency(&frequency);
-  uint32_t interval = (ms / 1000) * frequency + (ms % 1000) * (frequency / 1000);
+  uint32_t interval = ms_to_ticks(ms);
 
   repeating->interval = interval;
   repeating->cb       = cb;
