@@ -98,12 +98,32 @@ static void callback(__attribute__ ((unused)) int pans,
 }
 
 int main(void) {
+  returncode_t err;
+
+  printf("[IEEE802.15.4] Receive\n");
   memset(rx_ring_buf, 0, libtock_ieee802154_RING_BUFFER_LEN);
-  libtock_ieee802154_set_address_short(0x802);
-  libtock_ieee802154_set_pan(0xABCD);
-  libtock_ieee802154_config_commit();
-  libtocksync_ieee802154_up();
-  libtock_ieee802154_receive(&rx_ring_buf, callback);
+
+  err = libtock_ieee802154_set_address_short(0x802);
+  if (err != RETURNCODE_SUCCESS) {
+    printf("Error: could not set address (%i)\n", err);
+  }
+  err = libtock_ieee802154_set_pan(0xABCD);
+  if (err != RETURNCODE_SUCCESS) {
+    printf("Error: could not set pan (%i)\n", err);
+  }
+  err = libtock_ieee802154_config_commit();
+  if (err != RETURNCODE_SUCCESS) {
+    printf("Error: could not commit configuration (%i)\n", err);
+  }
+  err = libtocksync_ieee802154_up();
+  if (err != RETURNCODE_SUCCESS) {
+    printf("Error: could enable radio (%i)\n", err);
+  }
+  err = libtock_ieee802154_receive(&rx_ring_buf, callback);
+  if (err != RETURNCODE_SUCCESS) {
+    printf("Error: could not start receive (%i)\n", err);
+  }
+  printf("Receiving...\n");
   while (1) {
     libtocksync_alarm_delay_ms(4000);
   }
