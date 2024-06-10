@@ -73,6 +73,8 @@ otTock otTockInstance = {
   .instance      = NULL,
 };
 
+bool rx_callback_called = false;
+
 // Helper utility to provide a new ring buffer to the kernel and
 // return the ring buffer previously held by the kernel
 static libtock_ieee802154_rxbuf* swap_shared_kernel_buf(otTock* instance);
@@ -116,10 +118,17 @@ bool otSysPseudoResetWasRequested(void) {
 
 void readRingBuf(otInstance *aInstance);
 
+bool pending_rx_done_callback_status(void) {
+  return usr_rx_buffer.new;
+}
+
+bool pending_libtock_sys_work(void){
+    return (pending_alarm_done_callback_status() || 
+            pending_tx_done_callback_status(NULL, NULL, NULL) || 
+            pending_rx_done_callback_status());
+}
+
 void readRingBuf(otInstance *aInstance) {
-  // If new data exists, we copy the data from the returned kernel
-  // ring buffer into the user space ring buffer
-  if (usr_rx_buffer.new) {
     int offset;
 
     // loop through data until all new data is read
@@ -149,16 +158,27 @@ void readRingBuf(otInstance *aInstance) {
         usr_rx_buffer.read_index = 0;
       }
     }
-    usr_rx_buffer.new = false;
-  }
+    usr_rx_buffer.new = false;  
 }
 
 void otSysProcessDrivers(otInstance *aInstance){
-  readRingBuf(aInstance);
-
+  #if OPENTHREAD_CONFIG_LOG_LEVEL!=OT_LOG_LEVEL_NONE
   printf("[LibOpenThread] Processing System Drivers--:\n");
+  #endif
+
+  if(pending_rx_done_callback_status()){
+    #if OPENTHREAD_CONFIG_LOG_LEVEL!=OT_LOG_LEVEL_NONE
+    printf("[LibOpenThread] Reading ring buffer--:\n");
+    #endif
+
+    readRingBuf(aInstance);
+  }
+
   if (pending_alarm_done_callback_status()) {
+    #if OPENTHREAD_CONFIG_LOG_LEVEL!=OT_LOG_LEVEL_NONE
     printf("[LibOpenThread] Processing pending alarm--:\n");
+    #endif
+
     reset_pending_alarm_done_callback();
     otPlatAlarmMilliFired(aInstance);
   }
@@ -168,21 +188,13 @@ void otSysProcessDrivers(otInstance *aInstance){
   returncode_t status;
 
   if (pending_tx_done_callback_status(&ackFrame, &status, &txFrame)) {
+    #if OPENTHREAD_CONFIG_LOG_LEVEL!=OT_LOG_LEVEL_NONE
     printf("[LibOpenThread] Processing pending tx done--:\n");
+    #endif
+
     reset_pending_tx_done_callback();
     if (status == RETURNCODE_SUCCESS) otPlatRadioTxDone(aInstance, &txFrame, &ackFrame, OT_ERROR_NONE);
     else otPlatRadioTxDone(aInstance, &txFrame, &ackFrame, OT_ERROR_ABORT);
-  }
-
-  char* print_buf = pending_logging_print_status();
-
-  if (print_buf != NULL) {
-    printf("[LibOpenThread] Printing pending log statements--:\n");
-
-    // print print_buf char array from 0 to print_len
-    puts(print_buf);
-
-    reset_pending_logging_print_status();
   }
 
 }
@@ -195,6 +207,7 @@ static void rx_callback(__attribute__ ((unused)) int   pans,
   /* It is important to avoid sync operations that yield (i.e. printf)
      as this may cause a new upcall to be handled and data to be received
      out of order and/or lost. */
+  rx_callback_called = true;
 
   uint8_t* rx_buf = swap_shared_kernel_buf(&otTockInstance)[0];
 

@@ -19,26 +19,6 @@
 // be another solution I am unaware of so others input would be welcome.
 
 #if (OPENTHREAD_CONFIG_LOG_OUTPUT == OPENTHREAD_CONFIG_LOG_OUTPUT_PLATFORM_DEFINED)
-// static char buf[LOGGING_BUF_LEN];
-static int len_written = 0;
-bool pending_logging_print = false;
-char* buf = NULL;
-
-char* pending_logging_print_status(void) {
-  if (pending_logging_print) {
-    // copy buf to print_buf
-    return buf;
-  }
-
-  return NULL;
-}
-
-void reset_pending_logging_print_status(void) {
-  len_written = 0;
-  free(buf);
-  buf = NULL;
-  pending_logging_print = false;
-}
 
 OT_TOOL_WEAK void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const char *aFormat, ...)
 {
@@ -48,22 +28,10 @@ OT_TOOL_WEAK void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const 
   va_list args;
 
   va_start(args, aFormat);
-  // vsprintf into buf
-  
-  int new_len = vsnprintf(NULL, 0, aFormat, args) + len_written + 2;
-  char* temp_buf = (char *)malloc(new_len * sizeof(char));
 
-  if (buf != NULL) {
-    memcpy(temp_buf, buf, len_written);
-    free(buf);
-  }
+  vprintf(aFormat, args);
+  printf("\n");
 
-  buf = temp_buf;
-  len_written += vsprintf(&buf[len_written], aFormat, args) + 1;
-  buf[len_written-1] = '\n'; 
-  buf[len_written] = '\0'; // null terminate
-  assert(len_written >= 1);
-  pending_logging_print = true;
   va_end(args);
 }
 #endif

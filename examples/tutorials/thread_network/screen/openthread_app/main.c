@@ -121,10 +121,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
   }
 
   for ( ;;) {
-    otSysProcessDrivers(instance);
     otTaskletsProcess(instance);
+    otSysProcessDrivers(instance);
 
-    if (!otTaskletsArePending(instance)) {
+    if (!otTaskletsArePending(instance) && !pending_libtock_sys_work()){
       yield();
     }
 
@@ -169,6 +169,10 @@ static void stateChangeCallback(uint32_t flags, void* context) {
       break;
     case OT_DEVICE_ROLE_DETACHED:
       printf("[State Change] - Detached.\n");
+      if (network_up){
+        uint8_t *temp = 0;
+        *temp = 0;
+      }
       break;
     case OT_DEVICE_ROLE_CHILD:
       network_up = true;

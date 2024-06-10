@@ -22,9 +22,10 @@ void reset_pending_alarm_done_callback(void);
 bool pending_tx_done_callback_status(otRadioFrame *ackFrame, returncode_t *status, otRadioFrame* txFrame);
 void reset_pending_tx_done_callback(void);
 
-char* pending_logging_print_status(void);
-void reset_pending_logging_print_status(void);
+bool pending_rx_done_callback_status(void);
+void reset_pending_rx_done_callback(void);
 
+bool pending_libtock_sys_work(void);
 
 // Initializer needed for alarm PAL methods.
 void init_otPlatAlarm(void);

@@ -62,7 +62,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
     otTaskletsProcess(instance);
     otSysProcessDrivers(instance);
 
-    if (!otTaskletsArePending(instance)) {
+    if (!otTaskletsArePending(instance) && !pending_libtock_sys_work()){
       yield();
     }
 
