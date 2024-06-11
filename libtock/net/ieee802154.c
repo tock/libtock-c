@@ -17,11 +17,6 @@ int libtock_ieee802154_down(void) {
 }
 
 returncode_t libtock_ieee802154_is_up(bool* status) {
-  // For the raw implementation of the 15.4 driver we need to turn on the radio.
-  // If the kernel is managing the 15.4 stack, we likely do not need to do this.
-  // In that case, this will error, but we ignore the error.
-  libtock_ieee802154_command_radio_on();
-
   returncode_t ret = libtock_ieee802154_command_status();
   if (ret == RETURNCODE_EOFF) {
     *status = false;

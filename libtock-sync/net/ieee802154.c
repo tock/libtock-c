@@ -91,6 +91,11 @@ returncode_t libtocksync_ieee802154_receive(const libtock_ieee802154_rxbuf* fram
 }
 
 returncode_t libtocksync_ieee802154_up(void) {
+  // For the raw implementation of the 15.4 driver we need to turn on the radio.
+  // If the kernel is managing the 15.4 stack, we likely do not need to do this.
+  // In that case, this will error, but we ignore the error.
+  libtock_ieee802154_command_radio_on();
+
   // Spin until radio is on.
   bool status;
   libtock_ieee802154_is_up(&status);
