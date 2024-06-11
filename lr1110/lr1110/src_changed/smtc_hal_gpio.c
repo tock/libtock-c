@@ -226,7 +226,7 @@ uint32_t hal_gpio_get_value( uint32_t pin )
 	// }
 }
 
-void hal_gpio_wait_for_state( uint32_t pin, hal_gpio_state_t state )
+void hal_gpio_wait_for_state( uint32_t pin, uint8_t state )
 {
 	int value;
 	if( state == HAL_GPIO_RESET )

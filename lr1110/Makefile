@@ -100,7 +100,6 @@ override CFLAGS += \
 -I$(SEEED_DIR)/lora_basics_modem/smtc_modem_core/smtc_modem_services/src/stream/ \
 -I$(SEEED_DIR)/lora_basics_modem/smtc_modem_core/smtc_ral/src/ \
 -I$(SEEED_DIR)/lora_basics_modem/smtc_modem_core/smtc_ralf/src/ \
--I$(SEEED_DIR)/smtc_hal/ \
 -I$(SEEED_DIR)/wm1110/LR11XX/common/src/ \
 -I$(SEEED_DIR)/wm1110/LR11XX/smtc_shield_lr11xx/LR1110/LR1110MB1DxS/ \
 -I$(SEEED_DIR)/wm1110/LR11XX/smtc_shield_lr11xx/LR1110/LR1110MB1GxS/ \
@@ -121,11 +120,8 @@ override CFLAGS += \
 -I$(SEEED_DIR)/wm1110/LR11XX/smtc_shield_lr11xx/common/inc/ \
 -I$(SEEED_DIR)/wm1110/LR11XX/radio_drivers_hal \
 -I$(SEEED_DIR)/wm1110/LR11XX/common/inc \
--I$(SEEED_DIR)/wm1110/interface
-
-# add libtock support
-override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
-override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
+-I$(SEEED_DIR)/wm1110/interface \
+-I$(SEEED_DIR)/smtc_hal/inc
 
 $(LIBNAME)_SRCS := $(UNCHANGED_CSRCS) $(CHANGED_CSRCS)
 

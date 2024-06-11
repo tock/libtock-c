@@ -48,7 +48,5 @@ override CFLAGS += \
 -I$(SEEED_DIR)/wm1110/LR11XX/smtc_shield_lr11xx/common/inc/ \
 -I$(SEEED_DIR)/wm1110/LR11XX/radio_drivers_hal \
 -I$(SEEED_DIR)/wm1110/LR11XX/common/inc \
--I$(SEEED_DIR)/wm1110/interface
-
-# add libtock support
-override CFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
+-I$(SEEED_DIR)/wm1110/interface \
+-I$(SEEED_DIR)/smtc_hal/inc

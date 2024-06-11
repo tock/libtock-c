@@ -1,4 +1,3 @@
-#include <tock.h>
 #include <libtock-sync/storage/nonvolatile_storage.h>
 
 #include "smtc_hal.h"

@@ -83,6 +83,50 @@
 #define LORAWAN_JOIN_EUI    "901AB1F40E1BCC81"
 #define LORAWAN_APP_KEY     "3356A7047ECF1F2F78C72AE9B1635BC1"
 
+/*!
+ * @brief Defines the application data transmission duty cycle. 60s (changed to 3s), value in [s].
+ */
+#define APP_TX_DUTYCYCLE 3
+
+/*!
+ * @brief LoRaWAN application port
+ */
+#define LORAWAN_APP_PORT 2
+
+/*!
+ * @brief User application data buffer size
+ */
+#define LORAWAN_APP_DATA_MAX_SIZE 242
+
+/*!
+ * @brief If true, then the system will not power down all peripherals when going to low power mode. This is necessary
+ * to keep the LEDs active in low power mode.
+ */
+#define APP_PARTIAL_SLEEP true
+
+/*
+ * -----------------------------------------------------------------------------
+ * --- LoRaWAN Configuration ---------------------------------------------------
+ */
+
+/*!
+ * @brief LoRaWAN confirmed messages
+ */
+#define LORAWAN_CONFIRMED_MSG_ON true
+
+/*!
+ * @brief Default datarate
+ *
+ * @remark See @ref smtc_modem_adr_profile_t
+ */
+#define LORAWAN_DEFAULT_DATARATE SMTC_MODEM_ADR_PROFILE_NETWORK_CONTROLLED
+
+/*!
+ * @brief ADR custom list when LORAWAN_DEFAULT_DATARATE is set to SMTC_MODEM_ADR_PROFILE_CUSTOM
+ */
+uint8_t adr_custom_list[16] = { 0x05, 0x05, 0x05, 0x04, 0x04, 0x04, 0x03, 0x03,
+                                0x03, 0x02, 0x02, 0x02, 0x01, 0x01, 0x00, 0x00 };
+
 /*
  * -----------------------------------------------------------------------------
  * --- PRIVATE TYPES -----------------------------------------------------------
