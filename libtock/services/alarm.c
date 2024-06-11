@@ -1,4 +1,5 @@
 #include "alarm.h"
+#include <assert.h>
 #include <limits.h>
 #include <stdlib.h>
 
