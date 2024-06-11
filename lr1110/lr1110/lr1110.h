@@ -112,7 +112,6 @@
 
 // changed headers
 #include "smtc_hal_gpio.h"
-#include "main_lorawan.h"
 #include "smtc_hal_spi.h"
 #include "smtc_hal_lp_time.h"
 #include "smtc_hal_rtc.h"
