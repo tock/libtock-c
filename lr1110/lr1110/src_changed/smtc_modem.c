@@ -50,8 +50,6 @@
 #include "smtc_real_defs.h"
 #include "lorawan_api.h"
 
-
-
 #if defined( ADD_SMTC_ALC_SYNC )
 #include "alc_sync.h"
 #endif  // ADD_SMTC_ALC_SYNC
@@ -255,7 +253,6 @@ smtc_modem_event_user_radio_access_status_t convert_rp_to_user_radio_access_stat
 
 void smtc_modem_init( const ralf_t* radio, void ( *callback_event )( void ) )
 {
-    // printf("start of smtc_modem_init\n");
     SMTC_MODEM_HAL_TRACE_INFO( "Modem Initialization\n" );
 
 #ifdef LORAWAN_BYPASS_ENABLED
@@ -293,9 +290,8 @@ void smtc_modem_init( const ralf_t* radio, void ( *callback_event )( void ) )
     rp_hook_init( &modem_radio_planner, RP_HOOK_ID_USER_SUSPEND_2,
                   ( void ( * )( void* ) )( callback_rp_user_radio_access_2 ), &modem_radio_planner );
 #endif  // !LR1110_MODEM_E
-    modem_supervisor_init( callback_event, &modem_radio_planner, &smtc_modem_services_ctx ); // cause process fault
+    modem_supervisor_init( callback_event, &modem_radio_planner, &smtc_modem_services_ctx );
     smtc_secure_element_init( );
-    // printf("end of smtc_modem_init\n");
 }
 
 uint32_t smtc_modem_run_engine( void )
@@ -836,7 +832,6 @@ smtc_modem_return_code_t smtc_modem_alarm_start_timer( uint32_t alarm_s )
 
     smtc_modem_return_code_t return_code = SMTC_MODEM_RC_OK;
     modem_set_user_alarm( ( alarm_s > 0 ) ? ( smtc_modem_hal_get_time_in_s( ) + alarm_s ) : 0 );
-    printf("smtc_modem_alarm_start_timer: %d\n", alarm_s);
     return return_code;
 }
 
@@ -1675,7 +1670,7 @@ smtc_modem_return_code_t smtc_modem_request_extended_uplink( uint8_t stack_id, u
                                                              const uint8_t* payload, uint8_t payload_length,
                                                              uint8_t extended_uplink_id,
                                                              void ( *lbm_notification_callback )( void ) )
-{  
+{
     UNUSED( stack_id );
     RETURN_BUSY_IF_TEST_MODE( );
     RETURN_INVALID_IF_NULL( payload );

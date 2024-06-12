@@ -18,7 +18,8 @@ override CFLAGS += -I$(LR1110_DIR)/inc_changed
 # -DREGION_US_915: Defines the LoRaWAN region to US 915 MHz band
 # -DRP2_103: Specifies the use of Regional Parameters version RP2-1.0.3
 # -DTASK_EXTENDED_2: The LoRa Basics Modem extended uplink ID to be used for Wi-Fi uplinks
-override CFLAGS += -DREGION_US_915 -DRP2_103 -DTASK_EXTENDED_2
+# -DLR11XX, -DLR11XX_TRANSCEIVER: Let the code select methods for LR11XX radio board 
+override CFLAGS += -DREGION_US_915 -DRP2_103 -DTASK_EXTENDED_2 -DLR11XX -DLR11XX_TRANSCEIVER
 
 # include unchanged source files from seeed's repo
 UNCHANGED_CSRCS := \
@@ -75,7 +76,11 @@ $(SEEED_DIR)/wm1110/LR11XX/smtc_shield_lr11xx/LR1110/LR1110MB1GxS/smtc_shield_lr
 $(SEEED_DIR)/wm1110/LR11XX/smtc_shield_lr11xx/common/src/smtc_shield_lr11x0_common.c \
 $(SEEED_DIR)/wm1110/LR11XX/smtc_shield_lr11xx/common/src/smtc_shield_lr11xx_common.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/smtc_modem_crypto/soft_secure_element/soft_se.c \
-$(SEEED_DIR)/lora_basics_modem/smtc_modem_core/smtc_modem_services/src/stream/stream.c
+$(SEEED_DIR)/lora_basics_modem/smtc_modem_core/smtc_modem_services/src/stream/stream.c \
+$(SEEED_DIR)/geolocation_middleware/common/mw_common.c \
+$(SEEED_DIR)/lora_basics_modem/smtc_modem_core/radio_drivers/lr11xx_driver/src/lr11xx_system.c \
+$(SEEED_DIR)/lora_basics_modem/smtc_modem_core/modem_core/smtc_modem_test.c \
+$(SEEED_DIR)/geolocation_middleware/wifi/src/wifi_helpers.c
 
 # include unchanged headers from seeed's repo
 override CFLAGS += \
