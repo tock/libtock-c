@@ -402,6 +402,7 @@ void rp_radio_irq( radio_planner_t* rp )
         SMTC_MODEM_HAL_RP_TRACE_PRINTF( " RP: INFO - Radio IRQ received for hook #%u\n", rp->radio_task_id );
 
         rp_irq_get_status( rp, rp->radio_task_id );
+        // re-get the irq status if RX_TIMEOUT happens (current workaround)
         if( rp_task_type == RP_TASK_TYPE_WIFI_RSSI) {
             if(rp->status[rp->radio_task_id] == RP_STATUS_RX_TIMEOUT) {
                 printf("ignore irq in radio planner\n");
@@ -446,7 +447,6 @@ void rp_radio_irq( radio_planner_t* rp )
     else
     {
         SMTC_MODEM_HAL_TRACE_PRINTF( " radio planner it but no more task activated\n" );
-        // printf("inside rp_radio_irq, state is aborted / finished\n");
     }
 
     // Shut Down the TCXO
@@ -638,7 +638,6 @@ static void rp_irq_get_status( radio_planner_t* rp, const uint8_t hook_id )
     rp->raw_radio_irq[hook_id] = radio_irq;
     if( ( radio_irq & RAL_IRQ_TX_DONE ) == RAL_IRQ_TX_DONE )
     {
-        //printf("irq status is: RP_STATUS_TX_DONE\n");
         rp->status[hook_id] = RP_STATUS_TX_DONE;
         if( rp->priority_task.type == RP_TASK_TYPE_TX_LR_FHSS )
         {
@@ -650,25 +649,14 @@ static void rp_irq_get_status( radio_planner_t* rp, const uint8_t hook_id )
     else if( ( ( radio_irq & RAL_IRQ_RX_HDR_ERROR ) == RAL_IRQ_RX_HDR_ERROR ) ||
              ( ( radio_irq & RAL_IRQ_RX_CRC_ERROR ) == RAL_IRQ_RX_CRC_ERROR ) )
     {
-        //printf("irq status is: RP_STATUS_RX_CRC_ERROR\n");
         rp->status[hook_id] = RP_STATUS_RX_CRC_ERROR;
     }
     else if( ( radio_irq & RAL_IRQ_RX_TIMEOUT ) == RAL_IRQ_RX_TIMEOUT )
     {
-        //printf("irq status is: RP_STATUS_RX_TIMEOUT\n");
-        if(radio_irq == 520 && rp_task_type == RP_TASK_TYPE_WIFI_RSSI) {
-            // rp->status[hook_id] = RP_STATUS_WIFI_SCAN_DONE;
-            // printf("irq is 520 (RX_TIMEOUT & CAD_DETECTED bits set");
-            // printf(", and rp_task_type is WIFI_SCAN_RSSI\n");
-            // printf("status set to WIFI_SCAN_DONE instead\n");
-            rp->status[hook_id] = RP_STATUS_RX_TIMEOUT;
-        } else {
-            rp->status[hook_id] = RP_STATUS_RX_TIMEOUT;
-        }
+        rp->status[hook_id] = RP_STATUS_RX_TIMEOUT;
     }
     else if( ( radio_irq & RAL_IRQ_RX_DONE ) == RAL_IRQ_RX_DONE )
     {
-        //printf("irq status is: RP_STATUS_RX_PACKET\n");
         rp->status[hook_id] = RP_STATUS_RX_PACKET;
 
         if( rp_get_pkt_payload( rp, &rp->tasks[hook_id] ) == RP_HOOK_STATUS_ID_ERROR )
@@ -679,17 +667,14 @@ static void rp_irq_get_status( radio_planner_t* rp, const uint8_t hook_id )
     }
     else if( ( radio_irq & RAL_IRQ_CAD_OK ) == RAL_IRQ_CAD_OK )
     {
-        //printf("irq status is: RP_STATUS_CAD_POSITIVE\n");
         rp->status[hook_id] = RP_STATUS_CAD_POSITIVE;
     }
     else if( ( radio_irq & RAL_IRQ_CAD_DONE ) == RAL_IRQ_CAD_DONE )
     {
-        //printf("irq status is: RP_STATUS_CAD_NEGATIVE\n");
         rp->status[hook_id] = RP_STATUS_CAD_NEGATIVE;
     }
     else if( ( radio_irq & RAL_IRQ_LR_FHSS_HOP ) == RAL_IRQ_LR_FHSS_HOP )
     {
-        //printf("irq status is: RP_STATUS_LR_FHSS_HOP\n");
         rp->status[hook_id] = RP_STATUS_LR_FHSS_HOP;
         smtc_modem_hal_assert(
             ral_lr_fhss_handle_hop( &rp->radio->ral, &rp->radio_params[hook_id].tx.lr_fhss.ral_lr_fhss_params,
@@ -702,12 +687,10 @@ static void rp_irq_get_status( radio_planner_t* rp, const uint8_t hook_id )
     }
     else if( ( radio_irq & RAL_IRQ_GNSS_SCAN_DONE ) == RAL_IRQ_GNSS_SCAN_DONE )
     {
-        //printf("irq status is: RP_STATUS_GNSS_SCAN_DONE\n");
         rp->status[hook_id] = RP_STATUS_GNSS_SCAN_DONE;
     }
     else
     {
-        //printf("irq status is: RP_STATUS_TASK_ABORTED\n");
         SMTC_MODEM_HAL_RP_TRACE_PRINTF( " RP: ERROR - IRQ source 0x%04X unknown\n", radio_irq );
         rp->status[hook_id] = RP_STATUS_TASK_ABORTED;
     }

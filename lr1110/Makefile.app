@@ -2,7 +2,7 @@ LR1110_DIR = $(TOCK_USERLAND_BASE_DIR)/lr1110/lr1110
 SEEED_DIR = $(LR1110_DIR)/seeed
 
 # include changed headers and parameters
-override CFLAGS += -I$(LR1110_DIR)/inc_changed -DREGION_US_915 -DRP2_103 -DTASK_EXTENDED_2
+override CFLAGS += -I$(LR1110_DIR)/inc_changed -DREGION_US_915 -DRP2_103 -DTASK_EXTENDED_2 -DLR11XX -DLR11XX_TRANSCEIVER
 
 # include unchanged headers from seeed's repo
 override CFLAGS += \

@@ -56,8 +56,6 @@
 
 #include "smtc_modem_middleware_advanced_api.h"
 #include "smtc_modem_hal.h"
-#include "lr11xx_hal_context.h"
-#include "smtc_hal_config.h"
 
 /*
  * -----------------------------------------------------------------------------
@@ -144,12 +142,6 @@ typedef enum
     WIFI_MW_ERROR_UNKNOWN,      //!< An unknown error occurred
 } wifi_mw_internal_error_t;
 
-lr11xx_hal_context_t lr1110_context = {
-    .nss    = LR1110_SPI_NSS_PIN,
-    .busy   = LR1110_BUSY_PIN,
-    .reset  = LR1110_NRESER_PIN,
-    .spi_id = 3,
-};
 
 /*
  * -----------------------------------------------------------------------------
@@ -305,8 +297,6 @@ mw_return_code_t wifi_mw_init( ralf_t* modem_radio, uint8_t stack_id )
     /* Set the stack id */
     modem_stack_id = stack_id;
 
-    //printf("wifi_mw_init success\n");
-
     return MW_RC_OK;
 }
 
@@ -316,9 +306,6 @@ mw_return_code_t wifi_mw_scan_start( uint32_t start_delay )
     smtc_modem_rp_task_t     rp_task = { 0 };
     uint32_t                 time_ms;
     wifi_settings_t          wifi_settings = { 0 };
-
-    // printf("wifi_mw_scan_start\n");
-    // printf("task running is %d\n", task_running);
 
     if( modem_radio_ctx == NULL )
     {
@@ -352,13 +339,6 @@ mw_return_code_t wifi_mw_scan_start( uint32_t start_delay )
     /* Prepare the task for next scan, add 300ms to avoid schedule a task in the past */
     time_ms = smtc_modem_hal_get_time_in_ms( ) + 300;
 
-    // lr11xx_system_irq_mask_t lr11xx_irq_mask = LR11XX_SYSTEM_IRQ_NONE;
-
-    // lr11xx_system_get_irq_status( &lr1110_context, &lr11xx_irq_mask );
-    // printf("irq status before setting callback function: %d\n", lr11xx_irq_mask);
-
-    // printf("start scan from now\n");
-
     rp_task.type                 = SMTC_MODEM_RP_TASK_STATE_ASAP;
     rp_task.start_time_ms        = time_ms + ( start_delay * 1000 );
     rp_task.duration_time_ms     = 10 * 1000;
@@ -369,7 +349,7 @@ mw_return_code_t wifi_mw_scan_start( uint32_t start_delay )
 
     if( modem_rc == SMTC_MODEM_RC_OK )
     {
-        // MW_DBG_TRACE_INFO( "RP_TASK_WIFI - new scan - task queued at %u + %u\n", time_ms, start_delay * 1000 );
+        MW_DBG_TRACE_INFO( "RP_TASK_WIFI - new scan - task queued at %u + %u\n", time_ms, start_delay * 1000 );
     }
     else
     {
@@ -530,24 +510,7 @@ void wifi_mw_clear_pending_events( void ) { pending_events = 0; }
 
 static void wifi_mw_scan_rp_task_launch( void* context )
 {
-    // printf("start of task launch irq\n");
-
-    // lr11xx_system_irq_mask_t lr11xx_irq_mask = LR11XX_SYSTEM_IRQ_NONE;
-
-    // lr11xx_system_get_irq_status( &lr1110_context, &lr11xx_irq_mask );
-    // printf("irq status at start of task launch: %d\n", lr11xx_irq_mask);
-
-    libtocksync_alarm_delay_ms(700);
-
-    // lr11xx_status_t status = lr11xx_system_clear_irq_status(modem_radio_ctx->ral.context, 0xFFFFFFFF);
-    // printf("status of clear: %d\n", status);
-
-    // lr11xx_irq_mask = LR11XX_SYSTEM_IRQ_NONE;
-
-    // lr11xx_system_get_irq_status( &lr1110_context, &lr11xx_irq_mask );
-    // printf("irq status after clear: %d\n", lr11xx_irq_mask);
-
-    // MW_DBG_TRACE_MSG( "---- internal Wi-Fi scan start ----\n" );
+    MW_DBG_TRACE_MSG( "---- internal Wi-Fi scan start ----\n" );
 
     /* From now, the scan sequence can not be cancelled */
     task_running = true;
@@ -568,22 +531,10 @@ static void wifi_mw_scan_rp_task_launch( void* context )
         ERROR event will be sent from there to the application
         */
     }
-
-    // lr11xx_irq_mask = LR11XX_SYSTEM_IRQ_NONE;
-
-    // lr11xx_system_get_irq_status( &lr1110_context, &lr11xx_irq_mask );
-    // printf("irq status at end of task launch: %d\n", lr11xx_irq_mask);
-
-    //printf("end of task launch irq\n");
 }
 
 void wifi_mw_scan_rp_task_done( smtc_modem_rp_status_t* status )
 {
-    //printf("start of task done irq\n");
-    // lr11xx_system_irq_mask_t lr11xx_irq_mask = LR11XX_SYSTEM_IRQ_NONE;
-
-    // lr11xx_system_get_irq_status( &lr1110_context, &lr11xx_irq_mask );
-    // printf("irq status at start of task done: %d\n", lr11xx_irq_mask);
     uint32_t                     time_ms;
     smtc_modem_rp_radio_status_t irq_status = status->status;
     uint32_t                     meas_time;
@@ -651,7 +602,6 @@ void wifi_mw_scan_rp_task_done( smtc_modem_rp_status_t* status )
 
         if( scan_results_rc == true )
         {
-            // printf("wifi_mw_send_event( WIFI_MW_EVENT_SCAN_DONE )\n");
             /* Scan has been completed, send an event to application */
             wifi_mw_send_event( WIFI_MW_EVENT_SCAN_DONE );
 
@@ -660,7 +610,6 @@ void wifi_mw_scan_rp_task_done( smtc_modem_rp_status_t* status )
             {
                 /* No more scan result to be sent, or failed to send packet */
                 printf( "RP_TASK_WIFI: no scan result to be sent\n" );
-
                 /* Send an event to application to notify for completion */
                 /* The application needs to know that it can proceed with the next scan */
                 wifi_mw_send_event( WIFI_MW_EVENT_TERMINATED );
@@ -676,20 +625,13 @@ void wifi_mw_scan_rp_task_done( smtc_modem_rp_status_t* status )
     else
     {
         MW_DBG_TRACE_ERROR( "WIFI RP task - Unknown status %d at %d\n", irq_status, time_ms );
-        // printf("we do nothing for this status\n");
         /* Send an event to application to notify for error */
         wifi_mw_send_event( WIFI_MW_EVENT_ERROR_UNKNOWN );
     }
 
     /* Monitor callback exec duration (should be kept as low as possible) */
     meas_time = smtc_modem_hal_get_time_in_ms( );
-    // MW_DBG_TRACE_WARNING( "WIFI RP task - done callback duration %u ms\n", meas_time - time_ms );
-
-    // lr11xx_irq_mask = LR11XX_SYSTEM_IRQ_NONE;
-
-    // lr11xx_system_get_irq_status( &lr1110_context, &lr11xx_irq_mask );
-    // printf("irq status at end of task done: %d\n", lr11xx_irq_mask);
-    //printf("end of task done irq\n");
+    MW_DBG_TRACE_WARNING( "WIFI RP task - done callback duration %u ms\n", meas_time - time_ms );
 
     /* Set the radio back to sleep */
     mw_radio_set_sleep( modem_radio_ctx->ral.context );
@@ -701,7 +643,6 @@ void wifi_mw_scan_rp_task_done( smtc_modem_rp_status_t* status )
 
 static bool wifi_mw_send_results( void )
 {
-    // printf("wifi_mw_send_results\n");
     uint8_t wifi_buffer_size = 0;
 
     /* Check if "no send "mode" is configured */
@@ -788,8 +729,8 @@ static bool wifi_mw_send_frame( const uint8_t* tx_frame_buffer, const uint8_t tx
                                             SMTC_MODEM_EXTENDED_UPLINK_ID_WIFI, &wifi_mw_tx_done_callback );
     if( modem_response_code == SMTC_MODEM_RC_OK )
     {
-        // MW_DBG_TRACE_INFO( "Request uplink:\n" );
-        // MW_DBG_TRACE_ARRAY( "Payload", tx_frame_buffer, tx_frame_buffer_size );
+        MW_DBG_TRACE_INFO( "Request uplink:\n" );
+        MW_DBG_TRACE_ARRAY( "Payload", tx_frame_buffer, tx_frame_buffer_size );
         return true;
     }
     else

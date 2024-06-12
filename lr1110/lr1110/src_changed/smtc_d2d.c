@@ -120,10 +120,11 @@ smtc_class_b_d2d_status_t smtc_class_b_d2d_request_tx( smtc_class_b_d2d_t* class
                                                        uint8_t* ping_slots_mask, uint8_t ping_slots_mask_size )
 {
     // if( ( multi_cast_group_id < RX_SESSION_MULTICAST_G0 ) || ( multi_cast_group_id >= RX_SESSION_COUNT ) )
-    // {
-    //     SMTC_MODEM_HAL_TRACE_ERROR( "Invalid multi_cast_group_id\n" );
-    //     return SMTC_CLASS_B_D2D_ERROR;
-    // }
+    if( ( multi_cast_group_id >= RX_SESSION_COUNT ) )
+    {
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid multi_cast_group_id\n" );
+        return SMTC_CLASS_B_D2D_ERROR;
+    }
 
     if( class_b_d2d_obj->ping_slot_obj->rx_session_param[multi_cast_group_id]->enabled == false )
     {
