@@ -1,6 +1,7 @@
 #include <assert.h>
 
 #include <libopenthread/platform/openthread-system.h>
+#include <libopenthread/platform/plat.h>
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
 #include <openthread/ip6.h>
@@ -81,7 +82,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
     otTaskletsProcess(instance);
     otSysProcessDrivers(instance);
 
-    if (!otTaskletsArePending(instance)) {
+    if (!otTaskletsArePending(instance) && !openthread_platform_pending_work()) {
       yield();
     }
 

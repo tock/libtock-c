@@ -2,9 +2,8 @@
 #include <openthread/config.h>
 #include <openthread/platform/logging.h>
 #include <openthread/platform/toolchain.h>
-#include <plat.h>
+
 #include <stdio.h>
-#include <string.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsuggest-attribute=format"
@@ -19,7 +18,6 @@
 // be another solution I am unaware of so others input would be welcome.
 
 #if (OPENTHREAD_CONFIG_LOG_OUTPUT == OPENTHREAD_CONFIG_LOG_OUTPUT_PLATFORM_DEFINED)
-
 OT_TOOL_WEAK void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const char *aFormat, ...)
 {
   OT_UNUSED_VARIABLE(aLogLevel);
@@ -28,10 +26,8 @@ OT_TOOL_WEAK void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const 
   va_list args;
 
   va_start(args, aFormat);
-
   vprintf(aFormat, args);
   printf("\n");
-
   va_end(args);
 }
 #endif

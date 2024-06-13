@@ -11,7 +11,6 @@
 
 #define ACK_SIZE 3
 
-
 static uint8_t tx_mPsdu[OT_RADIO_FRAME_MAX_SIZE];
 static otRadioFrame transmitFrame = {
   .mPsdu   = tx_mPsdu,
@@ -59,7 +58,6 @@ void otPlatRadioGetIeeeEui64(otInstance *aInstance, uint8_t *aIeeeEui64) {
   for (int i = 0; i < 8; i++) {
 	  aIeeeEui64[i] = (eui64 >> (8 * i)) & 0xFF;
   }
-
 }
 
 void otPlatRadioSetPanId(otInstance *aInstance, uint16_t aPanid) {
@@ -131,10 +129,13 @@ otError otPlatRadioSleep(otInstance *aInstance) {
     printf("Sleep Radio Failed!\n");
     return OT_ERROR_FAILED;
   }
+  return OT_ERROR_NONE;
 }
 
 otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel) {
-  OT_UNUSED_VARIABLE(aInstance);
+  if (!otPlatRadioIsEnabled(aInstance)){
+    otPlatRadioEnable(aInstance);
+  }
 
   int retCode = libtock_ieee802154_set_channel(aChannel);
   if (retCode != RETURNCODE_SUCCESS) {
@@ -146,7 +147,10 @@ otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel) {
 }
 
 otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
-  OT_UNUSED_VARIABLE(aInstance);
+  if (!otPlatRadioIsEnabled(aInstance)){
+    otPlatRadioEnable(aInstance);
+  }
+
   // The Tock raw 15.4 driver expects frames that do not include the MFR (aka
   // the CRC bytes). OpenThread gives us the full frame, so we just drop the
   // final two bytes.
@@ -157,22 +161,12 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
     return OT_ERROR_FAILED;
   }
 
-  // send raw will yield_for until the transmission completes
   returncode_t send_result =  libtock_ieee802154_send_raw((uint8_t*) aFrame->mPsdu, aFrame->mLength, tx_done_callback);
   if (send_result != RETURNCODE_SUCCESS) {
-    otPlatRadioTxDone(aInstance, aFrame, NULL, OT_ERROR_ABORT);
     return OT_ERROR_FAILED;
   }
 
-  // nrf52840 does not currently support ACK so no ACK is also considered a successful transmission
-  // if (send_result != RETURNCODE_SUCCESS && send_result != RETURNCODE_ENOACK) {
-  //   otPlatRadioTxDone(aInstance, aFrame, &ackFrame, OT_ERROR_ABORT);
-  //   return OT_ERROR_NONE;
-  // }
-
-  // notify openthread that transmission is completed, faking the ACK value
-  // with the ackFrame (see comment at the top of this file for more information)
-  // otPlatRadioTxDone(aInstance, aFrame, &ackFrame, OT_ERROR_NONE);
+  // Notify openthread that transmission is successfully scheduled to be transmitted.
   return OT_ERROR_NONE;
 }
 

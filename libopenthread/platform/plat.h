@@ -17,15 +17,21 @@ typedef struct {
 } ring_buffer;
 
 bool pending_alarm_done_callback_status(void);
+
 void reset_pending_alarm_done_callback(void);
 
 bool pending_tx_done_callback_status(otRadioFrame *ackFrame, returncode_t *status, otRadioFrame* txFrame);
+
 void reset_pending_tx_done_callback(void);
 
 bool pending_rx_done_callback_status(void);
+
 void reset_pending_rx_done_callback(void);
 
-bool pending_libtock_sys_work(void);
+// Check if there are pending events that need to be handled before
+// calling yield(). These events can be generated if the application happens
+// to call yield() somewhere besides the main OpenThread loop.
+bool openthread_platform_pending_work(void);
 
 // Initializer needed for alarm PAL methods.
 void init_otPlatAlarm(void);

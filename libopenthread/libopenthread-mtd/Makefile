@@ -38,7 +38,7 @@ override CPPFLAGS_$(LIBNAME) += -DOPENTHREAD_PLATFORM_CORE_CONFIG_FILE=\"openthr
 override CPPFLAGS_$(LIBNAME) += -DMBEDTLS_CONFIG_FILE=\"mbedtls-config.h\"
 
 # Uncomment to enable full openthread logging (at cost of code size)
-override CPPFLAGS_$(LIBNAME) += -DOPENTHREAD_CONFIG_LOG_LEVEL=5
+# override CPPFLAGS_$(LIBNAME) += -DOPENTHREAD_CONFIG_LOG_LEVEL=5
 
 # Avoid failing in CI due to warnings in library.
 override CPPFLAGS_$(LIBNAME) += -Wno-error

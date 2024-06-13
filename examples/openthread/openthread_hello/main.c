@@ -1,6 +1,7 @@
 #include <assert.h>
 
 #include <libopenthread/platform/openthread-system.h>
+#include <libopenthread/platform/plat.h>
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
 #include <openthread/ip6.h>
@@ -39,14 +40,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
 
   setNetworkConfiguration(instance);
 
-  otOperationalDataset dataset;
-  assert(otDatasetGetActive(instance, &dataset) == OT_ERROR_NONE);
-  assert(dataset.mChannel == 26);
-
-  printf("Channel : %d\n", dataset.mChannel);
-
   // set child timeout to 60 seconds
-  otThreadSetChildTimeout(instance, 15);
+  otThreadSetChildTimeout(instance, 60);
 
   /* Start the Thread network interface (CLI cmd -> ifconfig up) */
   otIp6SetEnabled(instance, true);
@@ -62,7 +57,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
     otTaskletsProcess(instance);
     otSysProcessDrivers(instance);
 
-    if (!otTaskletsArePending(instance) && !pending_libtock_sys_work()){
+    if (!otTaskletsArePending(instance) && !openthread_platform_pending_work()) {
       yield();
     }
 
