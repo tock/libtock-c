@@ -1,12 +1,14 @@
-#include <openthread-system.h>
+#include <stdio.h>
+
 #include <openthread/instance.h>
 #include <openthread/platform/alarm-milli.h>
 #include <openthread/platform/radio.h>
-#include <plat.h>
 
 #include <net/ieee802154.h>
 
-#include <stdio.h>
+#include "openthread-system.h"
+#include "plat.h"
+
 
 // This platform file serves to handle platform specific logic
 // that must occur when not performing OpenThread specific work.

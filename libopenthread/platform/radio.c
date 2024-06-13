@@ -1,12 +1,13 @@
-#include <net/ieee802154.h>
+#include <stdio.h>
+
 #include <libtock-sync/net/ieee802154.h>
 #include <libtock/net/eui64.h>
+#include <libtock/net/ieee802154.h>
 
-#include <openthread-system.h>
 #include <openthread/platform/radio.h>
-#include <plat.h>
 
-#include <stdio.h>
+#include "openthread-system.h"
+#include "plat.h"
 
 #define ACK_SIZE 3
 
@@ -94,18 +95,24 @@ otError otPlatRadioDisable(otInstance *aInstance) {
 }
 
 otError otPlatRadioSleep(otInstance *aInstance) {
-  // TODO: There is no sleep function.
   OT_UNUSED_VARIABLE(aInstance);
-  return OT_ERROR_NONE;
+
+  int retCode = libtock_ieee802154_radio_off();
+
+  if (retCode == RETURNCODE_SUCCESS) {
+    return OT_ERROR_NONE;
+  } else {
+    printf("Sleep Radio Failed!\n");
+    return OT_ERROR_FAILED;
+  }
 }
 
 otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel) {
-  // TODO
   OT_UNUSED_VARIABLE(aInstance);
 
-  // switch to channel TODO
-  if (aChannel != 26) {
-    return OT_ERROR_NOT_IMPLEMENTED;
+  int retCode = libtock_ieee802154_set_channel(aChannel);
+  if (retCode != RETURNCODE_SUCCESS) {
+    return OT_ERROR_FAILED;
   }
 
   otError result = otTockStartReceive(aChannel, aInstance);
@@ -114,18 +121,14 @@ otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel) {
 
 otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
   OT_UNUSED_VARIABLE(aInstance);
-  // For some reason, the frame length is 2 bytes longer than the actual frame length
-  // this is corrected here. I have looked within openthread as to why this is
-  // happening, but I cannot find the source of the problem. This "magic number"
-  // fix is not ideal, but fixes the issue.
+  // The Tock raw 15.4 driver expects frames that do not include the MFR (aka
+  // the CRC bytes). OpenThread gives us the full frame, so we just drop the
+  // final two bytes.
   aFrame->mLength = aFrame->mLength - 2;
 
-  // since we do not support channel switching, if the channel is not 26, we fake
-  // the result and tell openthread that we "sent" the packet successfully when
-  // in actuality we do not.
-  if (aFrame->mChannel != 26) {
-    otPlatRadioTxDone(aInstance, aFrame, NULL, OT_ERROR_CHANNEL_ACCESS_FAILURE);
-    return OT_ERROR_NONE;
+  int retCode = libtock_ieee802154_set_channel(aFrame->mChannel);
+  if (retCode != RETURNCODE_SUCCESS) {
+    return OT_ERROR_FAILED;
   }
 
   // send raw will yield_for until the transmission completes
