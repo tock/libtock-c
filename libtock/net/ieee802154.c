@@ -32,18 +32,7 @@ returncode_t libtock_ieee802154_set_address_short(uint16_t addr_short) {
 }
 
 returncode_t libtock_ieee802154_set_address_long(uint8_t* addr_long) {
-  if (!addr_long) return RETURNCODE_EINVAL;
-
-  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void*) addr_long, 8);
-  if (ret != RETURNCODE_SUCCESS) return ret;
-
-  ret = libtock_ieee802154_command_set_address_long();
-
-  // unallow the rw buffer from the kernel so that other libtock functions
-  // can utilize and modify the buffer
-  libtock_ieee802154_set_readwrite_allow_cfg(NULL, 0);
-
-  return ret;
+  return libtock_ieee802154_command_set_address_long_u64(*((uint64_t*) addr_long));
 }
 
 returncode_t libtock_ieee802154_set_pan(uint16_t pan) {
@@ -57,6 +46,14 @@ returncode_t libtock_ieee802154_set_channel(uint8_t channel) {
 returncode_t libtock_ieee802154_set_power(uint32_t power) {
   // Cast the signed uint8_t to an uint8_t before zero-padding it.
   return libtock_ieee802154_command_set_power(power);
+}
+
+returncode_t libtock_ieee802154_radio_on(void) {
+  return libtock_ieee802154_command_radio_on();
+}
+
+returncode_t libtock_ieee802154_radio_off(void) {
+  return libtock_ieee802154_command_radio_off();
 }
 
 returncode_t libtock_ieee802154_config_commit(void) {
@@ -76,18 +73,7 @@ returncode_t libtock_ieee802154_get_address_short(uint16_t* addr) {
 }
 
 returncode_t libtock_ieee802154_get_address_long(uint8_t* addr_long) {
-  if (!addr_long) return RETURNCODE_EINVAL;
-
-  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void*) addr_long, 8);
-  if (ret != RETURNCODE_SUCCESS) return ret;
-
-  ret = libtock_ieee802154_command_get_address_long();
-
-  // unallow the rw buffer from the kernel so that other libtock functions
-  // can utilize and modify the buffer
-  libtock_ieee802154_set_readwrite_allow_cfg(NULL, 0);
-
-  return ret;
+  return libtock_ieee802154_command_get_address_long_u64((uint64_t*) addr_long);
 }
 
 returncode_t libtock_ieee802154_get_pan(uint16_t* pan) {
