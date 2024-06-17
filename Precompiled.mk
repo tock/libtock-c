@@ -59,6 +59,8 @@ $(foreach arch,$(RISCV_ARCHS),$(eval $(call PRECOMPILED_NEWLIB_RULES,riscv,riscv
 # strip down to just the version with some string manipulation.
 $(TOCK_NEWLIB_TARGETS):
 	cd $(TOCK_USERLAND_BASE_DIR)/lib; ./fetch-newlib.sh $(patsubst libtock-newlib-%,%,$*)
+	cd $(TOCK_USERLAND_BASE_DIR)/lib; ln -s libtock-newlib-$(patsubst libtock-newlib-%,%,$*)/arm libtock-newlib-arm
+	cd $(TOCK_USERLAND_BASE_DIR)/lib; ln -s libtock-newlib-$(patsubst libtock-newlib-%,%,$*)/riscv libtock-newlib-riscv
 
 ################################################################################
 # LIBC++ Rules
