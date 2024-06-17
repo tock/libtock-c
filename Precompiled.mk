@@ -130,4 +130,6 @@ $(foreach arch,$(RISCV_ARCHS),$(eval $(call PRECOMPILED_CXXLIB_RULES,riscv,riscv
 # Target to download and extract the C++ libraries.
 $(TOCK_CXXLIB_TARGETS):
 	cd $(TOCK_USERLAND_BASE_DIR)/lib; ./fetch-libc++.sh $(patsubst libtock-libc++-%,%,$*)
+	cd $(TOCK_USERLAND_BASE_DIR)/lib; ln -s libtock-libc++-$(patsubst libtock-libc++-%,%,$*)/arm libtock-libc++-arm
+	cd $(TOCK_USERLAND_BASE_DIR)/lib; ln -s libtock-libc++-$(patsubst libtock-libc++-%,%,$*)/riscv libtock-libc++-riscv
 endif
