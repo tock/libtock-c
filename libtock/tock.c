@@ -243,11 +243,11 @@ yield_waitfor_return_t yield_wait_for(uint32_t driver, uint32_t subscribe) {
   register int rv2 __asm__ ("r2");
 
   __asm__ volatile (
-      "svc 0       \n"
-      : "=r" (rv0), "=r" (rv1), "=r" (rv2)
-      : "r" (waitfor), "r" (r1), "r" (r2)
-      : "memory"
-      );
+    "svc 0       \n"
+    : "=r" (rv0), "=r" (rv1), "=r" (rv2)
+    : "r" (waitfor), "r" (r1), "r" (r2)
+    : "memory"
+    );
   yield_waitfor_return_t rv = {rv0, rv1, rv2};
   return rv;
 }
