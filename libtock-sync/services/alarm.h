@@ -1,5 +1,6 @@
 #pragma once
 
+#include <libtock/peripherals/syscalls/alarm_syscalls.h>
 #include <libtock/services/alarm.h>
 #include <libtock/tock.h>
 

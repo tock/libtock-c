@@ -1,27 +1,22 @@
 #include "alarm.h"
 
+// Declare non-public export of helper from libtock.
+uint32_t _ms_to_ticks(uint32_t ms);
+
 struct alarm_cb_data {
   bool fired;
 };
 
-static struct alarm_cb_data delay_data = { .fired = false };
-
-static void delay_cb(__attribute__ ((unused)) uint32_t now,
-                     __attribute__ ((unused)) uint32_t scheduled,
-                     __attribute__ ((unused)) void*    opaque) {
-  delay_data.fired = true;
-}
-
 int libtocksync_alarm_delay_ms(uint32_t ms) {
-  delay_data.fired = false;
-  libtock_alarm_t alarm;
   int rc;
-
-  if ((rc = libtock_alarm_in_ms(ms, delay_cb, NULL, &alarm)) != RETURNCODE_SUCCESS) {
+  uint32_t ticks = _ms_to_ticks(ms);
+  if ((rc = libtock_alarm_command_set_relative_blind(ticks)) != RETURNCODE_SUCCESS) {
     return rc;
   }
 
-  yield_for(&delay_data.fired);
+  yield_waitfor_return_t yval = yield_wait_for(DRIVER_NUM_ALARM, 1);
+  if (yval.data0 != RETURNCODE_SUCCESS) return yval.data0;
+
   return rc;
 }
 
