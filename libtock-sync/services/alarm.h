@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-/** \brief Blocks for the given amount of time in millisecond.
+/** \brief Blocks for the given amount of time in milliseconds.
  *
  * This is a blocking version of `libtock_alarm_in_ms`. Instead of calling a user
  * specified callback, it blocks the current call-stack.
@@ -17,7 +17,7 @@ extern "C" {
  */
 int libtocksync_alarm_delay_ms(uint32_t ms);
 
-/** \brief Functions as yield_for with a timeout.
+/** \brief Functions as yield_for with a timeout in milliseconds.
  *
  * This yields on a condition variable, but will return early
  * if that condition is not met before the timeout in milliseconds.

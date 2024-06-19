@@ -50,9 +50,16 @@ typedef struct alarm {
  * An opaque handle to a repeating alarm created by `libtock_alarm_repeating_every`.
  */
 typedef struct alarm_repeating {
-  uint32_t interval;
-  libtock_alarm_callback cb;
-  void* ud;
+  // Length of timer in milliseconds.
+  uint32_t interval_ms;
+  // Number of times the underlying counter will overflow
+  // before hitting the target interval_ms.
+  uint32_t overflows_left;
+  // Number of ticks remaining after the last time the
+  // counter overflows.
+  uint32_t remaining_ticks;
+  libtock_alarm_callback callback;
+  void* user_data;
   libtock_alarm_t alarm;
 } libtock_alarm_repeating_t;
 
@@ -60,17 +67,21 @@ typedef struct alarm_repeating {
 /** \brief Create a new alarm to fire at a particular clock value.
  *
  * The `alarm` parameter is allocated by the caller and must live as long as
- * the alarm is outstanding.
+ * the alarm is outstanding. `reference` and `dt` are in terms of the tick
+ * time.
  *
- * \param reference: the reference time from which the alarm is being set
- * \param dt: the time after reference that the alarm should fire
+ * Alarms longer than 2^32 ticks should use `timer_in`.
+ *
+ * \param reference the reference time from which the alarm is being set in ticks.
+ * \param dt the time after reference that the alarm should fire in ticks.
  * \param callback a callback to be invoked when the alarm expires.
  * \param userdata passed to the callback.
- * \param a pointer to a new alarm_t to be used by the implementation to keep
+ * \param alarm pointer to a new alarm_t to be used by the implementation to keep
  *        track of the alarm.
  * \return An error code. Either RETURNCODE_SUCCESS or RETURNCODE_FAIL.
  */
-int libtock_alarm_at(uint32_t reference, uint32_t dt, libtock_alarm_callback cb, void* opaque, libtock_alarm_t* alarm);
+int libtock_alarm_at(uint32_t reference, uint32_t dt, libtock_alarm_callback callback, void* opaque,
+                     libtock_alarm_t* alarm);
 
 /** \brief Cancels an existing alarm.
  *
@@ -95,13 +106,19 @@ int libtock_alarm_gettimeasticks(struct timeval* tv, void* tzvp);
 
 /** \brief Create a new alarm to fire in `ms` milliseconds.
  *
+ * The `timer` parameter is allocated by the caller and must live as long as
+ * the alarm is outstanding.
+ *
+ * This should be used for long periods. For more precision, but less time
+ * range, use `alarm_at`.
+ *
  * \param ms the number of milliseconds to fire the alarm after.
- * \param callback a callback to be invoked when the alarm expires.
+ * \param cb a callback to be invoked when the alarm expires.
  * \param opaque pointer passed to the callback.
- * \param A handle to the alarm that was created.
+ * \param alarm handle to the alarm that was created.
  * \return An error code. Either RETURNCODE_SUCCESS or RETURNCODE_FAIL.
  */
-int libtock_alarm_in_ms(uint32_t ms, libtock_alarm_callback cb, void* opaque, libtock_alarm_t* alarm);
+int libtock_alarm_in_ms(uint32_t ms, libtock_alarm_callback cb, void* opaque, libtock_alarm_repeating_t* alarm);
 
 /** \brief Create a new repeating alarm to fire every `ms` milliseconds.
  *
@@ -109,13 +126,13 @@ int libtock_alarm_in_ms(uint32_t ms, libtock_alarm_callback cb, void* opaque, li
  * the repeating alarm is outstanding.
  *
  * \param ms the interval to fire the alarm at in milliseconds.
- * \param callback a callback to be invoked when the alarm expires.
+ * \param cb a callback to be invoked when the alarm expires.
  * \param opaque pointer passed to the callback.
- * \param a pointer to a new alarm_repeating_t to be used by the implementation to
+ * \param alarm_repeating pointer to a new alarm_repeating_t to be used by the implementation to
  *        keep track of the alarm.
  */
-void libtock_alarm_repeating_every(uint32_t ms, libtock_alarm_callback cb, void* opaque,
-                                   libtock_alarm_repeating_t* alarm_repeating);
+void libtock_alarm_repeating_every_ms(uint32_t ms, libtock_alarm_callback cb, void* opaque,
+                                      libtock_alarm_repeating_t* alarm_repeating);
 
 /** \brief Cancels an existing repeating alarm.
  *
