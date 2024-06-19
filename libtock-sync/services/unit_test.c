@@ -84,7 +84,7 @@ struct unit_test_t {
   int pid;
 
   // alarm structure used for triggering test timeout conditions.
-  libtock_alarm_repeating_t alarm;
+  libtock_alarm_t alarm;
 
   // Result of the most recently completed test.
   unit_test_result_t result;
@@ -386,7 +386,7 @@ static void unit_test_service_callback(int                            pid,
     case TestEnd:
       // Cancel the timeout alarm since the test is now complete.
       // Record the test result for the test summary statistics.
-      libtock_alarm_repeating_cancel(&test->alarm);
+      libtock_alarm_ms_cancel(&test->alarm);
 
       // If the test timed out, the summary results will already have been
       // printed. In this case, we no longer want the tests to continue,

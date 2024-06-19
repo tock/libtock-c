@@ -34,7 +34,7 @@ static uint32_t get_time_ms(void) {
 // callback of type subscribe_upcall which will get called when alarm fires
 static void alarm_fire_callback(__attribute__ ((unused)) uint32_t unused0,
                                 __attribute__ ((unused)) uint32_t unused1,
-                                void*                        user_data) {
+                                void*                             user_data) {
   fired = true;
 
   uint32_t expected_alarm_end_ms = *((uint32_t*)user_data);
@@ -56,7 +56,7 @@ static void alarm_fire_callback(__attribute__ ((unused)) uint32_t unused0,
 
 int main(void) {
   // need to allocate memory for a alarm before giving a pointer to `libtock_alarm_in_ms`
-  libtock_alarm_repeating_t* alarm = malloc(sizeof(libtock_alarm_repeating_t));
+  libtock_alarm_t* alarm = malloc(sizeof(libtock_alarm_t));
 
   uint32_t alarm_start_ms = get_time_ms();
 

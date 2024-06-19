@@ -8,7 +8,7 @@ static int interval;
 typedef struct {
   int led;
   libtock_alarm_t timer;
-  libtock_alarm_repeating_t repeating;
+  libtock_alarm_t repeating;
 } timer_data;
 
 static void toggle(int led_num) {
@@ -28,7 +28,7 @@ static void start_cb(__attribute__ ((unused)) uint32_t now,
                      __attribute__ ((unused)) uint32_t expiration,
                      void*                             ud) {
   timer_data* td = (timer_data*)ud;
-  libtock_alarm_repeating_every(interval, event_cb, ud, &td->repeating);
+  libtock_alarm_repeating_every_ms(interval, event_cb, ud, &td->repeating);
   toggle(td->led);
 }
 
