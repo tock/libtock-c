@@ -47,23 +47,15 @@ in
       python3Full
       tockloader
       pkgsCross.riscv32-embedded.buildPackages.gcc
-    ];
+      uncrustify
+      unzip
+    ] ++ (lib.optionals withUnfreePkgs [
+      segger-jlink
+      tockloader.nrf-command-line-tools
+    ]);
 
-    # Unfortunately, `segger-jlink` has been removed from Nixpkgs due to its
-    # hard dependency in Qt4, which has multiple security issues and is
-    # deprecated since a few years now. Efforts exist to bring the package back,
-    # but for now we don't assume it's available. Once [1] is merged, we can add
-    # the following back:
-    #
-    # buildInputs ++ (lib.optionals withUnfreePkgs [
-    #   segger-jlink
-    #   tockloader.nrf-command-line-tools
-    # ])
-    #
-    # shellHook = ''
-    #   # TODO: This should be patched into the rpath of the respective libraries!
-    #   export LD_LIBRARY_PATH=${pkgs.libusb}/lib:${pkgs.segger-jlink}/lib:$LD_LIBRARY_PATH
-    # '';
-    #
-    # [1]: https://github.com/NixOS/nixpkgs/pull/255185
+    shellHook = ''
+      # TODO: This should be patched into the rpath of the respective libraries!
+      export LD_LIBRARY_PATH=${pkgs.libusb}/lib:${pkgs.segger-jlink}/lib:$LD_LIBRARY_PATH
+    '';
   }
