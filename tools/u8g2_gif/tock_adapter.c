@@ -36,3 +36,9 @@ int libtocksync_alarm_delay_ms(uint32_t ms) {
   usleep(ms * 1000);
   return 0;
 }
+
+void yield(void) {
+  usleep(100000000);
+}
+
+int libtock_button_notify_on_press(int button_num, void* cb){}
