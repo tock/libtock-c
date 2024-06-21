@@ -25,6 +25,7 @@
 
 // Local includes
 #include "base32.h"
+#include "screen.h"
 #include "step0.h"
 #include "step1.h"
 
@@ -108,6 +109,8 @@ int main(void) {
     program_default_secret(&stored_key);
   }
 
+  display_hotp_keys(&stored_key, 1);
+
   // Main loop. Waits for button presses
   while (true) {
     // Yield until a button is pressed
@@ -124,11 +127,13 @@ int main(void) {
     if (new_val) {
       program_new_secret(&stored_key);
       save_key(&stored_key, 0);
+      display_hotp_keys(&stored_key, 1);
 
       // Handle short presses on already configured keys (output next code)
     } else if (stored_key.len > 0) {
       get_next_code(&stored_key, KEY_DIGITS);
       save_key(&stored_key, 0);
+      display_hotp_keys(&stored_key, 1);
 
       // Error for short press on a non-configured key
     } else if (stored_key.len == 0) {

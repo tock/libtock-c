@@ -68,11 +68,7 @@ returncode_t libtocksync_ieee802154_send_raw(
   returncode_t ret = libtock_ieee802154_send_raw(payload, len, ieee802154_send_raw_done_cb);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the frame to be sent
-  returncode_t sync_timeout_ret = libtocksync_alarm_yield_for_with_timeout(&send_result_raw.fired, 100);
-  if (sync_timeout_ret != RETURNCODE_SUCCESS) {
-    return sync_timeout_ret;
-  }
+  yield_for(&send_result_raw.fired);
 
   return tock_status_to_returncode(send_result_raw.status);
 }
