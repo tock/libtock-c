@@ -7,8 +7,8 @@
 #include <assert.h>
 
 
-static libtock_alarm_t alarm;
-static libtock_alarm_repeating_t timer_wrap;
+static libtock_alarm_ticks_t alarm;
+static libtock_alarm_t timer_wrap;
 static uint32_t frequency = 0;
 
 // maintain global variables to be used for timer wrapping logic
@@ -80,7 +80,7 @@ void init_otPlatAlarm(void) {
 	// account for leftover ticks
 	uint64_t left_over_ticks = ((UINT32_MAX % frequency) * 1000) / frequency;
 	wrap_point += (uint32_t) left_over_ticks;
-	libtock_alarm_repeating_every(wrap_point >> 1, wrap_time_upcall, NULL, &timer_wrap);
+	libtock_alarm_repeating_every_ms(wrap_point >> 1, wrap_time_upcall, NULL, &timer_wrap);
 	prev_time_value = otPlatAlarmMilliGetNow();
 }
 

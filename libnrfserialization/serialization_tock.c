@@ -529,8 +529,8 @@ uint32_t app_timer_start (app_timer_id_t timer_id,
         p_node->p_context = p_context;
         // timer_repeating_subscribe(p_node->p_timeout_handler, &timer_id);
         // Use 0 for the prescaler
-        libtock_alarm_repeating_t* timer = (libtock_alarm_repeating_t*)malloc(sizeof(libtock_alarm_repeating_t));
-        libtock_alarm_repeating_every(APP_TIMER_MS(timeout_ticks, 0), serialization_timer_cb, timer_id, timer);
+        libtock_alarm_t* timer = (libtock_alarm_t*)malloc(sizeof(libtock_alarm_t));
+        libtock_alarm_repeating_every_ms(APP_TIMER_MS(timeout_ticks, 0), serialization_timer_cb, timer_id, timer);
     } else {
         // timer_oneshot_subscribe(p_node->p_timeout_handler, &timer_id);
     }

@@ -8,7 +8,7 @@ static struct alarm_cb_data delay_data = { .fired = false };
 
 static void delay_cb(__attribute__ ((unused)) uint32_t now,
                      __attribute__ ((unused)) uint32_t scheduled,
-                     __attribute__ ((unused)) void*    opqaue) {
+                     __attribute__ ((unused)) void*    opaque) {
   delay_data.fired = true;
 }
 
@@ -29,7 +29,7 @@ static struct alarm_cb_data yf_timeout_data = { .fired = false };
 
 static void yf_timeout_cb(__attribute__ ((unused)) uint32_t now,
                           __attribute__ ((unused)) uint32_t scheduled,
-                          __attribute__ ((unused)) void*    opqaue) {
+                          __attribute__ ((unused)) void*    opaque) {
   yf_timeout_data.fired = true;
 }
 
@@ -46,6 +46,6 @@ int libtocksync_alarm_yield_for_with_timeout(bool* cond, uint32_t ms) {
     yield();
   }
 
-  libtock_alarm_cancel(&alarm);
+  libtock_alarm_ms_cancel(&alarm);
   return RETURNCODE_SUCCESS;
 }
