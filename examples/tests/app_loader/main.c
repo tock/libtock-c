@@ -21,6 +21,7 @@
 
 static bool setup_done = false;     // to check if setup is done
 static bool write_done = false;     // to check if writing to flash is done
+static bool load_done  = false;     // to check if the process was loaded successfully
 
 /******************************************************************************************************
 * Callback functions
@@ -46,6 +47,14 @@ static void app_write_done_callback(__attribute__((unused)) int   length,
                                     __attribute__((unused)) void *ud)
 {
   write_done = true;
+}
+
+static void app_load_done_callback( __attribute__((unused)) int   length,
+                                    __attribute__((unused)) int   arg1,
+                                    __attribute__((unused)) int   arg2,
+                                    __attribute__((unused)) void *ud)
+{
+  load_done = true;
 }
 
 static void button_callback(int                            btn_num,
@@ -75,6 +84,7 @@ static void button_callback(int                            btn_num,
         printf("[Log] Exiting Application.\n");
         tock_exit(ret); // we failed, so we exit the program.
       } else {
+        printf("[Log] Yielding for setup done.\n");
         yield_for(&setup_done);   // wait until the padding app write is done before you send your app, or it will fail during write
         setup_done = false;
         printf("[Success] Setup successful. Attempting to write app to flash now.\n");
@@ -173,6 +183,7 @@ int write_app(double size, uint8_t binary[]){
     ret = app_loader_command_write(flash_offset, FLASH_BUFFER_SIZE);
     if (ret != 0) {
       printf("[Error] Failed writing data to flash at address: 0x%lx\n", flash_offset);
+      printf("[Error] Error nature: %d\n", ret);
       return -1;
     }
     yield_for(&write_done);     // wait until write done callback
@@ -202,24 +213,32 @@ int main(void) {
     button_enable_interrupt(i);
   }
 
-  // set up the write done and button press callbacks
+  // set up the setup done callback
   int err1 = app_loader_setup_subscribe(app_setup_done_callback, NULL);
   if (err1 != 0) {
     printf("[Error] Failed to set setup done callback: %d\n", err1);
     return err1;
   }
 
-  // set up the write done and button press callbacks
+  // set up the write done callback
   int err2 = app_loader_write_subscribe(app_write_done_callback, NULL);
   if (err2 != 0) {
     printf("[Error] Failed to set flash write done callback: %d\n", err2);
     return err2;
   }
 
-  int err3 = button_subscribe(button_callback, NULL);
+  // set up the load done callback
+  int err3 = app_loader_load_subscribe(app_load_done_callback, NULL);
   if (err3 != 0) {
-    printf("[Error] Failed to set button callback: %d.\n", err3);
+    printf("[Error] Failed to set load done callback: %d\n", err3);
     return err3;
+  }
+
+  // setup the button press callback
+  int err4 = button_subscribe(button_callback, NULL);
+  if (err4 != 0) {
+    printf("[Error] Failed to set button callback: %d.\n", err4);
+    return err4;
   }
 
   // Check if the app_loader driver exists.

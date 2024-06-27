@@ -16,6 +16,11 @@ int app_loader_write_subscribe(subscribe_upcall cb, void *userdata) {
   return tock_subscribe_return_to_returncode(sval);
 }
 
+int app_loader_load_subscribe(subscribe_upcall cb, void *userdata) {
+  subscribe_return_t sval = subscribe(DRIVER_NUM_APP_LOADER, 2, cb, userdata);
+  return tock_subscribe_return_to_returncode(sval);
+}
+
 int app_loader_write_buffer(uint8_t *buffer, uint32_t len) {
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_APP_LOADER, 0, (void*) buffer, len);
   return tock_allow_ro_return_to_returncode(aval);

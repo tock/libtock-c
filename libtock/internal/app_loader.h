@@ -60,6 +60,14 @@ int app_loader_command_write(uint32_t flash_offset, uint32_t write_length);
 int app_loader_command_load(void);
 
 /*
+ * Function to setup the callback from capsule.
+ * This function takes in the function that will be executed
+ * when the callback is triggered.
+ */
+int app_loader_load_subscribe(subscribe_upcall cb, void *userdata);
+
+
+/*
  * Internal function to write new app to flash. Takes app size as argument.
  */
 int write_app(double size, uint8_t binary[]);
