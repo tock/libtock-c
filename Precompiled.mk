@@ -59,6 +59,8 @@ $(foreach arch,$(RISCV_ARCHS),$(eval $(call PRECOMPILED_NEWLIB_RULES,riscv,riscv
 # strip down to just the version with some string manipulation.
 $(TOCK_NEWLIB_TARGETS):
 	cd $(TOCK_USERLAND_BASE_DIR)/lib; ./fetch-newlib.sh $(patsubst libtock-newlib-%,%,$*)
+	cd $(TOCK_USERLAND_BASE_DIR)/lib; ln -s libtock-newlib-$(patsubst libtock-newlib-%,%,$*)/arm libtock-newlib-arm
+	cd $(TOCK_USERLAND_BASE_DIR)/lib; ln -s libtock-newlib-$(patsubst libtock-newlib-%,%,$*)/riscv libtock-newlib-riscv
 
 ################################################################################
 # LIBC++ Rules
@@ -128,4 +130,6 @@ $(foreach arch,$(RISCV_ARCHS),$(eval $(call PRECOMPILED_CXXLIB_RULES,riscv,riscv
 # Target to download and extract the C++ libraries.
 $(TOCK_CXXLIB_TARGETS):
 	cd $(TOCK_USERLAND_BASE_DIR)/lib; ./fetch-libc++.sh $(patsubst libtock-libc++-%,%,$*)
+	cd $(TOCK_USERLAND_BASE_DIR)/lib; ln -s libtock-libc++-$(patsubst libtock-libc++-%,%,$*)/arm libtock-libc++-arm
+	cd $(TOCK_USERLAND_BASE_DIR)/lib; ln -s libtock-libc++-$(patsubst libtock-libc++-%,%,$*)/riscv libtock-libc++-riscv
 endif
