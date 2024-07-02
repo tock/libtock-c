@@ -65,9 +65,9 @@ a synchronous interface to a driver using an internal callback and `yield_for`
 [`tmp006_read_sync`](https://github.com/tock/tock/blob/master/userland/libtock/tmp006.c#L19))
 
 `libtock` also provides the startup code for applications
-([`crt0.c`](../userland/libtock/crt0.c)),
+([`crt0.c`](../libtock/crt0.c)),
 an implementation for the system calls
-([`tock.c`](../userland/libtock/tock.c)),
+([`tock.c`](../libtock/tock.c)),
 and pin definitions for platforms.
 
 ### libc++
@@ -94,5 +94,5 @@ For details, see the [configuration](../tools/uncrustify).
 
 Travis will automatically check formatting. You can format code locally using
 `make format`, or check the whole codebase with
-[format_all.sh](../userland/examples/format_all.sh). Formatting will overwrite
+[format_all.sh](../examples/format_all.sh). Formatting will overwrite
 files when it runs.
