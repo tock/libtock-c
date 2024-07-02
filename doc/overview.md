@@ -90,7 +90,7 @@ We try to keep a consistent style in mainline userland code. For C/C++, we use
   - Braces on the same line.
   - Spaces around most operators.
 
-For details, see the [configuration](../userland/tools/uncrustify).
+For details, see the [configuration](../tools/uncrustify).
 
 Travis will automatically check formatting. You can format code locally using
 `make format`, or check the whole codebase with
