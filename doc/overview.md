@@ -52,7 +52,7 @@ by [Newlib](https://en.wikipedia.org/wiki/Newlib). Newlib is focused on
 providing capabilities for embedded systems. It provides interfaces such as
 `printf`, `malloc`, and `memcpy`. Most, but not all features of the standard
 library are available to applications. The built configuration of Newlib is
-specified in [build.sh](../userland/newlib/build.sh).
+specified in [build_all.sh](../examples/build_all.sh).
 
 ### libtock
 In order to interact with the Tock kernel, application code can use the
@@ -62,12 +62,12 @@ function name and arguments and then internally translate these into a
 `command`, `subscribe`, etc. Where it makes sense, the libraries also provide
 a synchronous interface to a driver using an internal callback and `yield_for`
 (example:
-[`tmp006_read_sync`](https://github.com/tock/tock/blob/master/userland/libtock/tmp006.c#L19))
+[`temperature.c`](https://github.com/tock/libtock-c/blob/master/libtock-sync/sensors/temperature.c#L17))
 
 `libtock` also provides the startup code for applications
-([`crt0.c`](../userland/libtock/crt0.c)),
+([`crt0.c`](../libtock/crt0.c)),
 an implementation for the system calls
-([`tock.c`](../userland/libtock/tock.c)),
+([`tock.c`](../libtock/tock.c)),
 and pin definitions for platforms.
 
 ### libc++
@@ -90,9 +90,9 @@ We try to keep a consistent style in mainline userland code. For C/C++, we use
   - Braces on the same line.
   - Spaces around most operators.
 
-For details, see the [configuration](../userland/tools/uncrustify).
+For details, see the [configuration](../tools/uncrustify).
 
 Travis will automatically check formatting. You can format code locally using
 `make format`, or check the whole codebase with
-[format_all.sh](../userland/examples/format_all.sh). Formatting will overwrite
+[format_all.sh](../examples/format_all.sh). Formatting will overwrite
 files when it runs.
