@@ -17,6 +17,12 @@ MIRRORS=(\
   "https://alpha.mirror.svc.schuermann.io/files/tock"\
 )
 
+if test -x /usr/bin/shasum; then
+  CHECK_SHA_CMD="shasum -a 256 -c"
+else
+  CHECK_SHA_CMD="sha256sum -c"
+fi
+
 let FOUND=0
 
 # Try from each mirror until we successfully download a .zip file.
@@ -24,7 +30,8 @@ for MIRROR in ${MIRRORS[@]}; do
   URL=$MIRROR/$ZIP_FILE
   echo "Fetching newlib from ${MIRROR}..."
   echo "  Fetching ${URL}..."
-  wget -O $ZIP_FILE "$URL" && (echo "$NEWLIB_SHA $ZIP_FILE" | sha256sum -c)
+  # Note: There must be two space characters for `shasum` (sha256sum doesn't care)
+  wget -O $ZIP_FILE "$URL" && (echo "$NEWLIB_SHA  $ZIP_FILE" | $CHECK_SHA_CMD)
   if [ $? -ne 0 ]; then
     echo "  WARNING: Fetching newlib from mirror $MIRROR failed!" >&2
   else
