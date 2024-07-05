@@ -1,2 +1,3 @@
 build/
 .vscode/
+examples/lora/sensor-lorawan/radioConfig.h
