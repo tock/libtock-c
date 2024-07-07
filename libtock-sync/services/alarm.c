@@ -17,6 +17,11 @@ int libtocksync_alarm_delay_ms(uint32_t ms) {
   libtock_alarm_t alarm;
   int rc;
 
+  if (ms == 0) {
+    yield_no_wait();
+    return RETURNCODE_SUCCESS;
+  }
+
   if ((rc = libtock_alarm_in_ms(ms, delay_cb, NULL, &alarm)) != RETURNCODE_SUCCESS) {
     return rc;
   }
