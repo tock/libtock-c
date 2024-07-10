@@ -354,7 +354,7 @@ static void on_modem_reset( uint16_t reset_count )
     HAL_DBG_TRACE_INFO( "  - DM report interval   = %d\n", APP_TX_DUTYCYCLE );
     HAL_DBG_TRACE_INFO( "  - Confirmed uplink     = %s\n", ( LORAWAN_CONFIRMED_MSG_ON == true ) ? "Yes" : "No" );
 
-    apps_modem_common_configure_lorawan_params( stack_id );
+    lorawan_apps_modem_common_configure_lorawan_params( stack_id );
 
     ASSERT_SMTC_MODEM_RC( smtc_modem_join_network( stack_id ) );
 }
@@ -487,10 +487,8 @@ static void send_frame( const uint8_t* buffer, const uint8_t length, bool tx_con
     }
 }
 
-void apps_modem_common_configure_lorawan_params( uint8_t stack_id )
+void lorawan_apps_modem_common_configure_lorawan_params( uint8_t stack_id )
 {
-    printf("apps_modem_common_configure_lorawan_params\n");
-
     smtc_modem_return_code_t rc = SMTC_MODEM_RC_OK;
     uint8_t dev_eui[8] = { 0 };
     uint8_t join_eui[8]  = { 0 };

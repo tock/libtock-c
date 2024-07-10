@@ -44,7 +44,7 @@
 
 #include "apps_modem_common.h"
 #include "apps_utilities.h"
-//#include "lorawan_key_config.h"
+#include "lorawan_key_config.h"
 #include "smtc_modem_api.h"
 #include "smtc_basic_modem_lr11xx_api_extension.h"
 #include "smtc_board.h"
@@ -176,76 +176,76 @@ uint32_t apps_modem_common_convert_gps_to_utc_time( uint32_t gps_time_s )
     return gps_time_s + OFFSET_BETWEEN_GPS_EPOCH_AND_UNIX_EPOCH - OFFSET_LEAP_SECONDS;
 }
 
-// void apps_modem_common_configure_lorawan_params( uint8_t stack_id )
-// {
-//     smtc_modem_return_code_t rc = SMTC_MODEM_RC_OK;
-//     uint8_t dev_eui[8] = { 0 };
-//     uint8_t join_eui[8]  = { 0 };
-//     uint8_t app_key[16] = { 0 };
+void apps_modem_common_configure_lorawan_params( uint8_t stack_id )
+{
+    smtc_modem_return_code_t rc = SMTC_MODEM_RC_OK;
+    uint8_t dev_eui[8] = { 0 };
+    uint8_t join_eui[8]  = { 0 };
+    uint8_t app_key[16] = { 0 };
 
-//     hal_hex_to_bin( LORAWAN_DEVICE_EUI, dev_eui, 8 );
-//     hal_hex_to_bin( LORAWAN_JOIN_EUI, join_eui, 8 );
-//     hal_hex_to_bin( LORAWAN_APP_KEY, app_key, 16 );
+    hal_hex_to_bin( LORAWAN_DEVICE_EUI, dev_eui, 8 );
+    hal_hex_to_bin( LORAWAN_JOIN_EUI, join_eui, 8 );
+    hal_hex_to_bin( LORAWAN_APP_KEY, app_key, 16 );
 
-//     rc = smtc_modem_set_deveui( stack_id, dev_eui );
-//     if( rc != SMTC_MODEM_RC_OK )
-//     {
-//         HAL_DBG_TRACE_ERROR( "smtc_modem_set_deveui failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
-//     }
+    rc = smtc_modem_set_deveui( stack_id, dev_eui );
+    if( rc != SMTC_MODEM_RC_OK )
+    {
+        HAL_DBG_TRACE_ERROR( "smtc_modem_set_deveui failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
 
-//     rc = smtc_modem_set_joineui( stack_id, join_eui );
-//     if( rc != SMTC_MODEM_RC_OK )
-//     {
-//         HAL_DBG_TRACE_ERROR( "smtc_modem_set_joineui failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
-//     }
+    rc = smtc_modem_set_joineui( stack_id, join_eui );
+    if( rc != SMTC_MODEM_RC_OK )
+    {
+        HAL_DBG_TRACE_ERROR( "smtc_modem_set_joineui failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
 
-//     rc = smtc_modem_set_nwkkey( stack_id, app_key );
-//     if( rc != SMTC_MODEM_RC_OK )
-//     {
-//         HAL_DBG_TRACE_ERROR( "smtc_modem_set_nwkkey failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
-//     }
+    rc = smtc_modem_set_nwkkey( stack_id, app_key );
+    if( rc != SMTC_MODEM_RC_OK )
+    {
+        HAL_DBG_TRACE_ERROR( "smtc_modem_set_nwkkey failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
 
-//     HAL_DBG_TRACE_INFO( "LoRaWAN parameters:\n" );
+    HAL_DBG_TRACE_INFO( "LoRaWAN parameters:\n" );
 
-//     rc = smtc_modem_get_deveui( stack_id, dev_eui );
-//     if( rc == SMTC_MODEM_RC_OK )
-//     {
-//         HAL_DBG_TRACE_ARRAY( "DevEUI", dev_eui, SMTC_MODEM_EUI_LENGTH );
-//     }
-//     else
-//     {
-//         HAL_DBG_TRACE_ERROR( "smtc_modem_get_deveui failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
-//     }
+    rc = smtc_modem_get_deveui( stack_id, dev_eui );
+    if( rc == SMTC_MODEM_RC_OK )
+    {
+        HAL_DBG_TRACE_ARRAY( "DevEUI", dev_eui, SMTC_MODEM_EUI_LENGTH );
+    }
+    else
+    {
+        HAL_DBG_TRACE_ERROR( "smtc_modem_get_deveui failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
 
-//     rc = smtc_modem_get_joineui( stack_id, join_eui );
-//     if( rc == SMTC_MODEM_RC_OK )
-//     {
-//         HAL_DBG_TRACE_ARRAY( "JoinEUI", join_eui, SMTC_MODEM_EUI_LENGTH );
-//     }
-//     else
-//     {
-//         HAL_DBG_TRACE_ERROR( "smtc_modem_get_joineui failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
-//     }
+    rc = smtc_modem_get_joineui( stack_id, join_eui );
+    if( rc == SMTC_MODEM_RC_OK )
+    {
+        HAL_DBG_TRACE_ARRAY( "JoinEUI", join_eui, SMTC_MODEM_EUI_LENGTH );
+    }
+    else
+    {
+        HAL_DBG_TRACE_ERROR( "smtc_modem_get_joineui failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
 
-//     rc = smtc_modem_set_class( stack_id, LORAWAN_CLASS );
-//     if( rc != SMTC_MODEM_RC_OK )
-//     {
-//         HAL_DBG_TRACE_ERROR( "smtc_modem_set_class failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
-//     }
+    rc = smtc_modem_set_class( stack_id, LORAWAN_CLASS );
+    if( rc != SMTC_MODEM_RC_OK )
+    {
+        HAL_DBG_TRACE_ERROR( "smtc_modem_set_class failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
 
-//     modem_class_to_string( LORAWAN_CLASS );
+    modem_class_to_string( LORAWAN_CLASS );
 
-//     rc = smtc_modem_set_region( stack_id, LORAWAN_REGION );
-//     if( rc != SMTC_MODEM_RC_OK )
-//     {
-//         HAL_DBG_TRACE_ERROR( "smtc_modem_set_region failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
-//     }
+    rc = smtc_modem_set_region( stack_id, LORAWAN_REGION );
+    if( rc != SMTC_MODEM_RC_OK )
+    {
+        HAL_DBG_TRACE_ERROR( "smtc_modem_set_region failed: rc=%s (%d)\n", smtc_modem_return_code_to_str( rc ), rc );
+    }
 
-//     modem_region_to_string( LORAWAN_REGION );
+    modem_region_to_string( LORAWAN_REGION );
 
-//     /* adapt the tx power offet depending on the board */
-//     rc |= smtc_modem_set_tx_power_offset_db( stack_id, smtc_board_get_tx_power_offset( ) );
-// }
+    /* adapt the tx power offet depending on the board */
+    rc |= smtc_modem_set_tx_power_offset_db( stack_id, smtc_board_get_tx_power_offset( ) );
+}
 
 void apps_modem_common_display_lbm_version( void )
 {

@@ -41,8 +41,7 @@
 #include "smtc_hal_dbg_trace.h"
 #include "smtc_modem_api_str.h"
 
-#define __DARWIN_NULL ((void *)0)
-#define NULL  __DARWIN_NULL
+#define NULL ((void *)0)
 
 /*
  * -----------------------------------------------------------------------------

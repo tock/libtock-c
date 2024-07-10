@@ -348,7 +348,7 @@ static void on_modem_reset( uint16_t reset_count )
     // printf("on_modem_reset\n");
     
     /* Basic LoRaWAN configuration */
-    apps_modem_common_configure_lorawan_params( stack_id );
+    wifi_apps_modem_common_configure_lorawan_params( stack_id );
 
     /* Start the Join process */
     ASSERT_SMTC_MODEM_RC( smtc_modem_join_network( stack_id ) );
@@ -517,10 +517,8 @@ void configure_adr( void )
     ASSERT_SMTC_MODEM_RC( smtc_modem_connection_timeout_set_thresholds( stack_id, 0, 0 ) );
 }
 
-void apps_modem_common_configure_lorawan_params( uint8_t stack_id )
+void wifi_apps_modem_common_configure_lorawan_params( uint8_t stack_id )
 {
-    // printf("apps_modem_common_configure_lorawan_params\n");
-
     smtc_modem_return_code_t rc = SMTC_MODEM_RC_OK;
     uint8_t dev_eui[8] = { 0 };
     uint8_t join_eui[8]  = { 0 };
