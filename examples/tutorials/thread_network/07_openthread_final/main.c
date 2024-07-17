@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include <libopenthread/platform/openthread-system.h>
+#include <libopenthread/platform/plat.h>
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
 #include <openthread/ip6.h>
@@ -24,18 +25,18 @@ static otUdpSocket sUdpSocket;
 static void initUdp(otInstance* aInstance);
 static void sendUdp(otInstance* aInstance);
 
-uint8_t local_temperature_setpoint        = 0;
-uint8_t global_temperature_setpoint       = 0;
-uint8_t prior_global_temperature_setpoint = 0;
-bool network_up       = false;
-bool pending_udp_send = false;
+uint8_t local_temperature_setpoint        = 22;
+uint8_t global_temperature_setpoint       = 255;
+uint8_t prior_global_temperature_setpoint = 255;
+bool network_up      = false;
+bool send_local_temp = false;
 
 // Callback method for received udp packets.
 static void handleUdpReceive(void* aContext, otMessage* aMessage,
                              const otMessageInfo* aMessageInfo);
 
 static void openthread_ipc_callback(int pid, int len, int buf,
-                                    void* ud) {
+                                    __attribute__((unused)) void* ud) {
   // A client has requested us to provide them the current temperature value.
   // We must make sure that it provides us with a buffer sufficiently large to
   // store a single integer:
@@ -44,25 +45,25 @@ static void openthread_ipc_callback(int pid, int len, int buf,
     puts("[thread] ERROR: sensor IPC invoked with too small buffer.\r\n");
   }
 
+  // copy value in buffer to local_temperature_setpoint
   uint8_t passed_local_setpoint = *((uint8_t*) buf);
   if (passed_local_setpoint != local_temperature_setpoint) {
-    // The local setpoint has changed, update it:
+    // The local setpoint has changed, update it.
     local_temperature_setpoint = passed_local_setpoint;
-    sendUdp((otInstance*) ud);
+    send_local_temp = true;
   }
 
   if (network_up) {
     if (prior_global_temperature_setpoint != global_temperature_setpoint) {
       prior_global_temperature_setpoint = global_temperature_setpoint;
 
-      // The buffer is large enough, copy the current temperature into it:
+      // The buffer is large enough, copy the current temperature into it.
       memcpy((void*) buf, &global_temperature_setpoint, sizeof(global_temperature_setpoint));
 
-      // Notify the client that the temperature has changed:
+      // Notify the client that the temperature has changed.
       ipc_notify_client(pid);
     }
   }
-
 }
 
 // helper utility demonstrating network config setup
@@ -75,6 +76,7 @@ static void stateChangeCallback(uint32_t flags, void* context);
 static void print_ip_addr(otInstance* instance);
 
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {
+  // Initialize OpenThread instance.
   otSysInit(argc, argv);
   otInstance* instance;
   instance = otInstanceInitSingle();
@@ -83,7 +85,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
   // Register this application as an IPC service under its name:
   ipc_register_service_callback("org.tockos.thread-tutorial.openthread",
                                 openthread_ipc_callback,
-                                instance);
+                                NULL);
 
   /* As part of the initialization, we will:
       - Init dataset with the following properties:
@@ -119,10 +121,15 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
   }
 
   for ( ;;) {
-    otSysProcessDrivers(instance);
     otTaskletsProcess(instance);
+    otSysProcessDrivers(instance);
 
-    if (!otTaskletsArePending(instance)) {
+    if (send_local_temp) {
+      sendUdp(instance);
+      send_local_temp = false;
+    }
+
+    if (!otTaskletsArePending(instance) && !openthread_platform_pending_work()) {
       yield();
     }
 
@@ -170,6 +177,7 @@ static void stateChangeCallback(uint32_t flags, void* context) {
       break;
     case OT_DEVICE_ROLE_CHILD:
       network_up = true;
+      sendUdp(instance);
       printf("[State Change] - Child.\n");
       printf("Successfully attached to Thread network as a child.\n");
       break;

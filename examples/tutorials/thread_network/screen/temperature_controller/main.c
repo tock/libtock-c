@@ -57,7 +57,7 @@ static void update_network_timer_callback(__attribute__ ((unused)) uint32_t now,
                                           __attribute__ ((unused)) void*    opaque) {
   openthread_buffer[0] = local_temperature_setpoint;
   ipc_notify_service(openthread_svc_num);
-  libtock_alarm_in_ms(500, update_network_timer_callback, NULL, &network_timer);
+  libtock_alarm_in_ms(250, update_network_timer_callback, NULL, &network_timer);
 
 }
 

@@ -44,8 +44,8 @@ static void gpio_output(void) {
   libtock_gpio_enable_output(0);
   // Start repeating alarm
   data.fired = false;
-  libtock_alarm_repeating_t alarm_repeating;
-  libtock_alarm_repeating_every(1000, alarm_cb, NULL, &alarm_repeating);
+  libtock_alarm_t alarm_repeating;
+  libtock_alarm_repeating_every_ms(1000, alarm_cb, NULL, &alarm_repeating);
 
   while (1) {
     yield_for(&data.fired);
@@ -64,9 +64,9 @@ static void gpio_input(void) {
   // set userspace pin 0 as input and start repeating alarm
   // pin is configured with a pull-down resistor, so it should read 0 as default
   libtock_gpio_enable_input(0, libtock_pull_down);
-  libtock_alarm_repeating_t alarm_repeating;
+  libtock_alarm_t alarm_repeating;
   data.fired = false;
-  libtock_alarm_repeating_every(500, alarm_cb, NULL, &alarm_repeating);
+  libtock_alarm_repeating_every_ms(500, alarm_cb, NULL, &alarm_repeating);
 
   while (1) {
     // print pin value

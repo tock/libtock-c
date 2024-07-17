@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include <libopenthread/platform/openthread-system.h>
+#include <libopenthread/platform/plat.h>
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
 #include <openthread/ip6.h>
@@ -24,11 +25,11 @@ static otUdpSocket sUdpSocket;
 static void initUdp(otInstance* aInstance);
 static void sendUdp(otInstance* aInstance);
 
-uint8_t local_temperature_setpoint        = 0;
-uint8_t global_temperature_setpoint       = 0;
-uint8_t prior_global_temperature_setpoint = 0;
-bool network_up       = false;
-bool pending_udp_send = false;
+uint8_t local_temperature_setpoint        = 22;
+uint8_t global_temperature_setpoint       = 255;
+uint8_t prior_global_temperature_setpoint = 255;
+bool network_up      = false;
+bool send_local_temp = false;
 
 // Callback method for received udp packets.
 static void handleUdpReceive(void* aContext, otMessage* aMessage,
@@ -64,6 +65,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
   instance = otInstanceInitSingle();
   assert(instance);
 
+  // TODO:
   // Register this application as an IPC service under its name
   // "org.tockos.thread-tutorial.openthread".
 
@@ -78,7 +80,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
 
   setNetworkConfiguration(instance);
 
-  // Set child timeout to 60 seconds.
+  // set child timeout to 60 seconds.
   otThreadSetChildTimeout(instance, 60);
 
   /* Start the Thread network interface (CLI cmd -> ifconfig up) */
@@ -102,16 +104,19 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
     libtocksync_alarm_delay_ms(100);
   }
 
-  // OpenThread mainloop
   for ( ;;) {
-    // Process libtock drivers.
+    otTaskletsProcess(instance);
     otSysProcessDrivers(instance);
 
-    // Process OpenThread tasks.
-    otTaskletsProcess(instance);
+    if (send_local_temp) {
+      sendUdp(instance);
+      send_local_temp = false;
+    }
 
-    // If no openthread tasks remain, yield.
-    if (!otTaskletsArePending(instance)) yield();
+    if (!otTaskletsArePending(instance) && !openthread_platform_pending_work()) {
+      yield();
+    }
+
   }
 
   return 0;
@@ -155,6 +160,8 @@ static void stateChangeCallback(uint32_t flags, void* context) {
       printf("[State Change] - Detached.\n");
       break;
     case OT_DEVICE_ROLE_CHILD:
+      network_up = true;
+      sendUdp(instance);
       printf("[State Change] - Child.\n");
       printf("Successfully attached to Thread network as a child.\n");
       break;
@@ -174,8 +181,6 @@ static void print_ip_addr(otInstance* instance) {
   const otNetifAddress* unicastAddrs = otIp6GetUnicastAddresses(instance);
 
   printf("[THREAD] Device IPv6 Addresses: ");
-
-  // Iterate through IPV6 address printing each byte.
   for (const otNetifAddress* addr = unicastAddrs; addr; addr = addr->mNext) {
     const otIp6Address ip6_addr = addr->mAddress;
     otIp6AddressToString(&ip6_addr, addr_string, sizeof(addr_string));
@@ -189,14 +194,10 @@ void handleUdpReceive(void* aContext, otMessage* aMessage,
   OT_UNUSED_VARIABLE(aMessageInfo);
   char buf[2];
 
-  // Obtain sender information
   const otIp6Address sender_addr = aMessageInfo->mPeerAddr;
   otIp6AddressToString(&sender_addr, buf, sizeof(buf));
 
-  // Copy the received message into our buffer.
   otMessageRead(aMessage, otMessageGetOffset(aMessage), buf, sizeof(buf) - 1);
-
-  // Update the global temperature setpoint.
   global_temperature_setpoint = buf[0];
 }
 
@@ -212,7 +213,6 @@ void initUdp(otInstance* aInstance) {
   otUdpBind(aInstance, &sUdpSocket, &listenSockAddr, OT_NETIF_THREAD);
 }
 
-__attribute__ ((unused))
 void sendUdp(otInstance* aInstance) {
 
   otError error = OT_ERROR_NONE;
@@ -220,7 +220,6 @@ void sendUdp(otInstance* aInstance) {
   otMessageInfo messageInfo;
   otIp6Address destinationAddr;
 
-  // Allocate and set messageInfo fields.
   memset(&messageInfo, 0, sizeof(messageInfo));
 
   otIp6AddressFromString(UDP_ROUTER_MULTICAST, &destinationAddr);

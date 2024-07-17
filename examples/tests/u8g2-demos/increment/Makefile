@@ -1,15 +1,11 @@
 # Makefile for user application
 
 # Specify this directory relative to the current application.
-TOCK_USERLAND_BASE_DIR = ../../../../
+TOCK_USERLAND_BASE_DIR = ../../../..
 
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
 
-# Make sure we have storage permissions.
-ELF2TAB_ARGS += --write_id 0x4016 --read_ids 0x4016 --access_ids 0x4016
-
-# Include U8G2 graphics library.
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/u8g2
 
 # Include userland master makefile. Contains rules and flags for actually
