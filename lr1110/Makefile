@@ -80,6 +80,7 @@ $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/smtc_modem_services/src/stream/st
 $(SEEED_DIR)/geolocation_middleware/common/mw_common.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/radio_drivers/lr11xx_driver/src/lr11xx_system.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/modem_core/smtc_modem_test.c \
+$(SEEED_DIR)/apps/common/apps_modem_common.c
 
 # include unchanged headers from seeed's repo
 override CFLAGS += \
