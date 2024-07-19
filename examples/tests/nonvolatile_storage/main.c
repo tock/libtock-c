@@ -57,7 +57,7 @@ static int test(uint8_t* readbuf, uint8_t* writebuf, size_t size, size_t offset,
     return ret;
   }
 
-  ret = libtocksync_nonvolatile_storage_read(offset, len, writebuf, size, &length_read);
+  ret = libtocksync_nonvolatile_storage_read(offset, len, readbuf, size, &length_read);
   if (ret != RETURNCODE_SUCCESS) {
     printf("\tERROR calling read\n");
     return ret;
