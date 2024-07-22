@@ -1,7 +1,7 @@
 # Makefile for user application
 
 # Specify this directory relative to the current application.
-TOCK_USERLAND_BASE_DIR = ../..
+TOCK_USERLAND_BASE_DIR = ../../..
 
 # External libraries used
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/lr1110
