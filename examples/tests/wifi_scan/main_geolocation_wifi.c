@@ -381,6 +381,7 @@ static void on_modem_network_joined( void )
     wifi_mw_get_version( &mw_version );
     // printf( "Initializing Wi-Fi middleware v%d.%d.%d\n", mw_version.major, mw_version.minor,
                         // mw_version.patch );
+    wifi_mw_set_payload_format(WIFI_MW_PAYLOAD_MAC);
     wifi_mw_init( modem_radio, stack_id );
 
     ASSERT_SMTC_MODEM_RC( smtc_modem_alarm_start_timer( 5 ) );
