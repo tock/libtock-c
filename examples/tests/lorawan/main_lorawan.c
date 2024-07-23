@@ -50,7 +50,7 @@
 // #include "apps_utilities.h"
 // #include "smtc_modem_utilities.h"
 
-#include <lr1110/lr1110.h>
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -58,6 +58,9 @@
 #include <libtock-sync/sensors/temperature.h>
 #include <libtock-sync/sensors/humidity.h>
 #include <libtock-sync/services/alarm.h>
+
+#include <lr1110/lr1110.h>
+#include <lr1110/us_915_ttn.h>
 
 /*
  * -----------------------------------------------------------------------------
@@ -324,11 +327,11 @@ int main( void )
     lr11xx_system_clear_irq_status(&radio_context, 0xFFFFFFFF);
 
     printf("inside loop\n");
-    
+
     while( 1 )
     {
         lr11xx_system_clear_errors( &radio_context );
-        
+
         /* Execute modem runtime, this function must be called again in sleep_time_ms milliseconds or sooner. */
         uint32_t sleep_time_ms = smtc_modem_run_engine( ); // cause process fault
 
@@ -355,6 +358,9 @@ static void on_modem_reset( uint16_t reset_count )
     HAL_DBG_TRACE_INFO( "  - Confirmed uplink     = %s\n", ( LORAWAN_CONFIRMED_MSG_ON == true ) ? "Yes" : "No" );
 
     lorawan_apps_modem_common_configure_lorawan_params( stack_id );
+
+    // We use TTN so only enable bank 2 channels.
+    region_us_915_the_things_network_init();
 
     ASSERT_SMTC_MODEM_RC( smtc_modem_join_network( stack_id ) );
 }
