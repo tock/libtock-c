@@ -27,6 +27,7 @@ override CFLAGS += -DREGION_US_915 -DRP2_103 -DTASK_EXTENDED_2 -DLR11XX -DLR11XX
 # include unchanged source files from seeed's repo
 UNCHANGED_CSRCS := \
 $(SEEED_DIR)/apps/common/apps_modem_common.c \
+$(SEEED_DIR)/apps/common/apps_modem_event.c \
 $(SEEED_DIR)/apps/common/apps_utilities.c \
 $(SEEED_DIR)/apps/common/smtc_modem_api_str.c \
 $(SEEED_DIR)/geolocation_middleware/common/mw_common.c \
