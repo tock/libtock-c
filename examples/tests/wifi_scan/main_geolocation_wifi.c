@@ -43,10 +43,13 @@
  * @{
  */
 
-#include <lr1110/lr1110.h>
-#include <libtock-sync/services/alarm.h>
 #include <stdio.h>
 #include <stdint.h>
+
+#include <libtock-sync/services/alarm.h>
+
+#include <lr1110/lr1110.h>
+#include <lr1110/us_915_ttn.h>
 
 /*
  * -----------------------------------------------------------------------------
@@ -269,7 +272,7 @@ int main( void )
     /* Check LR11XX Firmware version */
     // ASSERT_SMTC_MODEM_RC( smtc_modem_suspend_before_user_radio_access( ) ); /* protect from radio access conflicts */
     // status = lr11xx_system_get_version( modem_radio->ral.context, &lr11xx_fw_version );
-    
+
     lr11xx_system_clear_errors( &radio_context );
     status = lr11xx_system_get_version( &radio_context, &lr11xx_fw_version );
     // printf("Hardware Version: %u, 0x%04X\n", lr11xx_fw_version.hw, lr11xx_fw_version.hw);
@@ -346,9 +349,12 @@ int main( void )
 static void on_modem_reset( uint16_t reset_count )
 {
     // printf("on_modem_reset\n");
-    
+
     /* Basic LoRaWAN configuration */
     wifi_apps_modem_common_configure_lorawan_params( stack_id );
+
+    // We use TTN so only enable bank 2 channels.
+    region_us_915_the_things_network_init();
 
     /* Start the Join process */
     ASSERT_SMTC_MODEM_RC( smtc_modem_join_network( stack_id ) );
@@ -401,7 +407,7 @@ static void on_modem_alarm( void )
 
     //ASSERT_SMTC_MODEM_RC( smtc_modem_alarm_start_timer( WIFI_SCAN_PERIOD ) );
     // printf( "smtc_modem_alarm_start_timer: %d s\n\n", WIFI_SCAN_PERIOD );
- 
+
     // mw_return_code_t wifi_rc;
     // wifi_rc = wifi_mw_scan_start( 5 );
     // if( wifi_rc != MW_RC_OK )
