@@ -11,15 +11,8 @@ all : $(ZIP_FILE)
 
 $(ZIP_FILE):
 	curl -L --output $(ZIP_FILE) "https://codeload.github.com/Seeed-Studio/Seeed_Wio_WM1110_Dev_Board/zip/$(VERSION_HASH)"
-	unzip -q $(ZIP_FILE) -d $(SEEED_DIR) 
+	unzip -q $(ZIP_FILE) -d $(SEEED_DIR)
 	rm -f $(ZIP_FILE) # Remove zip file after unzip
 	mv $(EXTRACTED_DIR)/* $(SEEED_DIR)/
 	rmdir $(EXTRACTED_DIR)  # move unzipped code to SEEED_DIR, remove original directory
 	touch $(SEEED_DIR)
-
-  
-	
-	
-
-
-
