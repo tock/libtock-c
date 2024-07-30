@@ -34,10 +34,3 @@ make
 
 This will build RadioLib and then the example application for
 both ARM and RISC-V architectures.
-
-If you wish to use the RadioLib build infrastructure to build
-RadioLib (instead of the libtock-c system) you can also use
-
-```shell
-CMAKE=1 make
-```
