@@ -127,15 +127,15 @@ lr11xx_hal_status_t lr11xx_hal_write( const void* context, const uint8_t* comman
     // Disable IRQ to secure LR11XX concurrent access
     modem_disable_irq( );
 
+    // Create one wbuffer we can send to the SPI interface via the kernel.
     uint8_t rbuffer[100];
     uint8_t wbuffer[100];
 
-    int write_length = command_length+data_length;
+    int write_length = command_length + data_length;
 
+    // Pack the entire message in one wbuffer.
     memcpy(wbuffer, command, command_length);
     memcpy(wbuffer+command_length, data, data_length);
-
-    // printf("spi write: command 0x%02x 0x%02x\n", command[0], command[1]);
 
 #if defined( USE_LR11XX_CRC_OVER_SPI )
     // Send the CRC byte at the end of the transaction
@@ -143,21 +143,8 @@ lr11xx_hal_status_t lr11xx_hal_write( const void* context, const uint8_t* comman
     write_length += 1;
 #endif
 
-    // if(command_length == 11) {
-    //     lr11xx_system_irq_mask_t lr11xx_irq_mask = LR11XX_SYSTEM_IRQ_NONE;
-
-    //     lr11xx_system_get_irq_status( lr11xx_context, &lr11xx_irq_mask );
-    //     printf("irq status at hal_write before read_write_sync: %d\n", lr11xx_irq_mask);
-    // }
-
+    // Do the SPI transfer.
     libtocksync_lora_phy_read_write((const char*)wbuffer, (const char*)rbuffer,  write_length);
-
-    if(command_length == 11) {
-        lr11xx_system_irq_mask_t lr11xx_irq_mask = LR11XX_SYSTEM_IRQ_NONE;
-
-        lr11xx_system_get_irq_status( lr11xx_context, &lr11xx_irq_mask );
-        // printf("irq status at hal_write after read_write_sync: %d\n", lr11xx_irq_mask);
-    }
 
     // LR11XX_SYSTEM_SET_SLEEP_OC=0x011B opcode. In sleep mode the radio busy line is held at 1 => do not test it
     if( ( command[0] == 0x01 ) && ( command[1] == 0x1B ) )
@@ -170,9 +157,6 @@ lr11xx_hal_status_t lr11xx_hal_write( const void* context, const uint8_t* comman
         //
         hal_spi_deinit( );
     }
-
-    // printf("spi write: read 0x%02x 0x%02x\n", rbuffer[0], rbuffer[1]);
-
 
     // Re-enable IRQ
     modem_enable_irq( );
@@ -187,161 +171,39 @@ lr11xx_hal_status_t lr11xx_hal_read( const void* context, const uint8_t* command
 
     lr11xx_hal_check_device_ready( lr11xx_context );
 
+    // Input buffer.
     uint8_t rbuffer[100];
     uint8_t wbuffer[100];
 
     memcpy(wbuffer, command, command_length);
 
+    // Do the SPI transaction to request data.
     libtocksync_lora_phy_read_write((const char*)wbuffer, (char*)rbuffer, command_length);
 
     lr11xx_hal_check_device_ready( lr11xx_context );
 
     memset(wbuffer, 0, sizeof(wbuffer));
 
+    // Do the SPI transaction to read data.
     libtocksync_lora_phy_read_write((const char*)wbuffer, (char*)rbuffer, data_length+1);
 
     memcpy(data, rbuffer+1, data_length);
-
-    bool int_pending = rbuffer[0] & 0x1;
-    uint8_t stat1 = (rbuffer[0] >> 1) & 0x7;
-
-    // printf("resp intpend: %i, stat1: %i\n", int_pending, stat1);
-
-
-
-
-
-
-
-
-
-
-
-
-// #if defined( USE_LR11XX_CRC_OVER_SPI )
-//     // Compute the CRC over command array
-//     uint8_t cmd_crc = lr11xx_hal_compute_crc( 0xFF, command, command_length );
-// #endif
-
-//     const lr11xx_hal_context_t* lr11xx_context = ( const lr11xx_hal_context_t* ) context;
-
-//     lr11xx_hal_check_device_ready( lr11xx_context );
-
-//     // Disable IRQ to secure LR11XX concurrent access (temporary workaround)
-//     modem_disable_irq( );
-
-//     // Put NSS low to start spi transaction
-//     hal_gpio_set_value( lr11xx_context->nss, 0 );
-//     for( uint16_t i = 0; i < command_length; i++ )
-//     {
-//         hal_spi_in_out( lr11xx_context->spi_id, command[i] );
-//     }
-
-// #if defined( USE_LR11XX_CRC_OVER_SPI )
-//     // Send the CRC byte at the end of the transaction
-//     hal_spi_in_out( RADIO_SPI_ID, cmd_crc );
-// #endif
-
-//     hal_gpio_set_value( lr11xx_context->nss, 1 );
-
-//     if( data_length > 0 )
-//     {
-//         lr11xx_hal_check_device_ready( lr11xx_context );
-//         hal_gpio_set_value( lr11xx_context->nss, 0 );
-
-//         // dummy read
-// #if defined( USE_LR11XX_CRC_OVER_SPI )
-//         // save dummy for crc calculation
-//         const uint8_t dummy = hal_spi_in_out( RADIO_SPI_ID, LR11XX_NOP );
-// #else
-//         hal_spi_in_out( lr11xx_context->spi_id, LR11XX_NOP );
-// #endif
-
-//         for( uint16_t i = 0; i < data_length; i++ )
-//         {
-//             data[i] = hal_spi_in_out( lr11xx_context->spi_id, LR11XX_NOP );
-//         }
-
-// #if defined( USE_LR11XX_CRC_OVER_SPI )
-//         // read crc sent by lr11xx at the end of the transaction
-//         const uint8_t rx_crc = hal_spi_in_out( lr11xx_context->spi_id, LR11XX_NOP );
-// #endif
-
-//         // Put NSS high as the spi transaction is finished
-//         hal_gpio_set_value( lr11xx_context->nss, 1 );
-
-// #if defined( USE_LR11XX_CRC_OVER_SPI )
-//         // Check CRC value
-//         uint8_t computed_crc = lr11xx_hal_compute_crc( 0xFF, &dummy, 1 );
-//         computed_crc         = lr11xx_hal_compute_crc( computed_crc, data, data_length );
-//         if( rx_crc != computed_crc )
-//         {
-//             // Re-enable IRQ
-//             modem_enable_irq( );
-
-//             return LR11XX_HAL_STATUS_ERROR;
-//         }
-// #endif
-//     }
-
-//     // Re-enable IRQ
-//     modem_enable_irq( );
 
     return LR11XX_HAL_STATUS_OK;
 }
 
 lr11xx_hal_status_t lr11xx_hal_direct_read( const void* radio, uint8_t* data, const uint16_t data_length )
 {
-    // printf("DIRECTRE\n");
     const lr11xx_hal_context_t* lr11xx_context = ( const lr11xx_hal_context_t* ) radio;
 
     lr11xx_hal_check_device_ready( lr11xx_context );
 
-    // // Disable IRQ to secure LR11XX concurrent access
-    // modem_disable_irq( );
-
-    // // Put NSS low to start spi transaction
-    // hal_gpio_set_value( lr11xx_context->nss, 0 );
-
-    // for( uint16_t i = 0; i < data_length; i++ )
-    // {
-    //     data[i] = hal_spi_in_out( lr11xx_context->spi_id, LR11XX_NOP );
-    // }
-
     uint8_t wbuffer[100];
 
     memset(wbuffer, 0, sizeof(wbuffer));
-    wbuffer[0] = 0x01;
 
-    libtocksync_lora_phy_read_write( wbuffer,data,data_length);
-
-// #if defined( USE_LR11XX_CRC_OVER_SPI )
-//     // read crc sent by lr11xx by sending one more NOP
-//     const uint8_t rx_crc = hal_spi_in_out( lr11xx_context->spi_id, LR11XX_NOP );
-// #endif
-
-//     // hal_gpio_set_value( lr11xx_context->nss, 1 );
-
-// #if defined( USE_LR11XX_CRC_OVER_SPI )
-//     // check crc value
-//     uint8_t computed_crc = lr11xx_hal_compute_crc( 0xFF, data, data_length );
-//     if( rx_crc != computed_crc )
-//     {
-//         // Re-enable IRQ
-//         modem_enable_irq( );
-
-//         return LR11XX_HAL_STATUS_ERROR;
-//     }
-// #endif
-
-//     // Re-enable IRQ
-//     modem_enable_irq( );
-
-    //  printf("read: 0x ");
-    //  for (int i=0; i<data_length; i++ ) {
-    //     printf("%02x ", data[i]);
-    //  }
-    //  printf("\n");
+    // Write all zeros on SPI and read in the incoming data.
+    libtocksync_lora_phy_read_write(wbuffer, data, data_length);
 
     return LR11XX_HAL_STATUS_OK;
 }
@@ -410,14 +272,11 @@ static void lr11xx_hal_check_device_ready( const lr11xx_hal_context_t* lr11xx_co
 static void modem_disable_irq( void )
 {
     hal_gpio_irq_disable( );
-    // hal_lp_timer_irq_disable( );
-    // the above function is empty in definition, so remove it, same as irq_enable below
 }
 
 static void modem_enable_irq( void )
 {
     hal_gpio_irq_enable( );
-    // hal_lp_timer_irq_enable( );
 }
 
 /* --- EOF ------------------------------------------------------------------ */
