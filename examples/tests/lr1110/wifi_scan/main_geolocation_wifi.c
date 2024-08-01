@@ -80,13 +80,7 @@
  * -----------------------------------------------------------------------------
  * --- PRIVATE CONSTANTS -------------------------------------------------------
  */
-/**
- * @brief LR11XX radio firmware
- */
-#define LR1110_FW_VERSION 0x0307
-#define LR1110_FW_TYPE 0x01
-// #define LR1120_FW_VERSION 0x0101
-// #define LR1120_FW_TYPE 0x02
+
 
 #define LORAWAN_REGION      SMTC_MODEM_REGION_US_915
 #define LORAWAN_CLASS       SMTC_MODEM_CLASS_A
@@ -96,10 +90,7 @@
 #define LORAWAN_JOIN_EUI    "901AB1F40E1BCC81"
 #define LORAWAN_APP_KEY     "3356A7047ECF1F2F78C72AE9B1635BC1"
 
-/*!
- * @brief Defines the delay before starting a new Wi-Fi scan, value in [s].
- */
-#define WIFI_SCAN_PERIOD_DEFAULT 30
+
 
 /*
  * -----------------------------------------------------------------------------
@@ -122,10 +113,7 @@
 #define ADR_CUSTOM_LIST_US915                          \
     {                                                  \
         5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3 \
-    }
-    // {                                                  \
-    //     3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1 \
-    // } /* 125kHz - SF7, SF8, SF9 */
+    } /* 125kHz - SF7, SF8, SF9 */
 
 /*!
  * @brief ADR custom list and retransmission parameters for WW2G4 region
@@ -136,7 +124,6 @@
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 \
     } /* SF12 */
 
-#define WIFI_SCAN_PERIOD WIFI_SCAN_PERIOD_DEFAULT
 
 /*
  * -----------------------------------------------------------------------------
@@ -224,6 +211,8 @@ static void on_middleware_wifi_event( uint8_t pending_events );
 
 static void on_modem_join_fail( void );
 
+static void wifi_apps_modem_common_configure_lorawan_params( void );
+
 /*!
  * @}
  */
@@ -245,8 +234,6 @@ lr11xx_hal_context_t radio_context = {
  */
 int main( void )
 {
-    lr11xx_system_version_t            lr11xx_fw_version;
-    lr11xx_status_t                    status;
     static apps_modem_event_callback_t smtc_event_callback = {
         .adr_mobile_to_static  = NULL,
         .alarm                 = on_modem_alarm,
@@ -269,21 +256,9 @@ int main( void )
     };
 
     lr11xx_system_clear_errors( &radio_context );
-    /* Check LR11XX Firmware version */
-    // ASSERT_SMTC_MODEM_RC( smtc_modem_suspend_before_user_radio_access( ) ); /* protect from radio access conflicts */
-    // status = lr11xx_system_get_version( modem_radio->ral.context, &lr11xx_fw_version );
-
-    lr11xx_system_clear_errors( &radio_context );
-    status = lr11xx_system_get_version( &radio_context, &lr11xx_fw_version );
-    // printf("Hardware Version: %u, 0x%04X\n", lr11xx_fw_version.hw, lr11xx_fw_version.hw);
-    // printf("Type: %u, 0x%04X, should be 0x%04X\n", lr11xx_fw_version.type, lr11xx_fw_version.type, LR1110_FW_TYPE);
-    // printf("Firmware Version: %u, 0x%04X, should be 0x%04X\n", lr11xx_fw_version.fw, lr11xx_fw_version.fw, LR1110_FW_VERSION);
 
     /* Initialise the ralf_t object corresponding to the board */
     modem_radio = smtc_board_initialise_and_get_ralf( );
-
-    /* Disable IRQ to avoid unwanted behaviour during init */
-    // hal_mcu_disable_irq( );
 
     /* Init board and peripherals */
     hal_mcu_init( );
@@ -296,34 +271,11 @@ int main( void )
      * immediately after the first call to modem_run_engine because of the reset detection */
     smtc_modem_init( modem_radio, &apps_modem_event_process );
 
-    /* Re-enable IRQ */
-    // hal_mcu_enable_irq( );
-
-    // HAL_DBG_TRACE_MSG( "\n" );
-    // HAL_DBG_TRACE_INFO( "###### ===== LoRa Basics Modem Geolocation Wi-Fi example ==== ######\n\n" );
     printf( "###### ===== LoRa Basics Modem Geolocation Wi-Fi example ==== ######\n\n" );
     apps_modem_common_display_lbm_version( );
 
-    // ASSERT_SMTC_MODEM_RC( smtc_modem_resume_after_user_radio_access( ) );
-
-    // if( status != LR11XX_STATUS_OK )
-    // {
-    //     HAL_DBG_TRACE_ERROR( "Failed to get LR11XX firmware version\n" );
-    //     mcu_panic( );
-    // }
-    // if( ( ( lr11xx_fw_version.fw != LR1110_FW_VERSION ) && ( lr11xx_fw_version.type = LR1110_FW_TYPE ) ) &&
-    //     ( ( lr11xx_fw_version.fw != LR1120_FW_VERSION ) && ( lr11xx_fw_version.type = LR1120_FW_TYPE ) ) )
-    // {
-    //     HAL_DBG_TRACE_ERROR( "Wrong LR11XX firmware version, expected 0x%04X, got 0x%04X\n", LR1110_FW_VERSION,
-    //                          lr11xx_fw_version.fw );
-    //     mcu_panic( );
-    // }
-    // HAL_DBG_TRACE_INFO( "LR11XX FW   : 0x%04X\n", lr11xx_fw_version.fw );
-
     lr11xx_system_clear_errors( &radio_context );
     lr11xx_system_clear_irq_status(&radio_context, 0xFFFFFFFF);
-
-    // printf("inside loop\n");
 
     while( 1 )
     {
@@ -348,21 +300,16 @@ int main( void )
 
 static void on_modem_reset( uint16_t reset_count )
 {
-    // printf("on_modem_reset\n");
+    printf("on_modem_reset %i\n", reset_count);
 
     /* Basic LoRaWAN configuration */
-    wifi_apps_modem_common_configure_lorawan_params( stack_id );
+    wifi_apps_modem_common_configure_lorawan_params( );
 
     // We use TTN so only enable bank 2 channels.
     region_us_915_the_things_network_init();
 
     /* Start the Join process */
     ASSERT_SMTC_MODEM_RC( smtc_modem_join_network( stack_id ) );
-
-    // lr11xx_system_irq_mask_t lr11xx_irq_mask = LR11XX_SYSTEM_IRQ_NONE;
-
-    // lr11xx_system_get_irq_status( &radio_context, &lr11xx_irq_mask );
-    // printf("irq status after smtc join: %d\n", lr11xx_irq_mask);
 
     HAL_DBG_TRACE_INFO( "###### ===== JOINING ==== ######\n\n" );
 }
@@ -385,11 +332,6 @@ static void on_modem_network_joined( void )
     wifi_mw_init( modem_radio, stack_id );
 
     ASSERT_SMTC_MODEM_RC( smtc_modem_alarm_start_timer( 5 ) );
-
-    // lr11xx_system_irq_mask_t lr11xx_irq_mask = LR11XX_SYSTEM_IRQ_NONE;
-
-    // lr11xx_system_get_irq_status( &radio_context, &lr11xx_irq_mask );
-    // printf("irq status before start scan: %d\n", lr11xx_irq_mask);
 
     /* Start the Wi-Fi scan sequence */
     //smtc_modem_suspend_before_user_radio_access( );
@@ -429,8 +371,6 @@ static void on_modem_join_fail( void )
 static void on_middleware_wifi_event( uint8_t pending_events )
 {
     // printf("on_middleware_wifi_event\n");
-
-    mw_return_code_t wifi_rc;
 
     /* Parse events */
     if( wifi_mw_has_event( pending_events, WIFI_MW_EVENT_SCAN_DONE ) )
@@ -524,16 +464,16 @@ void configure_adr( void )
     ASSERT_SMTC_MODEM_RC( smtc_modem_connection_timeout_set_thresholds( stack_id, 0, 0 ) );
 }
 
-void wifi_apps_modem_common_configure_lorawan_params( uint8_t stack_id )
+static void wifi_apps_modem_common_configure_lorawan_params( void )
 {
     smtc_modem_return_code_t rc = SMTC_MODEM_RC_OK;
     uint8_t dev_eui[8] = { 0 };
     uint8_t join_eui[8]  = { 0 };
     uint8_t app_key[16] = { 0 };
 
-    hal_hex_to_bin( LORAWAN_DEVICE_EUI, dev_eui, 8 );
-    hal_hex_to_bin( LORAWAN_JOIN_EUI, join_eui, 8 );
-    hal_hex_to_bin( LORAWAN_APP_KEY, app_key, 16 );
+    hal_hex_to_bin((char*) LORAWAN_DEVICE_EUI, dev_eui, 8 );
+    hal_hex_to_bin((char*) LORAWAN_JOIN_EUI, join_eui, 8 );
+    hal_hex_to_bin((char*) LORAWAN_APP_KEY, app_key, 16 );
 
     rc = smtc_modem_set_deveui( stack_id, dev_eui );
     if( rc != SMTC_MODEM_RC_OK )
