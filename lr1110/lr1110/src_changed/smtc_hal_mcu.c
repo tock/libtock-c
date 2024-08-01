@@ -13,7 +13,6 @@ void hal_clock_init(void)
 
 void hal_pwr_init(void)
 {
-    //nrf_pwr_mgmt_init( );
 }
 
 void hal_mcu_init( void )
