@@ -67,11 +67,6 @@
  * --- PRIVATE MACROS-----------------------------------------------------------
  */
 
-/*!
- * @brief Stringify constants
- */
-#define xstr( a ) str( a )
-#define str( a ) #a
 
 /*
  * -----------------------------------------------------------------------------
@@ -82,9 +77,9 @@
 #define LORAWAN_CLASS       SMTC_MODEM_CLASS_A
 
 // wm1110dev parameters
-#define LORAWAN_DEVICE_EUI  "70B3D57ED00650D9"
-#define LORAWAN_JOIN_EUI    "901AB1F40E1BCC81"
-#define LORAWAN_APP_KEY     "3356A7047ECF1F2F78C72AE9B1635BC1"
+#define LORAWAN_DEVICE_EUI "70B3D57ED00650D9"
+#define LORAWAN_JOIN_EUI   "901AB1F40E1BCC81"
+#define LORAWAN_APP_KEY    "3356A7047ECF1F2F78C72AE9B1635BC1"
 
 /*!
  * @brief Defines the application data transmission duty cycle. 60s (changed to 3s), value in [s].
@@ -100,12 +95,6 @@
  * @brief User application data buffer size
  */
 #define LORAWAN_APP_DATA_MAX_SIZE 242
-
-/*!
- * @brief If true, then the system will not power down all peripherals when going to low power mode. This is necessary
- * to keep the LEDs active in low power mode.
- */
-#define APP_PARTIAL_SLEEP true
 
 /*
  * -----------------------------------------------------------------------------
@@ -165,18 +154,6 @@ static uint8_t app_data_buffer[LORAWAN_APP_DATA_MAX_SIZE];
 static void send_frame( const uint8_t* buffer, const uint8_t length, const bool confirmed );
 
 /*!
- * @brief Parse the received downlink
- *
- * @remark Demonstrates how a TLV-encoded command sequence received by downlink can control the state of an LED. It can
- * easily be extended to handle other commands received on the same port or another port.
- *
- * @param [in] port LoRaWAN port
- * @param [in] payload Payload Buffer
- * @param [in] size Payload size
- */
-static void parse_downlink_frame( uint8_t port, const uint8_t* payload, uint8_t size );
-
-/*!
  * @brief Reset event callback
  *
  * @param [in] reset_count reset counter from the modem
@@ -215,6 +192,8 @@ static void on_modem_down_data( int8_t rssi, int8_t snr, smtc_modem_event_downda
 
 static void on_modem_join_fail( void );
 
+static void lorawan_apps_modem_common_configure_lorawan_params(void);
+
 /*
  * -----------------------------------------------------------------------------
  * --- PUBLIC FUNCTIONS DEFINITION ---------------------------------------------
@@ -233,41 +212,15 @@ lr11xx_hal_context_t radio_context = {
 
 int main( void )
 {
-    //hal_gpio_init_out( LR1110_SPI_NSS_PIN, HAL_GPIO_SET );
-    // hal_gpio_init_in( LR1110_BUSY_PIN, HAL_GPIO_PULL_MODE_NONE, HAL_GPIO_IRQ_MODE_OFF, NULL );
-    // hal_gpio_init_in( LR1110_IRQ_PIN, HAL_GPIO_PULL_MODE_DOWN, HAL_GPIO_IRQ_MODE_RISING, NULL );
-    // hal_gpio_init_out( LR1110_NRESER_PIN, HAL_GPIO_SET );
-
-    // lr11xx_system_version_t version;
-    // lr11xx_status_t status;
-
-    // hal_spi_init( );
-
-    // printf("\nafter spi init\n");
-
-    // lr11xx_hal_reset(&radio_context);
-
     lr11xx_system_clear_errors( &radio_context );
 
-    lr11xx_status_t status;
     lr11xx_system_version_t version;
-    status = lr11xx_system_get_version( &radio_context, &version );
+    lr11xx_system_get_version( &radio_context, &version );
     printf("Hardware Version: %u, 0x%04X\n", version.hw, version.hw);
     printf("Type: %u, 0x%04X\n", version.type, version.type);
     printf("Firmware Version: %u, 0x%04X\n", version.fw, version.fw);
-    // if( status != LR11XX_STATUS_OK )
-    // {
-    //     printf( "Failed to get LR11XX firmware version\n" );
-    // }
-    // if( ( ( version.fw != LR1110_FW_VERSION ) && ( version.type = LR1110_FW_TYPE ) ) &&
-    //     ( ( version.fw != LR1120_FW_VERSION ) && ( version.type = LR1120_FW_TYPE ) ) )
-    // {
-    //     printf( "Wrong LR11XX firmware version, expected 0x%04X, got 0x%04X\n", LR1110_FW_VERSION,
-    //                          version.fw );
-    // }
-
     lr11xx_system_uid_t unique_identifier;
-    status= lr11xx_system_read_uid( &radio_context, &unique_identifier );
+    lr11xx_system_read_uid( &radio_context, unique_identifier );
 
     printf("uid %x %x %x\n", unique_identifier[0], unique_identifier[1], unique_identifier[2]);
 
@@ -295,10 +248,6 @@ int main( void )
     /* Initialise the ralf_t object corresponding to the board */
     ralf_t* modem_radio = smtc_board_initialise_and_get_ralf( );
 
-    /* Disable IRQ to avoid unwanted behaviour during init */
-    //hal_mcu_disable_irq( );
-
-
     /* Init board and peripherals */
     hal_mcu_init( );
     smtc_board_init_periph( );
@@ -310,11 +259,6 @@ int main( void )
      * immediately after the first call to modem_run_engine because of the reset detection */
     smtc_modem_init( modem_radio, &apps_modem_event_process ); // cause process fault
 
-    /* Re-enable IRQ */
-    // hal_mcu_enable_irq( );
-
-    //HAL_DBG_TRACE_MSG( "\n" );
-    //HAL_DBG_TRACE_INFO( "###### ===== LoRa Basics Modem LoRaWAN Class A/C demo application ==== ######\n\n" );
     printf("\n###### ===== LoRa Basics Modem LoRaWAN Class A/C demo application ==== ######\n\n");
 
     /* LoRa Basics Modem Version */
@@ -335,8 +279,6 @@ int main( void )
         /* Execute modem runtime, this function must be called again in sleep_time_ms milliseconds or sooner. */
         uint32_t sleep_time_ms = smtc_modem_run_engine( ); // cause process fault
 
-        // printf("sleep %i\n", sleep_time_ms);
-
         /* go in low power */
         hal_mcu_set_sleep_for_ms( sleep_time_ms );
 
@@ -350,14 +292,14 @@ int main( void )
 
 static void on_modem_reset( uint16_t reset_count )
 {
-    printf("on_modem_reset\n");
+    printf("on_modem_reset (%i)\n", reset_count);
 
     HAL_DBG_TRACE_INFO( "Application parameters:\n" );
     HAL_DBG_TRACE_INFO( "  - LoRaWAN uplink Fport = %d\n", LORAWAN_APP_PORT );
     HAL_DBG_TRACE_INFO( "  - DM report interval   = %d\n", APP_TX_DUTYCYCLE );
     HAL_DBG_TRACE_INFO( "  - Confirmed uplink     = %s\n", ( LORAWAN_CONFIRMED_MSG_ON == true ) ? "Yes" : "No" );
 
-    lorawan_apps_modem_common_configure_lorawan_params( stack_id );
+    lorawan_apps_modem_common_configure_lorawan_params();
 
     // We use TTN so only enable bank 2 channels.
     region_us_915_the_things_network_init();
@@ -400,7 +342,7 @@ static void on_modem_alarm( void )
     bool temperature_available    = driver_exists(DRIVER_NUM_TEMPERATURE);
     bool humidity_available       = driver_exists(DRIVER_NUM_HUMIDITY);
     int temp = 0;
-    unsigned humi = 0;
+    int humi = 0;
     if (temperature_available) {
         libtocksync_temperature_read(&temp);
         printf("Temperature: %d.%d deg C, send %d to TTN\n", temp / 100, temp % 100, temp);
@@ -425,10 +367,7 @@ static void on_modem_alarm( void )
 
 static void on_modem_tx_done( smtc_modem_event_txdone_status_t status )
 {
-    printf("on_modem_tx_done\n");
-    static uint32_t uplink_count = 0;
-
-    HAL_DBG_TRACE_INFO( "Uplink count: %d\n", ++uplink_count );
+    printf("on_modem_tx_done (%i)\n", status);
 }
 
 static void on_modem_down_data( int8_t rssi, int8_t snr, smtc_modem_event_downdata_window_t rx_window, uint8_t port,
@@ -441,28 +380,9 @@ static void on_modem_down_data( int8_t rssi, int8_t snr, smtc_modem_event_downda
     HAL_DBG_TRACE_INFO( "  - RSSI          = %d dBm\n", rssi - 64 );
     HAL_DBG_TRACE_INFO( "  - SNR           = %d dB\n", snr >> 2 );
 
-    switch( rx_window )
-    {
-    case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RX1:
-    {
-        HAL_DBG_TRACE_INFO( "  - Rx window     = %s\n", xstr( SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RX1 ) );
-        break;
-    }
-    case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RX2:
-    {
-        HAL_DBG_TRACE_INFO( "  - Rx window     = %s\n", xstr( SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RX2 ) );
-        break;
-    }
-    case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXC:
-    {
-        HAL_DBG_TRACE_INFO( "  - Rx window     = %s\n", xstr( SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXC ) );
-        break;
-    }
-    }
-
     if( size != 0 )
     {
-        HAL_DBG_TRACE_ARRAY( "Payload", payload, size );
+        printf( "Payload %p %i %i %i %i %i", payload, size, rx_window, port, rssi, snr);
     }
 }
 
@@ -493,16 +413,16 @@ static void send_frame( const uint8_t* buffer, const uint8_t length, bool tx_con
     }
 }
 
-void lorawan_apps_modem_common_configure_lorawan_params( uint8_t stack_id )
+static void lorawan_apps_modem_common_configure_lorawan_params(void)
 {
     smtc_modem_return_code_t rc = SMTC_MODEM_RC_OK;
     uint8_t dev_eui[8] = { 0 };
     uint8_t join_eui[8]  = { 0 };
     uint8_t app_key[16] = { 0 };
 
-    hal_hex_to_bin( LORAWAN_DEVICE_EUI, dev_eui, 8 );
-    hal_hex_to_bin( LORAWAN_JOIN_EUI, join_eui, 8 );
-    hal_hex_to_bin( LORAWAN_APP_KEY, app_key, 16 );
+    hal_hex_to_bin( (char*) LORAWAN_DEVICE_EUI, dev_eui, 8 );
+    hal_hex_to_bin( (char*) LORAWAN_JOIN_EUI, join_eui, 8 );
+    hal_hex_to_bin( (char*) LORAWAN_APP_KEY, app_key, 16 );
 
     rc = smtc_modem_set_deveui( stack_id, dev_eui );
     if( rc != SMTC_MODEM_RC_OK )
