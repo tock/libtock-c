@@ -35,7 +35,6 @@ $(SEEED_DIR)/geolocation_middleware/gnss/src/gnss_helpers.c \
 $(SEEED_DIR)/geolocation_middleware/gnss/src/gnss_middleware.c \
 $(SEEED_DIR)/geolocation_middleware/gnss/src/gnss_queue.c \
 $(SEEED_DIR)/geolocation_middleware/gnss/src/lr11xx_driver_extension.c \
-$(SEEED_DIR)/geolocation_middleware/wifi/src/wifi_helpers.c \
 $(SEEED_DIR)/geolocation_middleware/wifi/src/wifi_middleware.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/device_management/dm_downlink.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/device_management/modem_context.c \
