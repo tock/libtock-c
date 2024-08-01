@@ -4,9 +4,6 @@
 #include <libtock-sync/services/alarm.h>
 #include <libtock/peripherals/syscalls/alarm_syscalls.h>
 
-#define RTC_1_MAX_TICKS	0xffffff
-#define RTC_1_PER_TICK	1.007080078125
-
 static hal_lp_timer_irq_t lptim_tmr_irq = { .context = NULL, .callback = NULL };
 
 
@@ -14,7 +11,6 @@ static void timer_tock_upcall(__attribute__ ((unused)) int unused0,
                          __attribute__ ((unused)) int unused1,
                          __attribute__ ((unused)) int unused2,
                          __attribute__ ((unused)) void* ud) {
-    printf("ttu\n");
     if( lptim_tmr_irq.callback != NULL )
     {
         lptim_tmr_irq.callback( lptim_tmr_irq.context );
