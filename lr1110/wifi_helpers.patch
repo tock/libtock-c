@@ -1,0 +1,13 @@
+--- wifi_helpers.c	2024-08-01 15:07:38
++++ wifi_helpers.c	2024-08-01 15:08:24
+@@ -158,8 +158,8 @@
+     max_nb_results = sizeof( wifi_results_mac_addr ) / sizeof( wifi_results_mac_addr[0] );
+     if( nb_results > max_nb_results )
+     {
+-        MW_DBG_TRACE_ERROR( "Wi-Fi scan result size exceeds %u (%u)\n", max_nb_results, nb_results );
+-        return false;
++        // Just use the number we received that can fit in our results array.
++        nb_results = max_nb_results;
+     }
+ 
+     status = lr11xx_wifi_read_basic_complete_results( radio_context, 0, nb_results, wifi_results_mac_addr );
