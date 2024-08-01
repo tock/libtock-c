@@ -19,7 +19,6 @@
 #include "lr1mac_defs.h"
 #include "lr11xx_system.h"
 #include "device_management_defs.h"
-#include "smtc_shield_lr11xx_common_if.h"
 #include "lr1mac_config.h"
 #include "lr11xx_lr_fhss_types.h"
 #include "modem_utilities.h"
