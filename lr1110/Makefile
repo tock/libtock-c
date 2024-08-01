@@ -49,6 +49,7 @@ $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/lr1mac/src/services/smtc_duty_cyc
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/lr1mac/src/services/smtc_lbt.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/lr1mac/src/services/smtc_multicast.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/lr1mac/src/smtc_real/src/smtc_real.c \
+$(SEEED_DIR)/lora_basics_modem/smtc_modem_core/lr1mac/src/smtc_real/src/region_us_915.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/modem_core/smtc_modem_test.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/modem_services/fifo_ctrl.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/modem_services/lorawan_certification.c \
