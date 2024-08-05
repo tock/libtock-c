@@ -7,7 +7,7 @@ extern "C" {
 
 // ## Arguments
 //
-// - `angle`: The angle you want the servo to move.
+// - `angle`: The angle in degrees you want the servo to move.
 //
 // ## Return Value
 //
