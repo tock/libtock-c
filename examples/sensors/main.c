@@ -8,6 +8,7 @@
 #include <libtock-sync/sensors/sound_pressure.h>
 #include <libtock-sync/sensors/temperature.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock-sync/sensors/distance.h>
 #include <libtock/tock.h>
 
 static libtock_alarm_t alarm;
@@ -20,12 +21,15 @@ static bool ninedof_mag    = false;
 static bool ninedof_gyro   = false;
 static bool proximity      = false;
 static bool sound_pressure = false;
+static bool distance       = false;
+
 static void alarm_cb(__attribute__ ((unused)) uint32_t now,
                      __attribute__ ((unused)) uint32_t scheduled,
                      __attribute__ ((unused)) void*    opaque) {
   int lite = 0;
   int temp = 0;
   int humi = 0;
+  int dist = 0;
   int ninedof_accel_x = 0, ninedof_accel_y = 0, ninedof_accel_z = 0;
   int ninedof_magneto_x = 0, ninedof_magneto_y = 0, ninedof_magneto_z = 0;
   int ninedof_gyro_x = 0, ninedof_gyro_y = 0, ninedof_gyro_z = 0;
@@ -41,6 +45,7 @@ static void alarm_cb(__attribute__ ((unused)) uint32_t now,
   if (ninedof_gyro)   libtocksync_ninedof_read_gyroscope(&ninedof_gyro_x, &ninedof_gyro_y, &ninedof_gyro_z);
   if (proximity)      libtocksync_proximity_read(&prox_reading);
   if (sound_pressure) libtocksync_sound_pressure_read(&sound_pressure_reading);
+  if (distance)       libtocksync_distance_read(&dist);
 
   if (light)          printf("Amb. Light: Light Intensity: %d\n", lite);
   if (temperature)    printf("Temperature:                 %d deg C\n", temp/100);
@@ -50,6 +55,7 @@ static void alarm_cb(__attribute__ ((unused)) uint32_t now,
   if (ninedof_gyro)   printf("Gyro:         X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
   if (proximity)      printf("Proximity:                   %u\n", prox_reading);
   if (sound_pressure) printf("Sound Pressure:              %u\n", sound_pressure_reading);
+  if (distance)       printf("Distance:                    %d mm\n", dist);
 
   /* *INDENT-ON* */
 
@@ -68,7 +74,14 @@ int main(void) {
   ninedof        = libtock_ninedof_exists();
   proximity      = libtock_proximity_exists();
   sound_pressure = libtock_sound_pressure_exists();
+  distance       = libtock_distance_exists();
   /* *INDENT-ON* */
+
+  if (distance) {
+    int min_distance = libtocksync_distance_get_minimum_distance();
+    int max_distance = libtocksync_distance_get_maximum_distance();
+    printf("[Sensors]  Distance sensor: Min = %d mm, Max = %d mm\n", min_distance, max_distance);
+  }
 
   if (ninedof) {
     int buffer;
@@ -86,6 +99,7 @@ int main(void) {
   if (ninedof_gyro)   printf("[Sensors]   Sampling Gyroscope.\n");
   if (proximity)      printf("[Sensors]   Sampling Proximity sensor.\n");
   if (sound_pressure) printf("[Sensors]   Sampling Sound Pressure sensor.\n");
+  if (distance)       printf("[Sensors]   Sampling Distance sensor.\n");
   /* *INDENT-ON* */
 
   if (sound_pressure) {
