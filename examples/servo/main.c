@@ -11,15 +11,21 @@ int main(void) {
     return -1;
   }
 
-  uint16_t angle;
+  uint16_t angle = 0;
 
   // Changes the angle of the servomotor from 0 to 180 degrees (waiting 0.1 ms between every change).
   for (int i = 0; i <= 180; i++) {
-    libtock_servo_angle(i);
-    libtocksync_alarm_delay_ms(100);
-    // Verifies if the function successfully returned the current angle.
-    if (libtock_current_servo_angle(&angle) == RETURNCODE_SUCCESS) {
-      printf("the current angle is: %d", angle);
+    if (libtock_servo_angle(i) == RETURNCODE_SUCCESS) {
+      libtocksync_alarm_delay_ms(100);
+      // Verifies if the function successfully returned the current angle.
+      if (libtock_current_servo_angle(&angle) == RETURNCODE_SUCCESS) {
+        printf("The current angle is: %d\n", angle);
+      } else {
+        printf("\nThe servomotor is OFF\n");
+      }
+    } else {
+      printf("\nThe angle could not be changed\n");
+      return -1;
     }
   }
 }
