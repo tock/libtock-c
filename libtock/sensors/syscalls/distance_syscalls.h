@@ -24,10 +24,10 @@ returncode_t libtock_distance_set_upcall(subscribe_upcall callback, void* opaque
 returncode_t libtock_distance_command_read(void);
 
 // Function to get minimum distance
-int libtocksync_distance_get_minimum_distance(void);
+int libtock_distance_get_minimum_distance(void);
 
 // Function to get maximum distance
-int libtocksync_distance_get_maximum_distance(void);
+int libtock_distance_get_maximum_distance(void);
 
 #ifdef __cplusplus
 }

@@ -29,8 +29,8 @@ returncode_t libtocksync_distance_read(int* distance) {
 
   return RETURNCODE_SUCCESS;
 }
- 
-// Function to get minimum distance 
+
+// Function to get minimum distance
 int libtocksync_distance_get_minimum_distance(void) {
   return libtock_distance_get_minimum_distance();
 }

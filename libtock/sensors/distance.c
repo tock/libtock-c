@@ -2,9 +2,9 @@
 
 // Internal upcall for passing to the syscall driver.
 static void distance_upcall(int                          dist,
-                               __attribute__ ((unused)) int unused,
-                               __attribute__ ((unused)) int unused1,
-                               void*                        opaque) {
+                            __attribute__ ((unused)) int unused,
+                            __attribute__ ((unused)) int unused1,
+                            void*                        opaque) {
   libtock_distance_callback cb = (libtock_distance_callback) opaque;
   cb(RETURNCODE_SUCCESS, dist);
 }
