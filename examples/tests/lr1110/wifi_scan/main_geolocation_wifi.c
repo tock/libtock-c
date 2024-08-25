@@ -35,6 +35,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * @endparblock
 
+   // link to README.md in seeed studio's repo where this exmaple is taken from:
+   // https://github.com/Seeed-Studio/Seeed_Wio_WM1110_Dev_Board/blob/master/apps/examples/geolocation_wifi/README.md
+
  */
 
 /*!
