@@ -35,10 +35,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * @endparblock
 
-// link to README.md in seeed studio's repo where this exmaple is taken from:
-// https://github.com/Seeed-Studio/Seeed_Wio_WM1110_Dev_Board/blob/master/apps/examples/geolocation_wifi/README.md
-
- */
+/*
+ * link to README.md of this example in seeed studio's repo:
+ * https://github.com/Seeed-Studio/Seeed_Wio_WM1110_Dev_Board/blob/master/apps/examples/geolocation_wifi/README.md
+ */ 
 
 /*!
  * @addtogroup apps_geolocation
@@ -89,9 +89,10 @@
 #define LORAWAN_CLASS       SMTC_MODEM_CLASS_A
 
 // wm1110dev parameters
-#define LORAWAN_DEVICE_EUI  "70B3D57ED00650D9"
-#define LORAWAN_JOIN_EUI    "901AB1F40E1BCC81"
-#define LORAWAN_APP_KEY     "3356A7047ECF1F2F78C72AE9B1635BC1"
+/* These need to be updated to use values from your LoRaWAN server */
+#define LORAWAN_DEVICE_EUI  "0x0000000000000000"
+#define LORAWAN_JOIN_EUI    "0x0000000000000000"
+#define LORAWAN_APP_KEY     "0x00000000000000000000000000000000"
 
 
 
