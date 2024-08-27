@@ -48,15 +48,15 @@ static uint32_t ticks_to_ms(uint32_t ticks) {
   uint32_t frequency;
   libtock_alarm_command_get_frequency(&frequency);
 
-  uint32_t seconds = (ticks / frequency);
-  uint32_t milliseconds_per_second = 1000;
+  uint64_t seconds = (ticks / frequency);
+  uint64_t milliseconds_per_second = 1000;
 
   // Calculate the conversion of full seconds to ticks.
-  uint32_t milliseconds = seconds * milliseconds_per_second;
+  uint64_t milliseconds = seconds * milliseconds_per_second;
 
   // To get conversion accuracy within 1 millisecond, the conversion
   // must also convert partial seconds.
-  uint32_t leftover_ticks = ticks % frequency;
+  uint64_t leftover_ticks = ticks % frequency;
 
   // This calculation is mathematically equivalent to doing:
   //
