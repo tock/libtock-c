@@ -49,6 +49,7 @@ in
       pkgsCross.riscv32-embedded.buildPackages.gcc
       uncrustify
       unzip
+      openocd
     ] ++ (lib.optionals withUnfreePkgs [
       segger-jlink
       tockloader.nrf-command-line-tools
