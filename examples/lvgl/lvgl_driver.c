@@ -16,7 +16,6 @@ static lv_indev_t* indev;
 static int touch_status = LIBTOCK_TOUCH_STATUS_UNSTARTED;
 static uint16_t touch_x = 0, touch_y = 0;
 
-/* screen driver */
 static void screen_lvgl_driver(lv_display_t* disp, const lv_area_t* area,
                                uint8_t* buffer) {
   void* ud = lv_display_get_user_data(disp);
@@ -29,7 +28,7 @@ static void screen_lvgl_driver(lv_display_t* disp, const lv_area_t* area,
   libtocksync_screen_set_frame(x, y, w, h);
   libtocksync_screen_write(buffer, buffer_size, (w * h) * PIXEL_SIZE);
 
-  lv_display_flush_ready(disp);           /* Indicate you are ready with the flushing*/
+  lv_display_flush_ready(display_device);           /* Indicate you are ready with the flushing*/
 }
 
 static void touch_event(libtock_touch_status_t status, uint16_t x, uint16_t y) {
@@ -62,8 +61,9 @@ int lvgl_driver_init(int buffer_lines) {
   if (error != RETURNCODE_SUCCESS) return error;
 
   uint32_t buffer_size = width * buffer_lines * PIXEL_SIZE;
-  uint8_t* buffer      = NULL;
-  error = libtocksync_screen_buffer_init(buffer_size, &buffer);
+  uint8_t* buffer1     = NULL;
+  uint8_t* buffer2     = NULL;
+  error = libtocksync_screen_buffer_init(buffer_size, &buffer1);
   if (error != RETURNCODE_SUCCESS) return error;
 
   /* initialize littlevgl */
@@ -74,7 +74,7 @@ int lvgl_driver_init(int buffer_lines) {
   lv_display_set_flush_cb(display_device, screen_lvgl_driver);
   lv_display_set_antialiasing(display_device, false);
 
-  lv_display_set_buffers(display_device, buffer, NULL, buffer_size, LV_DISPLAY_RENDER_MODE_PARTIAL);
+  lv_display_set_buffers(display_device, buffer1, buffer2, buffer_size, LV_DISPLAY_RENDER_MODE_PARTIAL);
   lv_display_set_user_data(display_device, (void*)buffer_size);
 
   lv_tick_set_cb(tick_cb);
