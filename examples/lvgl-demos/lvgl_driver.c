@@ -59,7 +59,7 @@ int lvgl_driver_init(int buffer_lines) {
   int error = libtock_screen_get_resolution(&width, &height);
   if (error != RETURNCODE_SUCCESS) return error;
 
-  uint32_t buffer_size = width * buffer_lines * PIXEL_SIZE;
+  uint32_t buffer_size = width * height * PIXEL_SIZE / 4;
   uint8_t* buffer1     = NULL;
   uint8_t* buffer2     = NULL;
   error = libtock_screen_buffer_init(buffer_size, &buffer1);
