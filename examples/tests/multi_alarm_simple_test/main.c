@@ -3,9 +3,7 @@
 
 #include <libtock-sync/services/alarm.h>
 
-static void event_cb(__attribute__ ((unused)) uint32_t now,
-                     __attribute__ ((unused)) uint32_t expiration,
-                     void*                             ud) {
+static void event_cb(uint32_t now, uint32_t expiration, void* ud) {
   int i = (int)ud;
   printf("%d %ld %ld\n", i, now, expiration);
 }
