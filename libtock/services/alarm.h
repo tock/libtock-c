@@ -31,6 +31,10 @@ extern "C" {
 // - `arg3` (`opaque`): An arbitrary user pointer passed back to the callback.
 typedef void (*libtock_alarm_callback)(uint32_t, uint32_t, void*);
 
+/** \brief Utility function for converting hardware-specific tics to milliseconds
+ */
+uint32_t libtock_alarm_ticks_to_ms(uint32_t);
+
 /** \brief Opaque handle to a single-shot alarm.
  *
  * An opaque handle to an alarm created by `alarm_at` or `alarm_in`. Memory

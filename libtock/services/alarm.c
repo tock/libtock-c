@@ -5,11 +5,6 @@
 
 #define MAX_TICKS UINT32_MAX
 
-// Returns 0 if a <= b < c, 1 otherwise
-static int within_range(uint32_t a, uint32_t b, uint32_t c) {
-  return (b - a) < (b - c);
-}
-
 /** \brief Convert milliseconds to clock ticks
  *
  * WARNING: This function will assert if the output
@@ -40,7 +35,7 @@ static uint32_t ms_to_ticks(uint32_t ms) {
   return ticks;
 }
 
-static uint32_t ticks_to_ms(uint32_t ticks) {
+uint32_t libtock_alarm_ticks_to_ms(uint32_t ticks) {
   // `ticks_to_ms`'s conversion will be accurate to within the range
   // 0 to 1 milliseconds less than the exact conversion
   // (true millisecond conversion - [0,1) milliseconds).
@@ -75,6 +70,13 @@ static uint32_t ticks_to_ms(uint32_t ticks) {
 static libtock_alarm_ticks_t* root = NULL;
 
 static void root_insert(libtock_alarm_ticks_t* alarm) {
+  // We want to insert the new alarm just before an existing alarm
+  // that should expire next after it, as `alarm_upcall` breaks as
+  // soon as it finds an alarm that should not fire yet. To do so, we
+  // need to account for an empty list, a non-empty list where the new
+  // alarm should be last, as well as computing relative expirations
+  // when alarm expirations may overflow the clock 0 or 1 times.
+
   if (root == NULL) {
     root       = alarm;
     root->next = NULL;
@@ -82,12 +84,30 @@ static void root_insert(libtock_alarm_ticks_t* alarm) {
     return;
   }
 
+  // Compute the tick value at which the new alarm will expire.
+  uint32_t new_expiration = alarm->reference + alarm->dt;
+  // Determine whether the clock overflows before the new alarm
+  // expires. Because ticks are 32-bit, a clock can overflow at most
+  // once before a 32-bit alarm fires.
+  bool new_overflows = alarm->reference > UINT32_MAX - alarm->dt;
+
   libtock_alarm_ticks_t** cur = &root;
   libtock_alarm_ticks_t* prev = NULL;
   while (*cur != NULL) {
+    // Compute the tick value at which this alarm will expire.
     uint32_t cur_expiration = (*cur)->reference + (*cur)->dt;
-    uint32_t new_expiration = alarm->reference + alarm->dt;
-    if (!within_range(alarm->reference, cur_expiration, new_expiration)) {
+    // Determine whether the clock overflows before this alarm
+    // expires.
+    bool cur_overflows = (*cur)->reference > UINT32_MAX - (*cur)->dt;
+
+    // This alarm happens after the new alarm if:
+    // - neither expirations overflow and this expiration value is larger than the new expiration
+    // - both overflow and this expiration value is larger than the new expiration
+    // - or, this alarm overflows but the new one doesn't
+    //
+    // If the new alarm overflows and this alarm doesn't, this alarm
+    // happens _before_ the new alarm.
+    if (!(!cur_overflows && new_overflows) && ((cur_overflows && !new_overflows) || cur_expiration > new_expiration)) {
       // insert before
       libtock_alarm_ticks_t* tmp = *cur;
       *cur        = alarm;
@@ -231,7 +251,7 @@ int libtock_alarm_in_ms(uint32_t ms, libtock_alarm_callback cb, void* opaque, li
   // schedule multiple alarms to reach the full length. We calculate the number of full overflows
   // and the remainder ticks to reach the target length of time. The overflows use the
   // `overflow_callback` for each intermediate overflow.
-  const uint32_t max_ticks_in_ms = ticks_to_ms(MAX_TICKS);
+  const uint32_t max_ticks_in_ms = libtock_alarm_ticks_to_ms(MAX_TICKS);
   if (ms > max_ticks_in_ms) {
     // overflows_left is the number of intermediate alarms that need to be scheduled to reach the target
     // dt_ms. After the alarm in this block is scheduled, we have this many overflows left (hence the reason
