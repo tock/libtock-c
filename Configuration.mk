@@ -66,6 +66,8 @@ OPENTITAN_TOCK_TARGETS := rv32imc|rv32imc.0x20030080.0x10005000|0x20030080|0x100
 ARTY_E21_TOCK_TARGETS := rv32imac|rv32imac.0x40430080.0x80004000|0x40430080|0x80004000\
                          rv32imac|rv32imac.0x40440080.0x80007000|0x40440080|0x80007000
 
+VEER_EL2_TOCK_TARGETS := rv32imc|rv32imc.0x20300080.0x20602000|0x20300080|0x20602000
+
 # Include the RISC-V targets.
 #  rv32imac|rv32imac.0x20040080.0x80002800 # RISC-V for HiFive1b
 #  rv32imac|rv32imac.0x403B0080.0x3FCC0000 # RISC-V for ESP32-C3
@@ -80,7 +82,8 @@ TOCK_TARGETS ?= cortex-m0\
                 rv32imc|rv32imc.0x41000080.0x42008000|0x41000080|0x42008000\
                 rv32imc|rv32imc.0x00080080.0x40008000|0x00080080|0x40008000\
                 $(OPENTITAN_TOCK_TARGETS) \
-                $(ARTY_E21_TOCK_TARGETS)
+                $(ARTY_E21_TOCK_TARGETS) \
+                $(VEER_EL2_TOCK_TARGETS)
 
 # Generate `TOCK_ARCH_FAMILIES`, the set of architecture families which will be
 # used to determine toolchains to use in the build process.
