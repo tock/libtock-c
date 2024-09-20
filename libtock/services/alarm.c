@@ -100,14 +100,15 @@ static void root_insert(libtock_alarm_ticks_t* alarm) {
     // expires.
     bool cur_overflows = (*cur)->reference > (UINT32_MAX - (*cur)->dt);
 
-    // This alarm happens after the new alarm if:
-    // - neither expirations overflow and this expiration value is larger than the new expiration
-    // - both overflow and this expiration value is larger than the new expiration
-    // - or, this alarm overflows but the new one doesn't
+    // This alarm (`cur`) happens after the new alarm (`alarm`) if:
+    // - both overflow or neither overflow, and cur expiration is
+    //   larger than the new expiration
+    // - or, only cur overflows
     //
     // If the new alarm overflows and this alarm doesn't, this alarm
     // happens _before_ the new alarm.
-    if (!(!cur_overflows && new_overflows) && ((cur_overflows && !new_overflows) || cur_expiration > new_expiration)) {
+    if ((cur_overflows == new_overflows && cur_expiration > new_expiration) ||
+        cur_overflows) {
       // insert before
       libtock_alarm_ticks_t* tmp = *cur;
       *cur        = alarm;
