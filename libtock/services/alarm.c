@@ -89,7 +89,7 @@ static void root_insert(libtock_alarm_ticks_t* alarm) {
   // Determine whether the clock overflows before the new alarm
   // expires. Because ticks are 32-bit, a clock can overflow at most
   // once before a 32-bit alarm fires.
-  bool new_overflows = alarm->reference > UINT32_MAX - alarm->dt;
+  bool new_overflows = alarm->reference > (UINT32_MAX - alarm->dt);
 
   libtock_alarm_ticks_t** cur = &root;
   libtock_alarm_ticks_t* prev = NULL;
@@ -98,7 +98,7 @@ static void root_insert(libtock_alarm_ticks_t* alarm) {
     uint32_t cur_expiration = (*cur)->reference + (*cur)->dt;
     // Determine whether the clock overflows before this alarm
     // expires.
-    bool cur_overflows = (*cur)->reference > UINT32_MAX - (*cur)->dt;
+    bool cur_overflows = (*cur)->reference > (UINT32_MAX - (*cur)->dt);
 
     // This alarm happens after the new alarm if:
     // - neither expirations overflow and this expiration value is larger than the new expiration
