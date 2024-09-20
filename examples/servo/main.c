@@ -29,7 +29,7 @@ int main(void) {
       if (libtock_current_servo_angle(index, &angle) == RETURNCODE_SUCCESS) {
         printf("\nThe current angle is: %d", angle);
       } else {
-        printf("\n This servo cannot return it's angle.\n");
+        printf("\n This servo cannot return its angle.\n");
       }
     } else if (result == RETURNCODE_EINVAL){
       printf("\nThe angle you provided exceeds 360 degrees\n");
