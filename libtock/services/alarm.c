@@ -107,7 +107,7 @@ static void root_insert(libtock_alarm_ticks_t* alarm) {
     //
     // If the new alarm overflows and this alarm doesn't, this alarm
     // happens _before_ the new alarm.
-    if ((cur_overflows == new_overflows && cur_expiration > new_expiration) ||
+    if (((cur_overflows == new_overflows) && (cur_expiration > new_expiration)) ||
         cur_overflows) {
       // insert before
       libtock_alarm_ticks_t* tmp = *cur;
