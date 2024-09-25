@@ -11,8 +11,12 @@ int main(void) {
     return -1;
   }
   returncode_t result = RETURNCODE_EOFF;
+  uint16_t servo_number = 0;
+  libtock_servo_number(&servo_number);
+  printf("The number of available servomotors is: %d", servo_number);
   uint16_t angle = 0;
   uint16_t index = 0; // the first index available.
+
 
   if (libtock_current_servo_angle(index, &angle) == RETURNCODE_ENODEVICE) {
     printf("\n The index number is bigger than the available servomotors\n");
