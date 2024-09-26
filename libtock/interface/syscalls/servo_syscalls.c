@@ -5,13 +5,13 @@ bool libtock_servo_exists(void) {
   return driver_exists(DRIVER_NUM_SERVO);
 }
 
-returncode_t libtock_servo_number(uint16_t* servo_number){
+returncode_t libtock_servo_number(uint16_t* servo_count) {
   uint32_t value     = 0;
   syscall_return_t r = command(DRIVER_NUM_SERVO, 1, 0, 0);
   // Converts the returned value stored in `r`
   // and assigns it to `ret`.
   returncode_t ret = tock_command_return_u32_to_returncode(r, &value);
-  *servo_number = (uint16_t)value;
+  *servo_count = (uint16_t)value;
   return ret;
 
 }

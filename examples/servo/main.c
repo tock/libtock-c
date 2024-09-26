@@ -10,13 +10,12 @@ int main(void) {
     printf("There is no available servo\n");
     return -1;
   }
-  returncode_t result = RETURNCODE_EOFF;
-  uint16_t servo_number = 0;
-  libtock_servo_number(&servo_number);
-  printf("The number of available servomotors is: %d", servo_number);
+  returncode_t result  = RETURNCODE_EOFF;
+  uint16_t servo_count = 0;
+  libtock_servo_number(&servo_count);
+  printf("The number of available servomotors is: %d", servo_count);
   uint16_t angle = 0;
   uint16_t index = 0; // the first index available.
-
 
   if (libtock_current_servo_angle(index, &angle) == RETURNCODE_ENODEVICE) {
     printf("\n The index number is bigger than the available servomotors\n");
@@ -35,10 +34,10 @@ int main(void) {
       } else {
         printf("\n This servo cannot return its angle.\n");
       }
-    } else if (result == RETURNCODE_EINVAL){
+    } else if (result == RETURNCODE_EINVAL) {
       printf("\nThe angle you provided exceeds 360 degrees\n");
       return -1;
-    } else if (result == RETURNCODE_FAIL){
+    } else if (result == RETURNCODE_FAIL) {
       printf("\nThe angle could not be changed. The provided angle exceeds the servo's limit\n");
       return -1;
     }
