@@ -7,8 +7,6 @@ TOCK_USERLAND_BASE_DIR = ../../..
 CXX_SRCS := $(wildcard *.cc)
 
 # Use the libtock-c Make system
-include $(TOCK_USERLAND_BASE_DIR)/libradio/Makefile
-
-include $(TOCK_USERLAND_BASE_DIR)/libradio/Makefile.app
+EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/RadioLib
 
 include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk

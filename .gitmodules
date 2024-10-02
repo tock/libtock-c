@@ -7,6 +7,6 @@
 [submodule "libopenthread/openthread"]
 	path = libopenthread/openthread
 	url = https://github.com/openthread/openthread.git
-[submodule "libradio/RadioLib"]
-	path = libradio/RadioLib
+[submodule "RadioLib/RadioLib"]
+	path = RadioLib/RadioLib
 	url = https://github.com/jgromes/RadioLib.git
