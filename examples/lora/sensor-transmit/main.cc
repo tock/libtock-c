@@ -13,8 +13,8 @@
 #include "libtockHal.h"
 
 // Include some libtock-c helpers
-#include <sensors/humidity.h>
-#include <sensors/temperature.h>
+#include <libtock-sync/sensors/humidity.h>
+#include <libtock-sync/sensors/temperature.h>
 
 #define BUFFER_LEN 64
 
@@ -47,8 +47,8 @@ int main(void) {
   }
   printf("success!\r\n");
 
-  int temp      = 0;
-  unsigned humi = 0;
+  int temp = 0;
+  int humi = 0;
 
   // loop forever
   for ( ;;) {
@@ -56,8 +56,8 @@ int main(void) {
     yield_no_wait();
 
     // Read some sensor data from the board
-    temperature_read_sync(&temp);
-    humidity_read_sync(&humi);
+    libtocksync_temperature_read(&temp);
+    libtocksync_humidity_read(&humi);
 
     snprintf(buffer, BUFFER_LEN, "Temp: %d, Hum: %u", temp, humi);
 
