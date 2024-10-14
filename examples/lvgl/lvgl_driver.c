@@ -25,7 +25,7 @@ static void screen_lvgl_driver(lv_display_t* disp, const lv_area_t* area,
   int w = area->x2 - area->x1 + 1;
   int h = area->y2 - area->y1 + 1;
   libtocksync_screen_set_frame(x, y, w, h);
-  libtocksync_screen_write(buffer, buffer_size, (w * h) * sizeof(lv_color_t));
+  libtocksync_screen_write(buffer, buffer_size, (w * h) * 2);
 
   lv_display_flush_ready(disp);           /* Indicate you are ready with the flushing*/
 }
@@ -93,6 +93,7 @@ int lvgl_driver_init(int buffer_lines) {
   lv_init();
 
   display_device    = lv_display_create(width, height);
+  lv_display_set_color_format(display_device, LV_COLOR_FORMAT_RGB565);
   lv_display_set_flush_cb(display_device, screen_lvgl_driver);
   lv_display_set_antialiasing(display_device, false);
 

@@ -30,7 +30,7 @@ void rtc_done(returncode_t success, libtock_rtc_date_t new_date) {
 }
 
 void rtc_callback(uint32_t now, uint32_t scheduled, void* ud) {
-  //libtock_rtc_get_date(rtc_done);
+  libtock_rtc_get_date(rtc_done);
 }
 
 void update_callback(uint32_t now, uint32_t scheduled, void* ud) {
@@ -43,6 +43,8 @@ void update_callback(uint32_t now, uint32_t scheduled, void* ud) {
     sprintf(batt_buffer, "Err");
   }
   lv_label_set_text(batt_lbl, batt_buffer);
+
+  printf("%u %u\n", now, reference);
 
   uint32_t diff_seconds = libtock_alarm_ticks_to_ms(now - reference) / 1000;
 
