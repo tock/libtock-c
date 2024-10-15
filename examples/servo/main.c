@@ -36,8 +36,7 @@ int main(void) {
       printf("\nThe angle you provided exceeds 360 degrees\n");
       return -1;
     } else if (result == RETURNCODE_FAIL) {
-      printf("\nThe angle could not be changed. The provided angle exceeds the servo's limit\n");
-      return -1;
+      printf("\nAngle %d exceeds the servo's limit angle.\n", i);
     }
   }
   if (libtock_servo_read_angle(index, &angle) != RETURNCODE_SUCCESS) {
