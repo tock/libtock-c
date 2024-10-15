@@ -17,7 +17,7 @@ int main(void) {
   uint16_t angle = 0;
   uint16_t index = 0; // the first index available.
 
-  if (libtock_read_servo_angle(index, &angle) == RETURNCODE_ENODEVICE) {
+  if (libtock_servo_read_angle(index, &angle) == RETURNCODE_ENODEVICE) {
     printf("\n The index number is bigger than the available servomotors\n");
     return -1;
   }
@@ -25,14 +25,12 @@ int main(void) {
   // Changes the angle of the servomotor from 0 to 180 degrees (waiting 0.1 ms between every change).
   for (int i = 0; i <= 180; i++) {
     // `result` stores the returned code received from the driver.
-    result = libtock_set_servo_angle(index, i);
+    result = libtock_servo_set_angle(index, i);
     if (result == RETURNCODE_SUCCESS) {
       libtocksync_alarm_delay_ms(100);
       // Verifies if the function successfully returned the current angle.
-      if (libtock_read_servo_angle(index, &angle) == RETURNCODE_SUCCESS) {
+      if (libtock_servo_read_angle(index, &angle) == RETURNCODE_SUCCESS) {
         printf("\nThe current angle is: %d", angle);
-      } else {
-        printf("\n This servo cannot return its angle.\n");
       }
     } else if (result == RETURNCODE_EINVAL) {
       printf("\nThe angle you provided exceeds 360 degrees\n");
@@ -41,5 +39,8 @@ int main(void) {
       printf("\nThe angle could not be changed. The provided angle exceeds the servo's limit\n");
       return -1;
     }
+  }
+  if (libtock_servo_read_angle(index, &angle) != RETURNCODE_SUCCESS) {
+    printf("\n This servo cannot return its angle.\n");
   }
 }
