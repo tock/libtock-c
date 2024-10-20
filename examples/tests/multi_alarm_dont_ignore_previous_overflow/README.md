@@ -24,7 +24,14 @@ alarm fires.
 
 # Example Output
 
-Correct:
+Output includes three columns on each line:
+
+1. the expected order of the alarm firing
+2. the time the alarm is delivered to userspace
+3. the time the alarm was set to expire
+
+Correct (numbers for the nRT52840DK, running with a 32768Hz timer at
+24-bits):
 
 (after an entire clock overflow, ~8 minutes)
 
