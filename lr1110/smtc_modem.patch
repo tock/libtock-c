@@ -1,0 +1,22 @@
+--- smtc_modem.c	2024-08-01 15:19:56
++++ smtc_modem.c	2024-08-01 13:17:59
+@@ -2220,6 +2220,18 @@
+                                                                                               : RP_TASK_STATE_ASAP,
+                               .schedule_task_low_priority = false,
+                               .start_time_ms              = rp_task->start_time_ms };
++    
++    // HACK!
++    //
++    // For some reason this extra state is generated. We can't track this down,
++    // but if we set and pass the RP_TASK_TYPE_WIFI_RSSI task type if the
++    // current task id is SMTC_MODEM_RP_TASK_ID2 (a WIFI task), then the stack
++    // operates as expected.
++    if (rp_task->id == SMTC_MODEM_RP_TASK_ID2) {
++        rp_task_tmp.type = RP_TASK_TYPE_WIFI_RSSI;
++    } else {
++        rp_task_tmp.type = RP_TASK_TYPE_NONE;
++    }
+ 
+     rp_hook_status_t status = rp_task_enqueue( &modem_radio_planner, &rp_task_tmp, NULL, 0, &fake_radio_params );
+ 
+\ No newline at end of file
