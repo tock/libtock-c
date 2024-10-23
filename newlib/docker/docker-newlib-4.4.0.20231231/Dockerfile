@@ -21,7 +21,7 @@ RUN apt install -y git build-essential wget rsync texinfo zip
 
 # Clone the libtock-c source so we can use the build scripts
 RUN git clone https://github.com/tock/libtock-c
-RUN cd libtock-c && git fetch && git checkout 35f27e15df6a7672fae8cc4eb72350dcc42ef1bd
+RUN cd libtock-c && git fetch && git checkout 26f2f52841c726a2b38d51f3de93a64f753e1a36
 
 # Actually build the toolchain
 RUN cd libtock-c/newlib && make NEWLIB_VERSION=4.4.0.20231231
