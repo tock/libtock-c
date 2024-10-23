@@ -19,7 +19,7 @@ RUN apt install -y git build-essential wget rsync zip texinfo
 RUN apt install -y libmpc-dev file
 
 # Clone the libtock-c source so we can use the build scripts
-RUN git clone https://github.com/alistair23/libtock-c
+RUN git clone https://github.com/tock/libtock-c
 RUN cd libtock-c && git fetch && git checkout 35f27e15df6a7672fae8cc4eb72350dcc42ef1bd
 
 # Actually build the toolchain
