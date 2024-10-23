@@ -50,7 +50,7 @@ int main(void) {
     // Ensure there are no pending callbacks
     yield_no_wait();
 
-    state = radio->receive((uint8_t*)buffer, BUFFER_LEN);
+    state = radio->receive(reinterpret_cast<uint8_t*> (buffer), BUFFER_LEN);
 
     if (state == RADIOLIB_ERR_NONE) {
       // the packet was successfully transmitted

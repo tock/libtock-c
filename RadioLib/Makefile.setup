@@ -1,0 +1,14 @@
+.PHONY: clean
+
+TOCK_USERLAND_BASE_DIR ?= ../
+
+
+all: $(TOCK_USERLAND_BASE_DIR)/RadioLib/RadioLib/README.md
+
+clean::
+	rm -rf build
+
+# confirm RadioLib git submodule is checked out. 
+$(TOCK_USERLAND_BASE_DIR)/RadioLib/RadioLib/README.md:
+	git submodule update --init -- $(TOCK_USERLAND_BASE_DIR)/RadioLib/RadioLib
+
