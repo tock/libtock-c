@@ -23,3 +23,14 @@ RadioLib.
 Note that the Makefiles will do this automatically when
 you run `make` in a subdirectory, but if you want to do
 it manually you can run the `build-RadioLib.sh` script.
+
+### Building
+
+To bulid any example just enter the directory and type
+
+```shell
+make
+```
+
+This will build RadioLib and then the example application for
+both ARM and RISC-V architectures.
