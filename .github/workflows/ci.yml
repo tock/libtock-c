@@ -51,3 +51,5 @@ jobs:
         run: pushd examples; ./build_all.sh || exit; popd
       - name: ci-debug-build
         run: pushd examples/blink; make debug RAM_START=0x20004000 FLASH_INIT=0x30051 || exit; popd
+      - name: ci-build-picolib
+        run: pushd examples/tests/hello_loop; make clean; make PICOLIB=1 || exit; popd
