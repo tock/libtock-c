@@ -2,6 +2,8 @@
 
 NUM_JOBS=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || 4)
 
+export TOCK_BUILDALL=1
+
 set -e
 set -u
 set -o pipefail
