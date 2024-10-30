@@ -90,7 +90,7 @@ int main(void) {
 
     state = node.sendReceive(Payload.getBuffer(), Payload.getSize());
 
-    if (state == RADIOLIB_ERR_NONE) {
+    if (state > 0) {
       // the packet was successfully transmitted
       printf("success!\r\n");
     } else {
