@@ -124,7 +124,7 @@ uint32_t otPlatAlarmMilliGetNow(void) {
 	// reset the alarm.
 
 	struct timeval tv;
-	libtock_alarm_gettimeasticks(&tv, NULL);
+	libtock_alarm_gettimeasticks(&tv);
 
 	uint32_t nowSeconds    = tv.tv_sec;
 	uint32_t nowMicro      = tv.tv_usec;
