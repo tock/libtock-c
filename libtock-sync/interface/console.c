@@ -22,10 +22,10 @@ returncode_t libtocksync_console_write(const uint8_t* buffer, uint32_t length, i
   if (err != RETURNCODE_SUCCESS) return err;
 
   // Wait for the callback.
-  yield_for(&result.fired);
-  if (result.result != RETURNCODE_SUCCESS) return result.result;
+  yield_waitfor_return_t yval = yield_wait_for(DRIVER_NUM_CONSOLE, 1);
+  if (yval.data0 != RETURNCODE_SUCCESS) return yval.data0;
 
-  *written = result.length;
+  *written = yval.data1;
   return RETURNCODE_SUCCESS;
 }
 
