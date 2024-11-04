@@ -24,3 +24,12 @@ endif
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/RadioLib
 
 include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
+
+# Protect from the (unlikely) case where the app happens to have been
+# built from an unrelated `build all` event, but now the user is trying
+# to flash the app with an invalid configuration.
+flash: radioConfig.h
+
+program: radioConfig.h
+
+install: radioConfig.h
