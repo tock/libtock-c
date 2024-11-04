@@ -2,6 +2,27 @@
 
 NUM_JOBS=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || 4)
 
+# Sentinel flag to indicate to apps that a `build all` is running.
+#
+# Generally, apps should not be sensitive to this flag. Build all is
+# usually only invoked by a user when they're looking for local, CI-like
+# behavior. However, a local repo checkout is not quite the same as a
+# pristine CI environment, and certain test apps may need slightly
+# different behavior for a local "build all" versus CI.
+#
+# For example: Some apps, e.g. LoRa-based ones, require radio
+# configuration that end users *must* set themselves [e.g. to select
+# operating region]. For users of these apps, we *do not* want them to
+# build successfully 'out of the box' without explicit user
+# intervention, but we do still want them to be compile-tested in CI. An
+# app may ship with a `radioConfig_example.h` but include (and
+# `.gitignore`) `radioConfig.h`.  CI can unconditionally swap in the
+# `_example` version, but a local checkout should use a real config file
+# it is available. At the same time, apps which are not used in a local
+# checkout should not throw compile errors for a local "build all", and
+# should thus swap in the `_example` if a real config is not present. An
+# app build which is sensitive to `TOCK_BUILDALL` can capture this
+# subtlety.
 export TOCK_BUILDALL=1
 
 set -e
