@@ -99,15 +99,23 @@ void libtock_alarm_cancel(libtock_alarm_ticks_t* alarm);
 // Use this to implement _gettimeofday yourself as libtock-c doesn't provide
 // an implementation.
 //
-// See https://github.com/tock/libtock-c/pull/355#issuecomment-1841351091 for
-// more details
+// Note, from `man gettimeofday`:
+//    The use of the timezone structure is obsolete;
+//    the tz argument should normally be specified as NULL.
+//
+// libtock-c makes no pretense of supporting timezone. As such, it expects
+// that `tv` is not NULL and does not accept a `tz` parameter. A minimal
+// implementation then might look like the following:
 //
 // ```c
-// int _gettimeofday(struct timeval *tv, void *tzvp) {
-//   return libtock_alarm_gettimeasticks(tv, tzvp);
+// int _gettimeofday(struct timeval *tv, __attribute__ ((unused)) void *tz) {
+//   if (tv == NULL) {
+//     return EINVAL;
+//   }
+//   return libtock_alarm_gettimeasticks(tv);
 // }
 // ```
-int libtock_alarm_gettimeasticks(struct timeval* tv, void* tzvp);
+int libtock_alarm_gettimeasticks(struct timeval* tv) __attribute__((nonnull));
 
 /** \brief Create a new alarm to fire in `ms` milliseconds.
  *

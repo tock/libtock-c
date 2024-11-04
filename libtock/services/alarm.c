@@ -421,7 +421,7 @@ void libtock_alarm_ms_cancel(libtock_alarm_t* alarm) {
   libtock_alarm_cancel(&alarm->alarm);
 }
 
-int libtock_alarm_gettimeasticks(struct timeval* tv, __attribute__ ((unused)) void* tzvp) {
+int libtock_alarm_gettimeasticks(struct timeval* tv) {
   uint32_t frequency, now, seconds, remainder;
   const uint32_t microsecond_scaler = 1000000;
 
