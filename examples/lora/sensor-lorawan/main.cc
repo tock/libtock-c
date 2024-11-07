@@ -35,7 +35,7 @@ int main(void) {
   printf("[SX1261] Initialising Radio ... \r\n");
 
   // create a new instance of the HAL class
-  TockHal* hal = new TockHal();
+  TockRadioLibHal* hal = new TockRadioLibHal();
   int state;
 
   // now we can create the radio module
@@ -44,7 +44,8 @@ int main(void) {
   // DIO1 pin:  2
   // NRST pin:  4
   // BUSY pin:  1
-  SX1262 tock_module = new Module(hal, RADIO_NSS, RADIO_DIO_1, RADIO_RESET, RADIO_BUSY);
+  SX1262 tock_module = new Module(hal, RADIOLIB_RADIO_NSS, RADIOLIB_RADIO_DIO_1, RADIOLIB_RADIO_RESET,
+                                  RADIOLIB_RADIO_BUSY);
   LoRaWANNode node(&tock_module, Region, subBand);
 
   // Setup the radio
@@ -69,8 +70,8 @@ int main(void) {
 
   printf("success!\r\n");
 
-  hal->detachInterrupt(RADIO_DIO_1);
-  hal->pinMode(RADIO_DIO_1, PIN_INPUT);
+  hal->detachInterrupt(RADIOLIB_RADIO_DIO_1);
+  hal->pinMode(RADIOLIB_RADIO_DIO_1, TOCK_RADIOLIB_PIN_INPUT);
 
   int temp = 0;
   int humi = 0;
