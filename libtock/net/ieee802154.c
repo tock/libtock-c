@@ -351,7 +351,7 @@ returncode_t libtock_ieee802154_send(uint32_t                              addr,
   }
 
   // Allow CFG buffer to the kernel
-  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void*) BUF_CFG, 27);
+  returncode_t ret = libtock_ieee802154_set_readwrite_allow_cfg((void*) BUF_CFG, 11);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Allow payload buffer to the kernel
