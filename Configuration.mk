@@ -256,8 +256,10 @@ else ifeq ($(CC_rv32_version_major),12)
   NEWLIB_VERSION_rv32 := 4.3.0.20230120
 else ifeq ($(CC_rv32_version_major),13)
   NEWLIB_VERSION_rv32 := 4.3.0.20230120
+else ifeq ($(CC_rv32_version_major),14)
+  NEWLIB_VERSION_rv32 := 4.4.0.20231231
 else
-  NEWLIB_VERSION_rv32 := 4.3.0.20230120
+  NEWLIB_VERSION_rv32 := 4.4.0.20231231
 endif
 NEWLIB_VERSION_rv32i    := $(NEWLIB_VERSION_rv32)
 NEWLIB_VERSION_rv32imc  := $(NEWLIB_VERSION_rv32)
@@ -273,8 +275,10 @@ else ifeq ($(CC_rv32_version_major),12)
   LIBCPP_VERSION_rv32 := 12.3.0
 else ifeq ($(CC_rv32_version_major),13)
   LIBCPP_VERSION_rv32 := 13.2.0
+else ifeq ($(CC_rv32_version_major),14)
+  LIBCPP_VERSION_rv32 := 14.1.0
 else
-  LIBCPP_VERSION_rv32 := 13.2.0
+  LIBCPP_VERSION_rv32 := 14.1.0
 endif
 LIBCPP_VERSION_rv32i    := $(LIBCPP_VERSION_rv32)
 LIBCPP_VERSION_rv32imc  := $(LIBCPP_VERSION_rv32)
@@ -396,8 +400,10 @@ else ifeq ($(CC_cortex-m_version_major),12)
   NEWLIB_VERSION_cortex-m := 4.3.0.20230120
 else ifeq ($(CC_cortex-m_version_major),13)
   NEWLIB_VERSION_cortex-m := 4.3.0.20230120
+else ifeq ($(CC_cortex-m_version_major),14)
+  NEWLIB_VERSION_cortex-m := 4.4.0.20231231
 else
-  NEWLIB_VERSION_cortex-m := 4.3.0.20230120
+  NEWLIB_VERSION_cortex-m := 4.4.0.20231231
 endif
 NEWLIB_VERSION_cortex-m0 := $(NEWLIB_VERSION_cortex-m)
 NEWLIB_VERSION_cortex-m3 := $(NEWLIB_VERSION_cortex-m)
@@ -414,8 +420,10 @@ else ifeq ($(CC_cortex-m_version_major),12)
   LIBCPP_VERSION_cortex-m := 12.3.0
 else ifeq ($(CC_cortex-m_version_major),13)
   LIBCPP_VERSION_cortex-m := 13.2.0
+else ifeq ($(CC_cortex-m_version_major),14)
+  LIBCPP_VERSION_cortex-m := 14.1.0
 else
-  LIBCPP_VERSION_cortex-m := 13.2.0
+  LIBCPP_VERSION_cortex-m := 14.1.0
 endif
 LIBCPP_VERSION_cortex-m0 := $(LIBCPP_VERSION_cortex-m)
 LIBCPP_VERSION_cortex-m3 := $(LIBCPP_VERSION_cortex-m)
