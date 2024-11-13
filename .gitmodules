@@ -9,4 +9,4 @@
 	url = https://github.com/openthread/openthread.git
 [submodule "RadioLib/RadioLib"]
 	path = RadioLib/RadioLib
-	url = https://github.com/alistair23/RadioLib.git
+	url = https://github.com/jgromes/RadioLib.git

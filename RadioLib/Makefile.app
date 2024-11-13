@@ -2,4 +2,4 @@
 override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/RadioLib/RadioLib/src
 
 # Include the Tock specific headers
-override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/RadioLib/RadioLib/src/hal/Tock/
+override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/RadioLib
