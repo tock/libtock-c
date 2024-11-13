@@ -2,7 +2,9 @@
 
 GCC_VERSION=$1
 
-if [ $GCC_VERSION = "13.2.0" ]; then
+if [ $GCC_VERSION = "14.1.0" ]; then
+  GCC_SHA="46d50ea6a380f2c977e6aad187da216c35b793b31b3ea6de9646339c2a22f13c"
+elif [ $GCC_VERSION = "13.2.0" ]; then
   GCC_SHA="9940242a1390f897f8c3fe6e7a8821e863580797f9a6e80a91f52e41dd8086a1"
 elif [ $GCC_VERSION = "12.3.0" ]; then
   GCC_SHA="b0686eb1905594bde7b746fc58be97aceac8f802d8b5171adb6a4e84f3906d30"
