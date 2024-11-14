@@ -49,7 +49,8 @@ done
 
 if [[ $FOUND -ne 0 ]]; then
   echo "Unpacking $ZIP_FILE..."
-  unzip -q $ZIP_FILE
+  # -n: never overwrite existing files, -q: quiet mode
+  unzip -n -q $ZIP_FILE
   echo "Done upacking $ZIP_FILE..."
 else
   echo "ERROR: Unable to find tock-libc++"
