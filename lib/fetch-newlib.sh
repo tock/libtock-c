@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Exit on error:
+set -e
+
 NEWLIB_VERSION=$1
 
 if [ $NEWLIB_VERSION = "4.4.0.20231231" ]; then
@@ -25,7 +28,7 @@ else
   CHECK_SHA_CMD="sha256sum -c"
 fi
 
-let FOUND=0
+FOUND=0
 
 # Try from each mirror until we successfully download a .zip file.
 for MIRROR in ${MIRRORS[@]}; do
@@ -37,14 +40,15 @@ for MIRROR in ${MIRRORS[@]}; do
   if [ $? -ne 0 ]; then
     echo "  WARNING: Fetching newlib from mirror $MIRROR failed!" >&2
   else
-    let FOUND=1
+    FOUND=1
     break
   fi
 done
 
 if [[ $FOUND -ne 0 ]]; then
   echo "Unpacking $ZIP_FILE..."
-  unzip -q $ZIP_FILE
+  # -n: never overwrite existing files, -q: quiet mode
+  unzip -n -q $ZIP_FILE
   echo "Done upacking $ZIP_FILE..."
 else
   echo "ERROR: Unable to find tock-newlib"
