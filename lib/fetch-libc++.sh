@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Exit on error:
+set -e
+
 GCC_VERSION=$1
 
 if [ $GCC_VERSION = "14.1.0" ]; then
@@ -27,7 +30,7 @@ else
   CHECK_SHA_CMD="sha256sum -c"
 fi
 
-let FOUND=0
+FOUND=0
 
 # Try from each mirror until we successfully download a .zip file.
 for MIRROR in ${MIRRORS[@]}; do
@@ -39,7 +42,7 @@ for MIRROR in ${MIRRORS[@]}; do
   if [ $? -ne 0 ]; then
     echo "  WARNING: Fetching libc++ from mirror $MIRROR failed!" >&2
   else
-    let FOUND=1
+    FOUND=1
     break
   fi
 done
