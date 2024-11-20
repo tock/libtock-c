@@ -11,9 +11,9 @@ int main(void) {
     return -1;
   }
   returncode_t result  = RETURNCODE_EOFF;
-  uint16_t servo_count = 0;
+  uint32_t servo_count = 0;
   libtock_servo_count(&servo_count);
-  printf("The number of available servomotors is: %d\n", servo_count);
+  printf("The number of available servomotors is: %ld\n", servo_count);
   uint16_t angle = 0;
   uint16_t index = 0; // the first index available.
 
