@@ -10,7 +10,7 @@ extern "C" {
 // Function signature for rainfall data callback.
 //
 // - `arg1` (`int`): Returncode indicating status from sampling the sensor.
-// - `arg2` (`uint32_t`): the number of mm of rain in the time period specified
+// - `arg2` (`uint32_t`): the number of um of rain in the time period specified
 typedef void (*libtock_rainfall_callback)(returncode_t, uint32_t);
 
 // Start a rainfall measurement. The reading will be provided via the callback.

@@ -59,7 +59,7 @@ static void alarm_cb(__attribute__ ((unused)) uint32_t now,
   if (proximity)      printf("Proximity:                   %u\n", prox_reading);
   if (sound_pressure) printf("Sound Pressure:              %u\n", sound_pressure_reading);
   if (moisture)       printf("Moisture:                    %d%%\n", mois/100);
-  if (rainfall)       printf("Rainfall:                    %lumm\n", rain);
+  if (rainfall)       printf("Rainfall:                    %lumm\n", rain / 1000);
 
   /* *INDENT-ON* */
 

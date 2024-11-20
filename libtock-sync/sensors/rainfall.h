@@ -11,9 +11,9 @@ extern "C" {
 //
 // ## Arguments
 //
-// - `rainfall`: Set to the mms of rainfall in the specified number of hours.
-// - `hours`: The number of hours to get the rainfall data from. 1 to 24 hours
-//            are valid values.
+// - `rainfall`: Set to the ums of rainfall in the specified number of hours.
+// - `hours`: The number of hours to get the rainfall data from. 1 to 24
+//            hours are valid values.
 //
 // ## Return Value
 //
