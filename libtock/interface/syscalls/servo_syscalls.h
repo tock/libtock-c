@@ -11,7 +11,7 @@ extern "C" {
 // Check if the servo system call driver is available on this board.
 bool libtock_servo_exists(void);
 // Returns the number of available servomotors.
-returncode_t libtock_servo_count(uint16_t* servo_count);
+returncode_t libtock_servo_count(uint32_t* servo_count);
 // Change the angle.
 returncode_t libtock_servo_set_angle(uint16_t index, uint16_t angle);
 // Requests the current angle from the servo.

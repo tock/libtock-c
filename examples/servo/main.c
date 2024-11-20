@@ -13,7 +13,7 @@ int main(void) {
   returncode_t result  = RETURNCODE_EOFF;
   uint16_t servo_count = 0;
   libtock_servo_count(&servo_count);
-  printf("The number of available servomotors is: %d", servo_count);
+  printf("The number of available servomotors is: %d\n", servo_count);
   uint16_t angle = 0;
   uint16_t index = 0; // the first index available.
 
@@ -30,11 +30,8 @@ int main(void) {
       libtocksync_alarm_delay_ms(100);
       // Verifies if the function successfully returned the current angle.
       if (libtock_servo_read_angle(index, &angle) == RETURNCODE_SUCCESS) {
-        printf("\nThe current angle is: %d", angle);
+        printf("Requested angle %d. Actual current angle is: %d\n", i, angle);
       }
-    } else if (result == RETURNCODE_EINVAL) {
-      printf("\nThe angle you provided exceeds 360 degrees\n");
-      return -1;
     } else if (result == RETURNCODE_FAIL) {
       printf("\nAngle %d exceeds the servo's limit angle.\n", i);
     }
