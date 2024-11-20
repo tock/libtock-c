@@ -148,7 +148,7 @@ void ble_serialization_callback (int callback_type, int rx_len, int c, void* oth
 
                         // Got a response, cancel any pending timer
                         if (_timeout_timer != NULL) {
-                            libtock_alarm_cancel(_timeout_timer);
+                            libtock_alarm_ms_cancel(_timeout_timer);
                             free(_timeout_timer);
                             _timeout_timer = NULL;
                         }

@@ -13,8 +13,8 @@
 #include "libtockHal.h"
 
 // Include some libtock-c helpers
-#include <sensors/humidity.h>
-#include <sensors/temperature.h>
+#include <libtock-sync/sensors/humidity.h>
+#include <libtock-sync/sensors/temperature.h>
 
 #define BUFFER_LEN 64
 
@@ -25,7 +25,7 @@ int main(void) {
   printf("[SX1261] Initialising Radio ... \n");
 
   // create a new instance of the HAL class
-  TockHal* hal = new TockHal();
+  TockRadioLibHal* hal = new TockRadioLibHal();
 
   // now we can create the radio module
   // pinout corresponds to the SparkFun LoRa Thing Plus - expLoRaBLE
@@ -33,8 +33,9 @@ int main(void) {
   // DIO1 pin:  2
   // NRST pin:  4
   // BUSY pin:  1
-  Module* tock_module = new Module(hal, RADIO_NSS, RADIO_DIO_1, RADIO_RESET, RADIO_BUSY);
-  SX1262* radio       = new SX1262(tock_module);
+  Module* tock_module = new Module(hal, RADIOLIB_RADIO_NSS, RADIOLIB_RADIO_DIO_1, RADIOLIB_RADIO_RESET,
+                                   RADIOLIB_RADIO_BUSY);
+  SX1262* radio = new SX1262(tock_module);
 
   // Setup the radio
   // The settings here work for the SparkFun LoRa Thing Plus - expLoRaBLE
@@ -47,8 +48,8 @@ int main(void) {
   }
   printf("success!\r\n");
 
-  int temp      = 0;
-  unsigned humi = 0;
+  int temp = 0;
+  int humi = 0;
 
   // loop forever
   for ( ;;) {
@@ -56,8 +57,8 @@ int main(void) {
     yield_no_wait();
 
     // Read some sensor data from the board
-    temperature_read_sync(&temp);
-    humidity_read_sync(&humi);
+    libtocksync_temperature_read(&temp);
+    libtocksync_humidity_read(&humi);
 
     snprintf(buffer, BUFFER_LEN, "Temp: %d, Hum: %u", temp, humi);
 

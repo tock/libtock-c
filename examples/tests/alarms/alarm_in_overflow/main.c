@@ -27,7 +27,7 @@ static bool fired = false;
 // from gettimeasticks
 static uint32_t get_time_ms(void) {
   struct timeval tv;
-  libtock_alarm_gettimeasticks(&tv, NULL);
+  libtock_alarm_gettimeasticks(&tv);
   return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 }
 

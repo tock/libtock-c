@@ -50,8 +50,8 @@ rebuild-newlib: newlib-$(NEWLIB_VERSION)
 	@mkdir -p libtock-newlib-$(NEWLIB_VERSION)/riscv
 	@cp -r newlib-arm-$(NEWLIB_VERSION)-install/arm-none-eabi libtock-newlib-$(NEWLIB_VERSION)/arm
 	@cp -r newlib-riscv-$(NEWLIB_VERSION)-install/$(TOOLCHAIN_rv32i) libtock-newlib-$(NEWLIB_VERSION)/riscv
-	@cd libtock-newlib-$(NEWLIB_VERSION)/arm/arm-none-eabi; patch -p1 < ../../../newlib-$(NEWLIB_VERSION).patch
-	@cd libtock-newlib-$(NEWLIB_VERSION)/riscv/$(TOOLCHAIN_rv32i); patch -p1 < ../../../newlib-$(NEWLIB_VERSION).patch
+	@cd libtock-newlib-$(NEWLIB_VERSION)/arm/arm-none-eabi; [ -f ../../../newlib-$(NEWLIB_VERSION).patch ] && patch -p1 < ../../../newlib-$(NEWLIB_VERSION).patch || true
+	@cd libtock-newlib-$(NEWLIB_VERSION)/riscv/$(TOOLCHAIN_rv32i); [ -f ../../../newlib-$(NEWLIB_VERSION).patch ] && patch -p1 < ../../../newlib-$(NEWLIB_VERSION).patch || true
 	@mv newlib-arm-$(NEWLIB_VERSION)-out/build-arm.log newlib-riscv-$(NEWLIB_VERSION)-out/build-riscv.log libtock-newlib-$(NEWLIB_VERSION)
 	@zip -r libtock-newlib-$(NEWLIB_VERSION).zip libtock-newlib-$(NEWLIB_VERSION)
 	@echo ""

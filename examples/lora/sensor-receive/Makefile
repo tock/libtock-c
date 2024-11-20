@@ -4,8 +4,9 @@
 TOCK_USERLAND_BASE_DIR = ../../..
 
 # Which files to compile.
-C_SRCS := $(wildcard *.c)
+CXX_SRCS := $(wildcard *.cc)
 
-# Include userland master makefile. Contains rules and flags for actually
-# building the application.
+# Use the libtock-c Make system
+EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/RadioLib
+
 include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
