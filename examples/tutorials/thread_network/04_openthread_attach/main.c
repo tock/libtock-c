@@ -18,9 +18,6 @@
 #include <libtock/services/alarm.h>
 #include <libtock/tock.h>
 
-#define UDP_PORT 1212
-static const char UDP_ROUTER_MULTICAST[] = "ff02::2";
-
 // helper utility demonstrating network config setup
 static void setNetworkConfiguration(otInstance* aInstance);
 
@@ -46,12 +43,24 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
   ///////////////////////////////////////////////////
   // THREAD NETWORK SETUP HERE 
 
-  // TODO: Configure network.
+  // Configure network.
+  setNetworkConfiguration(instance);
 
-  // TODO: Enable network interface.
-  
-  // TODO: Start Thread network.
-  
+  // Enable network interface.
+  while (otIp6SetEnabled(instance, true) != OT_ERROR_NONE) {
+    printf("Failed to start Thread network interface!\n");
+    libtocksync_alarm_delay_ms(100);
+  }
+
+  // Print IPv6 address.
+  print_ip_addr(instance);
+
+  // Start Thread network.
+  while (otThreadSetEnabled(instance, true) != OT_ERROR_NONE) {
+    printf("Failed to start Thread stack!\n");
+    libtocksync_alarm_delay_ms(100);
+  }
+
   //
   ////////////////////////////////////////////////////
   
@@ -123,8 +132,6 @@ static void stateChangeCallback(uint32_t flags, void* context) {
       printf("[State Change] - Detached.\n");
       break;
     case OT_DEVICE_ROLE_CHILD:
-      network_up = true;
-      sendUdp(instance);
       printf("[State Change] - Child.\n");
       printf("Successfully attached to Thread network as a child.\n");
       break;
