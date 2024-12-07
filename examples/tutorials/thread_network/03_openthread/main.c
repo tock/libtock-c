@@ -19,13 +19,13 @@
 #include <libtock/tock.h>
 
 // helper utility demonstrating network config setup
-static void setNetworkConfiguration(otInstance* aInstance);
+static void __attribute__((unused)) setNetworkConfiguration(otInstance* aInstance);
 
 // callback for Thread state change events
 static void stateChangeCallback(uint32_t flags, void* context);
 
 // helper utility to print ip address
-static void print_ip_addr(otInstance* instance);
+static void __attribute__((unused)) print_ip_addr(otInstance* instance);
 
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {
   // Initialize OpenThread instance.
