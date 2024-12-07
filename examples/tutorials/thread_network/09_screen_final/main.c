@@ -5,6 +5,15 @@
 
 #include <libtock/interface/button.h>
 
+#include <u8g2.h>
+#include <u8g2-tock.h>
+
+// Global reference to the u8g2 context.
+u8g2_t u8g2;
+
+// Helper method to update and format u8g2 screen.
+static void update_screen(void);
+
 uint8_t global_temperature_setpoint = 0;
 uint8_t local_temperature_setpoint  = 22;
 uint8_t measured_temperature        = 0;
@@ -31,6 +40,11 @@ static void button_callback(returncode_t ret,
 }
 
 int main(void) {
+  // Init u8g2
+  u8g2_tock_init(&u8g2);
+  u8g2_SetFont(&u8g2, u8g2_font_profont12_tr);
+  u8g2_SetFontPosTop(&u8g2);
+
   for (int i = 0; i < 4; i++){
     libtock_button_notify_on_press(i, button_callback);
   }
