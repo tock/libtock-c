@@ -1,10 +1,12 @@
 # Makefile for user application
 
 # Specify this directory relative to the current application.
-TOCK_USERLAND_BASE_DIR = ../../../../..
+TOCK_USERLAND_BASE_DIR = ../../../../
 
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
+
+PACKAGE_NAME = org.tockos.thread-tutorial.sensor
 
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.

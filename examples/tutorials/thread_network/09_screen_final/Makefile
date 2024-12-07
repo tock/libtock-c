@@ -6,9 +6,9 @@ TOCK_USERLAND_BASE_DIR = ../../../../
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
 
-PACKAGE_NAME = thread_controller
+PACKAGE_NAME = screen 
 
-STACK_SIZE = 4096
+STACK_SIZE  = 4096
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/u8g2
 
 # Include userland master makefile. Contains rules and flags for actually
