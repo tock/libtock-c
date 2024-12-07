@@ -10,18 +10,18 @@ static int current_temperature = 0;
 int main(void) {
 
   // We measure the temperature in the main loop and
-  //print this value to the console.
+  // print this value to the console.
   while (1) {
     // Measure temperature -- returned in the form 2200 => 22C
     libtocksync_temperature_read(&current_temperature);
 
     // Convert temperature
-    int whole_degree = current_temperature / 100;
+    int whole_degree   = current_temperature / 100;
     int decimal_degree = current_temperature % 100;
-    
+
     printf("Current temperature: %i.%i\r\n", whole_degree, decimal_degree);
-    
-    // Delay 1000 ms (1 second). 
+
+    // Delay 1000 ms (1 second).
     libtocksync_alarm_delay_ms(1000);
   }
 }

@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/kernel/ipc.h>
 #include <libtock/services/alarm.h>
-#include <libtock-sync/services/alarm.h>
 
-#include <u8g2.h>
 #include <u8g2-tock.h>
+#include <u8g2.h>
 
 // Global reference to the u8g2 context.
 u8g2_t u8g2;
@@ -19,10 +19,10 @@ static void update_screen(void);
 
 uint8_t global_temperature_setpoint = 0;
 uint8_t local_temperature_setpoint  = 22;
-int measured_temperature        = 0;
+int measured_temperature = 0;
 
 uint8_t prior_global_temperature_setpoint = 255;
-uint8_t prior_local_temperature_setpoint = 255;
+uint8_t prior_local_temperature_setpoint  = 255;
 int prior_measured_temperature = 0;
 
 bool network_up = false;
@@ -116,56 +116,55 @@ int main(void) {
   init_controller_ipc();
 
   // Enable buttons
-  for (int i = 0; i < 4; i++){
+  for (int i = 0; i < 4; i++) {
     libtock_button_notify_on_press(i, button_callback);
   }
 
   ipc_notify_service(sensor_svc_num);
   libtock_alarm_in_ms(500, update_network_timer_callback, NULL, &network_timer);
 
-  for(;;) {
+  for ( ;;) {
     callback_event = false;
     yield_for(&callback_event);
-    
+
     if (measured_temperature != prior_measured_temperature
         || global_temperature_setpoint != prior_global_temperature_setpoint
-        || local_temperature_setpoint != prior_local_temperature_setpoint)
-    {
-       prior_measured_temperature        = measured_temperature;
-       prior_global_temperature_setpoint = global_temperature_setpoint;
-       prior_local_temperature_setpoint  = local_temperature_setpoint;
-       update_screen();
+        || local_temperature_setpoint != prior_local_temperature_setpoint) {
+      prior_measured_temperature        = measured_temperature;
+      prior_global_temperature_setpoint = global_temperature_setpoint;
+      prior_local_temperature_setpoint  = local_temperature_setpoint;
+      update_screen();
     }
 
-  }  
+  }
 }
 
 static void update_screen(void) {
   char temperature_set_point_str[35];
   char temperature_global_set_point_str[35];
   char temperature_current_measure_str[35];
-  
+
   // Format the buffers to be written.
   sprintf(temperature_set_point_str,
-          "Set Point: %d", 
-	  local_temperature_setpoint);
-  
-  if(network_up) {
-    sprintf(temperature_global_set_point_str, 
+          "Set Point: %d",
+          local_temperature_setpoint);
+
+  if (network_up) {
+    sprintf(temperature_global_set_point_str,
             "Global Set Point: %d",
-       	    global_temperature_setpoint);
+            global_temperature_setpoint);
   } else {
     sprintf(temperature_global_set_point_str,
             "Global Set Point: N/A");
   }
 
-  uint8_t whole_temp = measured_temperature / 100;
+  uint8_t whole_temp   = measured_temperature / 100;
   uint8_t decimal_temp = measured_temperature % 100;
 
-  sprintf(temperature_current_measure_str, 
-	  "Measured Temp: %d.%d",
-	  whole_temp,
-	  decimal_temp );
+  sprintf(temperature_current_measure_str,
+          "Measured Temp: %d.%d",
+          whole_temp,
+          decimal_temp);
 
   // Use u8g2 library to draw each string.
   u8g2_ClearBuffer(&u8g2);
@@ -212,4 +211,3 @@ static int init_controller_ipc(void) {
 
   return err;
 }
-

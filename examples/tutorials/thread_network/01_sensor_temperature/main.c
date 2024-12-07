@@ -12,10 +12,10 @@ int main(void) {
   libtocksync_temperature_read(&current_temperature);
 
   // Convert temperature
-  int whole_degree = current_temperature / 100;
+  int whole_degree   = current_temperature / 100;
   int decimal_degree = current_temperature % 100;
-  
+
   printf("Hello World, the temperature is: %i.%i\r\n", whole_degree, decimal_degree);
-  
+
   return 0;
 }

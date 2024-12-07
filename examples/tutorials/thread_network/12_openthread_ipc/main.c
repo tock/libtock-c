@@ -26,7 +26,7 @@ static otUdpSocket sUdpSocket;
 void initUdp(otInstance* aInstance);
 
 void handleUdpRecvTemperature(void* aContext, otMessage* aMessage,
-                  const otMessageInfo* aMessageInfo);
+                              const otMessageInfo* aMessageInfo);
 
 void sendUdpTemperature(otInstance* aInstance, uint8_t temperature);
 
@@ -85,19 +85,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
                                 openthread_ipc_callback,
                                 NULL);
 
-
   // set child timeout to 60 seconds.
   otThreadSetChildTimeout(instance, 60);
 
   // Set callback to be notified when thread state changes.
   otSetStateChangedCallback(instance, stateChangeCallback, instance);
-  
+
   ///////////////////////////////////////////////////
-  // THREAD NETWORK SETUP HERE 
+  // THREAD NETWORK SETUP HERE
 
   // Configure network.
   setNetworkConfiguration(instance);
-  
+
   // Init UDP interface.
   initUdp(instance);
 
@@ -118,10 +117,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
 
   //
   ////////////////////////////////////////////////////
-  
+
   // OpenThread main loop.
-  for (;;) {
-    // Execute any pending OpenThread related work. 
+  for ( ;;) {
+    // Execute any pending OpenThread related work.
     otTaskletsProcess(instance);
 
     // Execute any platform related work (e.g. check
@@ -129,7 +128,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
     otSysProcessDrivers(instance);
 
     // Send udp packet if pending temperature update.
-    if(send_local_temp) {
+    if (send_local_temp) {
       sendUdpTemperature(instance, local_temperature_setpoint);
       send_local_temp = false;
     }
@@ -137,9 +136,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
     // If there is not pending platform or OpenThread
     // related work -- yield.
     if (!otTaskletsArePending(instance) &&
-	!openthread_platform_pending_work())
-    {
-	yield();
+        !openthread_platform_pending_work()) {
+      yield();
     }
 
   }
@@ -150,9 +148,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
 // Helper method that configures the OpenThread network dataset
 // for the desired tutorial configuration.
 // We set the following dataset parameters:
-// 	-- Channel:    26 
-// 	-- PanId:      0xabcd
-// 	-- Networkkey: 00112233445566778899aabbccddeeff  
+//  -- Channel:    26
+//  -- PanId:      0xabcd
+//  -- Networkkey: 00112233445566778899aabbccddeeff
 void setNetworkConfiguration(otInstance* aInstance) {
   otOperationalDataset aDataset;
 
@@ -225,7 +223,7 @@ static void print_ip_addr(otInstance* instance) {
 
 
 void handleUdpRecvTemperature(void* aContext, otMessage* aMessage,
-                      	      const otMessageInfo* aMessageInfo) {
+                              const otMessageInfo* aMessageInfo) {
   OT_UNUSED_VARIABLE(aContext);
   OT_UNUSED_VARIABLE(aMessageInfo);
   char buf[2];
@@ -281,4 +279,3 @@ void sendUdpTemperature(otInstance* aInstance, uint8_t temperature) {
     otMessageFree(message);
   }
 }
-

@@ -12,7 +12,7 @@ static void sensor_ipc_callback(int pid, int len, int buf,
   // A client has requested us to provide them the current temperature value.
   // We must make sure that it provides us with a buffer sufficiently large to
   // store a single integer:
-  if (len < ((int) sizeof(current_temperature))) { 
+  if (len < ((int) sizeof(current_temperature))) {
     // We do not inform the caller and simply return. We do print a log message:
     puts("[thread-sensor] ERROR: sensor IPC invoked with too small buffer.\r\n");
   }
@@ -33,16 +33,16 @@ int main(void) {
 
   // Register this application as an IPC service under its name:
   ipc_register_service_callback("org.tockos.thread-tutorial.sensor",
-                              sensor_ipc_callback,
-                              NULL);
+                                sensor_ipc_callback,
+                                NULL);
 
   // We measure the temperature in the main loop and
-  //print this value to the console.
+  // print this value to the console.
   while (1) {
     // Measure temperature -- returned in the form 2200 => 22C
     libtocksync_temperature_read(&current_temperature);
 
-    // Delay 1000 ms (1 second). 
+    // Delay 1000 ms (1 second).
     libtocksync_alarm_delay_ms(1000);
   }
 }
