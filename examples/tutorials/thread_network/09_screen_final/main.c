@@ -45,6 +45,7 @@ int main(void) {
   u8g2_SetFont(&u8g2, u8g2_font_profont12_tr);
   u8g2_SetFontPosTop(&u8g2);
 
+  // Enable buttons
   for (int i = 0; i < 4; i++) {
     libtock_button_notify_on_press(i, button_callback);
   }
@@ -69,9 +70,13 @@ static void update_screen(void) {
           "Global Set Point: %d",
           global_temperature_setpoint);
 
+  uint8_t whole_temp   = measured_temperature / 100;
+  uint8_t decimal_temp = measured_temperature % 100;
+
   sprintf(temperature_current_measure_str,
-          "Measured Temp: %d",
-          measured_temperature);
+          "Measured Temp: %d.%d",
+          whole_temp,
+          decimal_temp);
 
   // Use u8g2 library to draw each string.
   u8g2_ClearBuffer(&u8g2);

@@ -19,7 +19,7 @@ static void update_screen(void);
 
 uint8_t global_temperature_setpoint = 0;
 uint8_t local_temperature_setpoint  = 22;
-int measured_temperature = 0;
+uint8_t measured_temperature        = 0;
 
 uint8_t prior_global_temperature_setpoint = 255;
 uint8_t prior_local_temperature_setpoint  = 255;
