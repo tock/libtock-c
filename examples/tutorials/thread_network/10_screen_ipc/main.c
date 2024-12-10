@@ -192,22 +192,19 @@ static int init_controller_ipc(void) {
 
   if (err_sensor < 0) {
     printf("No sensor service\r\n");
-    return -1;
+  } else {
+    printf("[controller] Discovered sensor service: %d\r\n", sensor_svc_num);
+    ipc_register_client_callback(sensor_svc_num, sensor_callback, NULL);
+    ipc_share(sensor_svc_num, &temperature_buffer, sizeof(temperature_buffer));
   }
 
   if (err_openthread < 0) {
     printf("No openthread service\r\n");
-    return -1;
+  } else {
+    printf("[controller] Discovered openthread service: %d\r\n", openthread_svc_num);
+    ipc_register_client_callback(openthread_svc_num, openthread_callback, NULL);
+    ipc_share(openthread_svc_num, &openthread_buffer, sizeof(openthread_buffer));
   }
-
-  printf("[controller] Discovered sensor service: %d\r\n", sensor_svc_num);
-  printf("[controller] Discovered openthread service: %d\r\n", openthread_svc_num);
-
-  ipc_register_client_callback(sensor_svc_num, sensor_callback, NULL);
-  ipc_register_client_callback(openthread_svc_num, openthread_callback, NULL);
-
-  ipc_share(sensor_svc_num, &temperature_buffer, sizeof(temperature_buffer));
-  ipc_share(openthread_svc_num, &openthread_buffer, sizeof(openthread_buffer));
 
   return err;
 }

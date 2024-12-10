@@ -15,6 +15,7 @@ static void sensor_ipc_callback(int pid, int len, int buf,
   if (len < ((int) sizeof(current_temperature))) {
     // We do not inform the caller and simply return. We do print a log message:
     puts("[thread-sensor] ERROR: sensor IPC invoked with too small buffer.\r\n");
+    return;
   }
 
   // The buffer is large enough, copy the current temperature into it:
