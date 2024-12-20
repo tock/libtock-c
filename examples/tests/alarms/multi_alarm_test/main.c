@@ -29,6 +29,12 @@ static void start_cb(__attribute__ ((unused)) uint32_t now,
                      void*                             ud) {
   timer_data* td = (timer_data*)ud;
   libtock_alarm_repeating_every_ms(interval, event_cb, ud, &td->repeating);
+
+  if (td->led == 1) {
+    timer_data* td_new = (timer_data*)malloc(sizeof(timer_data));
+    td_new->led = 2;
+    libtock_alarm_in_ms(1000 * (2 + 1), start_cb, td_new, &td_new->timer);
+  }
   toggle(td->led);
 }
 
@@ -38,7 +44,7 @@ int main(void) {
   libtock_led_count(&num_leds);
   interval = spacing * num_leds;
 
-  for (int i = 0; i < num_leds; i++) {
+  for (int i = 0; i < num_leds-1; i++) {
     timer_data* td = (timer_data*)malloc(sizeof(timer_data));
     td->led = i;
     libtock_alarm_in_ms(spacing * (i + 1), start_cb, td, &td->timer);

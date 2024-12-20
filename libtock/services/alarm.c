@@ -237,6 +237,7 @@ static void alarm_upcall(__attribute__ ((unused)) int   kernel_now,
   // Formally, we should be able to just add head to
   // `tocall`, but let's just be defensive just in case there is an
   // errant alarm.
+  assert(head != NULL);
   assert(head != NULL && !is_within(scheduled, head->reference, head->dt));
   head->next  = NULL;
   head->prev  = NULL;

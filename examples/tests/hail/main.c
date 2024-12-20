@@ -179,6 +179,6 @@ int main(void) {
   // sample sensors every second
   while (1) {
     sample_sensors();
-    libtocksync_alarm_delay_ms(1000);
+    libtocksync_alarm_delay_ms(8000);
   }
 }
