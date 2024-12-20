@@ -33,7 +33,7 @@ static void start_cb(__attribute__ ((unused)) uint32_t now,
   if (td->led == 1) {
     timer_data* td_new = (timer_data*)malloc(sizeof(timer_data));
     td_new->led = 2;
-    libtock_alarm_in_ms(1000 * (2 + 1), start_cb, td_new, &td_new->timer);
+    libtock_alarm_in_ms(2929, start_cb, td_new, &td_new->timer);
   }
   toggle(td->led);
 }
