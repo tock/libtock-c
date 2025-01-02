@@ -21,6 +21,8 @@ returncode_t libtocksync_kv_update(const uint8_t* key_buffer, uint32_t key_len, 
 
 returncode_t libtocksync_kv_delete(const uint8_t* key_buffer, uint32_t key_len);
 
+returncode_t libtocksync_kv_garbage_collect(void);
+
 #ifdef __cplusplus
 }
 #endif

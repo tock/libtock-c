@@ -11,6 +11,7 @@
 #define TOCK_KV_DELETE          3
 #define TOCK_KV_ADD             4
 #define TOCK_KV_UPDATE          5
+#define TOCK_KV_GARBAGE_COLLECT 6
 
 bool libtock_kv_exists(void) {
   return driver_exists(DRIVER_NUM_KV);
@@ -48,6 +49,11 @@ returncode_t libtock_kv_command_set(void) {
 
 returncode_t libtock_kv_command_delete(void) {
   syscall_return_t cval = command(DRIVER_NUM_KV, TOCK_KV_DELETE, 0, 0);
+  return tock_command_return_novalue_to_returncode(cval);
+}
+
+returncode_t libtock_kv_command_garbage_collect(void) {
+  syscall_return_t cval = command(DRIVER_NUM_KV, TOCK_KV_GARBAGE_COLLECT, 0, 0);
   return tock_command_return_novalue_to_returncode(cval);
 }
 
