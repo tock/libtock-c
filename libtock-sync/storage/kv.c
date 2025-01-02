@@ -78,3 +78,15 @@ returncode_t libtocksync_kv_delete(const uint8_t* key_buffer, uint32_t key_len) 
   yield_for(&result.fired);
   return result.ret;
 }
+
+returncode_t libtocksync_kv_garbage_collect(void) {
+  returncode_t err;
+  result.fired = false;
+
+  err = libtock_kv_garbage_collect(kv_cb_done);
+  if (err != RETURNCODE_SUCCESS) return err;
+
+  // Wait for the callback.
+  yield_for(&result.fired);
+  return result.ret;
+}

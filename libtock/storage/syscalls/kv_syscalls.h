@@ -24,6 +24,8 @@ returncode_t libtock_kv_command_set(void);
 
 returncode_t libtock_kv_command_delete(void);
 
+returncode_t libtock_kv_command_garbage_collect(void);
+
 returncode_t libtock_kv_command_add(void);
 
 returncode_t libtock_kv_command_update(void);
