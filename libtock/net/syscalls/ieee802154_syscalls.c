@@ -33,7 +33,7 @@ returncode_t libtock_ieee802154_command_status(void) {
 }
 
 returncode_t libtock_ieee802154_command_set_address_short(uint16_t addr_short) {
-  syscall_return_t com = command(DRIVER_NUM_IEEE802154, COMMAND_STATUS, addr_short, 0);
+  syscall_return_t com = command(DRIVER_NUM_IEEE802154, COMMAND_SET_ADDR_SHORT, addr_short, 0);
   return tock_command_return_novalue_to_returncode(com);
 }
 
