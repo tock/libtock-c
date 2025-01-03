@@ -436,7 +436,7 @@ int libtock_ieee802154_frame_get_length(const uint8_t* frame) {
 
 int libtock_ieee802154_frame_get_payload_offset(const uint8_t* frame) {
   if (!frame) return 0;
-  return frame[0];
+  return frame[0] + libtock_ieee802154_FRAME_META_LEN;
 }
 
 int libtock_ieee802154_frame_get_payload_length(const uint8_t* frame) {
