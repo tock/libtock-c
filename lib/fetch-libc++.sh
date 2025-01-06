@@ -32,27 +32,52 @@ fi
 
 FOUND=0
 
-# Try from each mirror until we successfully download a .zip file.
-for MIRROR in ${MIRRORS[@]}; do
-  URL=$MIRROR/$ZIP_FILE
-  echo "Fetching libc++ from ${MIRROR}..."
-  echo "  Fetching ${URL}..."
-  # Note: There must be two space characters for `shasum` (sha256sum doesn't care)
-  wget -O $ZIP_FILE  "$URL" && (echo "$GCC_SHA  $ZIP_FILE" | $CHECK_SHA_CMD)
-  if [ $? -ne 0 ]; then
-    echo "  WARNING: Fetching libc++ from mirror $MIRROR failed!" >&2
-  else
-    FOUND=1
-    break
-  fi
-done
+# We must ensure that multiple parallel fetch and unzip operations
+# don't trample over each other, which we do by obtaining a write-lock
+# on the ZIP file that's being downloaded / extracted.
+#
+# This will also truncate any already downloaded ZIP file, which is
+# fine because we'll overwrite it anyways.
+NONBLOCK_LOCK_ACQ_FAIL=0
+while true; do
+    : >> ${ZIP_FILE}
+    {
+	if [ $NONBLOCK_LOCK_ACQ_FAIL -eq 0 ]; then
+            flock -n $fd || NONBLOCK_LOCK_ACQ_FAIL=1
+	    if [ $NONBLOCK_LOCK_ACQ_FAIL -ne 0 ]; then
+		# Try again, blocking this time:
+		echo "Could not acquire non-blocking lock on ${ZIP_FILE}, waiting for lock to be released..." >&2
+		continue
+	    fi
+	else
+	    flock $fd
+	fi
+        echo "Acquired lock on file ${ZIP_FILE}" >&2
 
-if [[ $FOUND -ne 0 ]]; then
-  echo "Unpacking $ZIP_FILE..."
-  # -n: never overwrite existing files, -q: quiet mode
-  unzip -n -q $ZIP_FILE
-  echo "Done upacking $ZIP_FILE..."
-else
-  echo "ERROR: Unable to find tock-libc++"
-  exit -1
-fi
+        # Try from each mirror until we successfully download a .zip file.
+        for MIRROR in ${MIRRORS[@]}; do
+          URL=$MIRROR/$ZIP_FILE
+          echo "Fetching libc++ from ${MIRROR}..."
+          echo "  Fetching ${URL}..."
+          # Note: There must be two space characters for `shasum` (sha256sum doesn't care)
+          wget -O $ZIP_FILE "$URL" && (echo "$GCC_SHA  $ZIP_FILE" | $CHECK_SHA_CMD)
+          if [ $? -ne 0 ]; then
+            echo "  WARNING: Fetching libc++ from mirror $MIRROR failed!" >&2
+          else
+            FOUND=1
+            break
+          fi
+        done
+
+        if [[ $FOUND -ne 0 ]]; then
+          echo "Unpacking $ZIP_FILE..."
+          # -n: don't overwrite existing files, -q: quiet mode
+          unzip -n -q $ZIP_FILE
+          echo "Done upacking $ZIP_FILE..."
+	  exit 0
+        else
+          echo "ERROR: Unable to find tock-libc++"
+          exit -1
+        fi
+    } {fd}<${ZIP_FILE}
+done
