@@ -50,6 +50,7 @@ int main(void) {
   }
 
   for ( ;;) {
+    callback_event = false;
     yield_for(&callback_event);
     update_screen();
   }

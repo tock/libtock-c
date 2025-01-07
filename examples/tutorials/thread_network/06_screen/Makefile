@@ -6,7 +6,7 @@ TOCK_USERLAND_BASE_DIR = ../../../../
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
 
-PACKAGE_NAME = screen 
+PACKAGE_NAME = screen
 
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.
