@@ -16,7 +16,7 @@ static void update_screen(void);
 
 uint8_t global_temperature_setpoint = 0;
 uint8_t local_temperature_setpoint  = 22;
-uint8_t measured_temperature        = 0;
+int measured_temperature = 0;
 
 static void button_callback(returncode_t ret,
                             int          btn_num,
