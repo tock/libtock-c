@@ -23,6 +23,15 @@ __check_defined = \
     $(if $(value $1),, \
       $(error Undefined $1$(if $2, ($2))))
 
+# Check that the variable has no leading or trailing spaces, or spaces within
+# the variable.
+#
+# Params:
+#   1. Variable name to test.
+check_no_spaces = \
+    $(if $(findstring $(strip $($(strip $1))),$($(strip $1))),,$(error Error: Space in variable $(strip $1))) \
+    $(if $(word 2,$($(strip $1))),$(error Error: Multiple entries in variable $(strip $1)),)
+
 # Check for a ~/ at the beginning of a path variable (TOCK_USERLAND_BASE_DIR).
 # Make will not properly expand this.
 ifdef TOCK_USERLAND_BASE_DIR

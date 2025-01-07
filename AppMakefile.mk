@@ -39,6 +39,10 @@ include $(TOCK_USERLAND_BASE_DIR)/libtock-sync/Makefile
 # Include the makefile that has the programming functions for each board.
 include $(TOCK_USERLAND_BASE_DIR)/Program.mk
 
+# Remove any leading or trailing spaces from PACKAGE_NAME and then verify there
+# are no spaces within the PACKAGE_NAME variable.
+override PACKAGE_NAME := $(strip $(PACKAGE_NAME))
+$(call check_no_spaces, PACKAGE_NAME)
 
 # Rules to call library makefiles to build required libraries.
 #
