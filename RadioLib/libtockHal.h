@@ -169,7 +169,7 @@ class TockRadioLibHal : public RadioLibHal {
 #if !defined(RADIOLIB_CLOCK_DRIFT_MS)
       return ms;
 #else
-      return ms * 1000 / (1000 + RADIOLIB_CLOCK_DRIFT_MS);
+      return (uint64_t)ms * 1000 / (1000 + RADIOLIB_CLOCK_DRIFT_MS);
 #endif
     }
 
