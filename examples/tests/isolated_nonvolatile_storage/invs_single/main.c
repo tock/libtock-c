@@ -102,10 +102,8 @@ static bool test_read_zerobuffer(void) {
   uint32_t length_read;
 
   ret = libtocksync_isolated_nonvolatile_storage_read(offset, length, readbuf, 0, &length_read);
-  if (ret == RETURNCODE_SUCCESS) {
-    // if (length_read == length) {
+  if (ret == RETURNCODE_ERESERVE) {
       return true;
-    // }
   }
   return false;
 }
@@ -177,6 +175,12 @@ static bool test_read_fail_notwithinregion(void) {
 
   offset = 0;
   length = get_region_size() + 1;
+  ret = libtocksync_isolated_nonvolatile_storage_read(offset, length, readbuf, sizeof(readbuf), &length_read);
+  printf("returncode %d\n",ret);
+  if (ret != RETURNCODE_EINVAL) return false;
+
+  offset = get_region_size() - 1;
+  length = 2;
   ret = libtocksync_isolated_nonvolatile_storage_read(offset, length, readbuf, sizeof(readbuf), &length_read);
   printf("returncode %d\n",ret);
   if (ret != RETURNCODE_EINVAL) return false;
