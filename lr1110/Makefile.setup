@@ -34,3 +34,5 @@ $(SEEED_DIR)/smtc_hal/smtc_modem_hal.c:
 	mv $(EXTRACTED_DIR)/* $(SEEED_DIR)/
 	rmdir $(EXTRACTED_DIR)  # move unzipped code to SEEED_DIR, remove original directory
 	touch $(SEEED_DIR)
+	# Need to remove certain system headers because we provide our own.
+	rm $(SEEED_DIR)/smtc_hal/inc/smtc_hal_flash.h
