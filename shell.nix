@@ -57,7 +57,7 @@ in
 
     shellHook = ''
       # TODO: This should be patched into the rpath of the respective libraries!
-      export LD_LIBRARY_PATH=${pkgs.libusb}/lib:$LD_LIBRARY_PATH
+      export LD_LIBRARY_PATH=${pkgs.libusb1}/lib:$LD_LIBRARY_PATH
     '' + (lib.optionalString withUnfreePkgs ''
       export LD_LIBRARY_PATH=${pkgs.segger-jlink}/lib:$LD_LIBRARY_PATH
     '');
