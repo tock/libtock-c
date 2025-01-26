@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <ipc.h>
-#include <timer.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/kernel/ipc.h>
 
 size_t _svc_num = 0;
 
@@ -10,8 +10,8 @@ char buf[64] __attribute__((aligned(64)));
 
 typedef enum {
   SENSOR_TEMPERATURE = 0,
-  SENSOR_IRRADIANCE = 1,
-  SENSOR_HUMIDITY = 2,
+  SENSOR_IRRADIANCE  = 1,
+  SENSOR_HUMIDITY    = 2,
 } sensor_type_e;
 
 typedef struct {
@@ -35,9 +35,9 @@ int main(void) {
 
   printf("Found BLE ESS service (%u)\n", _svc_num);
 
-  delay_ms(1500);
+  libtocksync_alarm_delay_ms(1500);
 
-  sensor_update_t *update = (sensor_update_t*) buf;
+  sensor_update_t* update = (sensor_update_t*) buf;
   ipc_register_client_callback(_svc_num, ipc_callback, update);
 
   update->type  = SENSOR_HUMIDITY;

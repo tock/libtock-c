@@ -1,7 +1,9 @@
+#include <stdio.h>
+
+#include <libtock/net/ble.h>
+
 #include "advertisement.h"
 #include "advertisement_list.h"
-#include <ble.h>
-#include <stdio.h>
 
 /*
  * BLE Demo Application
@@ -13,8 +15,7 @@ static unsigned char scan[BUF_SIZE];
 AdvertisementList list;
 
 static void callback(int result, int len, __attribute__((unused)) int unused2,
-                     __attribute__((unused)) void* ud)
-{
+                     __attribute__((unused)) void* ud) {
   if (result == RETURNCODE_SUCCESS) {
     if (Advertisement::checkScanResult(scan, len)) {
       Advertisement advertisement(scan, len);
@@ -31,8 +32,7 @@ static void callback(int result, int len, __attribute__((unused)) int unused2,
   }
 }
 
-int main(void)
-{
+int main(void) {
   printf("[Tutorial] BLE Passive Scanner\r\n");
 
   // using the pre-configured advertisement interval
@@ -41,5 +41,8 @@ int main(void)
   if (err < RETURNCODE_SUCCESS) {
     printf("ble_start_passive_scan, error: %s\r\n", tock_strrcode(static_cast<returncode_t>(err)));
   }
-  return 0;
+
+  while (1) {
+    yield();
+  }
 }

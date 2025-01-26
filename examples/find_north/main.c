@@ -1,8 +1,8 @@
 #include <math.h>
 #include <stdio.h>
 
-#include <led.h>
-#include <ninedof.h>
+#include <libtock-sync/sensors/ninedof.h>
+#include <libtock/interface/led.h>
 
 int main(void) {
   int x, y, z;
@@ -12,7 +12,7 @@ int main(void) {
   // second in RGB), but will take anything.
   int led = 0;
   int num_leds;
-  err = led_count(&num_leds);
+  err = libtock_led_count(&num_leds);
   if (err < 0) {
     printf("No LEDs on this board.\n");
     return err;
@@ -20,7 +20,7 @@ int main(void) {
   if (num_leds > 1) led = 1;
 
   while (1) {
-    err = ninedof_read_magnetometer_sync(&x, &y, &z);
+    err = libtocksync_ninedof_read_magnetometer(&x, &y, &z);
     if (err < 0) {
       printf("No magnetometer on this board.\n");
       return err;
@@ -37,9 +37,9 @@ int main(void) {
 
     // Turn the LED on if the board is pointing in a certain range.
     if (angle > 50 && angle < 310) {
-      led_off(led);
+      libtock_led_off(led);
     } else {
-      led_on(led);
+      libtock_led_on(led);
     }
   }
 

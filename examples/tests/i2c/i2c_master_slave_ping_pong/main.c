@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <button.h>
-#include <i2c_master_slave.h>
-#include <timer.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/interface/button.h>
+#include <libtock/peripherals/i2c_master_slave.h>
 
 #define BUF_SIZE 16
 #define LEADER_ADDRESS 0x40
@@ -29,10 +29,10 @@ static void i2c_callback(int                            callback_type,
   static bool any_message = false;
   if (!any_message) {
     int nbuttons;
-    button_count(&nbuttons);
+    libtock_button_count(&nbuttons);
     int j;
     for (j = 0; j < nbuttons; j++) {
-      button_disable_interrupt(j);
+      libtock_button_command_disable_interrupt(j);
     }
   }
 
@@ -41,7 +41,7 @@ static void i2c_callback(int                            callback_type,
     TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_listen());
   } else if (callback_type == TOCK_I2C_CB_SLAVE_WRITE) {
     printf("CB: Slave write\n");
-    delay_ms(2500);
+    libtocksync_alarm_delay_ms(2500);
 
     printf("%s sending\n", is_leader ? "Leader" : "Follower");
     TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_write(is_leader ? FOLLOW_ADDRESS : LEADER_ADDRESS, BUF_SIZE));
@@ -54,10 +54,10 @@ static void i2c_callback(int                            callback_type,
 // A button press indicates that this device should start the ping-pong
 // exchange. First, change the address to the BUTTON_ADDRESS to avoid
 // conflict with the other node, then send a message.
-static void button_cb(__attribute__((unused)) int    btn_num,
-                      __attribute__ ((unused)) int   arg1,
-                      __attribute__ ((unused)) int   arg2,
-                      __attribute__ ((unused)) void* userdata) {
+static void button_cb(
+  __attribute__((unused)) returncode_t ret,
+  __attribute__((unused)) int          btn_num,
+  __attribute__ ((unused)) bool        val) {
   // Only the first press is meaningfull
   static bool pressed = false;
 
@@ -91,11 +91,8 @@ int main(void) {
   TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_set_slave_address(FOLLOW_ADDRESS));
   TOCK_EXPECT(RETURNCODE_SUCCESS, i2c_master_slave_listen());
 
-  // Set up button peripheral to grab any button press
-  TOCK_EXPECT(RETURNCODE_SUCCESS, button_subscribe(button_cb, NULL));
-
   int nbuttons;
-  button_count(&nbuttons);
+  libtock_button_count(&nbuttons);
   if (nbuttons < 1) {
     printf("ERROR: This app requires that a board have at least one button.\n");
     exit(-1);
@@ -103,6 +100,10 @@ int main(void) {
 
   int j;
   for (j = 0; j < nbuttons; j++) {
-    TOCK_EXPECT(RETURNCODE_SUCCESS, button_enable_interrupt(j));
+    TOCK_EXPECT(RETURNCODE_SUCCESS, libtock_button_notify_on_press(j, button_cb));
+  }
+
+  while (1) {
+    yield();
   }
 }

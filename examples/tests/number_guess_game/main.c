@@ -3,12 +3,23 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <console.h>
-#include <rng.h>
+#include <libtock-sync/interface/console.h>
+#include <libtock-sync/peripherals/rng.h>
 
-int get_number(void);
+static int getch(void) {
+  uint8_t buffer[1];
+  int number_read;
+  libtocksync_console_read(buffer, 1, &number_read);
+  return buffer[0];
+}
 
-int get_number(void) {
+static int putnstr(const char* str, int len) {
+  int number_written;
+  libtocksync_console_read((uint8_t*) str, len, &number_written);
+  return number_written;
+}
+
+static int get_number(void) {
   char buffer[10] = {0};
   int idx         = 0;
 
@@ -48,12 +59,13 @@ int get_number(void) {
 }
 
 int main(void) {
+  returncode_t ret;
   printf("Welcome to the number guessing game!\n\n");
 
   // Get some random number
   uint16_t random;
   int count;
-  int ret = rng_sync((uint8_t*) &random, 2, 2, &count);
+  ret = libtocksync_rng_get_random_bytes((uint8_t*) &random, 2, 2, &count);
   if (ret != RETURNCODE_SUCCESS || count != 2) {
     printf("Error getting random number! There is a bug in this game :(\n");
     return -1;

@@ -6,7 +6,7 @@ TOCK_USERLAND_BASE_DIR = ../../..
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
 
-STACK_SIZE       = 0
+STACK_SIZE       = 1
 APP_HEAP_SIZE    = 0
 KERNEL_HEAP_SIZE = 0
 

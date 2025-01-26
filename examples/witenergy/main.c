@@ -15,20 +15,19 @@
 
 #include <simple_ble.h>
 
-#include <nrf51_serialization.h>
-
-#include <button.h>
-#include <console.h>
-#include <led.h>
-#include <timer.h>
-#include <tock.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/interface/button.h>
+#include <libtock/interface/console.h>
+#include <libtock/interface/led.h>
+#include <libtock/net/nrf51_serialization.h>
+#include <libtock/tock.h>
 
 
 /*******************************************************************************
  * Function Prototypes
  ******************************************************************************/
-void setup_oort (void);
-void toggle_relay (void);
+void setup_oort(void);
+void toggle_relay(void);
 
 
 /*******************************************************************************
@@ -79,7 +78,7 @@ static const ble_gap_scan_params_t _scan_param = {
 
 
 // Override. Don't need for serialization.
-void ble_address_set (void) {
+void ble_address_set(void) {
   // nop
 }
 
@@ -146,14 +145,14 @@ int _read_len = 0;
  * BLE Code
  ******************************************************************************/
 
-void db_disc_handler (ble_db_discovery_evt_t* p_evt);
-static int convert_oort_to_p1milliunits (const uint8_t* oort);
+void db_disc_handler(ble_db_discovery_evt_t* p_evt);
+static int convert_oort_to_p1milliunits(const uint8_t* oort);
 
 // Check that the gateway is advertising the correct service UUID.
-static bool __is_oort_service_present(const ble_gap_evt_adv_report_t *p_adv_report) {
+static bool __is_oort_service_present(const ble_gap_evt_adv_report_t* p_adv_report) {
   uint8_t service_id[16] = OORT_BASE_UUID;
   uint32_t index         = 0;
-  uint8_t *p_data        = (uint8_t *)p_adv_report->data;
+  uint8_t* p_data        = (uint8_t*)p_adv_report->data;
 
   while (index < p_adv_report->dlen) {
     uint8_t field_length = p_data[index];
@@ -171,7 +170,7 @@ static bool __is_oort_service_present(const ble_gap_evt_adv_report_t *p_adv_repo
 }
 
 // Do the next operation.
-static void __next (void) {
+static void __next(void) {
   uint32_t err_code;
 
   switch (_state) {
@@ -362,7 +361,7 @@ static void __next (void) {
 //
 // Returns value in 10^-4 of whatever the value actually is. So, if
 // the value is say 120.3, this will return 1203000.
-static int convert_oort_to_p1milliunits (const uint8_t* oort) {
+static int convert_oort_to_p1milliunits(const uint8_t* oort) {
 
   // First byte is the decimal shift.
   uint8_t decimal_point_shift = oort[0];
@@ -391,7 +390,7 @@ static int convert_oort_to_p1milliunits (const uint8_t* oort) {
 }
 
 
-static void __on_ble_evt (ble_evt_t* p_ble_evt) {
+static void __on_ble_evt(ble_evt_t* p_ble_evt) {
   switch (p_ble_evt->header.evt_id) {
     case BLE_GAP_EVT_CONN_PARAM_UPDATE: {
       // just update them right now
@@ -496,7 +495,7 @@ static void __on_ble_evt (ble_evt_t* p_ble_evt) {
       _next_state = OORT_STATE_NONE;
 
       printf("Disconnected! Attempting to reconnect in 2s\n");
-      delay_ms(2000);
+      libtocksync_alarm_delay_ms(2000);
       setup_oort();
       break;
     }
@@ -510,7 +509,7 @@ static void __on_ble_evt (ble_evt_t* p_ble_evt) {
   }
 }
 
-void db_disc_handler (ble_db_discovery_evt_t* p_evt) {
+void db_disc_handler(ble_db_discovery_evt_t* p_evt) {
   if (p_evt->evt_type == BLE_DB_DISCOVERY_COMPLETE) {
     // We have discovered a service. Loop through the characteristics until
     // we found the ones we care about.
@@ -545,12 +544,12 @@ void db_disc_handler (ble_db_discovery_evt_t* p_evt) {
   }
 }
 
-void ble_error (uint32_t error_code) {
+void ble_error(uint32_t error_code) {
   printf("BLE ERROR: Code = 0x%x\n", (int) error_code);
 }
 
 // Called by the softdevice (via serialization) when a BLE event occurs.
-static void __ble_evt_dispatch (ble_evt_t* p_ble_evt) {
+static void __ble_evt_dispatch(ble_evt_t* p_ble_evt) {
   __on_ble_evt(p_ble_evt);
   ble_db_discovery_on_ble_evt(&_ble_db_discovery, p_ble_evt);
   ble_conn_params_on_ble_evt(p_ble_evt);
@@ -561,12 +560,12 @@ static void __ble_evt_dispatch (ble_evt_t* p_ble_evt) {
  * MAIN
  ******************************************************************************/
 
-void setup_oort (void) {
+void setup_oort(void) {
   _state = OORT_STATE_SETUP;
   __next();
 }
 
-void toggle_relay (void) {
+void toggle_relay(void) {
   if (!_setup) {
     _next_state = OORT_STATE_RELAY_TOGGLE_START;
     setup_oort();
@@ -577,25 +576,24 @@ void toggle_relay (void) {
   }
 }
 
-static void button_callback(__attribute__ ((unused)) int   btn_num,
-                            int                            val,
-                            __attribute__ ((unused)) int   arg2,
-                            __attribute__ ((unused)) void *ud) {
-  if (val == 1 && _state == OORT_STATE_NONE) {
+static void button_callback(
+  __attribute__ ((unused)) returncode_t ret,
+  __attribute__ ((unused)) int          btn_num,
+  bool                                  val) {
+  if (val && _state == OORT_STATE_NONE) {
     printf("Button press! Toggle the relay!\n");
     toggle_relay();
   }
 }
 
-int main (void) {
+int main(void) {
   uint32_t err_code;
 
   printf("[Wit Energy]\n");
   printf("Press the user button to toggle the relay.\n");
 
   // Button press toggles meter relay.
-  button_subscribe(button_callback, NULL);
-  button_enable_interrupt(0);
+  libtock_button_notify_on_press(0, button_callback);
 
   // Setup simple BLE. This does most of the nordic setup.
   simple_ble_init(&_ble_config);
@@ -613,4 +611,8 @@ int main (void) {
   err_code = ble_db_discovery_init(db_disc_handler);
   ble_db_discovery_evt_register(&_oort_info_service_uuid);
   ble_db_discovery_evt_register(&_oort_sensor_service_uuid);
+
+  while (1) {
+    yield();
+  }
 }

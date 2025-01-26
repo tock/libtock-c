@@ -2,7 +2,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "console.h"
+#include "interface/console.h"
 #include "tock.h"
 
 // XXX Suppress unused parameter warnings for this file as the implementations
@@ -25,58 +25,43 @@
 
 void* __dso_handle = 0;
 
-int _unlink(const char *pathname) {
+int _unlink(const char* pathname) {
   return -1;
 }
 
-int _isatty(int fd)
-{
+int _isatty(int fd) {
   if (fd == 0) {
     return 1;
   }
   return 0;
 }
-int _open(const char* path, int flags, ...)
-{
+int _open(const char* path, int flags, ...) {
   return -1;
 }
-int _write(int fd, const void *buf, uint32_t count)
-{
-  putnstr((const char*)buf, count);
-  return count;
-}
-int _close(int fd)
-{
+int _close(int fd) {
   return -1;
 }
-int _fstat(int fd, struct stat *st)
-{
+int _fstat(int fd, struct stat* st) {
   st->st_mode = S_IFCHR;
   return 0;
 }
-int _lseek(int fd, uint32_t offset, int whence)
-{
+int _lseek(int fd, uint32_t offset, int whence) {
   return 0;
 }
-int _read(int fd, void *buf, uint32_t count)
-{
+int _read(int fd, void* buf, uint32_t count) {
   return 0;   // k_read(fd, (uint8_t*) buf, count);
 }
-void _exit(int __status)
-{
-  while (666) {}
+void _exit(int __status) {
+  tock_exit((uint32_t) __status);
 }
-int _getpid(void)
-{
+int _getpid(void) {
   return 0;
 }
-int _kill(pid_t pid, int sig)
-{
+int _kill(pid_t pid, int sig) {
   return -1;
 }
 
-caddr_t _sbrk(int incr)
-{
+caddr_t _sbrk(int incr) {
   memop_return_t ret;
   ret = memop(1, incr);
   if (ret.status != TOCK_STATUSCODE_SUCCESS) {

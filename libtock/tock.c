@@ -7,7 +7,7 @@
 #include "tock.h"
 
 typedef struct {
-  subscribe_upcall *cb;
+  subscribe_upcall* cb;
   int arg0;
   int arg1;
   int arg2;
@@ -66,6 +66,37 @@ int tock_command_return_u32_to_returncode(syscall_return_t command_return, uint3
   }
 }
 
+int tock_command_return_u64_to_returncode(syscall_return_t command_return, uint64_t* val) {
+  uint32_t lsb;
+  uint32_t msb;
+  if (command_return.type == TOCK_SYSCALL_SUCCESS_U64) {
+    lsb  = command_return.data[0];
+    msb  = command_return.data[1];
+    *val = ((uint64_t)msb << 32) | lsb;
+    return RETURNCODE_SUCCESS;
+  } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    // The remaining SyscallReturn variants must never happen if using this
+    // function. We return `EBADRVAL` to signal an unexpected return variant.
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
+int tock_command_return_u32_u32_to_returncode(syscall_return_t command_return, uint32_t* val1, uint32_t* val2) {
+  if (command_return.type == TOCK_SYSCALL_SUCCESS_U32_U32) {
+    *val1 = command_return.data[0];
+    *val2 = command_return.data[1];
+    return RETURNCODE_SUCCESS;
+  } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    // The remaining SyscallReturn variants must never happen if using this
+    // function. We return `EBADRVAL` to signal an unexpected return variant.
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
 int tock_subscribe_return_to_returncode(subscribe_return_t subscribe_return) {
   // If the subscribe was successful, easily return SUCCESS.
   if (subscribe_return.success) {
@@ -96,7 +127,17 @@ int tock_allow_ro_return_to_returncode(allow_ro_return_t allow_return) {
   }
 }
 
-void yield_for(bool *cond) {
+int tock_allow_userspace_r_return_to_returncode(allow_userspace_r_return_t allow_return) {
+  // If the allow was successful, easily return SUCCESS.
+  if (allow_return.success) {
+    return RETURNCODE_SUCCESS;
+  } else {
+    // Not success, so return the proper returncode.
+    return tock_status_to_returncode(allow_return.status);
+  }
+}
+
+void yield_for(bool* cond) {
   while (!*cond) {
     yield();
   }

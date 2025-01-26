@@ -114,21 +114,15 @@ include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
 
 > __Note! `:=` is NOT the same as `=` in make. You must use `:=`.__
 
-### Developing (building) libraries concurrently with applications
+### Building libraries concurrently with applications
 
-When developing a library, often it's useful to have the library rebuild automatically
-as part of the application build. Assuming that your library is using `TockLibrary.mk`,
-you can simply include the library's Makefile in your application's Makefile:
+If a library includes a `Makefile.setup` Makefile, the library will be built as
+a prerequisite of building the app.
 
-```make
-include $(TOCK_USERLAND_BASE_DIR)/libexample/Makefile
-include ../../AppMakefile.mk
-```
+The `Makefile.setup` file should have rules to download the source for the
+library.
 
-**Example:** We don't have an in-tree example of a single app that rebuilds
-a dedicated library in the Tock repository, but libtock is effectively treated
-this way as its Makefile is
-[included by AppMakefile.mk](../AppMakefile.mk#L17).
+**Example:** the `u8g2` library uses this.
 
 ### Pre-built libraries
 

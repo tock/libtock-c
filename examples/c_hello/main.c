@@ -5,17 +5,19 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <console.h>
+#include <libtock/interface/console.h>
 
 char hello[] = "Hello World!\r\n";
 
 static void nop(
-  int   a __attribute__((unused)),
-  int   b __attribute__((unused)),
-  int   c __attribute__((unused)),
-  void* d __attribute__((unused))) {}
+  returncode_t ret __attribute__((unused)),
+  uint32_t     bytes_written __attribute__((unused))) {}
 
 int main(void) {
-  putnstr_async(hello, strlen(hello), nop, NULL);
+  libtock_console_write((uint8_t*) hello, strlen(hello), nop);
+  // Because we used the async method (as opposed to something synchronous,
+  // such as printf), we must explicitly wait for the asynchronous write to complete.
+  yield();
+  // Now we are done.
   return 0;
 }

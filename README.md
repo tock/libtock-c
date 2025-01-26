@@ -11,20 +11,19 @@ Tock apps that sit above the kernel.
 Prerequisites
 -------------
 
-1. If you have not yet done so, it might be a good idea to start with
-   the [TockOS getting started
+1. If you have not yet done so, it might be a good idea to start with the
+   [TockOS getting started
    guide](https://github.com/tock/tock/blob/master/doc/Getting_Started.md),
-   which will lead you through the installation of some tools that
-   will be useful for developing and deploying applications on
-   TockOS. In particular, it will give you a rust environment
-   (required to install `elf2tab`) and `tockloader`, which you need to
-   deploy applications on most boards.
+   which will lead you through the installation of some tools that will be
+   useful for developing and deploying applications on TockOS. In particular, it
+   will give you a rust environment (required to install `elf2tab`) and
+   `tockloader`, which you need to deploy applications on most boards.
 
-   And it will of course give you a board with TockOS installed which
-   you can use to run the applications found in this repository.
+   And it will of course give you a board with TockOS installed which you can
+   use to run the applications found in this repository.
 
-   So, if you haven't been there before, just head over there until it
-   sends you back here.
+   So, if you haven't been there before, just head over there until it sends you
+   back here.
 
 1. Clone this repository.
 
@@ -35,95 +34,27 @@ Prerequisites
 
 1. The main requirement to build the C applications in this repository is having
    cross compilers for embedded targets. You will need an `arm-none-eabi`
-   toolchain for Cortex-M targets.
+   toolchain for Cortex-M targets and a RISC-V toolchain for rv32 targets.
 
    **MacOS**:
    ```
-   $ brew tap ARMmbed/homebrew-formulae && brew update && brew install arm-none-eabi-gcc
+   $ brew install arm-none-eabi-gcc riscv64-elf-gcc
    ```
 
-   **Ubuntu (18.04LTS or later)**:
+   **Ubuntu**:
    ```
-   $ sudo apt install gcc-arm-none-eabi
+   $ sudo apt install gcc-arm-none-eabi gcc-riscv64-unknown-elf
    ```
 
    **Arch**:
    ```
-   $ sudo pacman -Syu arm-none-eabi-gcc arm-none-eabi-newlib
+   $ sudo pacman -Syu arm-none-eabi-gcc riscv64-elf-gcc
    ```
 
    **Fedora**:
    ```
-   $ sudo dnf install arm-none-eabi-newlib arm-none-eabi-gcc-cs
+   $ sudo dnf install arm-none-eabi-gcc-cs
    ```
-
-2. Optional: libtock-c also includes support for building for ***RISC-V
-   targets***. These are not included by default since obtaining the toolchain
-   can be difficult (as of July 2022). You will need a RISC-V toolchain that
-   supports rv32 targets (64 bit toolchains support rv32 if compiled with
-   multilib support). Some toolchains that can work:
-
-   - riscv64-none-elf
-   - riscv32-none-elf
-   - riscv64-elf
-   - riscv64-unknown-elf
-   - riscv32-unknown-elf
-
-   To actually build for the RISC-V targets, add `RISCV=1` to the make command:
-
-       $ make RISCV=1
-
-   **MacOS**:
-   ```
-   $ brew tap riscv/riscv && brew update && brew install riscv-gnu-toolchain
-   ```
-
-   **Ubuntu (21.10 or later)**:
-   ```
-   $ sudo apt install gcc-riscv64-unknown-elf picolibc-riscv64-unknown-elf
-   ```
-
-   **Ubuntu (21.04 or earlier)**:
-
-   Unfortunately, older Ubuntu does not provide a package for RISC-V libc. We
-   have created a .deb file you can use to install a suitable libc based on
-   newlib:
-   ```
-   $ wget http://cs.virginia.edu/~bjc8c/archive/newlib_3.3.0-1_amd64.deb
-   $ sudo dpkg -i newlib_3.3.0-1_amd64.deb
-   ```
-
-   If you would rather compile your own newlib-based libc, follow the steps
-   below. Section [newlib-nano](newlib-nano) describes some extra config options
-   to build a size optimised newlib.
-   ```
-   # Download newlib 3.3 from https://sourceware.org/newlib/
-   $ wget ftp://sourceware.org/pub/newlib/newlib-3.3.0.tar.gz
-   $ tar -xvf newlib-3.3.0.tar.gz
-   $ cd newlib-3.3.0
-   # Disable stdlib for building
-   $ export CFLAGS=-nostdlib
-   # Run configure
-   $ ./configure --disable-newlib-supplied-syscalls --with-gnu-ld --with-newlib --enable-languages=c --target=riscv64-unknown-elf --host=x86 --disable-multi-lib --prefix /usr
-   # Build and then install
-   $ make -j8
-   $ sudo make install
-   ```
-
-   Alternatively, you may use a pre-compiled toolchain that we created with
-   Crosstool-NG.
-   ```
-   $ wget http://cs.virginia.edu/~bjc8c/archive/gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
-   $ unzip gcc-riscv64-unknown-elf-8.3.0-ubuntu.zip
-   # add gcc-riscv64-unknown-elf-8.3.0-ubuntu/bin to your `$PATH` variable.
-   ```
-
-   **Arch**:
-   ```
-   $ sudo pacman -Syu riscv64-elf-gcc riscv32-elf-newlib arm-none-eabi-newlib riscv64-elf-newlib
-   ```
-
-   **Fedora**:
 
    **dnf** does not contain the `riscv-gnu-toolchain`, an alternative is to
    compile from source. Start with some of the tools we need to compile the
@@ -162,14 +93,14 @@ Prerequisites
    **newlib-nano**:
 
    newlib can require a large amount of memory, especially for printing.
-   If this is a concern you can instead use a more size optimised version.
+   If this is a concern you can instead use a more size optimized version.
    As of August 2020 there are a few options for this.
 
    - See if the version of newlib from your distro already has the flags below
-     enabled. If it does it's already size optimsed.
-   - See if your distro pacakges a newlib-nano (Debian does this) that will
+     enabled. If it does it's already size optimized.
+   - See if your distro packages a newlib-nano (Debian does this) that will
      already include the flags below.
-   - See if your distro packages picolibc, which is a optimised fork of newlib.
+   - See if your distro packages picolibc, which is a optimized fork of newlib.
    - You can compile newlib with these extra flags:
         ```
           --enable-newlib-reent-small \
@@ -187,7 +118,7 @@ Prerequisites
    the LLVM clang compiler. If you have a compatible clang toolchain, you can
    add `CLANG=1` to the make command to use clang instead of the default GCC.
 
-       $ make RISCV=1 CLANG=1
+       $ make CLANG=1
 
    This support is only included for RISC-V targets as Cortex-M targets require
    the FDPIC support only present in GCC.
@@ -281,13 +212,7 @@ at your option.
 Contributions
 -------------
 
-We welcome contributions from all. We use the bors-ng bot to manage, approve,
-and merge PRs. In short, when someone replies `bors r+`, your PR has been
-approved and will be automatically merged. If a maintainer replies `bors
-delegate+`, then you have been granted the authority to mark your own PR for
-approval (usually this will happen if there are some trivial changes required).
-For a full list of bors commands, [see the bors
-documentation](https://bors.tech/documentation/).
+We welcome contributions from all.
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be

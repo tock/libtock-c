@@ -25,23 +25,55 @@ include $(TOCK_USERLAND_BASE_DIR)/Configuration.mk
 # Helper functions.
 include $(TOCK_USERLAND_BASE_DIR)/Helpers.mk
 
+# Targets for fetching pre-compiled libraries.
+include $(TOCK_USERLAND_BASE_DIR)/Precompiled.mk
+
 # Include the libtock makefile. Adds rules that will rebuild the core libtock
 # library when needed.
 include $(TOCK_USERLAND_BASE_DIR)/libtock/Makefile
 
-# Connection to the Tock kernel. Apps need the ability to be loaded onto a
-# board, and that method is board-specific. So for now, we have the TOCK_BOARD
-# variable which selects one and we include the appropriate Makefile-app from
-# within the Tock base directory.
-TOCK_BOARD ?= hail
+# Include the libtock-sync Makefile. Adds rules that will rebuild the core
+# libtock-sync library when needed.
+include $(TOCK_USERLAND_BASE_DIR)/libtock-sync/Makefile
 
 # Include the makefile that has the programming functions for each board.
 include $(TOCK_USERLAND_BASE_DIR)/Program.mk
 
+# Remove any leading or trailing spaces from PACKAGE_NAME and then verify there
+# are no spaces within the PACKAGE_NAME variable.
+override PACKAGE_NAME := $(strip $(PACKAGE_NAME))
+$(call check_no_spaces, PACKAGE_NAME)
 
+# Rules to call library makefiles to build required libraries.
+#
+# We support an optional Makefile.setup which is responsible for retrieving the
+# source used to build the library.
+#
+# Secret sauce: For this rule to work, make must treat the targets as a group.
+# For make to do that, the targets must use the `%` wildcard, and that wildcard
+# MUST expand to the same value for every target. To ensure this, we use the
+# build directory for the library as the `%` expansion.
+#
+# Arguments:
+# - $(1): Pattern matching all arch-specific library files.
+# - $(2): The path to the library.
+define EXTERN_LIB_BUILD_RULE
+
+ifneq "$$(wildcard $(2)/Makefile.setup)" ""
+# Since a Makefile.setup exists, do any setup steps needed to fetch the library.
+$(1):
+	$$(MAKE) -C $(2) -f Makefile.setup all
+	$$(MAKE) -C $(2) -f Makefile all
+else
+$(1):
+	$$(MAKE) -C $(2) -f Makefile all
+endif
+
+endef
 
 # Rules to incorporate external libraries
 define EXTERN_LIB_RULES
+
 EXTERN_LIB_NAME_$(notdir $(1)) := $(notdir $(1))
 
 # If this library has any additional rules, add them
@@ -52,10 +84,14 @@ ifneq "$$(wildcard $(1)/include)" ""
   override CPPFLAGS += -I$(1)/include
 endif
 
-# Add arch-specific rules for each library
+# Add arch-specific dependencies for the library to ensure the library is built.
 # Use the $(LIBNAME)_BUILDDIR as build directory, if set.
 $$(notdir $(1))_BUILDDIR ?= $(1)/build
 $$(foreach arch, $$(TOCK_ARCHS), $$(eval LIBS_$$(arch) += $$($(notdir $(1))_BUILDDIR)/$$(arch)/$(notdir $(1)).a))
+
+# Generate rule for building the library.
+# $$(info $$(call EXTERN_LIB_BUILD_RULE,$$(foreach arch,$$(TOCK_ARCHS),%/$$(arch)/$(notdir $(1)).a),$(1)))
+$$(eval $$(call EXTERN_LIB_BUILD_RULE,$$(foreach arch,$$(TOCK_ARCHS),%/$$(arch)/$(notdir $(1)).a),$(1)))
 
 endef
 
@@ -104,24 +140,25 @@ $$(BUILDDIR)/$(1):
 	$$(TRACE_DIR)
 	$$(Q)mkdir -p $$@
 
+
 # First step doesn't actually compile, just generate header dependency information
 # More info on our approach here: http://stackoverflow.com/questions/97338
-$$(BUILDDIR)/$(1)/%.o: %.c | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/%.o: %.c | $$(BUILDDIR)/$(1) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1))
 	$$(TRACE_CC)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
-$$(BUILDDIR)/$(1)/%.o: %.cc | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/%.o: %.cc | $$(BUILDDIR)/$(1) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1))
 	$$(TRACE_CXX)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
-$$(BUILDDIR)/$(1)/%.o: %.cpp | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/%.o: %.cpp | $$(BUILDDIR)/$(1) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1))
 	$$(TRACE_CXX)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
 
-$$(BUILDDIR)/$(1)/%.o: %.cxx | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/%.o: %.cxx | $$(BUILDDIR)/$(1) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1))
 	$$(TRACE_CXX)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -MF"$$(@:.o=.d)" -MG -MM -MP -MT"$$(@:.o=.d)@" -MT"$$@" "$$<"
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CXX) $$(CXXFLAGS) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) -c -o $$@ $$<
@@ -157,7 +194,7 @@ $$(BUILDDIR)/$(1)/$(2).custom.ld: $$(LAYOUT) | $$(BUILDDIR)/$(1)
 	  perl -pi -e "s/(SRAM.*ORIGIN[ =]*)([x0-9]*)(,.*LENGTH)/\$$$${1}$(4)\$$$$3/" $$@
 
 # Collect all desired built output.
-$$(BUILDDIR)/$(1)/$(2).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(2).custom.ld | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(2).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1)) $$(BUILDDIR)/$(1)/$(2).custom.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(WLFLAGS) $$(WLFLAGS_$(1))\
 	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
@@ -165,7 +202,7 @@ $$(BUILDDIR)/$(1)/$(2).elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
 	    -T $$(BUILDDIR)/$(1)/$(2).custom.ld\
 	    -nostdlib\
-	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(LINK_LIBS_$(1)) -Wl,--end-group\
+	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1)) -Wl,--end-group\
 	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(2).Map\
 	    -o $$@
 
@@ -244,7 +281,7 @@ else
 endif
 
 # Step 2: Create a new ELF with the layout that matches what's loaded
-$$(BUILDDIR)/$(1)/$(2).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(BUILDDIR)/$(1)/$(2).userland_debug.ld | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(2).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1)) $$(BUILDDIR)/$(1)/$(2).userland_debug.ld | $$(BUILDDIR)/$(1)
 	$$(TRACE_LD)
 	$$(Q)$$(TOOLCHAIN_$(1))$$(CC_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(WLFLAGS) $$(WLFLAGS_$(1))\
 	    -Xlinker --defsym=STACK_SIZE=$$(STACK_SIZE)\
@@ -252,7 +289,7 @@ $$(BUILDDIR)/$(1)/$(2).userland_debug.elf: $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY
 	    -Xlinker --defsym=KERNEL_HEAP_SIZE=$$(KERNEL_HEAP_SIZE)\
 	    -T $$(BUILDDIR)/$(1)/$(2).userland_debug.ld\
 	    -nostdlib\
-	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(LEGACY_LIBS_$(1)) $$(LINK_LIBS_$(1)) -Wl,--end-group\
+	    -Wl,--start-group $$(OBJS_$(1)) $$(LIBS_$(1)) $$(SYSTEM_LIBS_$(1)) $$(SYSTEM_LIBS_CXX_$(1)) -Wl,--end-group\
 	    -Wl,-Map=$$(BUILDDIR)/$(1)/$(2).Map\
 	    -o $$@
 
@@ -299,7 +336,7 @@ FLASH_ADDRESS_FN = $(if $(word 3,$(subst |, ,$1)),$(word 3,$(subst |, ,$1)),0x80
 RAM_ADDRESS_FN = $(if $(word 4,$(subst |, ,$1)),$(word 4,$(subst |, ,$1)),0x00000000)
 
 # To see the generated rules, run:
-#$(info $(foreach platform, $(TOCK_ARCHS), $(eval $(call BUILD_RULES_PER_ARCH,$(platform)))))
+#$(info $(foreach platform, $(TOCK_ARCHS), $(call BUILD_RULES_PER_ARCH,$(platform))))
 #$(info $(foreach platform, $(TOCK_TARGETS), $(call BUILD_RULES,$(call ARCH_FN,$(platform)),$(call OUTPUT_NAME_FN,$(platform)),$(call FLASH_ADDRESS_FN,$(platform)),$(call RAM_ADDRESS_FN,$(platform)))))
 # Actually generate the rules for each architecture
 $(foreach platform, $(TOCK_ARCHS), $(eval $(call BUILD_RULES_PER_ARCH,$(platform))))
@@ -355,16 +392,16 @@ $(BUILDDIR)/format:
 .PHONY: fmt format
 fmt format:: $(FORMATTED_FILES)
 
-$(BUILDDIR)/format/%.uncrustify: %.c | _format_check_unstaged
+$(BUILDDIR)/format/%.uncrustify: %.c $(TOCK_USERLAND_BASE_DIR)/tools/uncrustify/uncrustify.cfg | _format_check_unstaged
 	$(Q)$(UNCRUSTIFY) -f $< -o $@
 	$(Q)cmp -s $< $@ || (if [ "$$CI" = "true" ]; then diff -y $< $@; rm $@; exit 1; else cp $@ $<; fi)
-$(BUILDDIR)/format/%.uncrustify: %.cc | _format_check_unstaged
+$(BUILDDIR)/format/%.uncrustify: %.cc $(TOCK_USERLAND_BASE_DIR)/tools/uncrustify/uncrustify.cfg | _format_check_unstaged
 	$(Q)$(UNCRUSTIFY) -f $< -o $@
 	$(Q)cmp -s $< $@ || (if [ "$$CI" = "true" ]; then diff -y $< $@; rm $@; exit 1; else cp $@ $<; fi)
-$(BUILDDIR)/format/%.uncrustify: %.cpp | _format_check_unstaged
+$(BUILDDIR)/format/%.uncrustify: %.cpp $(TOCK_USERLAND_BASE_DIR)/tools/uncrustify/uncrustify.cfg | _format_check_unstaged
 	$(Q)$(UNCRUSTIFY) -f $< -o $@
 	$(Q)cmp -s $< $@ || (if [ "$$CI" = "true" ]; then diff -y $< $@; rm $@; exit 1; else cp $@ $<; fi)
-$(BUILDDIR)/format/%.uncrustify: %.cxx | _format_check_unstaged
+$(BUILDDIR)/format/%.uncrustify: %.cxx $(TOCK_USERLAND_BASE_DIR)/tools/uncrustify/uncrustify.cfg | _format_check_unstaged
 	$(Q)$(UNCRUSTIFY) -f $< -o $@
 	$(Q)cmp -s $< $@ || (if [ "$$CI" = "true" ]; then diff -y $< $@; rm $@; exit 1; else cp $@ $<; fi)
 

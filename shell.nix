@@ -5,51 +5,37 @@
 #  * `tockloader`
 #  * arm-none-eabi toolchain
 #  * elf2tab
-#  * (optionally) riscv32-embedded toolchain
+#  * riscv32-embedded toolchain
 #
 # To use:
 #
 #  $ nix-shell
-#
-# The RISC-V toolchain can be disabled optionally. This will further
-# prevent RISC-V specific environment variables from being set in the
-# Nix shell environment:
-#
-#  $ nix-shell shell.nix --arg disableRiscvToolchain true
 
-{ pkgs ? import <nixpkgs> {}, disableRiscvToolchain ? false }:
+{ pkgs ? import <nixpkgs> {}, withUnfreePkgs ? false }:
 
 with builtins;
 let
-  inherit (pkgs) stdenv lib;
-  pythonPackages = lib.fix' (self: with self; pkgs.python3Packages //
-  {
+  inherit (pkgs) stdenv stdenvNoCC lib;
 
-    tockloader = buildPythonPackage rec {
-      pname = "tockloader";
-      version = "1.7.0";
-      name = "${pname}-${version}";
+  tockloader = import (pkgs.fetchFromGitHub {
+    owner = "tock";
+    repo = "tockloader";
+    rev = "v1.12.0";
+    sha256 = "sha256-VgbAKDY/7ZVINDkqSHF7C0zRzVgtk8YG6O/ZmUpsh/g=";
+  }) { inherit pkgs withUnfreePkgs; };
 
-      propagatedBuildInputs = [ argcomplete colorama crcmod pyserial pytoml tqdm ];
-
-      src = fetchPypi {
-        inherit pname version;
-        sha256 = "05ygljkpdympkq13rbnpz3i1h8xdsrxz0cj2i1bkbs0aswq4sc8b";
-      };
-    };
-  });
   elf2tab = pkgs.rustPlatform.buildRustPackage rec {
     name = "elf2tab-${version}";
-    version = "0.7.0";
+    version = "0.12.0";
 
     src = pkgs.fetchFromGitHub {
       owner = "tock";
       repo = "elf2tab";
       rev = "v${version}";
-      sha256 = "16k8i03p3hbmrgz9xvv5wm3azrqbq2j7858f75b8yrm3w93dwlrv";
+      sha256 = "sha256-+VeWLBI6md399Oaumt4pJrOkm0Nz7fmpXN2TjglUE34=";
     };
 
-    cargoSha256 = "14z6564jmxd2627m5zjsnc3qjsxy5fymnxlmz0fjhi4gkwyiygjk";
+    cargoSha256 = "sha256-UHAwk1fBcabRqy7VMhz4aoQuIur+MQshDOhC7KFyGm4=";
   };
 in
   pkgs.mkShell {
@@ -59,12 +45,20 @@ in
       elf2tab
       gcc-arm-embedded
       python3Full
-      pythonPackages.tockloader
-    ] ++ (lib.optional (!disableRiscvToolchain) pkgsCross.riscv32-embedded.buildPackages.gcc);
+      tockloader
+      pkgsCross.riscv32-embedded.buildPackages.gcc
+      uncrustify
+      unzip
+      openocd
+    ] ++ (lib.optionals withUnfreePkgs [
+      segger-jlink
+      tockloader.nrf-command-line-tools
+    ]);
 
     shellHook = ''
-      ${if (!disableRiscvToolchain) then ''
-        export RISCV=1
-      '' else ""}
-    '';
+      # TODO: This should be patched into the rpath of the respective libraries!
+      export LD_LIBRARY_PATH=${pkgs.libusb}/lib:$LD_LIBRARY_PATH
+    '' + (lib.optionalString withUnfreePkgs ''
+      export LD_LIBRARY_PATH=${pkgs.segger-jlink}/lib:$LD_LIBRARY_PATH
+    '');
   }

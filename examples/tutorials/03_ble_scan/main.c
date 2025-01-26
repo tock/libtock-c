@@ -8,7 +8,7 @@
 // Included in the libnrfserialization.a library.
 #include <simple_ble.h>
 
-#include <led.h>
+#include <libtock/interface/led.h>
 
 /*******************************************************************************
  * BLE
@@ -32,13 +32,13 @@ void app_error_fault_handler(__attribute__ ((unused)) uint32_t error_code,
   // The application can continue.
 }
 
-void ble_address_set (void) {
+void ble_address_set(void) {
   // Need to redefine this function so that we do not try to set the address
   // on the main processor.
 }
 
 // Called when each advertisement is received.
-void ble_evt_adv_report (ble_evt_t* p_ble_evt) {
+void ble_evt_adv_report(ble_evt_t* p_ble_evt) {
   // Follow the nRF SDK data structures to get to the advertising data.
   // More doc here:
   // http://infocenter.nordicsemi.com/topic/com.nordic.infocenter.s130.api.v2.0.0/structble__gap__evt__adv__report__t.html
@@ -51,14 +51,14 @@ void ble_evt_adv_report (ble_evt_t* p_ble_evt) {
          adv->rssi, adv->dlen);
 
   // Also toggle the first LED.
-  led_toggle(0);
+  libtock_led_toggle(0);
 }
 
 /*******************************************************************************
  * MAIN
  ******************************************************************************/
 
-int main (void) {
+int main(void) {
   printf("[Tutorial] BLE Scanning\n");
 
   // Setup BLE. See the simple_ble library for more information:
@@ -67,4 +67,8 @@ int main (void) {
 
   // Scan for advertisements.
   simple_ble_scan_start();
+
+  while (1) {
+    yield();
+  }
 }

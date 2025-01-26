@@ -4,6 +4,12 @@
 [submodule "lvgl/lvgl"]
 	path = lvgl/lvgl
 	url = https://github.com/littlevgl/lvgl.git
+[submodule "libopenthread/openthread"]
+	path = libopenthread/openthread
+	url = https://github.com/openthread/openthread.git
+[submodule "RadioLib/RadioLib"]
+	path = RadioLib/RadioLib
+	url = https://github.com/jgromes/RadioLib.git
 [submodule "lwip/lwip"]
 	path = lwip/lwip
 	url = https://git.savannah.gnu.org/git/lwip.git

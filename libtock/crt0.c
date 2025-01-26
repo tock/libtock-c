@@ -1,5 +1,6 @@
+#include "tock.h"
+#include <stdlib.h>
 #include <string.h>
-#include <tock.h>
 
 #if defined(STACK_SIZE)
 #warning Attempt to compile libtock with a fixed STACK_SIZE.
@@ -12,7 +13,7 @@
 #error Fixed STACK_SIZE.
 #endif
 
-extern int main(void);
+extern int main(int argc, char* argv[]);
 
 // Allow _start to go undeclared
 #pragma GCC diagnostic ignored "-Wmissing-declarations"
@@ -159,7 +160,6 @@ void _start(void* app_start __attribute__((unused)),
     "movs r0, r6\n"             // first arg is app_start
     "movs r1, r7\n"             // second arg is mem_start
     "bl _c_start_pic\n"
-    "bkpt #255\n"
     );
 
 #elif defined(__riscv)
@@ -327,10 +327,7 @@ void _c_start_pic(uint32_t app_start, uint32_t mem_start) {
     }
   }
 
-  main();
-  while (1) {
-    yield();
-  }
+  exit(main(0, NULL));
 }
 
 // C startup routine for apps compiled with fixed addresses (i.e. no PIC).
@@ -364,8 +361,5 @@ void _c_start_nopic(uint32_t app_start, uint32_t mem_start) {
   char* bss_start = (char*)(myhdr->bss_start + mem_start);
   memset(bss_start, 0, myhdr->bss_size);
 
-  main();
-  while (1) {
-    yield();
-  }
+  exit(main(0, NULL));
 }

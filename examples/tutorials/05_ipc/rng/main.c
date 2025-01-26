@@ -1,6 +1,6 @@
-#include <ipc.h>
-#include <rng.h>
-#include <tock.h>
+#include <libtock-sync/peripherals/rng.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/tock.h>
 
 // Random Number Generator Service
 //
@@ -41,7 +41,7 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
 
   // Fill the buffer with random bytes.
   int number_of_bytes_received;
-  rng_sync(rng, len, number_of_bytes, &number_of_bytes_received);
+  libtocksync_rng_get_random_bytes(rng, len, number_of_bytes, &number_of_bytes_received);
   memcpy(buffer, rng, number_of_bytes_received);
   free(rng);
 
@@ -54,5 +54,8 @@ int main(void) {
   // of this app.
   ipc_register_service_callback("org.tockos.tutorials.ipc.rng", ipc_callback,
                                 NULL);
-  return 0;
+
+  while (1) {
+    yield();
+  }
 }

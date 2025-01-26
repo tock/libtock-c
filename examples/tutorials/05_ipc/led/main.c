@@ -1,6 +1,6 @@
-#include <ipc.h>
-#include <led.h>
-#include <tock.h>
+#include <libtock/interface/led.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/tock.h>
 
 // This service can control the LEDs on a board.
 //
@@ -43,9 +43,9 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
       uint8_t led_state = buffer[2] > 0;
 
       if (led_state == 0) {
-        led_off(led_id);
+        libtock_led_off(led_id);
       } else {
-        led_on(led_id);
+        libtock_led_on(led_id);
       }
       ipc_notify_client(pid);
       break;
@@ -54,9 +54,12 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
 
 int main(void) {
   // First get the number of LEDs setup on this board.
-  led_count((int*) &_number_of_leds);
+  libtock_led_count((int*) &_number_of_leds);
 
   ipc_register_service_callback("org.tockos.tutorials.ipc.led", ipc_callback,
                                 NULL);
-  return 0;
+
+  while (1) {
+    yield();
+  }
 }

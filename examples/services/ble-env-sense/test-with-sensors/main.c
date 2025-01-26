@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <ipc.h>
-#include <timer.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/kernel/ipc.h>
 
-#include <ambient_light.h>
-#include <humidity.h>
-#include <temperature.h>
+#include <libtock-sync/sensors/ambient_light.h>
+#include <libtock-sync/sensors/humidity.h>
+#include <libtock-sync/sensors/temperature.h>
 
 size_t _svc_num = 0;
 
@@ -14,8 +14,8 @@ char buf[64] __attribute__((aligned(64)));
 
 typedef enum {
   SENSOR_TEMPERATURE = 0,
-  SENSOR_IRRADIANCE = 1,
-  SENSOR_HUMIDITY = 2,
+  SENSOR_IRRADIANCE  = 1,
+  SENSOR_HUMIDITY    = 2,
 } sensor_type_e;
 
 typedef struct {
@@ -24,7 +24,7 @@ typedef struct {
 } sensor_update_t;
 
 bool _ipc_done = false;
-tock_timer_t _timer;
+libtock_alarm_t _alarm;
 
 static void ipc_callback(__attribute__ ((unused)) int   pid,
                          __attribute__ ((unused)) int   len,
@@ -33,21 +33,21 @@ static void ipc_callback(__attribute__ ((unused)) int   pid,
   _ipc_done = true;
 }
 
-static void do_sensing_cb(__attribute__ ((unused)) int   now,
-                          __attribute__ ((unused)) int   expiration,
-                          __attribute__ ((unused)) int   unused,
-                          __attribute__ ((unused)) void* ud) {
+
+static void do_sensing_cb(__attribute__ ((unused)) uint32_t now,
+                          __attribute__ ((unused)) uint32_t scheduled,
+                          __attribute__ ((unused)) void*    opaque) {
 
   printf("[BLE ESS Test] Sampling Sensors\n");
 
-  sensor_update_t *update = (sensor_update_t*) buf;
+  sensor_update_t* update = (sensor_update_t*) buf;
 
-  int light     = 0;
-  int temp      = 0;
-  unsigned humi = 0;
+  int light = 0;
+  int temp  = 0;
+  int humi  = 0;
 
   if (driver_exists(DRIVER_NUM_AMBIENT_LIGHT)) {
-    ambient_light_read_intensity_sync(&light);
+    libtocksync_ambient_light_read_intensity(&light);
 
     update->type  = SENSOR_IRRADIANCE;
     update->value = light;
@@ -57,7 +57,7 @@ static void do_sensing_cb(__attribute__ ((unused)) int   now,
   }
 
   if (driver_exists(DRIVER_NUM_TEMPERATURE)) {
-    temperature_read_sync(&temp);
+    libtocksync_temperature_read(&temp);
 
     update->type  = SENSOR_TEMPERATURE;
     update->value = temp;
@@ -67,7 +67,7 @@ static void do_sensing_cb(__attribute__ ((unused)) int   now,
   }
 
   if (driver_exists(DRIVER_NUM_HUMIDITY)) {
-    humidity_read_sync(&humi);
+    libtocksync_humidity_read(&humi);
 
     update->type  = SENSOR_HUMIDITY;
     update->value = humi;
@@ -81,8 +81,7 @@ static void do_sensing_cb(__attribute__ ((unused)) int   now,
   printf("  temp:  %i\n", temp);
   printf("  humi:  %i\n", humi);
 
-  timer_in(3000, do_sensing_cb, NULL, &_timer);
-
+  libtock_alarm_in_ms(3000, do_sensing_cb,  NULL, &_alarm);
 }
 
 
@@ -96,13 +95,13 @@ int main(void) {
 
   printf("Found BLE ESS service (%u)\n", _svc_num);
 
-  delay_ms(1500);
+  libtocksync_alarm_delay_ms(1500);
 
-  sensor_update_t *update = (sensor_update_t*) buf;
+  sensor_update_t* update = (sensor_update_t*) buf;
   ipc_register_client_callback(_svc_num, ipc_callback, update);
   ipc_share(_svc_num, buf, 64);
 
-  timer_in(1000, do_sensing_cb, NULL, &_timer);
+  libtock_alarm_in_ms(1000, do_sensing_cb, NULL,  &_alarm);
 
   return 0;
 }

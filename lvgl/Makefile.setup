@@ -1,0 +1,7 @@
+TOCK_USERLAND_BASE_DIR ?= ..
+
+$(TOCK_USERLAND_BASE_DIR)/lvgl/lvgl/lvgl.h:
+	git submodule init $(TOCK_USERLAND_BASE_DIR)/lvgl/lvgl
+	git submodule update $(TOCK_USERLAND_BASE_DIR)/lvgl/lvgl
+
+all: | $(TOCK_USERLAND_BASE_DIR)/lvgl/lvgl/lvgl.h

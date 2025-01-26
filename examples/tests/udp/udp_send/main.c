@@ -2,20 +2,24 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <ambient_light.h>
-#include <button.h>
-#include <humidity.h>
-#include <rng.h>
-#include <temperature.h>
-#include <timer.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/interface/button.h>
+#include <libtock/interface/led.h>
+#include <libtock/net/ieee802154.h>
+#include <libtock/net/udp.h>
+#include <libtock/peripherals/rng.h>
+#include <libtock/sensors/ambient_light.h>
+#include <libtock/sensors/humidity.h>
+#include <libtock/sensors/temperature.h>
 
-#include <udp.h>
+#include <libtock-sync/net/udp.h>
+#include <libtock/net/udp.h>
 
 #define DEBUG 1
 
 static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
 
-void print_ipv6(ipv6_addr_t *);
+void print_ipv6(ipv6_addr_t*);
 int serialize_to_json(char* packet, int len, uint32_t rand, int temp, int humi, int lux);
 
 int main(void) {
@@ -25,7 +29,7 @@ int main(void) {
   static char packet[70];
 
   ipv6_addr_t ifaces[10];
-  udp_list_ifaces(ifaces, 10);
+  libtock_udp_list_ifaces(ifaces, 10);
 
   sock_handle_t handle;
   sock_addr_t addr = {
@@ -36,7 +40,7 @@ int main(void) {
   printf("Opening socket on ");
   print_ipv6(&ifaces[0]);
   printf(" : %d\n", addr.port);
-  int bind_return = udp_bind(&handle, &addr, BUF_BIND_CFG);
+  int bind_return = libtock_udp_bind(&handle, &addr, BUF_BIND_CFG);
 
   if (bind_return < 0) {
     printf("Bind failed. Error code: %d\n", bind_return);
@@ -65,7 +69,7 @@ int main(void) {
       print_ipv6(&(destination.addr));
       printf(" : %d\n", destination.port);
     }
-    ssize_t result = udp_send_to(packet, len, &destination);
+    returncode_t result = libtocksync_udp_send(packet, len, &destination);
 
     switch (result) {
       case RETURNCODE_SUCCESS:
@@ -77,11 +81,11 @@ int main(void) {
         printf("Error sending packet %d\n\n", result);
     }
     count++;
-    delay_ms(5000);
+    libtocksync_alarm_delay_ms(5000);
   }
 }
 
-void print_ipv6(ipv6_addr_t *ipv6_addr) {
+void print_ipv6(ipv6_addr_t* ipv6_addr) {
   for (int j = 0; j < 14; j += 2) {
     printf("%02x%02x:", ipv6_addr->addr[j], ipv6_addr->addr[j + 1]);
   }

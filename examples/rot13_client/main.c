@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
-#include <timer.h>
 
-#include <ipc.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/kernel/ipc.h>
 
 size_t rot13_svc_num = 0;
 
@@ -16,9 +16,9 @@ struct rot13_buf {
 static void rot13_callback(__attribute__ ((unused)) int pid,
                            __attribute__ ((unused)) int len,
                            __attribute__ ((unused)) int arg2, void* ud) {
-  struct rot13_buf *rb = (struct rot13_buf*)ud;
+  struct rot13_buf* rb = (struct rot13_buf*)ud;
   printf("%d: %.*s\n", rb->length, rb->length, rb->buf);
-  delay_ms(500);
+  libtocksync_alarm_delay_ms(500);
   ipc_notify_service(rot13_svc_num);
 }
 
@@ -30,12 +30,15 @@ int main(void) {
     return -1;
   }
 
-  struct rot13_buf *rb = (struct rot13_buf*)buf;
+  struct rot13_buf* rb = (struct rot13_buf*)buf;
   ipc_register_client_callback(rot13_svc_num, rot13_callback, rb);
 
   rb->length = snprintf(rb->buf, sizeof(rb->buf), "Hello World!");
   ipc_share(rot13_svc_num, rb, 64);
 
   ipc_notify_service(rot13_svc_num);
-  return 0;
+
+  while (1) {
+    yield();
+  }
 }

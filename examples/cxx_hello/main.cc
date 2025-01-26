@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <timer.h>
+#include <libtock-sync/services/alarm.h>
 
 class Base {
 public:
@@ -29,7 +29,7 @@ int main() {
 
   D1 d1class;
   D2 d2class;
-  Base *pClass;
+  Base* pClass;
   while (1) {
     if (test_branch % 2) {
       pClass = &d1class;
@@ -40,7 +40,7 @@ int main() {
     }
     test_branch++;
 
-    delay_ms(1000);
+    libtocksync_alarm_delay_ms(1000);
   }
 
   return 0;

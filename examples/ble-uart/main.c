@@ -12,10 +12,11 @@
 #include <simple_adv.h>
 #include <simple_ble.h>
 
-#include <nrf51_serialization.h>
+#include <libtock/net/nrf51_serialization.h>
 
-#include <console.h>
-#include <tock.h>
+#include <libtock-sync/interface/console.h>
+#include <libtock/interface/console.h>
+#include <libtock/tock.h>
 
 #include "ble_nus.h"
 #include "nrf.h"
@@ -40,11 +41,11 @@ simple_ble_config_t ble_config = {
 // State for UART library.
 static ble_nus_t m_nus;
 
-void ble_address_set (void) {
+void ble_address_set(void) {
   // nop
 }
 
-void ble_evt_user_handler (ble_evt_t* p_ble_evt) {
+void ble_evt_user_handler(ble_evt_t* p_ble_evt) {
   ble_gap_conn_params_t conn_params;
   memset(&conn_params, 0, sizeof(conn_params));
   conn_params.min_conn_interval = ble_config.min_conn_interval;
@@ -63,13 +64,14 @@ void ble_evt_user_handler (ble_evt_t* p_ble_evt) {
 // This gets called with the serial data from the BLE central.
 static void nus_data_handler(ble_nus_t* p_nus, uint8_t* p_data, uint16_t length) {
   UNUSED_PARAMETER(p_nus);
+  int bytes_written;
 
   // In this app, just print it to the console.
-  putnstr((char*) p_data, length);
+  libtocksync_console_write(p_data, length, &bytes_written);
 }
 
 void ble_evt_connected(ble_evt_t* p_ble_evt) {
-  ble_common_evt_t *common = (ble_common_evt_t*) &p_ble_evt->evt;
+  ble_common_evt_t* common = (ble_common_evt_t*) &p_ble_evt->evt;
   conn_handle = common->conn_handle;
 
   ble_nus_on_ble_evt(&m_nus, p_ble_evt);
@@ -86,11 +88,11 @@ void ble_evt_write(ble_evt_t* p_ble_evt) {
   ble_nus_on_ble_evt(&m_nus, p_ble_evt);
 }
 
-void ble_error (uint32_t error_code) {
+void ble_error(uint32_t error_code) {
   printf("BLE ERROR: Code = %d\n", (int)error_code);
 }
 
-void services_init (void) {
+void services_init(void) {
   uint32_t err_code;
   ble_nus_init_t nus_init;
   memset(&nus_init, 0, sizeof(nus_init));
@@ -104,7 +106,7 @@ void services_init (void) {
  * MAIN
  ******************************************************************************/
 
-int main (void) {
+int main(void) {
   printf("[BLE] UART over BLE\n");
 
   // Setup BLE
@@ -113,4 +115,8 @@ int main (void) {
   // Advertise the UART service
   ble_uuid_t adv_uuid = {0x0001, BLE_UUID_TYPE_VENDOR_BEGIN};
   simple_adv_service(&adv_uuid);
+
+  while (1) {
+    yield();
+  }
 }

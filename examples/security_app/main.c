@@ -4,13 +4,13 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "console.h"
-#include "gpio.h"
-#include "led.h"
-#include "tock.h"
+#include <libtock/interface/console.h>
+#include <libtock/interface/led.h>
+#include <libtock/peripherals/gpio.h>
+#include <libtock/tock.h>
 
 typedef struct {
-  uint8_t pir;
+  bool pir;
   uint8_t reed_switch;
 } SensorData_t;
 
@@ -20,10 +20,8 @@ static SensorData_t sensor_data = {
 };
 
 // callback for gpio interrupts
-static void gpio_cb (int                            pin_num,
-                     int                            pin_val,
-                     __attribute__ ((unused)) int   unused,
-                     __attribute__ ((unused)) void* userdata) {
+static void gpio_cb(uint32_t pin_num,
+                    bool     pin_val) {
 
   // save sensor data
   if (pin_num == 1) {
@@ -46,11 +44,11 @@ int main(void) {
   printf("Security Application\n");
 
   // configure pins
-  gpio_interrupt_callback(gpio_cb, NULL);
-  gpio_enable_input(0, PullNone);
-  gpio_enable_interrupt(0, Change);
-  gpio_enable_input(1, PullUp);
-  gpio_enable_interrupt(1, Change);
+  libtock_gpio_set_interrupt_callback(gpio_cb);
+  libtock_gpio_enable_input(0, libtock_pull_none);
+  libtock_gpio_enable_interrupt(0, libtock_change);
+  libtock_gpio_enable_input(1, libtock_pull_up);
+  libtock_gpio_enable_interrupt(1, libtock_change);
 
   // configure accelerometer
   // TODO
@@ -60,7 +58,7 @@ int main(void) {
 
   while (1) {
     yield();
-    led_toggle(0);
+    libtock_led_toggle(0);
 
     printf("\tPIR:\t\t%d\n\tReed Switch:\t%d\n\n",
            sensor_data.pir, sensor_data.reed_switch);
