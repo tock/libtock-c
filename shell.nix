@@ -20,8 +20,8 @@ let
   tockloader = import (pkgs.fetchFromGitHub {
     owner = "tock";
     repo = "tockloader";
-    rev = "v1.12.0";
-    sha256 = "sha256-VgbAKDY/7ZVINDkqSHF7C0zRzVgtk8YG6O/ZmUpsh/g=";
+    rev = "v1.13.0";
+    sha256 = "sha256-NRcCPTrLFZLubI5KzMmDkKJdvCdbnW97JMZSmedAQ8s=";
   }) { inherit pkgs withUnfreePkgs; };
 
   elf2tab = pkgs.rustPlatform.buildRustPackage rec {
@@ -35,7 +35,7 @@ let
       sha256 = "sha256-+VeWLBI6md399Oaumt4pJrOkm0Nz7fmpXN2TjglUE34=";
     };
 
-    cargoSha256 = "sha256-UHAwk1fBcabRqy7VMhz4aoQuIur+MQshDOhC7KFyGm4=";
+    cargoHash = "sha256-UHAwk1fBcabRqy7VMhz4aoQuIur+MQshDOhC7KFyGm4=";
   };
 in
   pkgs.mkShell {
@@ -57,7 +57,7 @@ in
 
     shellHook = ''
       # TODO: This should be patched into the rpath of the respective libraries!
-      export LD_LIBRARY_PATH=${pkgs.libusb}/lib:$LD_LIBRARY_PATH
+      export LD_LIBRARY_PATH=${pkgs.libusb1}/lib:$LD_LIBRARY_PATH
     '' + (lib.optionalString withUnfreePkgs ''
       export LD_LIBRARY_PATH=${pkgs.segger-jlink}/lib:$LD_LIBRARY_PATH
     '');
