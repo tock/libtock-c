@@ -1,9 +1,10 @@
 /* vim: set sw=2 expandtab tw=80: */
 
-#include <tock.h>
 #include <stdio.h>
 #include <string.h>
-#include <internal/alarm.h>
+
+#include <libtock/tock.h>
+#include <libtock/services/alarm.h>
 
 #include <lwip/sys.h>
 #include <lwip/prot/ethernet.h>
@@ -54,9 +55,9 @@ void sys_arch_unprotect(__attribute__((unused)) sys_prot_t pval) {}
 // Provide a reference to the current time in milliseconds, such that LwIP can
 // timeout TCP connections properly, etc.
 uint32_t sys_now(void) {
-    uint32_t now;
-    alarm_internal_read(&now);
-    return now;
+    struct timeval tv;
+    libtock_alarm_gettimeasticks(&tv);
+    return (tv.tv_usec / 1000) + (tv.tv_sec * 1000);
 }
 
 // A received, but not yet processed LwIP packet. This is written in the packet
