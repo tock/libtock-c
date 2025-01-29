@@ -43,10 +43,13 @@
  * @{
  */
 
-#include <lr1110/lr1110.h>
-#include <libtock-sync/services/alarm.h>
 #include <stdio.h>
 #include <stdint.h>
+
+#include <libtock-sync/services/alarm.h>
+
+#include <lr1110/lr1110.h>
+#include <lr1110/us_915_ttn.h>
 
 /*
  * -----------------------------------------------------------------------------
@@ -346,9 +349,12 @@ int main( void )
 static void on_modem_reset( uint16_t reset_count )
 {
     // printf("on_modem_reset\n");
-    
+
     /* Basic LoRaWAN configuration */
     wifi_apps_modem_common_configure_lorawan_params( stack_id );
+
+    // We use TTN so only enable bank 2 channels.
+    region_us_915_the_things_network_init();
 
     /* Start the Join process */
     ASSERT_SMTC_MODEM_RC( smtc_modem_join_network( stack_id ) );
