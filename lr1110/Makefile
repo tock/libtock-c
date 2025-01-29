@@ -136,4 +136,7 @@ override CFLAGS += \
 
 $(LIBNAME)_SRCS := $(OUR_CSRCS) $(UNCHANGED_CSRCS) $(CHANGED_CSRCS)
 
+# Avoid failing in CI due to warnings in the library.
+override CPPFLAGS_$(LIBNAME) += -Wno-error
+
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
