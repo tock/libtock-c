@@ -9,6 +9,9 @@ ifeq ($(wildcard $(SEEED_DIR)/.*),)
     $(error Error: $(SEEED_DIR) directory does not exist. Please run `make -f Makefile.setup` first)
 endif
 
+# include our provided source files
+OUR_CSRCS := $(wildcard $(LR1110_DIR)/*.c)
+
 # include changed source files
 CHANGED_CSRCS := $(wildcard $(LR1110_DIR)/src_changed/*.c)
 
@@ -47,6 +50,7 @@ $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/lr1mac/src/services/smtc_duty_cyc
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/lr1mac/src/services/smtc_lbt.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/lr1mac/src/services/smtc_multicast.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/lr1mac/src/smtc_real/src/smtc_real.c \
+$(SEEED_DIR)/lora_basics_modem/smtc_modem_core/lr1mac/src/smtc_real/src/region_us_915.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/modem_core/smtc_modem_test.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/modem_services/fifo_ctrl.c \
 $(SEEED_DIR)/lora_basics_modem/smtc_modem_core/modem_services/lorawan_certification.c \
@@ -131,6 +135,6 @@ override CFLAGS += \
 -I$(SEEED_DIR)/wm1110/interface \
 -I$(SEEED_DIR)/smtc_hal/inc
 
-$(LIBNAME)_SRCS := $(UNCHANGED_CSRCS) $(CHANGED_CSRCS)
+$(LIBNAME)_SRCS := $(OUR_CSRCS) $(UNCHANGED_CSRCS) $(CHANGED_CSRCS)
 
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
