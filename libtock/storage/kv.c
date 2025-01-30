@@ -81,3 +81,13 @@ returncode_t libtock_kv_delete(const uint8_t* key_buffer, uint32_t key_len, libt
   err = libtock_kv_command_delete();
   return err;
 }
+
+returncode_t libtock_kv_garbage_collect(libtock_kv_callback_done cb) {
+  returncode_t err;
+
+  err = libtock_kv_set_upcall(kv_upcall_done, cb);
+  if (err != RETURNCODE_SUCCESS) return err;
+
+  err = libtock_kv_command_garbage_collect();
+  return err;
+}
