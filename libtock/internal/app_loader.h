@@ -8,7 +8,7 @@ extern "C"
 #include "tock.h"
 
 // Driver number for system call
-#define DRIVER_NUM_APP_LOADER   0x50004
+#define DRIVER_NUM_APP_LOADER   0x10001
 
 #define BUTTON1 0
 #define BUTTON2 1
