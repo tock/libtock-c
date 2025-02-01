@@ -24,7 +24,7 @@ def print_hex_array(hex_array):
         print()  # Add a new line if the last line is not complete
 
 
-file_name = 'examples/adc/build/cortex-m4/cortex-m4.tbf'
+file_name = 'examples/tests/app_loader/tock-dpl-hello/build/cortex-m4/cortex-m4.tbf'
 binary_data = read_binary_file(file_name)
 hex_array = binary_to_array(binary_data)
 print_hex_array(hex_array)
