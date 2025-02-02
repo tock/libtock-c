@@ -9,11 +9,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <app_binaries.h>
-#include <app_loader.h>
-#include <button.h>
-#include <timer.h>
-#include <tock.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/interface/button.h>
+#include <libtock/internal/app_binaries.h>
+#include <libtock/internal/app_loader.h>
+#include <libtock/tock.h>
 
 
 #define FLASH_BUFFER_SIZE 512
@@ -36,41 +36,35 @@ static bool load_done  = false;     // to check if the process was loaded succes
 static void app_setup_done_callback(__attribute__((unused)) int   length,
                                     __attribute__((unused)) int   arg1,
                                     __attribute__((unused)) int   arg2,
-                                    __attribute__((unused)) void *ud)
-{
+                                    __attribute__((unused)) void* ud) {
   setup_done = true;
 }
 
 static void app_write_done_callback(__attribute__((unused)) int   length,
                                     __attribute__((unused)) int   arg1,
                                     __attribute__((unused)) int   arg2,
-                                    __attribute__((unused)) void *ud)
-{
+                                    __attribute__((unused)) void* ud) {
   write_done = true;
 }
 
-static void app_load_done_callback( __attribute__((unused)) int   length,
-                                    __attribute__((unused)) int   arg1,
-                                    __attribute__((unused)) int   arg2,
-                                    __attribute__((unused)) void *ud)
-{
+static void app_load_done_callback(__attribute__((unused)) int   length,
+                                   __attribute__((unused)) int   arg1,
+                                   __attribute__((unused)) int   arg2,
+                                   __attribute__((unused)) void* ud) {
   load_done = true;
 }
 
-static void button_callback(int                            btn_num,
-                            int                            val,
-                            __attribute__ ((unused)) int   arg2,
-                            __attribute__ ((unused)) void *ud)
-{
+// Callback for button presses.
+static void button_callback(__attribute__ ((unused)) returncode_t retval, int btn_num, bool pressed) {
   // Callback for button presses.
   // val: 1 if pressed, 0 if depressed
 
   // flash and load blink
-  if (btn_num == BUTTON1 && val == 1) {
+  if (btn_num == BUTTON1 && pressed == 1) {
 
-    delay_ms(100);  // debounce
+    libtocksync_alarm_delay_ms(100);  // debounce
 
-    if (val == 1) {
+    if (pressed == 1) {
 
       printf("[Event] Button 1 Pressed!\n");
       double app_size = sizeof(blink);
@@ -109,11 +103,11 @@ static void button_callback(int                            btn_num,
     }
   }
   // flash and load adc
-  else if (btn_num == BUTTON2 && val == 1) {
+  else if (btn_num == BUTTON2 && pressed == 1) {
 
-    delay_ms(100);  // debounce
+    libtocksync_alarm_delay_ms(100);  // debounce
 
-    if (val == 1) {
+    if (pressed == 1) {
       printf("[Event] Button 2 Pressed!\n");
       double app_size = sizeof(adc);
       int ret         = 0;
@@ -162,7 +156,7 @@ static void button_callback(int                            btn_num,
 * Takes app size and the app binary as arguments
 ******************************************************************************************************/
 
-int write_app(double size, uint8_t binary[]){
+int write_app(double size, uint8_t binary[]) {
 
   int ret;
   uint32_t write_count = 0;
@@ -203,14 +197,14 @@ int main(void) {
   printf("[Log] Simple test app to load an app dynamically.\n");
 
   int count;
-  int err = button_count(&count);
+  int err = libtock_button_count(&count);
   // Ensure there is a button to use.
   if (err < 0) return err;
   printf("[Log] There are %d buttons on this board.\n", count);
 
   // Enable interrupts on each button.
   for (int i = 0; i < count; i++) {
-    button_enable_interrupt(i);
+    libtock_button_notify_on_press(i, button_callback);
   }
 
   // set up the setup done callback
@@ -232,13 +226,6 @@ int main(void) {
   if (err3 != 0) {
     printf("[Error] Failed to set load done callback: %d\n", err3);
     return err3;
-  }
-
-  // setup the button press callback
-  int err4 = button_subscribe(button_callback, NULL);
-  if (err4 != 0) {
-    printf("[Error] Failed to set button callback: %d.\n", err4);
-    return err4;
   }
 
   // Check if the app_loader driver exists.
