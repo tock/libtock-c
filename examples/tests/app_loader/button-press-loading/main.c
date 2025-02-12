@@ -1,18 +1,19 @@
 // \file
 
-// This is a helper program to test if the dynamic app loading functionality
-// of Tock works. This app has another application's (blink) binary pre-programmed
-// into it. When the user presses a button on a supported device, the dynamic
-// process loader enables the new app to be written to flash and loaded as a new process.
+// This is a helper program to test the dynamic app loading functionality
+// of Tock works. This app has two other applications' (blink and ADC) binaries
+// pre-programmed into it. When the user presses a button on a supported device,
+// the dynamic process loader enables the new app to be written to flash and
+// loaded as a new process.
 
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 
+#include <examples/tests/app_loader/button-press-loading/app_binaries.h>
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
-#include <libtock/internal/app_binaries.h>
-#include <libtock/internal/app_loader.h>
+#include <libtock/internal/app_loader/app_loader.h>
 #include <libtock/tock.h>
 
 
@@ -72,7 +73,7 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
       int ret1        = 0;
       int ret2        = 0;
 
-      ret = app_loader_command_setup(app_size); // asks the capsule to set up for app flash
+      ret = libtock_app_loader_setup(app_size); // asks the capsule to set up for app flash
       if (ret != RETURNCODE_SUCCESS) {
         printf("[Error] Setup Failed: %d.\n", ret);
         printf("[Log] Exiting Application.\n");
@@ -89,7 +90,7 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
           tock_exit(ret1); // we failed, so we exit the program.
         } else {
           printf("[Success] App flashed successfully. Attempting to create a process now.\n");
-          ret2 = app_loader_command_load();   // request to load app
+          ret2 = libtock_app_loader_load();   // request to load app
           if (ret2 != RETURNCODE_SUCCESS) {
             printf("[Error] Process creation failed: %d.\n", ret2);
             printf("[Log] Exiting Application.\n");
@@ -114,7 +115,7 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
       int ret1        = 0;
       int ret2        = 0;
 
-      ret = app_loader_command_setup(app_size); // asks the capsule to set up for app flash
+      ret = libtock_app_loader_setup(app_size); // asks the capsule to set up for app flash
       if (ret != RETURNCODE_SUCCESS) {
         printf("[Error] Setup Failed: %d.\n", ret);
         printf("[Log] Exiting Application.\n");
@@ -133,7 +134,7 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
           tock_exit(ret1); // we failed, so we exit the program.
         } else {
           printf("[Success] App flashed successfully. Attempting to create a process now.\n");
-          ret2 = app_loader_command_load();   // request to load app
+          ret2 = libtock_app_loader_load();   // request to load app
           if (ret2 != RETURNCODE_SUCCESS) {
             printf("[Error] Process creation failed: %d.\n", ret2);
             printf("[Log] Exiting Application.\n");
@@ -165,7 +166,7 @@ int write_app(double size, uint8_t binary[]) {
 
   write_count = ceil(size / FLASH_BUFFER_SIZE);
 
-  ret = app_loader_write_buffer(write_buffer, FLASH_BUFFER_SIZE);   // set the write buffer
+  ret = libtock_app_loader_set_buffer(write_buffer, FLASH_BUFFER_SIZE);   // set the write buffer
   if (ret != RETURNCODE_SUCCESS) {
     printf("[Error] Failed to set the write buffer: %d.\n", ret);
     return -1;
@@ -174,7 +175,7 @@ int write_app(double size, uint8_t binary[]) {
   for (uint32_t offset = 0; offset < write_count; offset++) {
     memcpy(write_buffer, &binary[FLASH_BUFFER_SIZE * offset], FLASH_BUFFER_SIZE);     // copy binary to write buffer
     flash_offset = (offset * FLASH_BUFFER_SIZE);
-    ret = app_loader_command_write(flash_offset, FLASH_BUFFER_SIZE);
+    ret = libtock_app_loader_write(flash_offset, FLASH_BUFFER_SIZE);
     if (ret != 0) {
       printf("[Error] Failed writing data to flash at address: 0x%lx\n", flash_offset);
       printf("[Error] Error nature: %d\n", ret);
@@ -196,6 +197,12 @@ int write_app(double size, uint8_t binary[]) {
 int main(void) {
   printf("[Log] Simple test app to load an app dynamically.\n");
 
+  // check if ADC driver exists
+  if (!libtock_app_loader_exists()) {
+    printf("No App Loader driver!\n");
+    return -1;
+  }
+
   int count;
   int err = libtock_button_count(&count);
   // Ensure there is a button to use.
@@ -208,33 +215,33 @@ int main(void) {
   }
 
   // set up the setup done callback
-  int err1 = app_loader_setup_subscribe(app_setup_done_callback, NULL);
+  int err1 = libtock_app_loader_set_setup_upcall(app_setup_done_callback, NULL);
   if (err1 != 0) {
     printf("[Error] Failed to set setup done callback: %d\n", err1);
     return err1;
   }
 
   // set up the write done callback
-  int err2 = app_loader_write_subscribe(app_write_done_callback, NULL);
+  int err2 = libtock_app_loader_set_write_upcall(app_write_done_callback, NULL);
   if (err2 != 0) {
     printf("[Error] Failed to set flash write done callback: %d\n", err2);
     return err2;
   }
 
   // set up the load done callback
-  int err3 = app_loader_load_subscribe(app_load_done_callback, NULL);
+  int err3 = libtock_app_loader_set_load_upcall(app_load_done_callback, NULL);
   if (err3 != 0) {
     printf("[Error] Failed to set load done callback: %d\n", err3);
     return err3;
   }
 
-  // Check if the app_loader driver exists.
-  int ret;
-  ret = app_loader_exists();
-  if (ret != RETURNCODE_SUCCESS) {
-    printf("[Error] Dynamic Apploader driver does not exist.\n");
-    return ret; // the driver does not exist, so we cannot load an app anyway. Let us exit the program.
-  }
+  // // Check if the app_loader driver exists.
+  // int ret;
+  // ret = app_loader_exists();
+  // if (ret != RETURNCODE_SUCCESS) {
+  //   printf("[Error] Dynamic Apploader driver does not exist.\n");
+  //   return ret; // the driver does not exist, so we cannot load an app anyway. Let us exit the program.
+  // }
 
   printf("[Log] Waiting for a button press.\n");
 
