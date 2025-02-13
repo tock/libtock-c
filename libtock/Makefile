@@ -28,7 +28,6 @@ $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/storage/syscalls/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/util/*.c)
 
 # Temporary hack for alarm
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/internal/app_loader/*.c)
-$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/internal/app_loader/syscalls/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/internal/*.c)
 
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
