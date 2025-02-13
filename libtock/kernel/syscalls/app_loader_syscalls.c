@@ -1,10 +1,4 @@
 #include "app_loader_syscalls.h"
-// #include "libtock/tock.h"
-
-// bool libtock_app_loader_exists(void) {
-//   syscall_return_t res = command(DRIVER_NUM_APP_LOADER, 0, 0, 0);
-//   return tock_command_return_novalue_to_returncode(res);
-// }
 
 bool libtock_app_loader_exists(void) {
   return driver_exists(DRIVER_NUM_APP_LOADER);
