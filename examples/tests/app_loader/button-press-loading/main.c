@@ -10,10 +10,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <examples/tests/app_loader/button-press-loading/app_binaries.h>
+#include <examples/tests/app_loader/button-press-loading/pre-compiled-binaries/app_binaries.h>
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
-#include <libtock/internal/app_loader/app_loader.h>
+#include <libtock/kernel/app_loader.h>
 #include <libtock/tock.h>
 
 
@@ -234,14 +234,6 @@ int main(void) {
     printf("[Error] Failed to set load done callback: %d\n", err3);
     return err3;
   }
-
-  // // Check if the app_loader driver exists.
-  // int ret;
-  // ret = app_loader_exists();
-  // if (ret != RETURNCODE_SUCCESS) {
-  //   printf("[Error] Dynamic Apploader driver does not exist.\n");
-  //   return ret; // the driver does not exist, so we cannot load an app anyway. Let us exit the program.
-  // }
 
   printf("[Log] Waiting for a button press.\n");
 

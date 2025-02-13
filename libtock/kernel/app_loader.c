@@ -5,8 +5,8 @@
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_subscribe_setup(subscribe_upcall cb, void* userdata) {
-  return libtock_app_loader_set_setup_upcall(cb, userdata);
+returncode_t libtock_app_loader_set_setup_upcall(subscribe_upcall cb, void* userdata) {
+  return libtock_app_loader_setup_subscribe(cb, userdata);
 }
 
 /*
@@ -14,8 +14,8 @@ returncode_t libtock_app_loader_subscribe_setup(subscribe_upcall cb, void* userd
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_subscribe_write(subscribe_upcall cb, void* userdata) {
-  return libtock_app_loader_set_write_upcall(cb, userdata);
+returncode_t libtock_app_loader_set_write_upcall(subscribe_upcall cb, void* userdata) {
+  return libtock_app_loader_write_subscribe(cb, userdata);
 }
 
 /*
@@ -23,26 +23,8 @@ returncode_t libtock_app_loader_subscribe_write(subscribe_upcall cb, void* userd
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_subscribe_finalize(subscribe_upcall cb, void* userdata) {
-  return libtock_app_loader_set_finalize_upcall(cb, userdata);
-}
-
-/*
- * Function to setup the callback from capsule.
- * This function takes in the function that will be executed
- * when the callback is triggered.
- */
-returncode_t libtock_app_loader_subscribe_load(subscribe_upcall cb, void* userdata) {
-  return libtock_app_loader_set_load_upcall(cb, userdata);
-}
-
-/*
- * Function to setup the callback from capsule.
- * This function takes in the function that will be executed
- * when the callback is triggered.
- */
-returncode_t libtock_app_loader_subscribe_abort(subscribe_upcall cb, void* userdata) {
-  return libtock_app_loader_set_abort_upcall(cb, userdata);
+returncode_t libtock_app_loader_set_load_upcall(subscribe_upcall cb, void* userdata) {
+  return libtock_app_loader_load_subscribe(cb, userdata);
 }
 
 /*
@@ -77,20 +59,6 @@ returncode_t libtock_app_loader_write(uint32_t flash_offset, uint32_t write_leng
 /*
  * Command to request the kernel to load the newly flashed app.
  */
-returncode_t libtock_app_loader_finalize(void) {
-  return libtock_app_loader_command_finalize();
-}
-
-/*
- * Command to request the kernel to load the newly flashed app.
- */
 returncode_t libtock_app_loader_load(void) {
   return libtock_app_loader_command_load();
-}
-
-/*
- * Command to request the kernel to abort setup/write process.
- */
-returncode_t libtock_app_loader_abort(void) {
-  return libtock_app_loader_command_abort();
 }
