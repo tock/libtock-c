@@ -25,6 +25,7 @@ $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/sensors/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/sensors/syscalls/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/storage/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/storage/syscalls/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/util/*.c)
 
 # Temporary hack for alarm
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/internal/*.c)
