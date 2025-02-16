@@ -28,6 +28,15 @@ returncode_t libtock_app_loader_set_load_upcall(subscribe_upcall cb, void* userd
 }
 
 /*
+ * Function to setup the callback from capsule.
+ * This function takes in the function that will be executed
+ * when the callback is triggered.
+ */
+returncode_t libtock_app_loader_set_abort_upcall(subscribe_upcall cb, void* userdata) {
+  return libtock_app_loader_abort_subscribe(cb, userdata);
+}
+
+/*
  * Command to request the kernel to set up for a new app.
  * This functions takes the size of the new app as the argument.
  */
@@ -62,3 +71,13 @@ returncode_t libtock_app_loader_write(uint32_t flash_offset, uint32_t write_leng
 returncode_t libtock_app_loader_load(void) {
   return libtock_app_loader_command_load();
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * Command to request the kernel to abort setup/write process.
+ */
+returncode_t libtock_app_loader_abort(void) {
+  return libtock_app_loader_command_abort();
+}
+>>>>>>> 4f06f7bc (added abort test + refactored code for other apps.)

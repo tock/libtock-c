@@ -10,6 +10,7 @@ extern "C"
 
 #define BUTTON1 0
 #define BUTTON2 1
+#define BUTTON3 2
 
 /*
  * Function to setup the callback from capsule.
@@ -31,6 +32,13 @@ returncode_t libtock_app_loader_set_write_upcall(subscribe_upcall cb, void* user
  * when the callback is triggered.
  */
 returncode_t libtock_app_loader_set_load_upcall(subscribe_upcall cb, void* userdata);
+
+/*
+ * Function to setup the callback from capsule.
+ * This function takes in the function that will be executed
+ * when the callback is triggered.
+ */
+returncode_t libtock_app_loader_set_abort_upcall(subscribe_upcall cb, void* userdata);
 
 /*
  * Command to request the kernel to set up for a new app.
@@ -59,6 +67,11 @@ returncode_t libtock_app_loader_write(uint32_t flash_offset, uint32_t write_leng
  * Command to request the kernel to load the newly flashed app.
  */
 returncode_t libtock_app_loader_load(void);
+
+/*
+ * Command to request the kernel to abort the setup/write phase.
+ */
+returncode_t libtock_app_loader_abort(void);
 
 
 /*

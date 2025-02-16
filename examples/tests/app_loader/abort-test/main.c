@@ -23,6 +23,11 @@
 static bool setup_done = false;     // to check if setup is done
 static bool write_done = false;     // to check if writing to flash is done
 static bool load_done  = false;     // to check if the process was loaded successfully
+static bool abort_done = false;     // to check if the process binary writing
+                                    // was aborted successfully
+
+static bool abort_tracker = false;  // track when an abort was successful to stop writing
+                                    // process binary data
 
 /******************************************************************************************************
 * Callback functions
@@ -55,12 +60,21 @@ static void app_load_done_callback(__attribute__((unused)) int   length,
   load_done = true;
 }
 
+static void app_abort_done_callback(__attribute__((unused)) int   length,
+                                    __attribute__((unused)) int   arg1,
+                                    __attribute__((unused)) int   arg2,
+                                    __attribute__((unused)) void* ud) {
+  abort_done = true;
+}
+
 // Callback for button presses.
 static void button_callback(__attribute__ ((unused)) returncode_t retval, int btn_num, bool pressed) {
   // Callback for button presses.
   // val: 1 if pressed, 0 if depressed
+
   if (pressed == 1) {
-    libtocksync_alarm_delay_ms(200); // debounce
+    // debounce
+    libtocksync_alarm_delay_ms(200);
 
     if (pressed == 1) {
       const char* app_name    = NULL;
@@ -78,10 +92,20 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
           app_data = adc;
           app_size = sizeof(adc);
           break;
+        case BUTTON3:
+          printf("[Log] Aborting Setup/Write.\n");
+          libtock_app_loader_abort();
+          // wait on abort done callback
+          yield_for(&abort_done);
+          abort_done    = false;
+          abort_tracker = true;
+          printf("[Success] Setup/Write aborted successfully.\n");
+          return;
         default:
           return;
       }
       printf("[Event] Button for %s Pressed!\n", app_name);
+      abort_tracker = false;
 
       int ret = libtock_app_loader_setup(app_size);
       if (ret != RETURNCODE_SUCCESS) {
@@ -100,18 +124,20 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
         tock_exit(ret1);
       }
 
-      printf("[Success] App flashed successfully. Creating process now.\n");
-      int ret2 = libtock_app_loader_load();
-      if (ret2 != RETURNCODE_SUCCESS) {
-        printf("[Error] Process creation failed: %d.\n", ret2);
-        tock_exit(ret2);
+      if (!abort_tracker) {
+        printf("[Success] App flashed successfully. Creating process now.\n");
+        int ret2 = libtock_app_loader_load();
+        if (ret2 != RETURNCODE_SUCCESS) {
+          printf("[Error] Process creation failed: %d.\n", ret2);
+          tock_exit(ret2);
+        }
+
+        // wait on load done callback
+        yield_for(&load_done);
+        load_done = false;
+
+        printf("[Success] Process created successfully.\n");
       }
-
-      // wait on load done callback
-      yield_for(&load_done);
-      load_done = false;
-
-      printf("[Success] Process created successfully.\n");
       printf("[Log] Waiting for a button press.\n");
     }
   }
@@ -127,6 +153,7 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
 
 int write_app(double size, uint8_t binary[]) {
 
+  int ret;
   uint32_t write_count = 0;
   uint8_t write_buffer[FLASH_BUFFER_SIZE];
   uint32_t flash_offset = 0;
@@ -134,20 +161,23 @@ int write_app(double size, uint8_t binary[]) {
   write_count = ceil(size / FLASH_BUFFER_SIZE);
 
   // set the write buffer
-  int ret = libtock_app_loader_set_buffer(write_buffer, FLASH_BUFFER_SIZE);
+  ret = libtock_app_loader_set_buffer(write_buffer, FLASH_BUFFER_SIZE);
   if (ret != RETURNCODE_SUCCESS) {
     printf("[Error] Failed to set the write buffer: %d.\n", ret);
     return -1;
   }
 
   for (uint32_t offset = 0; offset < write_count; offset++) {
+    if (abort_tracker) {
+      break;
+    }
     // copy binary to write buffer
     memcpy(write_buffer, &binary[FLASH_BUFFER_SIZE * offset], FLASH_BUFFER_SIZE);
     flash_offset = (offset * FLASH_BUFFER_SIZE);
-    int ret1 = libtock_app_loader_write(flash_offset, FLASH_BUFFER_SIZE);
-    if (ret1 != 0) {
+    ret = libtock_app_loader_write(flash_offset, FLASH_BUFFER_SIZE);
+    if (ret != 0) {
       printf("[Error] Failed writing data to flash at address: 0x%lx\n", flash_offset);
-      printf("[Error] Error nature: %d\n", ret1);
+      printf("[Error] Error nature: %d\n", ret);
       return -1;
     }
     // wait on write done callback
@@ -203,6 +233,13 @@ int main(void) {
   if (err3 != 0) {
     printf("[Error] Failed to set load done callback: %d\n", err3);
     return err3;
+  }
+
+  // set up the abort done callback
+  int err4 = libtock_app_loader_set_abort_upcall(app_abort_done_callback, NULL);
+  if (err4 != 0) {
+    printf("[Error] Failed to set abort done callback: %d\n", err4);
+    return err4;
   }
 
   printf("[Log] Waiting for a button press.\n");
