@@ -10,3 +10,6 @@
 [submodule "RadioLib/RadioLib"]
 	path = RadioLib/RadioLib
 	url = https://github.com/jgromes/RadioLib.git
+[submodule "lwip/lwip"]
+	path = lwip/lwip
+	url = https://git.savannah.gnu.org/git/lwip.git
