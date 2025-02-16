@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <libtock/internal/app_loader.h>
+#include <libtock/kernel/app_loader.h>
 #include <libtock/tock.h>
 
 uint8_t tock_welcomes_dpl_binary[8192] =
@@ -642,37 +642,40 @@ static void run_app_loader(void) {
   // Flash and load tock_welcomes_dpl_binary
   double app_size = sizeof(tock_welcomes_dpl_binary);
 
-  int ret  = 0;
-  int ret1 = 0;
-  int ret2 = 0;
-
-  ret = app_loader_command_setup(app_size); // asks the capsule to set up for app flash
+  int ret = libtock_app_loader_command_setup(app_size); // asks the capsule to set up for app flash
   if (ret != RETURNCODE_SUCCESS) {
     printf("[Error] Setup Failed: %d.\n", ret);
     printf("[Log] Exiting Application.\n");
     tock_exit(ret); // we failed, so we exit the program.
-  } else {
-    printf("[Log] Yielding for setup done.\n");
-    yield_for(&setup_done);   // wait until the padding app write is done before you send your app, or it will fail during write
-    setup_done = false;
-    printf("[Success] Setup successful. Attempting to write app to flash now.\n");
-    ret1 = write_app(app_size, tock_welcomes_dpl_binary); // writes app data to flash
-    if (ret1 != RETURNCODE_SUCCESS) {
-      printf("[Error] App flash write unsuccessful: %d.\n", ret1);
-      printf("[Log] Exiting Application.\n");
-      tock_exit(ret1); // we failed, so we exit the program.
-    } else {
-      printf("[Success] App flashed successfully. Attempting to create a process now.\n");
-      ret2 = app_loader_command_load();   // request to load app
-      if (ret2 != RETURNCODE_SUCCESS) {
-        printf("[Error] Process creation failed: %d.\n", ret2);
-        printf("[Log] Exiting Application.\n");
-        tock_exit(ret2);   // we failed, so we exit the program.
-      } else {
-        printf("[Success] Process created successfully.\n");
-      }
-    }
   }
+
+  // wait on setup done callback
+  yield_for(&setup_done);
+  setup_done = false;
+
+  // wait until the padding app write is done before
+  // you send your app, or it will fail during write
+  printf("[Success] Setup successful. Attempting to write app to flash now.\n");
+  // writes app data to flash
+  int ret1 = write_app(app_size, tock_welcomes_dpl_binary);
+  if (ret1 != RETURNCODE_SUCCESS) {
+    printf("[Error] App flash write unsuccessful: %d.\n", ret1);
+    printf("[Log] Exiting Application.\n");
+    tock_exit(ret1); // we failed, so we exit the program.
+  }
+
+  printf("[Success] App flashed successfully. Attempting to create a process now.\n");
+  int ret2 = libtock_app_loader_command_load();   // request to load app
+  if (ret2 != RETURNCODE_SUCCESS) {
+    printf("[Error] Process creation failed: %d.\n", ret2);
+    printf("[Log] Exiting Application.\n");
+    tock_exit(ret2);   // we failed, so we exit the program.
+  }
+
+  // wait on load done callback
+  yield_for(&load_done);
+  load_done = false;
+
   app_size = 0;  // reset app_size
 }
 
@@ -693,7 +696,7 @@ int write_app(double size, uint8_t binary[]) {
 
   write_count = ceil(size / FLASH_BUFFER_SIZE);
 
-  ret = app_loader_write_buffer(write_buffer, FLASH_BUFFER_SIZE);   // set the write buffer
+  ret = libtock_app_loader_write_buffer(write_buffer, FLASH_BUFFER_SIZE);   // set the write buffer
   if (ret != RETURNCODE_SUCCESS) {
     printf("[Error] Failed to set the write buffer: %d.\n", ret);
     return -1;
@@ -702,7 +705,7 @@ int write_app(double size, uint8_t binary[]) {
   for (uint32_t offset = 0; offset < write_count; offset++) {
     memcpy(write_buffer, &binary[FLASH_BUFFER_SIZE * offset], FLASH_BUFFER_SIZE);     // copy binary to write buffer
     flash_offset = (offset * FLASH_BUFFER_SIZE);
-    ret = app_loader_command_write(flash_offset, FLASH_BUFFER_SIZE);
+    ret = libtock_app_loader_command_write(flash_offset, FLASH_BUFFER_SIZE);
     if (ret != 0) {
       printf("[Error] Failed writing data to flash at address: 0x%lx\n", flash_offset);
       printf("[Error] Error nature: %d\n", ret);
@@ -722,35 +725,33 @@ int write_app(double size, uint8_t binary[]) {
 ******************************************************************************************************/
 
 int main(void) {
+  // check if app loader driver exists
+  if (!libtock_app_loader_exists()) {
+    printf("No App Loader driver!\n");
+    return -1;
+  }
+
   printf("[Log] Simple test app to load an app dynamically.\n");
 
   // set up the setup done callback
-  int err1 = app_loader_setup_subscribe(app_setup_done_callback, NULL);
+  int err1 = libtock_app_loader_setup_subscribe(app_setup_done_callback, NULL);
   if (err1 != 0) {
     printf("[Error] Failed to set setup done callback: %d\n", err1);
     return err1;
   }
 
   // set up the write done callback
-  int err2 = app_loader_write_subscribe(app_write_done_callback, NULL);
+  int err2 = libtock_app_loader_write_subscribe(app_write_done_callback, NULL);
   if (err2 != 0) {
     printf("[Error] Failed to set flash write done callback: %d\n", err2);
     return err2;
   }
 
   // set up the load done callback
-  int err3 = app_loader_load_subscribe(app_load_done_callback, NULL);
+  int err3 = libtock_app_loader_load_subscribe(app_load_done_callback, NULL);
   if (err3 != 0) {
     printf("[Error] Failed to set load done callback: %d\n", err3);
     return err3;
-  }
-
-  // Check if the app_loader driver exists.
-  int ret;
-  ret = app_loader_exists();
-  if (ret != RETURNCODE_SUCCESS) {
-    printf("[Error] Dynamic Apploader driver does not exist.\n");
-    return ret; // the driver does not exist, so we cannot load an app anyway. Let us exit the program.
   }
 
   printf("[Log] Running Tock Welcomes DPL App.\n");
