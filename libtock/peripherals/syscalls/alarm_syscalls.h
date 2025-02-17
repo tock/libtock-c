@@ -49,6 +49,15 @@ int libtock_alarm_command_set_relative(uint32_t dt, uint32_t* actual);
 /*
  * Starts a oneshot alarm
  *
+ * expiration - relative expiration value from when kernel handles syscall.
+ *
+ * Side-effects: cancels any existing/outstanding alarms
+ */
+int libtock_alarm_command_set_relative_blind(uint32_t dt);
+
+/*
+ * Starts a oneshot alarm
+ *
  * expiration - absolute expiration value = reference + dt.
  * Using reference + dt allows library to distinguish expired alarms from
  * alarms in the far future.
