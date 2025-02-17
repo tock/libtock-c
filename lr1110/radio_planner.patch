@@ -1,0 +1,41 @@
+--- radio_planner.c	2024-08-01 15:26:03
++++ radio_planner.c	2024-08-01 13:17:59
+@@ -42,6 +42,8 @@
+ //
+ // Private planner utilities declaration
+ //
++
++rp_task_types_t rp_task_type = RP_TASK_TYPE_NONE;
+ 
+ /**
+  * @brief rp_task_free to free a task
+@@ -263,6 +265,12 @@
+ rp_hook_status_t rp_task_enqueue( radio_planner_t* rp, const rp_task_t* task, uint8_t* payload, uint16_t payload_size,
+                                   const rp_radio_params_t* radio_params )
+ {
++    if(task->type == RP_TASK_TYPE_WIFI_RSSI) {
++        rp_task_type = RP_TASK_TYPE_WIFI_RSSI;
++    } else {
++        rp_task_type = RP_TASK_TYPE_NONE;
++    }
++    
+     uint8_t hook_id = task->hook_id;
+     if( hook_id >= RP_NB_HOOKS )
+     {
+@@ -394,6 +402,16 @@
+         SMTC_MODEM_HAL_RP_TRACE_PRINTF( " RP: INFO - Radio IRQ received for hook #%u\n", rp->radio_task_id );
+ 
+         rp_irq_get_status( rp, rp->radio_task_id );
++        // For some reason we get a spurious RX_TIMEOUT interrupt sometimes.
++        // Handling it causes the stack to break, but clearing it causes the
++        // stack to work.
++        // re-get the irq status if RX_TIMEOUT happens (current workaround)
++        if( rp_task_type == RP_TASK_TYPE_WIFI_RSSI) {
++            if(rp->status[rp->radio_task_id] == RP_STATUS_RX_TIMEOUT) {
++                rp_irq_get_status( rp, rp->radio_task_id );
++                // return;
++            }
++        }
+         if( rp->status[rp->radio_task_id] == RP_STATUS_LR_FHSS_HOP )
+         {
+             return;
