@@ -37,6 +37,25 @@ let
 
     cargoHash = "sha256-UHAwk1fBcabRqy7VMhz4aoQuIur+MQshDOhC7KFyGm4=";
   };
+
+  # The formatting scripts require a specific version of uncrustify:
+  uncrustify-0_75_1 = stdenv.mkDerivation rec {
+    pname = "uncrustify";
+    version = "0.75.1";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "uncrustify";
+      repo = "uncrustify";
+      rev = "uncrustify-${version}";
+      sha256 = "sha256-wLzj/KcqXlcTsOJo7T166jLcWi1KNLmgblIqqkj7/9c=";
+    };
+
+    nativeBuildInputs = with pkgs; [
+      cmake
+      python3
+    ];
+  };
+
 in
   pkgs.mkShell {
     name = "tock-dev";
@@ -47,9 +66,9 @@ in
       python3Full
       tockloader
       pkgsCross.riscv32-embedded.buildPackages.gcc
-      uncrustify
       unzip
       openocd
+      uncrustify-0_75_1
     ] ++ (lib.optionals withUnfreePkgs [
       segger-jlink
       tockloader.nrf-command-line-tools
