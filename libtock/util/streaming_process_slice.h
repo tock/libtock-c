@@ -71,7 +71,7 @@ returncode_t streaming_process_slice_get_and_swap(
 
 // Deinitialize an initialized `streaming_process_slice_state_t`
 //
-// This function reconstructs the passed into `streaming_process_slice_init` and
+// This function reconstructs the buffer passed into `streaming_process_slice_init` and
 // returns it through the `buffer` and `size` arguments (if not set to `NULL`
 // respectively).
 //
