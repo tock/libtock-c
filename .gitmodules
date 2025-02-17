@@ -10,3 +10,9 @@
 [submodule "RadioLib/RadioLib"]
 	path = RadioLib/RadioLib
 	url = https://github.com/jgromes/RadioLib.git
+[submodule "lwip/lwip"]
+	path = lwip/lwip
+	# Using GitHub mirror, as git.savannah.gnu.org seems to cause
+	# problems with `git submodule sync`
+	#url = https://git.savannah.gnu.org/git/lwip.git
+	url =  https://github.com/lwip-tcpip/lwip.git
