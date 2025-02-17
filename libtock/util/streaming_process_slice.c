@@ -56,10 +56,6 @@ returncode_t streaming_process_slice_get_and_swap(
   uint8_t**                        buffer,
   uint32_t*                        size,
   bool*                            exceeded) {
-  uint8_t* ret_buffer;
-  uint32_t ret_size;
-  bool ret_exceeded;
-
   // Prepare the current app buffer to be shared with the kernel (writing a
   // zeroed-out header):
   streaming_process_slice_prepare_header(state->app_buffer_ptr);
@@ -69,6 +65,10 @@ returncode_t streaming_process_slice_get_and_swap(
     allow_readwrite(state->driver, state->allow, state->app_buffer_ptr,
                     state->app_buffer_size);
 
+  // Initialize to safe dummy values in case the allow was not successful
+  uint8_t* ret_buffer = NULL;
+  uint32_t ret_size = 0;
+  bool ret_exceeded = false;
   if (allow_res.success) {
     // Record the new app buffer:
     state->app_buffer_ptr  = allow_res.ptr;
@@ -78,11 +78,6 @@ returncode_t streaming_process_slice_get_and_swap(
     ret_buffer = state->app_buffer_ptr + 8;
     memcpy(&ret_size, state->app_buffer_ptr + 4, sizeof(uint32_t));
     ret_exceeded = (state->app_buffer_ptr[3] & 0x01) == 0x01;
-  } else {
-    // Allow was not successful, return safe dummy values instead:
-    ret_buffer   = NULL;
-    ret_size     = 0;
-    ret_exceeded = false;
   }
 
   // Write return values if provided with non-NULL pointers:
