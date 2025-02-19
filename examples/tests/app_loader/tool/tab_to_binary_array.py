@@ -15,6 +15,7 @@ def binary_to_array(binary_data):
 def print_hex_array(hex_array):
     print("Hexadecimal Array:")
     count = 0
+    print("[")
     for hex_byte in hex_array:
         print(f"0x{hex_byte[2:].zfill(2)}", end=", ")  # Add prefix '0x' and leading zero padding
         count += 1
@@ -22,9 +23,10 @@ def print_hex_array(hex_array):
             print()  # Add a new line after every 14 elements
     if count % 14 != 0:
         print()  # Add a new line if the last line is not complete
+    print("]")
 
 
-file_name = 'examples/tests/app_loader/tock-dpl-hello/build/cortex-m4/cortex-m4.tbf'
+file_name = 'app_loader/tock-dpl-hello/build/cortex-m4/cortex-m4.tbf'
 binary_data = read_binary_file(file_name)
 hex_array = binary_to_array(binary_data)
 print_hex_array(hex_array)
