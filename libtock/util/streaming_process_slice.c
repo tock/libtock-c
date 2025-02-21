@@ -16,34 +16,31 @@ returncode_t streaming_process_slice_init(
   streaming_process_slice_state_t* state,
   uint32_t                         driver,
   uint32_t                         allow,
-  void*                            buffer,
-  size_t                           size) {
-  // Each slice's header is 8 bytes long, and we create two slices from this
-  // buffer. Thus ensure that the provided buffer is at least 16 bytes long:
-  if (size < 16) {
+  void*                            buffer_a,
+  size_t                           size_a,
+  void*                            buffer_b,
+  size_t                           size_b) {
+  // Ensure that both buffers can hold the streaming process slice header:
+  if (size_a < STREAMING_PROCESS_SLICE_HEADER_LEN || size_b < STREAMING_PROCESS_SLICE_HEADER_LEN) {
     return RETURNCODE_ESIZE;
   }
 
   state->driver = driver;
   state->allow  = allow;
 
-  // We split the buffer in half, an application and kernel side. These two
-  // buffers are then atomically swapped with each other.
-  //
-  // Initially, the first half of this buffer is designated as the application
-  // buffer.
-  state->app_buffer_ptr  = buffer;
-  state->app_buffer_size = size / 2;
+  // Initially, `buffer_a` is used as the application-owned buffer.
+  state->app_buffer_ptr  = buffer_a;
+  state->app_buffer_size = size_a;
+  state->app_buffer_is_b = false; // false -> buffer_a
 
-  // Write a streaming process slice header to the second half of this buffer,
-  // and allow it to be the kernel buffer. We currently only support version
-  // 0, and don't set the `halt` flag:
-  uint8_t* kernel_buffer_ptr = state->app_buffer_ptr + state->app_buffer_size;
-  size_t kernel_buffer_size  = size - state->app_buffer_size;
-  streaming_process_slice_prepare_header(kernel_buffer_ptr);
+  // Write a streaming process slice header to bufferB, and use it as the
+  // kernel-owned buffer. Its pointer and length are stored within the kernel's
+  // allow slot. We currently only support version 0, and don't set the `halt`
+  // flag:
+  streaming_process_slice_prepare_header(buffer_b);
 
   allow_rw_return_t allow_res =
-    allow_readwrite(driver, allow, kernel_buffer_ptr, kernel_buffer_size);
+    allow_readwrite(driver, allow, buffer_b, size_b);
   if (!allow_res.success) {
     memset(state, 0, sizeof(streaming_process_slice_state_t));
   }
@@ -56,10 +53,6 @@ returncode_t streaming_process_slice_get_and_swap(
   uint8_t**                        buffer,
   uint32_t*                        size,
   bool*                            exceeded) {
-  uint8_t* ret_buffer;
-  uint32_t ret_size;
-  bool ret_exceeded;
-
   // Prepare the current app buffer to be shared with the kernel (writing a
   // zeroed-out header):
   streaming_process_slice_prepare_header(state->app_buffer_ptr);
@@ -69,20 +62,20 @@ returncode_t streaming_process_slice_get_and_swap(
     allow_readwrite(state->driver, state->allow, state->app_buffer_ptr,
                     state->app_buffer_size);
 
+  // Initialize to safe dummy values in case the allow was not successful
+  uint8_t* ret_buffer = NULL;
+  uint32_t ret_size   = 0;
+  bool ret_exceeded   = false;
   if (allow_res.success) {
     // Record the new app buffer:
     state->app_buffer_ptr  = allow_res.ptr;
     state->app_buffer_size = allow_res.size;
+    state->app_buffer_is_b = !state->app_buffer_is_b;
 
     // Return information about the received payload:
     ret_buffer = state->app_buffer_ptr + 8;
     memcpy(&ret_size, state->app_buffer_ptr + 4, sizeof(uint32_t));
     ret_exceeded = (state->app_buffer_ptr[3] & 0x01) == 0x01;
-  } else {
-    // Allow was not successful, return safe dummy values instead:
-    ret_buffer   = NULL;
-    ret_size     = 0;
-    ret_exceeded = false;
   }
 
   // Write return values if provided with non-NULL pointers:
@@ -101,43 +94,50 @@ returncode_t streaming_process_slice_get_and_swap(
 
 returncode_t streaming_process_slice_deinit(
   streaming_process_slice_state_t* state,
-  uint8_t**                        buffer,
-  size_t*                          size) {
-  uint8_t* ret_buffer;
-  size_t ret_size;
+  uint8_t**                        buffer_a,
+  size_t*                          size_a,
+  uint8_t**                        buffer_b,
+  size_t*                          size_b) {
+  // Safe default values:
+  uint8_t* ret_buffer_a = NULL;
+  size_t ret_size_b     = 0;
+  uint8_t* ret_buffer_b = NULL;
+  size_t ret_size_a     = 0;
 
   // Unallow the buffer currently allowed to the kernel:
   allow_rw_return_t unallow_res =
     allow_readwrite(state->driver, state->allow, NULL, 0);
 
   if (unallow_res.success) {
-    // Unallow failed, don't modify the state struct.
-    ret_buffer = NULL;
-    ret_size   = 0;
-  } else {
     // The unallow worked, recreate the full, initial buffer from the app and
     // kernel halves:
-    if ((void*)state->app_buffer_ptr < unallow_res.ptr) {
-      // App buffer is left half, kernel buffer is right half:
-      // `[ app_buffer ][ kernel_buffer ]`
-      ret_buffer = state->app_buffer_ptr;
-      ret_size   = state->app_buffer_size + unallow_res.size;
+    if (state->app_buffer_is_b) {
+      ret_buffer_a = unallow_res.ptr;
+      ret_size_a   = unallow_res.size;
+      ret_buffer_b = state->app_buffer_ptr;
+      ret_size_b   = state->app_buffer_size;
     } else {
-      // App buffer is right half, kernel buffer is left half:
-      // `[ kernel_buffer ][ app_buffer ]`
-      ret_buffer = unallow_res.ptr;
-      ret_size   = unallow_res.size + state->app_buffer_size;
+      ret_buffer_a = state->app_buffer_ptr;
+      ret_size_a   = state->app_buffer_size;
+      ret_buffer_b = unallow_res.ptr;
+      ret_size_b   = unallow_res.size;
     }
 
     // Wipe the state struct:
     memset(state, 0, sizeof(streaming_process_slice_state_t));
   }
 
-  if (buffer != NULL) {
-    *buffer = ret_buffer;
+  if (buffer_a != NULL) {
+    *buffer_a = ret_buffer_a;
   }
-  if (size != NULL) {
-    *size = ret_size;
+  if (size_a != NULL) {
+    *size_a = ret_size_a;
+  }
+  if (buffer_b != NULL) {
+    *buffer_b = ret_buffer_b;
+  }
+  if (size_b != NULL) {
+    *size_b = ret_size_b;
   }
 
   return tock_status_to_returncode(unallow_res.status);
