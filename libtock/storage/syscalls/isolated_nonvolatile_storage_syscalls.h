@@ -16,15 +16,15 @@ returncode_t libtock_isolated_nonvolatile_storage_set_upcall_read_done(subscribe
 
 returncode_t libtock_isolated_nonvolatile_storage_set_upcall_write_done(subscribe_upcall cb, void* opaque);
 
-returncode_t libtock_isolated_nonvolatile_storage_set_allow_readwrite_read_buffer(uint8_t* buffer, uint32_t len);
+returncode_t libtock_isolated_nonvolatile_storage_set_allow_readwrite_read_buffer(uint8_t* buffer, size_t len);
 
-returncode_t libtock_isolated_nonvolatile_storage_set_allow_readonly_write_buffer(uint8_t* buffer, uint32_t len);
+returncode_t libtock_isolated_nonvolatile_storage_set_allow_readonly_write_buffer(uint8_t* buffer, size_t len);
 
 returncode_t libtock_isolated_nonvolatile_storage_command_get_number_bytes(void);
 
-returncode_t libtock_isolated_nonvolatile_storage_command_read(uint32_t offset, uint32_t length);
+returncode_t libtock_isolated_nonvolatile_storage_command_read(uint64_t offset);
 
-returncode_t libtock_isolated_nonvolatile_storage_command_write(uint32_t offset, uint32_t length);
+returncode_t libtock_isolated_nonvolatile_storage_command_write(uint64_t offset);
 
 #ifdef __cplusplus
 }
