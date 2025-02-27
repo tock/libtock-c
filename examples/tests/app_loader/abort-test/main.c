@@ -39,28 +39,34 @@ static bool abort_tracker = false;  // track when an abort was successful to sto
 
 // static void nop_callback(int a __attribute__((unused)), int b __attribute__((unused)), int c __attribute__((unused)), void *d __attribute__((unused))) {}
 
-static void app_setup_done_callback(__attribute__((unused)) int   length,
+static void app_setup_done_callback(__attribute__((unused)) int   arg0,
                                     __attribute__((unused)) int   arg1,
                                     __attribute__((unused)) int   arg2,
                                     __attribute__((unused)) void* ud) {
   setup_done = true;
 }
 
-static void app_write_done_callback(__attribute__((unused)) int   length,
+static void app_write_done_callback(__attribute__((unused)) int   arg0,
                                     __attribute__((unused)) int   arg1,
                                     __attribute__((unused)) int   arg2,
                                     __attribute__((unused)) void* ud) {
   write_done = true;
 }
 
-static void app_load_done_callback(__attribute__((unused)) int   length,
+static void app_load_done_callback(__attribute__((unused)) int   arg0,
                                    __attribute__((unused)) int   arg1,
                                    __attribute__((unused)) int   arg2,
                                    __attribute__((unused)) void* ud) {
+
+  if (arg0 != RETURNCODE_SUCCESS) {
+    printf("[Error] Process creation failed: %d.\n", arg0);
+  } else {
+    printf("[Success] Process created successfully.\n");
+  }
   load_done = true;
 }
 
-static void app_abort_done_callback(__attribute__((unused)) int   length,
+static void app_abort_done_callback(__attribute__((unused)) int   arg0,
                                     __attribute__((unused)) int   arg1,
                                     __attribute__((unused)) int   arg2,
                                     __attribute__((unused)) void* ud) {
@@ -74,12 +80,20 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
 
   if (pressed == 1) {
     // debounce
-    libtocksync_alarm_delay_ms(200);
+    // Note: A value of 100ms is chosen
+    // because the current alarm upcall implementation
+    // results in panic when a button is pressed within
+    // the debounce period if the debounce period is long.
+    // Setting the debounce interval to 100ms seems to work
+    // but setting it to 200ms and rapidly clicking buttons
+    // leads to the kernel panicking.
+    libtocksync_alarm_delay_ms(100);
 
     if (pressed == 1) {
       const char* app_name    = NULL;
       unsigned char* app_data = NULL;
       double app_size         = 0;
+      int ret0 = 0;
 
       switch (btn_num) {
         case BUTTON1:
@@ -94,7 +108,10 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
           break;
         case BUTTON3:
           printf("[Log] Aborting Setup/Write.\n");
-          libtock_app_loader_abort();
+          ret0 = libtock_app_loader_abort();
+          if (ret0 != RETURNCODE_SUCCESS) {
+            printf("[Error] Abort Failed: %d.\n", ret0);
+          }
           // wait on abort done callback
           yield_for(&abort_done);
           abort_done    = false;
@@ -135,8 +152,6 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
         // wait on load done callback
         yield_for(&load_done);
         load_done = false;
-
-        printf("[Success] Process created successfully.\n");
       }
       printf("[Log] Waiting for a button press.\n");
     }
