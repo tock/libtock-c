@@ -20,9 +20,10 @@
 #define FLASH_BUFFER_SIZE 512
 #define RETURNCODE_SUCCESS 0
 
-static bool setup_done = false;     // to check if setup is done
-static bool write_done = false;     // to check if writing to flash is done
-static bool load_done  = false;     // to check if the process was loaded successfully
+static bool setup_done   = false;   // to check if setup is done
+static bool write_done   = false;   // to check if writing to flash is done
+static bool load_done    = false;   // to check if the process was loaded successfully
+static bool button_press = false;
 
 /******************************************************************************************************
 * Callback functions
@@ -34,24 +35,30 @@ static bool load_done  = false;     // to check if the process was loaded succes
 
 // static void nop_callback(int a __attribute__((unused)), int b __attribute__((unused)), int c __attribute__((unused)), void *d __attribute__((unused))) {}
 
-static void app_setup_done_callback(__attribute__((unused)) int   length,
+static void app_setup_done_callback(__attribute__((unused)) int   arg0,
                                     __attribute__((unused)) int   arg1,
                                     __attribute__((unused)) int   arg2,
                                     __attribute__((unused)) void* ud) {
   setup_done = true;
 }
 
-static void app_write_done_callback(__attribute__((unused)) int   length,
+static void app_write_done_callback(__attribute__((unused)) int   arg0,
                                     __attribute__((unused)) int   arg1,
                                     __attribute__((unused)) int   arg2,
                                     __attribute__((unused)) void* ud) {
   write_done = true;
 }
 
-static void app_load_done_callback(__attribute__((unused)) int   length,
+static void app_load_done_callback(int                           arg0,
                                    __attribute__((unused)) int   arg1,
                                    __attribute__((unused)) int   arg2,
                                    __attribute__((unused)) void* ud) {
+
+  if (arg0 != RETURNCODE_SUCCESS) {
+    printf("[Error] Process creation failed: %d.\n", arg0);
+  } else {
+    printf("[Success] Process created successfully.\n");
+  }
   load_done = true;
 }
 
@@ -59,7 +66,15 @@ static void app_load_done_callback(__attribute__((unused)) int   length,
 static void button_callback(__attribute__ ((unused)) returncode_t retval, int btn_num, bool pressed) {
   // Callback for button presses.
   // val: 1 if pressed, 0 if depressed
-  if (pressed == 1) {
+  if (pressed == 1 && !button_press) {
+    // Note: this variable is introduced
+    // because the current alarm upcall implementation
+    // results in panic when a button is pressed within
+    // the debounce period if the debounce period is long.
+    // Setting the debounce interval to 100ms seems to work
+    // but setting it to 200ms and rapidly clicking buttons
+    // leads to the kernel panicking.
+    button_press = true;
     libtocksync_alarm_delay_ms(200); // debounce
 
     if (pressed == 1) {
@@ -79,6 +94,7 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
           app_size = sizeof(adc);
           break;
         default:
+          button_press = false;
           return;
       }
       printf("[Event] Button for %s Pressed!\n", app_name);
@@ -111,7 +127,8 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
       yield_for(&load_done);
       load_done = false;
 
-      printf("[Success] Process created successfully.\n");
+      printf("[Success] Process created successfully!\n");
+      button_press = false;
       printf("[Log] Waiting for a button press.\n");
     }
   }
@@ -131,7 +148,11 @@ int write_app(double size, uint8_t binary[]) {
   uint8_t write_buffer[FLASH_BUFFER_SIZE];
   uint32_t flash_offset = 0;
 
-  write_count = ceil(size / FLASH_BUFFER_SIZE);
+  // This value can be changed to different sizes
+  // to mimic different bus widths.
+  uint32_t write_buffer_size = FLASH_BUFFER_SIZE;
+
+  write_count = ceil(size / write_buffer_size);
 
   // set the write buffer
   int ret = libtock_app_loader_set_buffer(write_buffer, FLASH_BUFFER_SIZE);
@@ -142,9 +163,9 @@ int write_app(double size, uint8_t binary[]) {
 
   for (uint32_t offset = 0; offset < write_count; offset++) {
     // copy binary to write buffer
-    memcpy(write_buffer, &binary[FLASH_BUFFER_SIZE * offset], FLASH_BUFFER_SIZE);
-    flash_offset = (offset * FLASH_BUFFER_SIZE);
-    int ret1 = libtock_app_loader_write(flash_offset, FLASH_BUFFER_SIZE);
+    memcpy(write_buffer, &binary[write_buffer_size * offset], write_buffer_size);
+    flash_offset = (offset * write_buffer_size);
+    int ret1 = libtock_app_loader_write(flash_offset, write_buffer_size);
     if (ret1 != 0) {
       printf("[Error] Failed writing data to flash at address: 0x%lx\n", flash_offset);
       printf("[Error] Error nature: %d\n", ret1);
