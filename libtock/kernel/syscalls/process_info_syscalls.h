@@ -24,6 +24,7 @@ returncode_t libtock_process_info_command_get_process_count(uint32_t* count);
 returncode_t libtock_process_info_command_get_process_ids(uint32_t* count);
 returncode_t libtock_process_info_command_get_short_ids(uint32_t* count);
 returncode_t libtock_process_info_command_get_process_name(uint32_t process_id);
+returncode_t libtock_process_info_command_get_process_stats(uint32_t process_id);
 
 #ifdef __cplusplus
 }

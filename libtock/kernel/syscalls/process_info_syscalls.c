@@ -28,3 +28,8 @@ returncode_t libtock_process_info_command_get_process_name(uint32_t process_id) 
   syscall_return_t cval = command(DRIVER_NUM_PROCESS_INFO, 4, process_id, 0);
   return tock_command_return_novalue_to_returncode(cval);
 }
+
+returncode_t libtock_process_info_command_get_process_stats(uint32_t process_id) {
+  syscall_return_t cval = command(DRIVER_NUM_PROCESS_INFO, 5, process_id, 0);
+  return tock_command_return_novalue_to_returncode(cval);
+}

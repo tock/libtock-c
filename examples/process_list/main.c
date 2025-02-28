@@ -23,6 +23,7 @@ uint8_t my_value    = 2;
 uint8_t my_value2   = 2;
 uint8_t my_value3   = 0;
 uint8_t my_color    = 0;
+uint8_t my_color2    = 0;
 uint8_t fruit_input = 0;
 
 uint8_t touchscreen_selection = 255;
@@ -31,6 +32,24 @@ uint8_t checkbox_led0 = 0;
 uint8_t checkbox_led1 = 0;
 uint8_t checkbox_led2 = 0;
 uint8_t checkbox_led3 = 0;
+
+uint8_t buf[512];
+uint8_t buf1[512];
+
+uint16_t selection = 0;
+uint16_t det_selection = 0;
+
+static void get_process_name(uint16_t process_index, char* name) {
+  uint32_t count;
+  libtock_process_info_get_process_ids(buf, 512, &count);
+
+  if (process_index < count) {
+    uint32_t* pids = (uint32_t*) buf;
+    uint32_t pid = pids[process_index];
+    libtock_process_info_get_process_name(pid, buf1, 512);
+    strcpy(name, buf1);
+  }
+}
 
 // local mui functions
 
@@ -43,11 +62,15 @@ static uint8_t mui_hrule(mui_t* mui, uint8_t msg) {
   return 0;
 }
 
-uint8_t buf[512];
-uint8_t buf1[512];
 
-uint16_t selection = 0;
-uint16_t det_selection = 0;
+static uint8_t mui_u8g2_draw_text_app_name(mui_t *ui_draw, uint8_t msg) {
+  char app_name[100];
+  get_process_name(selection, app_name);
+  snprintf(ui_draw->text, 41, "App: %s", app_name);
+  return mui_u8g2_draw_text(ui_draw, msg);
+}
+
+
 
 
 uint16_t menu_get_cnt(void *data) {
@@ -83,9 +106,19 @@ const char *menu_get_str(void *data, uint16_t index) {
 
 }
 
+static uint32_t get_stat(uint16_t process_index, uint16_t stat_index) {
+  uint32_t count;
+  libtock_process_info_get_process_ids(buf, 512, &count);
+  uint32_t* pids = (uint32_t*) buf;
+  uint32_t pid = pids[process_index];
+  libtock_process_info_get_process_stats(pid, buf1, 512);
+  uint32_t* stats = (uint32_t*) buf1;
+  return stats[stat_index];
+}
+
 
 uint16_t details_get_cnt(void *data) {
-  return 3;    /* number of menu entries */
+  return 7;
 }
 
 const char *details_get_str(void *data, uint16_t index) {
@@ -113,10 +146,11 @@ const char *details_get_str(void *data, uint16_t index) {
     libtock_process_info_get_process_ids(buf, 512, &count);
 
     uint32_t* pids = (uint32_t*) buf;
+    uint32_t pid = pids[selection];
 
 
 
-      snprintf(process_names[index], 50, MUI_100 "ID: %d", pids[selection]);
+      snprintf(process_names[index], 50, MUI_100 "PID: %d", pid);
       break;
     }
    case 1: {
@@ -124,11 +158,45 @@ const char *details_get_str(void *data, uint16_t index) {
     libtock_process_info_get_short_ids(buf, 512, &count);
 
     uint32_t* shortids = (uint32_t*) buf;
+    uint32_t shortid = shortids[selection];
 
-      snprintf(process_names[index], 50, MUI_100 "ShortID: %d", shortids[selection]);
-      break;
+    if (shortid == 0) {
+            snprintf(process_names[index], 50, MUI_100 "ShortID: Unique");
+
+    } else {
+      snprintf(process_names[index], 50, MUI_100 "ShortID: %#02x", shortid);
     }
+      break;
+   }
    case 2: {
+    uint32_t timeslices_expired = get_stat(selection, 0);
+    snprintf(process_names[index], 50, MUI_100 "Timeslices Exp: %d", timeslices_expired);
+    break;
+   }
+   case 3: {
+    uint32_t syscall_count = get_stat(selection, 1);
+    snprintf(process_names[index], 50, MUI_100 "Syscall Count: %d", syscall_count);
+    break;
+   }
+   case 4: {
+    uint32_t restart_count = get_stat(selection, 2);
+    snprintf(process_names[index], 50, MUI_100 "Restart Count: %d", restart_count);
+    break;
+   }
+   case 5: {
+    char* states[] = {
+      "Running",
+      "Yielded",
+      "YieldedFor",
+      "Stopped",
+      "Faulted",
+      "Terminated",
+    };
+    uint32_t state = get_stat(selection, 3);
+    snprintf(process_names[index], 50, MUI_100 "State: %s", states[state]);
+    break;
+   }
+   case 6: {
       snprintf(process_names[index], 50, MUI_3 "Back");
       break;
     }
@@ -157,6 +225,8 @@ muif_t muif_list[] = {
   MUIF("I3", MUIF_CFLAG_IS_CURSOR_SELECTABLE, &my_value3, mui_u8g2_u8_chkbox_wm_pi),
 
   MUIF("O4", MUIF_CFLAG_IS_CURSOR_SELECTABLE, &my_color, mui_u8g2_u8_opt_child_wm_pi),
+
+  MUIF("AT", 0, &my_color2, mui_u8g2_draw_text_app_name),
 
   MUIF_VARIABLE("O1", &fruit_input, mui_u8g2_u8_opt_line_wa_mse_pi),
 
@@ -187,7 +257,8 @@ fds_t* fds =
 
   MUI_FORM(4)
   MUI_STYLE(0)
-  MUI_LABEL(12, 10, "Process Details")
+  // MUI_LABEL(12, 10, "Process Details")
+  MUI_XYT("AT", 5, 10, "APP")
   MUI_STYLE(1)
   MUI_XYA("DE", 5, 25, 0)
   MUI_XYA("DE", 5, 37, 1)
@@ -267,8 +338,6 @@ static void button_callback(
   start_debounce();
 
   if (val) {
-    printf("b\n");
-
     if (btn_num == 0) {
       mui_PrevField(&ui);
     } else if (btn_num == 2) {
