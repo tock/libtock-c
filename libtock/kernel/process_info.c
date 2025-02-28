@@ -30,3 +30,13 @@ returncode_t libtock_process_info_get_process_name(uint32_t process_id, uint8_t*
   ret = libtock_process_info_command_get_process_name(process_id);
   return ret;
 }
+
+returncode_t libtock_process_info_get_process_stats(uint32_t process_id, uint8_t* buffer, size_t buffer_length){
+  returncode_t ret;
+
+  ret = libtock_process_info_set_allow_readwrite_info_buffer(buffer, buffer_length);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  ret = libtock_process_info_command_get_process_stats(process_id);
+  return ret;
+}
