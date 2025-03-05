@@ -20,10 +20,11 @@
 #define FLASH_BUFFER_SIZE 512
 #define RETURNCODE_SUCCESS 0
 
-static bool setup_done = false;     // to check if setup is done
-static bool write_done = false;     // to check if writing to flash is done
-static bool load_done  = false;     // to check if the process was loaded successfully
-static bool abort_done = false;     // to check if the process binary writing
+static bool setup_done    = false;  // to check if setup is done
+static bool write_done    = false;  // to check if writing to flash is done
+static bool finalize_done = false;  // to check if the kernel is done finalizing the process binary
+static bool load_done     = false;  // to check if the process was loaded successfully
+static bool abort_done    = false;  // to check if the process binary writing
                                     // was aborted successfully
 
 static bool abort_tracker = false;  // track when an abort was successful to stop writing
@@ -51,6 +52,13 @@ static void app_write_done_callback(__attribute__((unused)) int   arg0,
                                     __attribute__((unused)) int   arg2,
                                     __attribute__((unused)) void* ud) {
   write_done = true;
+}
+
+static void app_finalize_done_callback(__attribute__((unused)) int   arg0,
+                                       __attribute__((unused)) int   arg1,
+                                       __attribute__((unused)) int   arg2,
+                                       __attribute__((unused)) void* ud) {
+  finalize_done = true;
 }
 
 static void app_load_done_callback(__attribute__((unused)) int   arg0,
@@ -199,6 +207,17 @@ int write_app(double size, uint8_t binary[]) {
     yield_for(&write_done);
     write_done = false;
   }
+
+  // Now that we are done writing the binary, we ask the kernel to finalize it.
+  printf("Done writing app, finalizing.\n");
+  int ret2 = libtock_app_loader_finalize();
+  if (ret2 != 0) {
+    printf("[Error] Failed to finalize new process binary.\n");
+    return -1;
+  }
+  yield_for(&finalize_done);
+  finalize_done = false;
+
   return 0;
 }
 
@@ -243,18 +262,25 @@ int main(void) {
     return err2;
   }
 
-  // set up the load done callback
-  int err3 = libtock_app_loader_set_load_upcall(app_load_done_callback, NULL);
+  // set up the finalize done callback
+  int err3 = libtock_app_loader_set_finalize_upcall(app_finalize_done_callback, NULL);
   if (err3 != 0) {
-    printf("[Error] Failed to set load done callback: %d\n", err3);
+    printf("[Error] Failed to set finalize done callback: %d\n", err3);
     return err3;
   }
 
-  // set up the abort done callback
-  int err4 = libtock_app_loader_set_abort_upcall(app_abort_done_callback, NULL);
+  // set up the load done callback
+  int err4 = libtock_app_loader_set_load_upcall(app_load_done_callback, NULL);
   if (err4 != 0) {
-    printf("[Error] Failed to set abort done callback: %d\n", err4);
+    printf("[Error] Failed to set load done callback: %d\n", err4);
     return err4;
+  }
+
+  // set up the abort done callback
+  int err5 = libtock_app_loader_set_abort_upcall(app_abort_done_callback, NULL);
+  if (err5 != 0) {
+    printf("[Error] Failed to set abort done callback: %d\n", err5);
+    return err5;
   }
 
   printf("[Log] Waiting for a button press.\n");
