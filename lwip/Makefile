@@ -24,7 +24,7 @@ $(LIBNAME)_SRCS := $(LWIPNOAPPSFILES) $(LWIPAPPFILES)
 override CPPFLAGS += -I$(lwip_DIR)/include -I$(lwip_DIR)/include/lwip
 
 # Avoid failing in CI due to warnings in the library.
- override CPPFLAGS_$(LIBNAME) += -Wno-error
+override CPPFLAGS_$(LIBNAME) += -Wno-error
 
 # Include the rules to build the library.
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
