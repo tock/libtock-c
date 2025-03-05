@@ -52,6 +52,18 @@ returncode_t libtock_app_loader_write_buffer(uint8_t* buffer, uint32_t len);
 returncode_t libtock_app_loader_command_write(uint32_t flash_offset, uint32_t write_length);
 
 /*
+ * Function to setup the callback from capsule.
+ * This function takes in the function that will be executed
+ * when the callback is triggered.
+ */
+returncode_t libtock_app_loader_finalize_subscribe(subscribe_upcall cb, void* userdata);
+
+/*
+ * Signal to kernel we are done writing a new process binary.
+ */
+returncode_t libtock_app_loader_command_finalize(void);
+
+/*
  * Command to request the kernel to load the newly flashed app.
  */
 returncode_t libtock_app_loader_command_load(void);
