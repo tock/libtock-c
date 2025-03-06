@@ -18,10 +18,11 @@ include $($(LIBNAME)_DIR)/lwip/src/Filelists.mk
 # through `$(LWIPDIR)`:
 $(LIBNAME)_SRCS := $(LWIPNOAPPSFILES) $(LWIPAPPFILES)
 
-# Hack: we don't want to modify the LWIP submodule, but LWIP expects
-# us to place certain headers containing platform definitions
-# there. Add these as additional headers in the compiler flags here:
-override CPPFLAGS += -I$(lwip_DIR)/include -I$(lwip_DIR)/include/lwip
+# Add include paths expected by lwip.
+# The first adds the include folder inside the lwip submodule
+override CPPFLAGS += -I$(LWIPDIR)/include
+# The second adds our local include folder with platform-specifc config info
+override CPPFLAGS += -I$($(LIBNAME)_DIR)/include
 
 # Avoid failing in CI due to warnings in the library.
 override CPPFLAGS_$(LIBNAME) += -Wno-error
