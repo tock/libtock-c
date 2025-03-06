@@ -38,6 +38,7 @@ uint8_t buf1[512];
 
 uint16_t selection = 0;
 uint16_t det_selection = 0;
+uint8_t process_control = 0;
 
 static void get_process_name(uint16_t process_index, char* name) {
   uint32_t count;
@@ -48,6 +49,17 @@ static void get_process_name(uint16_t process_index, char* name) {
     uint32_t pid = pids[process_index];
     libtock_process_info_get_process_name(pid, buf1, 512);
     strcpy(name, buf1);
+  }
+}
+
+static void set_process_state(uint16_t process_index, uint32_t command) {
+  uint32_t count;
+  libtock_process_info_get_process_ids(buf, 512, &count);
+
+  if (process_index < count) {
+    uint32_t* pids = (uint32_t*) buf;
+    uint32_t pid = pids[process_index];
+    libtock_process_info_set_process_state(pid, command);
   }
 }
 
@@ -68,6 +80,20 @@ static uint8_t mui_u8g2_draw_text_app_name(mui_t *ui_draw, uint8_t msg) {
   get_process_name(selection, app_name);
   snprintf(ui_draw->text, 41, "App: %s", app_name);
   return mui_u8g2_draw_text(ui_draw, msg);
+}
+
+uint8_t mui_u8g2_btn_goto_process_control(mui_t *ui, uint8_t msg)
+{
+
+ if (msg == MUIF_MSG_CURSOR_SELECT) {
+      // Need to start/stop/terminate/etc the process.
+      uint32_t command = process_control + 1;
+      get_process_name(selection, command);
+  }
+
+
+
+  return mui_u8g2_btn_goto_wm_fi(ui, msg);
 }
 
 
@@ -118,7 +144,7 @@ static uint32_t get_stat(uint16_t process_index, uint16_t stat_index) {
 
 
 uint16_t details_get_cnt(void *data) {
-  return 7;
+  return 8;
 }
 
 const char *details_get_str(void *data, uint16_t index) {
@@ -197,6 +223,10 @@ const char *details_get_str(void *data, uint16_t index) {
     break;
    }
    case 6: {
+      snprintf(process_names[index], 50, MUI_10 "State Control");
+      break;
+    }
+   case 7: {
       snprintf(process_names[index], 50, MUI_3 "Back");
       break;
     }
@@ -243,12 +273,15 @@ muif_t muif_list[] = {
   MUIF_U8G2_U16_LIST("ID", &selection, NULL, menu_get_str, menu_get_cnt, mui_u8g2_u16_list_goto_w1_pi),
   MUIF_U8G2_U16_LIST("DE", &det_selection, NULL, details_get_str, details_get_cnt, mui_u8g2_u16_list_goto_w1_pi),
 
+  MUIF_VARIABLE("CM", &process_control, mui_u8g2_u8_opt_line_wa_mse_pi),
+  MUIF_BUTTON("CN", mui_u8g2_btn_goto_process_control),
+
 };
 
 fds_t* fds =
   MUI_FORM(3)
   MUI_STYLE(0)
-  MUI_LABEL(12, 10, "Process List")
+  MUI_LABEL(5, 10, "Process List")
   MUI_STYLE(1)
   MUI_XYA("ID", 5, 25, 0)
   MUI_XYA("ID", 5, 37, 1)
@@ -264,6 +297,13 @@ fds_t* fds =
   MUI_XYA("DE", 5, 37, 1)
   MUI_XYA("DE", 5, 49, 2)
   MUI_XYA("DE", 5, 61, 3)
+
+  MUI_FORM(10)
+  MUI_STYLE(0)
+  MUI_LABEL(5, 10, "Process Control")
+  MUI_XYAT("CM", 60, 40, 60, "Start|Stop|Fault|Terminate|Boot")
+  MUI_STYLE(0)
+  MUI_XYAT("CN", 64, 59, 4, "OK")
 
 
 
