@@ -19,9 +19,9 @@ static bool write_done     = false;   // to check if writing to flash is done
 static bool finalize_done  = false;   // to check if the kernel is done finalizing the process binary
 static bool load_done      = false;   // to check if the process was loaded successfully
 
-uint8_t* binaries[] = {tock_hello, blink, adc};
-size_t binary_sizes[] = {sizeof(tock_hello), sizeof(blink), sizeof(adc)};
-const char* binary_names[] = {"tock_hello", "blink", "adc"};
+uint8_t* binaries[] = {dpl_hello, blink, adc};
+size_t binary_sizes[] = {sizeof(dpl_hello), sizeof(blink), sizeof(adc)};
+const char* binary_names[] = {"dpl_hello", "blink", "adc"};
 
 uint8_t app_id = 0;
 
