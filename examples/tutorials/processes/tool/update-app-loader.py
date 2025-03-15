@@ -82,7 +82,7 @@ def update_app_binaries_h_file(path, name, size):
     if insert_index is not None:
         lines.insert(insert_index, new_line) 
 
-        print(new_line)
+        # print(new_line)
 
         with open(path, "w") as file:
             file.writelines(lines)
