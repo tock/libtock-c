@@ -22,7 +22,7 @@ mui_t ui;
 
 libtock_alarm_t debounce_alarm;
 
-#define SHARED_BUF_SIZE 64
+#define SHARED_BUF_SIZE 512
 
 bool action = false;
 
@@ -53,10 +53,7 @@ uint8_t _app_load_buf[SHARED_BUF_SIZE] __attribute__((aligned(SHARED_BUF_SIZE)))
 
 uint16_t _number_of_binaries = 0;
 bool _done = false;
-
-
 const char* binary_names[SHARED_BUF_SIZE];
-char label_text[SHARED_BUF_SIZE];
 
 static void get_process_name(uint16_t process_index, char* name) {
   uint32_t count;
@@ -113,8 +110,6 @@ uint8_t mui_u8g2_btn_goto_process_control(mui_t *ui, uint8_t msg)
 }
 
 
-
-
 uint16_t menu_get_cnt(void *data) {
   uint32_t count;
   libtock_process_info_command_get_process_count(&count);
@@ -149,8 +144,6 @@ const char *menu_get_str(void *data, uint16_t index) {
   }
 
   return process_names[index];
-
-
 }
 
 static uint32_t get_stat(uint16_t process_index, uint16_t stat_index) {
@@ -171,8 +164,6 @@ uint16_t details_get_cnt(void *data) {
 const char *details_get_str(void *data, uint16_t index) {
 
   static char* process_names[20] = {NULL};
-
-
 
   if (process_names[index] == NULL) {
     process_names[index] = malloc(50);
@@ -247,7 +238,7 @@ const char *details_get_str(void *data, uint16_t index) {
 }
 
 
-// For this simple example, the callback only need set the yield variable.
+// For this example, the callback only need set the yield variable.
 static void ipc_callback(__attribute__ ((unused)) int   pid,
                          __attribute__ ((unused)) int   len,
                          __attribute__ ((unused)) int   arg2,
@@ -268,9 +259,8 @@ static void get_number_of_binaries(void) {
 
 // Uses the App Load service to get the names of the binaries.
 static void get_binary_names(void) {
-
   
-  for (int i = 0; i < SHARED_BUF_SIZE; i++) {
+  for (int i = 0; i < _number_of_binaries + 1; i++) {
     if (binary_names[i] == NULL) {
       binary_names[i] = malloc(50);
     }
@@ -298,7 +288,7 @@ static void get_binary_names(void) {
   // printf("app name: %s\n", binary_names[i]);
 }
 
-// Uses the App Load service to get the names of the binaries.
+// Uses the App Load service to install requested binary.
 int install_binary(uint8_t id) {
   _app_load_buf[0] = 2;
   _app_load_buf[1] = id;
@@ -339,7 +329,6 @@ const char *binaries_get_str(void *data, uint16_t index) {
 static void mui_u8g2_btn_goto_load_new_app(mui_t *ui, uint8_t msg)
 {
   if (msg == MUIF_MSG_CURSOR_SELECT) {
-    snprintf(label_text, sizeof(label_text), "Load %s", binary_names[binary_selection]);
     int ret = install_binary(binary_selection);
     if (ret == 0){
         mui_GotoForm(ui, 43, 0);
@@ -406,7 +395,7 @@ fds_t* fds =
 
   MUI_FORM(20)
   MUI_STYLE(0)
-  MUI_LABEL(5, 10, "Load New Application")  
+  MUI_LABEL(5, 10, "Select Application")  
   MUI_STYLE(1)
   MUI_XYA("LA", 5, 25, 0)
   MUI_XYA("LA", 5, 37, 1)
@@ -416,11 +405,11 @@ fds_t* fds =
   MUI_FORM(21)
   // MUI_AUX("AL")
   MUI_STYLE(0)
-  MUI_LABEL(5, 10, "Load App?")
+  MUI_LABEL(5, 10, "Load Application?")
   // &u8g2.drawButtonUTF8(62, 20, U8G2_BTN_HCENTER, 34,  2,  2, "Yes" );
   // MUI_XYAT("AL", 45, 25, 24, "Yes")
-  MUI_XYAT(".G", 45, 25, 40, "Yes") 
-  MUI_XYAT(".G", 55, 38, 20, "No") 
+  MUI_XYAT(".G", 45, 35, 40, "Yes") 
+  MUI_XYAT(".G", 55, 48, 20, "No") 
   // MUI_XYT("NO", 65, 38, "No")    
 
 
@@ -528,7 +517,7 @@ int main(void) {
 
   // Setup IPC for App Loader service
   ipc_register_client_callback(_app_load_service, ipc_callback, NULL);
-  ipc_share(_app_load_service, _app_load_buf, 64);
+  ipc_share(_app_load_service, _app_load_buf, SHARED_BUF_SIZE);
 
   ret = u8g2_tock_init(&u8g2);
 
