@@ -26,7 +26,7 @@ int main(void) {
   int width  = u8g2_GetDisplayWidth(&u8g2);
   int height = min(8, u8g2_GetDisplayHeight(&u8g2));
 
-  u8g2_SetFont(&u8g2, u8g2_font_chroma48medium8_8r);
+  u8g2_SetFont(&u8g2, u8g2_font_profont10_tf);
   u8g2_SetFontPosCenter(&u8g2);
 
 
