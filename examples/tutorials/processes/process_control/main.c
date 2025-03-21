@@ -55,6 +55,8 @@ uint16_t _number_of_binaries = 0;
 bool _done = false;
 const char* binary_names[SHARED_BUF_SIZE];
 
+// LOCAL HELPER FUNCTIONS
+
 static void get_process_name(uint16_t process_index, char* name) {
   uint32_t count;
   libtock_process_info_get_process_ids(buf, 512, &count);
@@ -78,8 +80,9 @@ static void set_process_state(uint16_t process_index, uint32_t command) {
   }
 }
 
-// local mui functions
+// LOCAL MUI FUNCTIONS
 
+// Draw a horizontal line.
 static uint8_t mui_hrule(mui_t* mui, uint8_t msg) {
   switch (msg) {
     case MUIF_MSG_DRAW:
@@ -89,7 +92,7 @@ static uint8_t mui_hrule(mui_t* mui, uint8_t msg) {
   return 0;
 }
 
-
+// Fill in the app name for the frame header.
 static uint8_t mui_u8g2_draw_text_app_name(mui_t *ui_draw, uint8_t msg) {
   char app_name[100];
   get_process_name(selection, app_name);
@@ -97,27 +100,26 @@ static uint8_t mui_u8g2_draw_text_app_name(mui_t *ui_draw, uint8_t msg) {
   return mui_u8g2_draw_text(ui_draw, msg);
 }
 
-uint8_t mui_u8g2_btn_goto_process_control(mui_t *ui, uint8_t msg)
-{
-
+// Execute the operation on a given installed process.
+uint8_t mui_u8g2_btn_goto_process_control(mui_t *ui, uint8_t msg) {
  if (msg == MUIF_MSG_CURSOR_SELECT) {
       // Need to start/stop/terminate/etc the process.
       uint32_t command = process_control + 1;
-      get_process_name(selection, command);
+      set_process_state(selection, command);
   }
 
   return mui_u8g2_btn_goto_wm_fi(ui, msg);
 }
 
-
-uint16_t menu_get_cnt(void *data) {
+// Return the number of menu entries for processes running on the board.
+uint16_t process_menu_get_item_count(void *data) {
   uint32_t count;
   libtock_process_info_command_get_process_count(&count);
-  count += 1;
-  return count;
+  return count + 1; // +1 for back
 }
 
-const char *menu_get_str(void *data, uint16_t index) {
+// Fill in menu entry with the process name (or back).
+const char* process_menu_get_item(void* data, uint16_t index) {
   static char* process_names[20] = {NULL};
 
   if (process_names[index] == NULL) {
@@ -130,16 +132,10 @@ const char *menu_get_str(void *data, uint16_t index) {
   libtock_process_info_get_process_ids(buf, 512, &count);
 
   if (index < count) {
-
     uint32_t* pids = (uint32_t*) buf;
-
-
     libtock_process_info_get_process_name(pids[index], buf1, 512);
-
     snprintf(process_names[index], 50, MUI_4 "%s", buf1);
-  }
-
-  if (index == count){
+  } else if (index == count) {
     snprintf(process_names[index], 50, MUI_15 "Back");
   }
 
@@ -248,6 +244,8 @@ static void ipc_callback(__attribute__ ((unused)) int   pid,
 
 // Uses the App Load service to get how many binaries are available.
 static void get_number_of_binaries(void) {
+  if (_app_load_service == -1) return;
+
   _app_load_buf[0] = 0;
   _done       = false;
   ipc_notify_service(_app_load_service);
@@ -259,14 +257,15 @@ static void get_number_of_binaries(void) {
 
 // Uses the App Load service to get the names of the binaries.
 static void get_binary_names(void) {
-  
+  if (_app_load_service == -1) return;
+
   for (int i = 0; i < _number_of_binaries + 1; i++) {
     if (binary_names[i] == NULL) {
       binary_names[i] = malloc(50);
     }
   }
 
-  _app_load_buf[0] = 1;         
+  _app_load_buf[0] = 1;
   _done       = false;
   ipc_notify_service(_app_load_service);
   yield_for(&_done);
@@ -290,6 +289,8 @@ static void get_binary_names(void) {
 
 // Uses the App Load service to install requested binary.
 int install_binary(uint8_t id) {
+  if (_app_load_service == -1) return 0;
+
   _app_load_buf[0] = 2;
   _app_load_buf[1] = id;
   _done       = false;
@@ -306,9 +307,9 @@ uint16_t binaries_get_cnt(void *data) {
 }
 
 const char *binaries_get_str(void *data, uint16_t index) {
-  
+
   get_binary_names();
-  
+
   static char* process_names[20] = {NULL};
 
   if (process_names[index] == NULL) {
@@ -357,7 +358,7 @@ muif_t muif_list[] = {
   MUIF("O4", MUIF_CFLAG_IS_CURSOR_SELECTABLE, &my_color, mui_u8g2_u8_opt_child_wm_pi),
 
   MUIF("AT", 0, &my_color2, mui_u8g2_draw_text_app_name),
-  
+
 
   MUIF_VARIABLE("O1", &fruit_input, mui_u8g2_u8_opt_line_wa_mse_pi),
 
@@ -371,7 +372,7 @@ muif_t muif_list[] = {
   MUIF(".g", MUIF_CFLAG_IS_CURSOR_SELECTABLE, 0, mui_u8g2_btn_goto_w1_pi),    /* MUI_goto has the id Fg */
   MUIF(".L", 0, 0, mui_u8g2_draw_text),
 
-  MUIF_U8G2_U16_LIST("ID", &selection, NULL, menu_get_str, menu_get_cnt, mui_u8g2_u16_list_goto_w1_pi),
+  MUIF_U8G2_U16_LIST("ID", &selection, NULL, process_menu_get_item, process_menu_get_item_count, mui_u8g2_u16_list_goto_w1_pi),
   MUIF_U8G2_U16_LIST("DE", &det_selection, NULL, details_get_str, details_get_cnt, mui_u8g2_u16_list_goto_w1_pi),
   MUIF_U8G2_U16_LIST("LA", &binary_selection, NULL, binaries_get_str, binaries_get_cnt, mui_u8g2_u16_list_goto_w1_pi),
 
@@ -381,36 +382,49 @@ muif_t muif_list[] = {
   MUIF_BUTTON("AL", mui_u8g2_btn_goto_load_new_app),
   // MUIF_RO("AL", mui_u8g2_btn_goto_load_new_app),
   // MUIF_BUTTON("NO", mui_u8g2_btn_goto_no_load),
-  
+
 
 };
 
 fds_t* fds =
+  // MAIN HOME SCREEN
   MUI_FORM(15)
   MUI_STYLE(0)
-  MUI_LABEL(5, 10, "Main Menu")
+  MUI_LABEL(5, 10, "Process Control")
+  MUI_XY("HR", 0, 12)
   MUI_STYLE(1)
-  MUI_XYAT(".G", 46, 25, 3, "Inspect Processes") 
-  MUI_XYAT(".G", 55, 38, 20, "Load New Application")    
+  MUI_DATA("GP",
+      MUI_3  "Inspect Processes|"
+      MUI_20 "Load New Application")
+  MUI_XYA("GC", 5, 25, 0)
+  MUI_XYA("GC", 5, 37, 1)
+  MUI_XYA("GC", 5, 49, 2)
+
+
+
+
+
+
 
   MUI_FORM(20)
   MUI_STYLE(0)
-  MUI_LABEL(5, 10, "Select Application")  
+  MUI_LABEL(5, 10, "Select Application")
+  MUI_XY("HR", 0, 12)
   MUI_STYLE(1)
   MUI_XYA("LA", 5, 25, 0)
   MUI_XYA("LA", 5, 37, 1)
   MUI_XYA("LA", 5, 49, 2)
   MUI_XYA("LA", 5, 61, 3)
-  
+
   MUI_FORM(21)
   // MUI_AUX("AL")
   MUI_STYLE(0)
   MUI_LABEL(5, 10, "Load Application?")
   // &u8g2.drawButtonUTF8(62, 20, U8G2_BTN_HCENTER, 34,  2,  2, "Yes" );
   // MUI_XYAT("AL", 45, 25, 24, "Yes")
-  MUI_XYAT(".G", 45, 35, 40, "Yes") 
-  MUI_XYAT(".G", 55, 48, 20, "No") 
-  // MUI_XYT("NO", 65, 38, "No")    
+  MUI_XYAT(".G", 45, 35, 40, "Yes")
+  MUI_XYAT(".G", 55, 48, 20, "No")
+  // MUI_XYT("NO", 65, 38, "No")
 
 
   MUI_FORM(40)
@@ -422,41 +436,46 @@ fds_t* fds =
   MUI_STYLE(0)
   MUI_LABEL(5, 10, "Loading Failed!")
   MUI_STYLE(1)
-  MUI_XYAT(".G", 46, 25, 20, "Back") 
+  MUI_XYAT(".G", 46, 25, 20, "Back")
 
 
   MUI_FORM(43)
   MUI_STYLE(0)
   MUI_LABEL(5, 10, "Loading Success!")
   MUI_STYLE(1)
-  MUI_XYAT(".G", 46, 25, 20, "Back")  
+  MUI_XYAT(".G", 46, 25, 20, "Back")
 
 
   MUI_FORM(3)
   MUI_STYLE(0)
   MUI_LABEL(5, 10, "Process List")
+  MUI_XY("HR", 0, 12)
   MUI_STYLE(1)
   MUI_XYA("ID", 5, 25, 0)
   MUI_XYA("ID", 5, 37, 1)
   MUI_XYA("ID", 5, 49, 2)
-  MUI_XYA("ID", 5, 61, 3)
-  
+  // MUI_XYA("ID", 5, 61, 3)
+
 
   MUI_FORM(4)
   MUI_STYLE(0)
   MUI_XYT("AT", 5, 10, "APP")
+  MUI_XY("HR", 0, 12)
   MUI_STYLE(1)
   MUI_XYA("DE", 5, 25, 0)
   MUI_XYA("DE", 5, 37, 1)
   MUI_XYA("DE", 5, 49, 2)
-  MUI_XYA("DE", 5, 61, 3)
+  // MUI_XYA("DE", 5, 61, 3)
 
   MUI_FORM(10)
   MUI_STYLE(0)
-  MUI_LABEL(5, 10, "Process Control")
-  MUI_XYAT("CM", 60, 40, 60, "Start|Stop|Fault|Terminate|Boot")
+  MUI_LABEL(5, 10, "Change State")
+  MUI_XY("HR", 0, 12)
+  MUI_STYLE(1)
+  MUI_XYT("AT", 5, 25, "APP")
+  MUI_XYAT("CM", 15, 45, 60, "Start|Stop|Fault|Terminate|Boot")
   MUI_STYLE(0)
-  MUI_XYAT("CN", 64, 59, 4, "OK")
+  MUI_XYAT("CN", 100, 45, 4, "OK")
 ;
 
 struct alarm_cb_data {
@@ -501,7 +520,7 @@ int main(void) {
   // Enable interrupts on each button.
   int count;
   ret = libtock_button_count(&count);
-  if (ret < 0) return ret;
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
   for (int i = 0; i < count; i++) {
     libtock_button_notify_on_press(i, button_callback);
@@ -510,17 +529,24 @@ int main(void) {
   ret = ipc_discover("app_loader", &_app_load_service);
   if (ret != RETURNCODE_SUCCESS) {
     printf("No App Loader Service\n");
+  } else {
+    printf("Discovered App Loader Service\n");
+  }
+
+  // Setup IPC for App Loader service
+  if (_app_load_service > -1) {
+    ipc_register_client_callback(_app_load_service, ipc_callback, NULL);
+    ipc_share(_app_load_service, _app_load_buf, SHARED_BUF_SIZE);
+  }
+
+  // Setup the screen.
+  ret = u8g2_tock_init(&u8g2);
+  if (ret != RETURNCODE_SUCCESS) {
+    printf("[Process Control] Unable to access screen.\n");
     return -1;
   }
 
-  printf("Registered to App Loader Service\n");
-
-  // Setup IPC for App Loader service
-  ipc_register_client_callback(_app_load_service, ipc_callback, NULL);
-  ipc_share(_app_load_service, _app_load_buf, SHARED_BUF_SIZE);
-
-  ret = u8g2_tock_init(&u8g2);
-
+  // Main MUI screen drawing loop.
   u8g2_ClearBuffer(&u8g2);
 
   u8x8_InitDisplay(u8g2_GetU8x8(&u8g2));
@@ -532,8 +558,7 @@ int main(void) {
   while (1) {
 
     u8g2_FirstPage(&u8g2);
-    do
-    {
+    do {
       mui_Draw(&ui);
     } while (u8g2_NextPage(&u8g2));
 
