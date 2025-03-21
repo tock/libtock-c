@@ -40,3 +40,7 @@ returncode_t libtock_process_info_get_process_stats(uint32_t process_id, uint8_t
   ret = libtock_process_info_command_get_process_stats(process_id);
   return ret;
 }
+
+returncode_t libtock_process_info_set_process_state(uint32_t process_id, uint32_t state) {
+  return libtock_process_info_command_set_process_state( process_id,  state);
+}
