@@ -22,6 +22,8 @@ mui_t ui;
 
 libtock_alarm_t debounce_alarm;
 
+#define UNUSED(x) (void)(x)
+
 #define SHARED_BUF_SIZE 512
 
 bool action = false;
@@ -57,7 +59,7 @@ const char* binary_names[SHARED_BUF_SIZE];
 
 // LOCAL HELPER FUNCTIONS
 
-static void get_process_name(uint16_t process_index, char* name) {
+static void get_process_name(uint16_t process_index, char* name, size_t size) {
   uint32_t count;
   libtock_process_info_get_process_ids(buf, 512, &count);
 
@@ -65,7 +67,7 @@ static void get_process_name(uint16_t process_index, char* name) {
     uint32_t* pids = (uint32_t*) buf;
     uint32_t pid = pids[process_index];
     libtock_process_info_get_process_name(pid, buf1, 512);
-    strcpy(name, buf1);
+    strncpy(name, (const char*) buf1, size);
   }
 }
 
@@ -83,48 +85,55 @@ static void set_process_state(uint16_t process_index, uint32_t command) {
 // LOCAL MUI FUNCTIONS
 
 // Draw a horizontal line.
-static uint8_t mui_hrule(mui_t* mui, uint8_t msg) {
+static uint8_t mui_hrule(mui_t* ui_draw, uint8_t msg) {
   switch (msg) {
     case MUIF_MSG_DRAW:
-      u8g2_DrawHLine(&u8g2, 0, mui_get_y(mui), u8g2_GetDisplayWidth(&u8g2));
+      u8g2_DrawHLine(&u8g2, 0, mui_get_y(ui_draw), u8g2_GetDisplayWidth(&u8g2));
       break;
   }
   return 0;
 }
 
 // Fill in the app name for the frame header.
-static uint8_t mui_u8g2_draw_text_app_name(mui_t *ui_draw, uint8_t msg) {
+static uint8_t mui_u8g2_draw_text_app_name(mui_t* ui_draw, uint8_t msg) {
+  int ret;
   char app_name[100];
-  get_process_name(selection, app_name);
-  snprintf(ui_draw->text, 41, "App: %s", app_name);
+  get_process_name(selection, app_name, 100);
+  ret = snprintf(ui_draw->text, 41, "App: %s", app_name);
+  if (ret != 0) ui_draw->text[40] = '\0';
   return mui_u8g2_draw_text(ui_draw, msg);
 }
 
 // Execute the operation on a given installed process.
-uint8_t mui_u8g2_btn_goto_process_control(mui_t *ui, uint8_t msg) {
+static uint8_t mui_u8g2_btn_goto_process_control(mui_t* ui_draw, uint8_t msg) {
  if (msg == MUIF_MSG_CURSOR_SELECT) {
       // Need to start/stop/terminate/etc the process.
       uint32_t command = process_control + 1;
       set_process_state(selection, command);
   }
 
-  return mui_u8g2_btn_goto_wm_fi(ui, msg);
+  return mui_u8g2_btn_goto_wm_fi(ui_draw, msg);
 }
 
 // Return the number of menu entries for processes running on the board.
-uint16_t process_menu_get_item_count(void *data) {
+static uint16_t process_menu_get_item_count(void* data) {
+  UNUSED(data);
+
   uint32_t count;
   libtock_process_info_command_get_process_count(&count);
   return count + 1; // +1 for back
 }
 
 // Fill in menu entry with the process name (or back).
-const char* process_menu_get_item(void* data, uint16_t index) {
+static const char* process_menu_get_item(void* data, uint16_t index) {
+  UNUSED(data);
+
+  int ret;
   static char* process_names[20] = {NULL};
 
   if (process_names[index] == NULL) {
     process_names[index] = malloc(50);
-    process_names[index][0] = MUI_100;
+    process_names[index][0] = '\x64';
     process_names[index][1] = '\0';
   }
 
@@ -134,9 +143,11 @@ const char* process_menu_get_item(void* data, uint16_t index) {
   if (index < count) {
     uint32_t* pids = (uint32_t*) buf;
     libtock_process_info_get_process_name(pids[index], buf1, 512);
-    snprintf(process_names[index], 50, MUI_4 "%s", buf1);
+    ret = snprintf(process_names[index], 50, MUI_4 "%s", buf1);
+    if (ret != 0) process_names[index][49] = '\0';
   } else if (index == count) {
-    snprintf(process_names[index], 50, MUI_15 "Back");
+    ret = snprintf(process_names[index], 50, MUI_15 "Back");
+    if (ret != 0) process_names[index][49] = '\0';
   }
 
   return process_names[index];
@@ -153,17 +164,20 @@ static uint32_t get_stat(uint16_t process_index, uint16_t stat_index) {
 }
 
 
-uint16_t details_get_cnt(void *data) {
+static uint16_t details_get_cnt(void *data) {
+  UNUSED(data);
+
   return 8;
 }
 
-const char *details_get_str(void *data, uint16_t index) {
+static const char *details_get_str(void *data, uint16_t index) {
+  UNUSED(data);
 
   static char* process_names[20] = {NULL};
 
   if (process_names[index] == NULL) {
     process_names[index] = malloc(50);
-    process_names[index][0] = MUI_100;
+    process_names[index][0] = '\x64';
     process_names[index][1] = '\0';
   }
 
@@ -174,7 +188,7 @@ const char *details_get_str(void *data, uint16_t index) {
 
     uint32_t* pids = (uint32_t*) buf;
     uint32_t pid = pids[selection];
-    snprintf(process_names[index], 50, MUI_100 "PID: %d", pid);
+    snprintf(process_names[index], 50, MUI_100 "PID: %lu", pid);
     break;
    }
    case 1: {
@@ -188,27 +202,27 @@ const char *details_get_str(void *data, uint16_t index) {
             snprintf(process_names[index], 50, MUI_100 "ShortID: Unique");
 
     } else {
-      snprintf(process_names[index], 50, MUI_100 "ShortID: %#02x", shortid);
+      snprintf(process_names[index], 50, MUI_100 "ShortID: %#02lx", shortid);
     }
       break;
    }
    case 2: {
     uint32_t timeslices_expired = get_stat(selection, 0);
-    snprintf(process_names[index], 50, MUI_100 "Timeslices Exp: %d", timeslices_expired);
+    snprintf(process_names[index], 50, MUI_100 "Timeslices Exp: %lu", timeslices_expired);
     break;
    }
    case 3: {
     uint32_t syscall_count = get_stat(selection, 1);
-    snprintf(process_names[index], 50, MUI_100 "Syscall Count: %d", syscall_count);
+    snprintf(process_names[index], 50, MUI_100 "Syscall Count: %lu", syscall_count);
     break;
    }
    case 4: {
     uint32_t restart_count = get_stat(selection, 2);
-    snprintf(process_names[index], 50, MUI_100 "Restart Count: %d", restart_count);
+    snprintf(process_names[index], 50, MUI_100 "Restart Count: %lu", restart_count);
     break;
    }
    case 5: {
-    char* states[] = {
+    const char* states[] = {
       "Running",
       "Yielded",
       "YieldedFor",
@@ -244,7 +258,7 @@ static void ipc_callback(__attribute__ ((unused)) int   pid,
 
 // Uses the App Load service to get how many binaries are available.
 static void get_number_of_binaries(void) {
-  if (_app_load_service == -1) return;
+  if (_app_load_service == (size_t) -1) return;
 
   _app_load_buf[0] = 0;
   _done       = false;
@@ -257,7 +271,7 @@ static void get_number_of_binaries(void) {
 
 // Uses the App Load service to get the names of the binaries.
 static void get_binary_names(void) {
-  if (_app_load_service == -1) return;
+  if (_app_load_service == (size_t) -1) return;
 
   for (int i = 0; i < _number_of_binaries + 1; i++) {
     if (binary_names[i] == NULL) {
@@ -277,7 +291,7 @@ static void get_binary_names(void) {
     size_t binary_name_len = strlen((const char*)&_app_load_buf[offset]);
 
     if (binary_name_len < 50) {  // Make sure app names are shorter than 50 characters
-      strcpy(binary_names[i], (const char*)&_app_load_buf[offset]);
+      strcpy((char*) binary_names[i], (const char*) &_app_load_buf[offset]);
     } else {
       printf("Binary name too long at index %d\n", i);
     }
@@ -288,8 +302,8 @@ static void get_binary_names(void) {
 }
 
 // Uses the App Load service to install requested binary.
-int install_binary(uint8_t id) {
-  if (_app_load_service == -1) return 0;
+static int install_binary(uint8_t id) {
+  if (_app_load_service == (size_t) -1) return 0;
 
   _app_load_buf[0] = 2;
   _app_load_buf[1] = id;
@@ -301,12 +315,15 @@ int install_binary(uint8_t id) {
   return  _app_load_buf[0];
 }
 
-uint16_t binaries_get_cnt(void *data) {
+static uint16_t binaries_get_cnt(void *data) {
+  UNUSED(data);
+
   get_number_of_binaries();
   return _number_of_binaries + 1;   // one for "Back"
 }
 
-const char *binaries_get_str(void *data, uint16_t index) {
+static const char* binaries_get_str(void* data, uint16_t index) {
+  UNUSED(data);
 
   get_binary_names();
 
@@ -314,7 +331,7 @@ const char *binaries_get_str(void *data, uint16_t index) {
 
   if (process_names[index] == NULL) {
     process_names[index] = malloc(50);
-    process_names[index][0] = MUI_100;
+    process_names[index][0] = '\x64';
     process_names[index][1] = '\0';
   }
 
@@ -327,17 +344,16 @@ const char *binaries_get_str(void *data, uint16_t index) {
 
 }
 
-static void mui_u8g2_btn_goto_load_new_app(mui_t *ui, uint8_t msg)
-{
+static uint8_t mui_u8g2_btn_goto_load_new_app(mui_t* ui_draw, uint8_t msg) {
   if (msg == MUIF_MSG_CURSOR_SELECT) {
     int ret = install_binary(binary_selection);
     if (ret == 0){
-        mui_GotoForm(ui, 43, 0);
-    }
-    else{
-      mui_GotoForm(ui, 42, 0);
+      ui_draw->arg = 43;
+    } else{
+      ui_draw->arg = 42;
     }
   }
+  return mui_u8g2_btn_goto_wm_fi(ui_draw, msg);
 }
 
 
@@ -378,6 +394,7 @@ muif_t muif_list[] = {
 
   MUIF_VARIABLE("CM", &process_control, mui_u8g2_u8_opt_line_wa_mse_pi),
   MUIF_BUTTON("CN", mui_u8g2_btn_goto_process_control),
+  MUIF_BUTTON("CO", mui_u8g2_btn_goto_wm_fi),
 
   MUIF_BUTTON("AL", mui_u8g2_btn_goto_load_new_app),
   // MUIF_RO("AL", mui_u8g2_btn_goto_load_new_app),
@@ -473,9 +490,10 @@ fds_t* fds =
   MUI_XY("HR", 0, 12)
   MUI_STYLE(1)
   MUI_XYT("AT", 5, 25, "APP")
-  MUI_XYAT("CM", 15, 45, 60, "Start|Stop|Fault|Terminate|Boot")
+  MUI_XYAT("CM", 10, 45, 50, "Start|Stop|Fault|Terminate|Boot")
   MUI_STYLE(0)
-  MUI_XYAT("CN", 100, 45, 4, "OK")
+  MUI_XYAT("CN", 75, 45, 4, "OK")
+  MUI_XYAT("CO", 105, 45, 4, "CNCL")
 ;
 
 struct alarm_cb_data {
@@ -534,7 +552,7 @@ int main(void) {
   }
 
   // Setup IPC for App Loader service
-  if (_app_load_service > -1) {
+  if (_app_load_service != (size_t) -1) {
     ipc_register_client_callback(_app_load_service, ipc_callback, NULL);
     ipc_share(_app_load_service, _app_load_buf, SHARED_BUF_SIZE);
   }
