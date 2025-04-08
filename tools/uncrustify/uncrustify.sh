@@ -16,7 +16,7 @@ if ! command -v uncrustify >/dev/null; then
   do_install=true
 else
   # Validate uncrustify version
-  VERSION=$(uncrustify --version | egrep -o '0.[0-9]+[.0-9]*')
+  VERSION=$(uncrustify --version | grep -E -o '0.[0-9]+[.0-9]*')
   if [[ "$VERSION" != $UNCRUSTIFY_VERSION ]]; then
     do_install=true
   fi
