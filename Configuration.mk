@@ -249,8 +249,10 @@ CC_rv32imac := $(CC_rv32)
 
 # Determine the version of the RISC-V compiler. This is used to select the
 # version of the libgcc library that is compatible.
-CC_rv32_version := $(shell $(TOOLCHAIN_rv32)$(CC_rv32) -dumpfullversion)
-CC_rv32_version_major := $(shell echo $(CC_rv32_version) | cut -f1 -d.)
+ifneq ($(findstring rv32i,$(TOCK_ARCH_FAMILIES)),)
+  CC_rv32_version := $(shell $(TOOLCHAIN_rv32)$(CC_rv32) -dumpfullversion)
+  CC_rv32_version_major := $(shell echo $(CC_rv32_version) | cut -f1 -d.)
+endif
 
 # Match compiler version to support libtock-newlib versions.
 ifeq ($(CC_rv32_version_major),10)
@@ -393,8 +395,10 @@ CC_cortex-m7 := $(CC_cortex-m)
 
 # Determine the version of the ARM compiler. This is used to select the version
 # of the libgcc library that is compatible.
-CC_cortex-m_version := $(shell $(TOOLCHAIN_cortex-m)$(CC_cortex-m) -dumpfullversion)
-CC_cortex-m_version_major := $(shell echo $(CC_cortex-m_version) | cut -f1 -d.)
+ifneq ($(findstring cortex-m,$(TOCK_ARCH_FAMILIES)),)
+  CC_cortex-m_version := $(shell $(TOOLCHAIN_cortex-m)$(CC_cortex-m) -dumpfullversion)
+  CC_cortex-m_version_major := $(shell echo $(CC_cortex-m_version) | cut -f1 -d.)
+endif
 
 # Match compiler version to support libtock-newlib versions.
 ifeq ($(CC_cortex-m_version_major),10)
@@ -680,12 +684,17 @@ ifneq ($(V),)
   $(info **************************************************)
   $(info Config:)
   $(info GIT: $(shell git describe --always 2>&1))
+ifneq ($(findstring cortex-m,$(TOCK_ARCH_FAMILIES)),)
   $(info $(TOOLCHAIN_cortex-m4)$(CC_cortex-m4) --version: $(shell $(TOOLCHAIN_cortex-m4)$(CC_cortex-m4) --version))
+endif
+ifneq ($(findstring rv32i,$(TOCK_ARCH_FAMILIES)),)
   $(info $(TOOLCHAIN_rv32i)$(CC_rv32i) --version: $(shell $(TOOLCHAIN_rv32i)$(CC_rv32i) --version))
+endif
   $(info LAYOUT=$(LAYOUT))
   $(info MAKEFLAGS=$(MAKEFLAGS))
   $(info PACKAGE_NAME=$(PACKAGE_NAME))
   $(info TOCK_ARCHS=$(TOCK_ARCHS))
+  $(info TOCK_ARCH_FAMILIES=$(TOCK_ARCH_FAMILIES))
   $(info TOCK_TARGETS=$(TOCK_TARGETS))
   $(info TOCK_USERLAND_BASE_DIR=$(TOCK_USERLAND_BASE_DIR))
   $(info TOOLCHAIN=$(TOOLCHAIN))
