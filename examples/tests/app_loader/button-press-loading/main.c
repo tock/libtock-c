@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <examples/tests/app_loader/button-press-loading/pre-compiled-binaries/app_binaries.h>
+#include "app_binaries.h"
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/kernel/app_loader.h>
@@ -22,7 +22,7 @@
 
 static bool setup_done    = false;   // to check if setup is done
 static bool write_done    = false;   // to check if writing to flash is done
-static bool finalize_done = false;  // to check if the kernel is done finalizing the process binary
+static bool finalize_done = false;   // to check if the kernel is done finalizing the process binary
 static bool load_done     = false;   // to check if the process was loaded successfully
 static bool button_press  = false;
 
@@ -88,7 +88,7 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
     if (pressed == 1) {
       const char* app_name    = NULL;
       unsigned char* app_data = NULL;
-      double app_size         = 0;
+      size_t app_size         = 0;
 
       switch (btn_num) {
         case BUTTON1:
@@ -106,6 +106,7 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
           return;
       }
       printf("[Event] Button for %s Pressed!\n", app_name);
+      printf("size: %d\n", app_size);
 
       int ret = libtock_app_loader_setup(app_size);
       if (ret != RETURNCODE_SUCCESS) {
