@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <examples/tests/app_loader/button-press-loading/pre-compiled-binaries/app_binaries.h>
+#include "app_binaries.h"
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/kernel/app_loader.h>
@@ -61,7 +61,7 @@ static void app_finalize_done_callback(__attribute__((unused)) int   arg0,
   finalize_done = true;
 }
 
-static void app_load_done_callback(__attribute__((unused)) int   arg0,
+static void app_load_done_callback(int                           arg0,
                                    __attribute__((unused)) int   arg1,
                                    __attribute__((unused)) int   arg2,
                                    __attribute__((unused)) void* ud) {
