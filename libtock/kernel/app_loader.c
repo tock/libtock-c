@@ -5,7 +5,7 @@
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_set_setup_upcall(subscribe_upcall cb, void* userdata) {
+returncode_t libtock_app_loader_setup_set_upcall(subscribe_upcall cb, void* userdata) {
   return libtock_app_loader_setup_subscribe(cb, userdata);
 }
 
@@ -14,7 +14,7 @@ returncode_t libtock_app_loader_set_setup_upcall(subscribe_upcall cb, void* user
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_set_write_upcall(subscribe_upcall cb, void* userdata) {
+returncode_t libtock_app_loader_write_set_upcall(subscribe_upcall cb, void* userdata) {
   return libtock_app_loader_write_subscribe(cb, userdata);
 }
 
@@ -23,7 +23,7 @@ returncode_t libtock_app_loader_set_write_upcall(subscribe_upcall cb, void* user
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_set_finalize_upcall(subscribe_upcall cb, void* userdata) {
+returncode_t libtock_app_loader_finalize_set_upcall(subscribe_upcall cb, void* userdata) {
   return libtock_app_loader_finalize_subscribe(cb, userdata);
 }
 
@@ -32,7 +32,7 @@ returncode_t libtock_app_loader_set_finalize_upcall(subscribe_upcall cb, void* u
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_set_load_upcall(subscribe_upcall cb, void* userdata) {
+returncode_t libtock_app_loader_load_set_upcall(subscribe_upcall cb, void* userdata) {
   return libtock_app_loader_load_subscribe(cb, userdata);
 }
 
@@ -41,7 +41,7 @@ returncode_t libtock_app_loader_set_load_upcall(subscribe_upcall cb, void* userd
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_set_abort_upcall(subscribe_upcall cb, void* userdata) {
+returncode_t libtock_app_loader_abort_set_upcall(subscribe_upcall cb, void* userdata) {
   return libtock_app_loader_abort_subscribe(cb, userdata);
 }
 
