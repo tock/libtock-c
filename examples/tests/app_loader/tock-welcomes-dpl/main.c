@@ -262,28 +262,28 @@ int main(void) {
   printf("[Log] Simple test app to load an app dynamically.\n");
 
   // set up the setup done callback
-  int err1 = libtock_app_loader_setup_subscribe(app_setup_done_callback, NULL);
+  int err1 = libtock_app_loader_setup_set_upcall(app_setup_done_callback, NULL);
   if (err1 != 0) {
     printf("[Error] Failed to set setup done callback: %d\n", err1);
     return err1;
   }
 
   // set up the write done callback
-  int err2 = libtock_app_loader_write_subscribe(app_write_done_callback, NULL);
+  int err2 = libtock_app_loader_write_set_upcall(app_write_done_callback, NULL);
   if (err2 != 0) {
     printf("[Error] Failed to set flash write done callback: %d\n", err2);
     return err2;
   }
 
   // set up the finalize done callback
-  int err3 = libtock_app_loader_set_finalize_upcall(app_finalize_done_callback, NULL);
+  int err3 = libtock_app_loader_finalize_set_upcall(app_finalize_done_callback, NULL);
   if (err3 != 0) {
     printf("[Error] Failed to set finalize done callback: %d\n", err3);
     return err3;
   }
 
   // set up the load done callback
-  int err4 = libtock_app_loader_set_load_upcall(app_load_done_callback, NULL);
+  int err4 = libtock_app_loader_load_set_upcall(app_load_done_callback, NULL);
   if (err4 != 0) {
     printf("[Error] Failed to set load done callback: %d\n", err4);
     return err4;
