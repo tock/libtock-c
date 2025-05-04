@@ -1,24 +1,29 @@
 // \file
 
 // This is a helper program to test the dynamic app loading functionality
-// of Tock works. This app has two other applications' (blink and ADC) binaries
-// pre-programmed into it. When the user presses a button on a supported device,
+// of Tock works. This app has three other applications' 
+// (a c-hello variant, blink and ADC) binaries
+// pre-programmed into it. When the app receives a command via console,
 // the dynamic process loader enables the new app to be written to flash and
-// loaded as a new process.
+// loaded as a new process, or abort it depending on the command received.
 
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "app_binaries.h"
+#include "tock-apps.h"
+#include <libtock-sync/interface/console.h>
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/kernel/app_loader.h>
 #include <libtock/tock.h>
 
 
-#define FLASH_BUFFER_SIZE 512
-#define RETURNCODE_SUCCESS 0
+#define FLASH_BUFFER_SIZE   512
+#define RETURNCODE_SUCCESS  0
+#define CONSOLE_BUFFER_SIZE 1
+
+uint8_t console_buffer[CONSOLE_BUFFER_SIZE];
 
 static bool setup_done    = false;  // to check if setup is done
 static bool write_done    = false;  // to check if writing to flash is done
@@ -31,14 +36,17 @@ static bool abort_tracker = false;  // track when an abort was successful to sto
                                     // process binary data
 
 /******************************************************************************************************
-* Callback functions
-*
-* 1. Callback to let us know when the capsule is done writing data to flash
-* 2. Set button callback to initiate the dynamic app load process on pressing button 1 (on nrf52840dk)
-*
+* Function Prototypes
 ******************************************************************************************************/
+void console_command_callback(const char* command);
 
-// static void nop_callback(int a __attribute__((unused)), int b __attribute__((unused)), int c __attribute__((unused)), void *d __attribute__((unused))) {}
+/******************************************************************************************************
+ * Callback functions
+ *
+ * 1. Callback to let us know when the capsule is done writing data to flash
+ * 2. Set callback to initiate the dynamic app load process on receiving command from console
+ *
+ *******************************************************************************************************/
 
 static void app_setup_done_callback(__attribute__((unused)) int   arg0,
                                     __attribute__((unused)) int   arg1,
@@ -81,89 +89,68 @@ static void app_abort_done_callback(__attribute__((unused)) int   arg0,
   abort_done = true;
 }
 
-// Callback for button presses.
-static void button_callback(__attribute__ ((unused)) returncode_t retval, int btn_num, bool pressed) {
-  // Callback for button presses.
-  // val: 1 if pressed, 0 if depressed
+// Callback for console commands.
+void console_command_callback(const char* command) {
 
-  if (pressed == 1) {
-    // debounce
-    // Note: A value of 100ms is chosen
-    // because the current alarm upcall implementation
-    // results in panic when a button is pressed within
-    // the debounce period if the debounce period is long.
-    // Setting the debounce interval to 100ms seems to work
-    // but setting it to 200ms and rapidly clicking buttons
-    // leads to the kernel panicking.
-    libtocksync_alarm_delay_ms(100);
+  const char* app_name = NULL;
+  uint8_t*    app_data = NULL;
+  uint32_t app_size    = 0;
 
-    if (pressed == 1) {
-      const char* app_name    = NULL;
-      unsigned char* app_data = NULL;
-      double app_size         = 0;
-      int ret0 = 0;
-
-      switch (btn_num) {
-        case BUTTON1:
-          app_name = "Blink";
-          app_data = blink;
-          app_size = sizeof(blink);
-          break;
-        case BUTTON2:
-          app_name = "ADC";
-          app_data = adc;
-          app_size = sizeof(adc);
-          break;
-        case BUTTON3:
-          printf("[Log] Aborting Setup/Write.\n");
-          ret0 = libtock_app_loader_abort();
-          if (ret0 != RETURNCODE_SUCCESS) {
-            printf("[Error] Abort Failed: %d.\n", ret0);
-          }
-          // wait on abort done callback
-          yield_for(&abort_done);
-          abort_done    = false;
-          abort_tracker = true;
-          printf("[Success] Setup/Write aborted successfully.\n");
-          return;
-        default:
-          return;
-      }
-      printf("[Event] Button for %s Pressed!\n", app_name);
-      abort_tracker = false;
-
-      int ret = libtock_app_loader_setup(app_size);
-      if (ret != RETURNCODE_SUCCESS) {
-        printf("[Error] Setup Failed: %d.\n", ret);
-        tock_exit(ret);
-      }
-
-      // wait on setup done callback
-      yield_for(&setup_done);
-      setup_done = false;
-
-      printf("[Success] Setup successful. Writing app to flash.\n");
-      int ret1 = write_app(app_size, app_data);
-      if (ret1 != RETURNCODE_SUCCESS) {
-        printf("[Error] App flash write unsuccessful: %d.\n", ret1);
-        tock_exit(ret1);
-      }
-
-      if (!abort_tracker) {
-        printf("[Success] App flashed successfully. Creating process now.\n");
-        int ret2 = libtock_app_loader_load();
-        if (ret2 != RETURNCODE_SUCCESS) {
-          printf("[Error] Process creation failed: %d.\n", ret2);
-          tock_exit(ret2);
-        }
-
-        // wait on load done callback
-        yield_for(&load_done);
-        load_done = false;
-      }
-      printf("[Log] Waiting for a button press.\n");
-    }
+  switch (command[0] - '0') {
+    case 0:
+      app_name = "tock-dpl-hello";
+      app_data = tock_dpl_hello_data;
+      app_size = sizeof(tock_dpl_hello_data);
+      break;
+    case 1:
+      app_name = "blink";
+      app_data = blink_data;
+      app_size = sizeof(blink_data);
+      break;
+    case 2:
+      app_name      = "adc";
+      app_data      = adc_data;
+      app_size      = sizeof(adc_data);
+      abort_tracker = true;
+      break;
+    default:
+      printf("[Log] Invalid Command.\n");
+      return;
   }
+  printf("[Event] Command to install %s received!\n", app_name);
+
+  int ret = libtock_app_loader_setup(app_size);
+  if (ret != RETURNCODE_SUCCESS) {
+    printf("[Error] Setup Failed: %d.\n", ret);
+    tock_exit(ret);
+  }
+
+  // wait on setup done callback
+  yield_for(&setup_done);
+  setup_done = false;
+
+  printf("[Success] Setup successful. Writing app to flash.\n");
+  int ret1 = write_app(app_size, app_data);
+  if (ret1 != RETURNCODE_SUCCESS) {
+    printf("[Error] App flash write unsuccessful: %d.\n", ret1);
+    tock_exit(ret1);
+  }
+
+  if (!abort_tracker) {
+    printf("[Success] App flashed successfully. Creating process now.\n");
+    int ret2 = libtock_app_loader_load();
+    if (ret2 != RETURNCODE_SUCCESS) {
+      printf("[Error] Process creation failed: %d.\n", ret2);
+      tock_exit(ret2);
+    }
+
+    // wait on load done callback
+    yield_for(&load_done);
+    load_done = false;
+  }
+
+  abort_tracker = false;
+  printf("[Log] Waiting for command.\n");
 }
 
 
@@ -190,10 +177,11 @@ int write_app(double size, uint8_t binary[]) {
     return -1;
   }
 
+  if (abort_tracker) {
+    write_count = write_count / 2;
+  }
+
   for (uint32_t offset = 0; offset < write_count; offset++) {
-    if (abort_tracker) {
-      break;
-    }
     // copy binary to write buffer
     memcpy(write_buffer, &binary[FLASH_BUFFER_SIZE * offset], FLASH_BUFFER_SIZE);
     flash_offset = (offset * FLASH_BUFFER_SIZE);
@@ -208,16 +196,29 @@ int write_app(double size, uint8_t binary[]) {
     write_done = false;
   }
 
-  // Now that we are done writing the binary, we ask the kernel to finalize it.
-  printf("Done writing app, finalizing.\n");
-  int ret2 = libtock_app_loader_finalize();
-  if (ret2 != 0) {
-    printf("[Error] Failed to finalize new process binary.\n");
-    return -1;
-  }
-  yield_for(&finalize_done);
-  finalize_done = false;
+  if (!abort_tracker) {
+    // Now that we are done writing the binary, we ask the kernel to finalize it.
+    printf("Done writing app, finalizing.\n");
+    int ret2 = libtock_app_loader_finalize();
+    if (ret2 != 0) {
+      printf("[Error] Failed to finalize new process binary.\n");
+      return -1;
+    }
+    yield_for(&finalize_done);
+    finalize_done = false;
+  } else {
+    printf("[Log] Aborting Setup/Write.\n");
+    int ret0 = libtock_app_loader_abort();
+    if (ret0 != RETURNCODE_SUCCESS) {
+      printf("[Error] Abort Failed: %d.\n", ret0);
+    }
 
+    printf("yielding for abort_done\n");
+    // wait on abort done callback
+    yield_for(&abort_done);
+    abort_done = false;
+    printf("[Success] Setup/Write aborted successfully.\n");
+  }
   return 0;
 }
 
@@ -235,17 +236,6 @@ int main(void) {
   if (!libtock_app_loader_exists()) {
     printf("No App Loader driver!\n");
     return -1;
-  }
-
-  int count;
-  int err = libtock_button_count(&count);
-  // Ensure there is a button to use.
-  if (err < 0) return err;
-  printf("[Log] There are %d buttons on this board.\n", count);
-
-  // Enable interrupts on each button.
-  for (int i = 0; i < count; i++) {
-    libtock_button_notify_on_press(i, button_callback);
   }
 
   // set up the setup done callback
@@ -283,9 +273,17 @@ int main(void) {
     return err5;
   }
 
-  printf("[Log] Waiting for a button press.\n");
+  printf("[Log] Waiting for command.\n");
 
   while (1) {
-    yield();
+
+    int input_read;
+    int ret = libtocksync_console_read(console_buffer, CONSOLE_BUFFER_SIZE, &input_read);
+    if (ret != RETURNCODE_SUCCESS) {
+      printf("[ERROR] UART read failed: %i\n", ret);
+      return -1;
+    }
+
+    console_command_callback((char*)console_buffer);
   }
 }
