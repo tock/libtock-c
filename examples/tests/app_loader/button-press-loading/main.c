@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "app_binaries.h"
+#include "tock-apps.h"
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/kernel/app_loader.h>
@@ -92,14 +92,14 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
 
       switch (btn_num) {
         case BUTTON1:
-          app_name = "Blink";
-          app_data = blink;
-          app_size = sizeof(blink);
+          app_name = "blink";
+          app_data = blink_data;
+          app_size = sizeof(blink_data);
           break;
         case BUTTON2:
-          app_name = "ADC";
-          app_data = adc;
-          app_size = sizeof(adc);
+          app_name = "adc";
+          app_data = adc_data;
+          app_size = sizeof(adc_data);
           break;
         default:
           button_press = false;
