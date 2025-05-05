@@ -60,7 +60,7 @@ static uint8_t tx_frame_buffer[ETHERNET_MTU];
 // Two buffers used for for the RX_FRAMES streaming process slice. Each is able
 // to hold a streaming process slice header, and `RX_FRAME_BUFFER_FRAMES / 2`
 // Ethernet frames (encoded as TAP_DRIVER_FRAME_HEADER_LEN + payload, assumed to
-// beETHERNET_MTU bytes).
+// be ETHERNET_MTU bytes).
 #define RX_FRAME_BUFFER_LEN \
   STREAMING_PROCESS_SLICE_HEADER_LEN \
   + ((ETHERNET_MTU + TAP_DRIVER_FRAME_HEADER_LEN) * (RX_FRAME_BUFFER_FRAMES / 2))
@@ -116,10 +116,10 @@ static void frame_rx_upcall(__attribute__((unused)) int p0,
 }
 
 // A frame has been transmitted
-static void frame_tx_upcall(int                           statuscode_int,
-                            int                           flags_len_int,
-                            int                           transmission_id_int,
-                            __attribute__((unused)) void* data) {
+static void frame_tx_upcall(int   statuscode_int,
+                            int   flags_len_int,
+                            int   transmission_id_int,
+                            void* data) {
   uint32_t statuscode = (uint32_t)statuscode_int;
   __attribute__((unused)) uint16_t flags = (uint16_t)(flags_len_int >> 16);
   uint16_t len = (uint16_t)(flags_len_int & 0xFFFF);
