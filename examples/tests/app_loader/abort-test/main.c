@@ -211,7 +211,6 @@ int write_app(double size, uint8_t binary[]) {
       printf("[Error] Abort Failed: %d.\n", ret0);
     }
 
-    printf("yielding for abort_done\n");
     // wait on abort done callback
     yield_for(&abort_done);
     abort_done = false;
