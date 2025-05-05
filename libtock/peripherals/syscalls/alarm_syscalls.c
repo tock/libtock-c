@@ -29,6 +29,11 @@ int libtock_alarm_command_set_relative(uint32_t dt, uint32_t* actual) {
   return tock_command_return_u32_to_returncode(rval, actual);
 }
 
+int libtock_alarm_command_set_relative_blind(uint32_t dt) {
+  syscall_return_t rval = command(DRIVER_NUM_ALARM, 5, dt, 0);
+  return tock_command_return_novalue_to_returncode(rval);
+}
+
 int libtock_alarm_command_set_absolute(uint32_t reference, uint32_t dt) {
   syscall_return_t rval = command(DRIVER_NUM_ALARM, 6, reference, dt);
   uint32_t unused;

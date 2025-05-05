@@ -64,6 +64,18 @@ static uint32_t ms_to_ticks(uint32_t ms) {
   return ticks;
 }
 
+
+// Declare non-public export of helper for libtock-sync.
+uint32_t _ms_to_ticks(uint32_t ms);
+/** \brief Private export of ms->ticks helper to libtock-sync
+ *
+ * This is a non-stable, non-public interface for a helper
+ * function which is also useful to libtock-sync.
+ */
+uint32_t _ms_to_ticks(uint32_t ms) {
+  return ms_to_ticks(ms);
+}
+
 uint32_t libtock_alarm_ticks_to_ms(uint32_t ticks) {
   // `ticks_to_ms`'s conversion will be accurate to within the range
   // 0 to 1 milliseconds less than the exact conversion
