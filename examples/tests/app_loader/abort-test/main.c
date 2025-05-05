@@ -1,8 +1,8 @@
 // \file
 
 // This is a helper program to test the dynamic app loading functionality
-// of Tock works. This app has three other applications' 
-// (a c-hello variant, blink and ADC) binaries
+// of Tock works. This app has three other application binaries
+// (a c-hello variant, blink and ADC)
 // pre-programmed into it. When the app receives a command via console,
 // the dynamic process loader enables the new app to be written to flash and
 // loaded as a new process, or abort it depending on the command received.
@@ -13,8 +13,6 @@
 
 #include "tock-apps.h"
 #include <libtock-sync/interface/console.h>
-#include <libtock-sync/services/alarm.h>
-#include <libtock/interface/button.h>
 #include <libtock/kernel/app_loader.h>
 #include <libtock/tock.h>
 
@@ -280,7 +278,7 @@ int main(void) {
     int input_read;
     int ret = libtocksync_console_read(console_buffer, CONSOLE_BUFFER_SIZE, &input_read);
     if (ret != RETURNCODE_SUCCESS) {
-      printf("[ERROR] UART read failed: %i\n", ret);
+      printf("[ERROR] Console read failed: %i\n", ret);
       return -1;
     }
 
