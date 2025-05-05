@@ -13,6 +13,7 @@
 
 #include "tock-apps.h"
 #include <libtock-sync/interface/console.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/kernel/app_loader.h>
 #include <libtock/tock.h>
 
@@ -23,20 +24,20 @@
 
 uint8_t console_buffer[CONSOLE_BUFFER_SIZE];
 
-static bool setup_done    = false;  // to check if setup is done
-static bool write_done    = false;  // to check if writing to flash is done
-static bool finalize_done = false;  // to check if the kernel is done finalizing the process binary
-static bool load_done     = false;  // to check if the process was loaded successfully
-static bool abort_done    = false;  // to check if the process binary writing
-                                    // was aborted successfully
+static bool setup_done    = false;      // to check if setup is done
+static bool write_done    = false;      // to check if writing to flash is done
+static bool finalize_done = false;      // to check if the kernel is done finalizing the process binary
+static bool load_done     = false;      // to check if the process was loaded successfully
+static bool abort_done    = false;      // to check if the process binary writing
+                                        // was aborted successfully
 
-static bool abort_tracker = false;  // track when an abort was successful to stop writing
-                                    // process binary data
+static bool abort_tracker = false;      // track when an abort was successful to stop writing
+                                        // process binary data
 
 /******************************************************************************************************
 * Function Prototypes
 ******************************************************************************************************/
-void console_command_callback(const char* command);
+void abort_test(void);
 
 /******************************************************************************************************
  * Callback functions
@@ -88,34 +89,11 @@ static void app_abort_done_callback(__attribute__((unused)) int   arg0,
 }
 
 // Callback for console commands.
-void console_command_callback(const char* command) {
+void abort_test(void) {
 
-  const char* app_name = NULL;
-  uint8_t*    app_data = NULL;
-  uint32_t app_size    = 0;
-
-  switch (command[0] - '0') {
-    case 0:
-      app_name = "tock-dpl-hello";
-      app_data = tock_dpl_hello_data;
-      app_size = sizeof(tock_dpl_hello_data);
-      break;
-    case 1:
-      app_name = "blink";
-      app_data = blink_data;
-      app_size = sizeof(blink_data);
-      break;
-    case 2:
-      app_name      = "adc";
-      app_data      = adc_data;
-      app_size      = sizeof(adc_data);
-      abort_tracker = true;
-      break;
-    default:
-      printf("[Log] Invalid Command.\n");
-      return;
-  }
-  printf("[Event] Command to install %s received!\n", app_name);
+  uint8_t*    app_data = adc_data;
+  uint32_t app_size    = sizeof(adc_data);
+  abort_tracker = true;
 
   int ret = libtock_app_loader_setup(app_size);
   if (ret != RETURNCODE_SUCCESS) {
@@ -148,7 +126,6 @@ void console_command_callback(const char* command) {
   }
 
   abort_tracker = false;
-  printf("[Log] Waiting for command.\n");
 }
 
 
@@ -214,7 +191,7 @@ int write_app(double size, uint8_t binary[]) {
     // wait on abort done callback
     yield_for(&abort_done);
     abort_done = false;
-    printf("[Success] Setup/Write aborted successfully.\n");
+    printf("[Success] Abort Successful.\n");
   }
   return 0;
 }
@@ -227,7 +204,7 @@ int write_app(double size, uint8_t binary[]) {
 ******************************************************************************************************/
 
 int main(void) {
-  printf("[Log] Simple test app to load an app dynamically.\n");
+  printf("[Log] Simple test app to test abort functionality of dynamic process loading.\n");
 
   // check if app loader driver exists
   if (!libtock_app_loader_exists()) {
@@ -270,17 +247,12 @@ int main(void) {
     return err5;
   }
 
-  printf("[Log] Waiting for command.\n");
+  libtocksync_alarm_delay_ms(5000);
 
-  while (1) {
+  printf("[Log] Initiating Abort Test.\n");
 
-    int input_read;
-    int ret = libtocksync_console_read(console_buffer, CONSOLE_BUFFER_SIZE, &input_read);
-    if (ret != RETURNCODE_SUCCESS) {
-      printf("[ERROR] Console read failed: %i\n", ret);
-      return -1;
-    }
+  abort_test();
 
-    console_command_callback((char*)console_buffer);
-  }
+  printf("[Log] Exiting Abort Test.\n");
+  return 0;
 }
