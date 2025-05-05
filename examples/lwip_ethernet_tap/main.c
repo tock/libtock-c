@@ -36,7 +36,7 @@
 
 // ########## Misc macros and constants
 
-const uint32_t tap_driver_num = 0x90007;
+const uint32_t tap_driver_num = 0x30007;
 
 #define debug_print(...)   \
   do {                     \
