@@ -105,10 +105,10 @@ typedef struct {
 // We only use this as a mechanism for the kernel to inform the app that at
 // least one frame has been placed into the streaming process slice. Hence this
 // simply sets the `frame_received` flag passed in `data`:
-static void frame_rx_upcall(__attribute__((unused)) int   p0,
-                            __attribute__((unused)) int   p1,
-                            __attribute__((unused)) int   p2,
-                            __attribute__((unused)) void* data) {
+static void frame_rx_upcall(__attribute__((unused)) int p0,
+                            __attribute__((unused)) int p1,
+                            __attribute__((unused)) int p2,
+                            void*                       data) {
   struct netif* tapif  = data;
   tapif_state_t* state = tapif->state;
 
@@ -142,8 +142,8 @@ static void frame_tx_upcall(int                           statuscode_int,
 }
 
 // LwIP packet (Ethernet frame) transmission callback:
-static err_t tapif_output(__attribute__((unused)) struct netif* tapif,
-                          struct pbuf*                          p) {
+static err_t tapif_output(struct netif* tapif,
+                          struct pbuf*  p) {
   tapif_state_t* state = tapif->state;
 
   // Increment the link statistics
