@@ -26,8 +26,8 @@ Application size report for arch family rv32i:
 Then, in the kernel run the QEMU board with this application:
 ```
 tock/boards/qemu_rv32_virt $ make run-app \
-    APP=$LIBTOCK_C/examples/lwip_ethernet_tap/build/rv32imac/rv32imac.0x80100080.0x80210000.tbf \
-	NETDEV=SLIRP NETDEV_SLIRP_ARGS='hostfwd=tcp::8081-192.168.1.50:80'
+        APP=$LIBTOCK_C/examples/lwip_ethernet_tap/build/rv32imac/rv32imac.0x80100080.0x80210000.tbf \
+        NETDEV=SLIRP NETDEV_SLIRP_ARGS='hostfwd=tcp::8081-192.168.1.50:80'
     Finished `release` profile [optimized + debuginfo] target(s) in 0.10s
    text    data     bss     dec     hex filename
   89088      48   41908  131044   1ffe4 $TOCK/target/riscv32imac-unknown-none-elf/release/qemu_rv32_virt
