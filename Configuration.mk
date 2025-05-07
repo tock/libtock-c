@@ -163,7 +163,13 @@ endif
 # the dos/microsoft lineage chose `.cpp` to address this same issue, leading to
 # confusion nowadays about the meaning of 'cpp'.]
 override ASFLAGS += -mthumb
-override CFLAGS  += -std=gnu11
+# '-gnu2x' is a deprecated alias for '-gnu23'. We're close enough in time still
+# (spring 2025) to the formal ratification of C23 (October 2024) that some
+# folks likely still have toolchains which only support the 2x _name_ for the
+# now-official C23 standard (even if the toolchain supports all the features
+# we care about under the 2x name). Eventually we should replace this with
+# explicit C23 selection.
+override CFLAGS  += -std=gnu2x
 override CPPFLAGS += \
       -frecord-gcc-switches\
       -gdwarf-2\
