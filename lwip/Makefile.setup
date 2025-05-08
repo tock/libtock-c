@@ -1,0 +1,8 @@
+TOCK_USERLAND_BASE_DIR ?= ..
+
+$(TOCK_USERLAND_BASE_DIR)/lwip/lwip/README:
+	git submodule init $(TOCK_USERLAND_BASE_DIR)/lwip/lwip
+	git submodule update $(TOCK_USERLAND_BASE_DIR)/lwip/lwip
+
+# Any sentinel file which lets us know if submodule is checked out
+all: | $(TOCK_USERLAND_BASE_DIR)/lwip/lwip/README
