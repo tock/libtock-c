@@ -38,8 +38,10 @@ declare -a failures
 
 function opt_rebuild {
 	if [ "${CI-}" == "true" ]; then
+		echo "::group::Verbose Rebuild for $1"
 		echo "${bold}Rebuilding Verbose: $1${normal}"
 		make CFLAGS=-Werror V=1
+		echo "::endgroup::"
 	fi
 }
 
@@ -49,11 +51,20 @@ for mkfile in `find . -maxdepth 6 -name Makefile`; do
 	# Skip directories with leading _'s, useful for leaving test apps around
 	if [[ $(basename $dir) == _* ]]; then continue; fi
 
+	# If running under CI, give a hint to the UX to show each app build independently
+	if [ "${CI-}" == "true" ]; then
+		echo "::group::Build for $dir"
+	fi
+
 	pushd $dir > /dev/null
 	echo ""
 	echo "Building $dir"
 	make CFLAGS=-Werror -j $NUM_JOBS || { echo "${bold} ⤤ Failure building $dir${normal}" ; opt_rebuild $dir; failures+=("$dir"); }
 	popd > /dev/null
+
+	if [ "${CI-}" == "true" ]; then
+		echo "::endgroup::"
+	fi
 done
 
 # https://stackoverflow.com/questions/7577052/bash-empty-array-expansion-with-set-u
