@@ -3,9 +3,11 @@
 #include "smtc_hal_rtc.h"
 
 #include <stdarg.h>
-#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include <libtock-sync/services/alarm.h>
 
 void hal_clock_init(void)
 {

@@ -2,6 +2,7 @@
 #include "smtc_hal_rtc.h"
 
 #include <libtock/peripherals/syscalls/alarm_syscalls.h>
+#include <libtock-sync/services/alarm.h>
 
 
 uint32_t hal_rtc_get_time_s( void )
