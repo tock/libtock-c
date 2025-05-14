@@ -39,6 +39,7 @@
 
 #include <stdint.h>   // C99 types
 #include <stdbool.h>  // bool type
+#include <string.h>   // memset
 
 #include <libtock-sync/services/alarm.h>
 #include <libtock-sync/net/lora_phy.h>

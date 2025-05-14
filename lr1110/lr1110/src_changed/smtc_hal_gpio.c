@@ -1,6 +1,7 @@
 
-#include "smtc_hal_gpio.h"
 #include "smtc_hal_config.h"
+#include "smtc_hal_gpio.h"
+#include "smtc_hal_mcu.h"
 
 #include <libtock/net/lora_phy.h>
 #include <libtock/peripherals/gpio.h>
