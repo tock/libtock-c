@@ -59,7 +59,7 @@ void hal_hex_to_bin( char *input, uint8_t *dst, int len )
 {
 	char tmp[3];
 	uint16_t length = strlen( input );
-	tmp[2] = NULL;
+	tmp[2] = '\0';
 	for( int i = 0; i < length; i+=2 )
 	{
 		tmp[0] = input[i];
