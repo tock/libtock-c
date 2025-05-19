@@ -24,9 +24,9 @@ returncode_t libtock_process_info_command_get_short_ids(uint32_t* count) {
   return tock_command_return_u32_to_returncode(cval, count);
 }
 
-returncode_t libtock_process_info_command_get_process_name(uint32_t process_id) {
+returncode_t libtock_process_info_command_get_process_name(uint32_t process_id, uint32_t* name_len) {
   syscall_return_t cval = command(DRIVER_NUM_PROCESS_INFO, 4, process_id, 0);
-  return tock_command_return_novalue_to_returncode(cval);
+  return tock_command_return_u32_to_returncode(cval, name_len);
 }
 
 returncode_t libtock_process_info_command_get_process_stats(uint32_t process_id) {
@@ -35,6 +35,6 @@ returncode_t libtock_process_info_command_get_process_stats(uint32_t process_id)
 }
 
 returncode_t libtock_process_info_command_set_process_state(uint32_t process_id, uint32_t state) {
-  syscall_return_t cval = command(DRIVER_NUM_PROCESS_INFO, 10, process_id, state);
+  syscall_return_t cval = command(DRIVER_NUM_PROCESS_INFO, 6, process_id, state);
   return tock_command_return_novalue_to_returncode(cval);
 }
