@@ -407,7 +407,7 @@ fds_t* fds =
   // MAIN HOME SCREEN
   MUI_FORM(15)
   MUI_STYLE(0)
-  MUI_LABEL(5, 10, "Process Control")
+  MUI_LABEL(5, 10, "Process Manager")
   MUI_XY("HR", 0, 12)
   MUI_STYLE(1)
   MUI_DATA("GP",
