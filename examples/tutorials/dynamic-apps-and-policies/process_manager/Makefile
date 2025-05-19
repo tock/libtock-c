@@ -3,9 +3,6 @@
 # Specify this directory relative to the current application.
 TOCK_USERLAND_BASE_DIR = ../../../..
 
-# PACKAGE_NAME = org.tockos.processes-tutorial.process_list
-PACKAGE_NAME = process_control
-
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
 
