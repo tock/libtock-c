@@ -1,7 +1,7 @@
 TOCK_USERLAND_BASE_DIR ?= ..
 LR1110_DIR = $(TOCK_USERLAND_BASE_DIR)/lr1110/lr1110
 
-VERSION_HASH := 7c33c9ef136c841a7b44f530d2415789c86f48af
+VERSION_HASH := e34742993932c97731f513ffa3028d284b163d31
 
 SEEED_DIR := $(LR1110_DIR)/seeed
 ZIP_FILE := $(SEEED_DIR).zip
@@ -27,12 +27,13 @@ $(LR1110_DIR)/radio_planner.c: $(SEEED_DIR)/smtc_hal/smtc_modem_hal.c
 	cp $(LR1110_DIR)/seeed/lora_basics_modem/smtc_modem_core/radio_planner/src/radio_planner.c $(LR1110_DIR)/radio_planner.c
 	cd $(LR1110_DIR); patch -p0 < ../radio_planner.patch
 
-$(SEEED_DIR)/smtc_hal/smtc_modem_hal.c:
-	curl -L --output $(ZIP_FILE) "https://codeload.github.com/Seeed-Studio/Seeed_Wio_WM1110_Dev_Board/zip/$(VERSION_HASH)"
-	unzip -q $(ZIP_FILE) -d $(SEEED_DIR)
-	rm -f $(ZIP_FILE) # Remove zip file after unzip
-	mv $(EXTRACTED_DIR)/* $(SEEED_DIR)/
-	rmdir $(EXTRACTED_DIR)  # move unzipped code to SEEED_DIR, remove original directory
+
+$(SEEED_DIR):
+	mkdir -p $(SEEED_DIR)
+
+$(SEEED_DIR)/smtc_hal/smtc_modem_hal.c: | $(SEEED_DIR)
+	curl -L "https://github.com/Seeed-Studio/Seeed_Wio_WM1110_Dev_Board/archive/$(VERSION_HASH).tar.gz" | \
+		tar --strip-components=1 -xz -C $(SEEED_DIR)
 	touch $(SEEED_DIR)
 	# Need to remove certain system headers because we provide our own.
 	rm $(SEEED_DIR)/smtc_hal/inc/smtc_hal_flash.h

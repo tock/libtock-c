@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include <libtock-sync/storage/nonvolatile_storage.h>
 
 #include "smtc_hal.h"
@@ -26,12 +28,16 @@ smtc_hal_status_t hal_flash_write_buffer( uint32_t addr, const uint8_t* buffer, 
 void hal_flash_read_buffer( uint32_t addr, uint8_t* buffer, uint32_t size )
 {
 	returncode_t ret;
-
 	int length_read = 0;
-	ret = libtocksync_nonvolatile_storage_read(addr, size, buffer, size, &length_read);
-	if (ret != RETURNCODE_SUCCESS) return SMTC_HAL_FAILURE;
+	int max_tries = 3;
 
-	return SMTC_HAL_SUCCESS;
+	do {
+	    ret = libtocksync_nonvolatile_storage_read(addr, size, buffer, size, &length_read);
+	    max_tries--;
+	    if (max_tries == 0) {
+		exit(ret);
+	    }
+	} while (ret != RETURNCODE_SUCCESS);
 }
 
 smtc_hal_status_t hal_flash_deinit( void )
