@@ -10,6 +10,9 @@ C_SRCS := $(wildcard *.c)
 
 APP_HEAP_SIZE := 2000
 
+# Include an ECDSA signature in the compiled TBF.
+ELF2TAB_ARGS += --ecdsa-nist-p256-private ../keys/ec-secp256r1-tutorial-key.private.p8
+
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.
 include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
