@@ -10,12 +10,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "tock-apps.h"
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/kernel/app_loader.h>
 #include <libtock/tock.h>
-
 
 #define FLASH_BUFFER_SIZE 512
 #define RETURNCODE_SUCCESS 0
@@ -25,6 +23,19 @@ static bool write_done    = false;   // to check if writing to flash is done
 static bool finalize_done = false;   // to check if the kernel is done finalizing the process binary
 static bool load_done     = false;   // to check if the process was loaded successfully
 static bool button_press  = false;
+
+
+/******************************************************************************************************
+* Loadable Applications
+******************************************************************************************************/
+
+static const uint8_t APP_BLINK[] = {
+#embed "build/cortex-m4/blink.embed"
+};
+static const uint8_t APP_ADC[] = {
+#embed "build/cortex-m4/adc.embed"
+};
+
 
 /******************************************************************************************************
 * Callback functions
@@ -87,19 +98,19 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
 
     if (pressed == 1) {
       const char* app_name    = NULL;
-      unsigned char* app_data = NULL;
+      const uint8_t* app_data = NULL;
       size_t app_size         = 0;
 
       switch (btn_num) {
         case BUTTON1:
           app_name = "blink";
-          app_data = blink_data;
-          app_size = sizeof(blink_data);
+          app_data = APP_BLINK;
+          app_size = sizeof(APP_BLINK);
           break;
         case BUTTON2:
           app_name = "adc";
-          app_data = adc_data;
-          app_size = sizeof(adc_data);
+          app_data = APP_ADC;
+          app_size = sizeof(APP_ADC);
           break;
         default:
           button_press = false;
@@ -150,7 +161,7 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
 * Takes app size and the app binary as arguments
 ******************************************************************************************************/
 
-int write_app(double size, uint8_t binary[]) {
+int write_app(double size, const uint8_t binary[]) {
 
   uint32_t write_count = 0;
   uint8_t write_buffer[FLASH_BUFFER_SIZE];

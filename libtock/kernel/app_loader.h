@@ -89,7 +89,7 @@ returncode_t libtock_app_loader_abort(void);
 /*
  * Internal function to write new app to flash. Takes app size as argument.
  */
-int write_app(double size, uint8_t binary[]);
+int write_app(double size, const uint8_t binary[]);
 
 
 
