@@ -1,1 +1,0 @@
-../app_binaries/cortex-m4/tock-dpl-hello.c

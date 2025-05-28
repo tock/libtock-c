@@ -6,9 +6,9 @@
 SUPPORT_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 # Hard code some paths for a moment; can think about search later
-build/cortex-m4/blink.tab: $(TOCK_USERLAND_BASE_DIR)/examples/blink/build/blink.tab
+build/cortex-m4/blink.tab: $(TOCK_USERLAND_BASE_DIR)/examples/blink/build/blink.tab | build/cortex-m4/
 	cp $< $@
-build/cortex-m4/adc.tab: $(TOCK_USERLAND_BASE_DIR)/examples/tests/adc/adc/build/adc.tab
+build/cortex-m4/adc.tab: $(TOCK_USERLAND_BASE_DIR)/examples/tests/adc/adc/build/adc.tab | build/cortex-m4/
 	cp $< $@
 
 %.embed: %.tab

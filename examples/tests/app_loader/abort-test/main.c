@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "tock-apps.h"
 #include <libtock-sync/interface/console.h>
 #include <libtock-sync/services/alarm.h>
 #include <libtock/kernel/app_loader.h>
@@ -33,6 +32,14 @@ static bool abort_done    = false;      // to check if the process binary writin
 
 static bool abort_tracker = false;      // track when an abort was successful to stop writing
                                         // process binary data
+
+/******************************************************************************************************
+* Loadable Applications
+******************************************************************************************************/
+
+static const uint8_t APP_ADC[] = {
+#embed "build/cortex-m4/adc.embed"
+};
 
 /******************************************************************************************************
 * Function Prototypes
@@ -91,8 +98,8 @@ static void app_abort_done_callback(__attribute__((unused)) int   arg0,
 // Callback for console commands.
 void abort_test(void) {
 
-  uint8_t*    app_data = adc_data;
-  uint32_t app_size    = sizeof(adc_data);
+  const uint8_t* app_data = APP_ADC;
+  uint32_t app_size = sizeof(APP_ADC);
   abort_tracker = true;
 
   int ret = libtock_app_loader_setup(app_size);
@@ -136,7 +143,7 @@ void abort_test(void) {
 * Takes app size and the app binary as arguments
 ******************************************************************************************************/
 
-int write_app(double size, uint8_t binary[]) {
+int write_app(double size, const uint8_t binary[]) {
 
   int ret;
   uint32_t write_count = 0;
