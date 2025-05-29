@@ -104,7 +104,7 @@ static void app_abort_done_callback(__attribute__((unused)) int   arg0,
 void abort_test(void) {
 
   const uint8_t* app_data = APP_ADC;
-  uint32_t app_size = sizeof(APP_ADC);
+  uint32_t app_size       = sizeof(APP_ADC);
   abort_tracker = true;
 
   int ret = libtock_app_loader_setup(app_size);
