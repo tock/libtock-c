@@ -1,12 +1,3 @@
-// \file
-
-// This is a helper program to test the dynamic app loading functionality
-// of Tock works. This app has three other application binaries
-// (a c-hello variant, blink and ADC)
-// pre-programmed into it. When the app receives a command via console,
-// the dynamic process loader enables the new app to be written to flash and
-// loaded as a new process, or abort it depending on the command received.
-
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -19,9 +10,6 @@
 
 #define FLASH_BUFFER_SIZE   512
 #define RETURNCODE_SUCCESS  0
-#define CONSOLE_BUFFER_SIZE 1
-
-uint8_t console_buffer[CONSOLE_BUFFER_SIZE];
 
 static bool setup_done    = false;      // to check if setup is done
 static bool write_done    = false;      // to check if writing to flash is done

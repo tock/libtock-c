@@ -1,11 +1,3 @@
-// \file
-
-// This is a helper program to test the dynamic app loading functionality
-// of Tock works. This app has two other applications' (blink and ADC) binaries
-// pre-programmed into it. When the user presses a button on a supported device,
-// the dynamic process loader enables the new app to be written to flash and
-// loaded as a new process.
-
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -22,8 +14,12 @@ static bool setup_done    = false;   // to check if setup is done
 static bool write_done    = false;   // to check if writing to flash is done
 static bool finalize_done = false;   // to check if the kernel is done finalizing the process binary
 static bool load_done     = false;   // to check if the process was loaded successfully
-static bool button_press  = false;
+static bool app_load      = false;   // to check if there is a request to load a new app
 
+// Variables to hold loadable app information
+size_t app_size;
+const char*    app_name;
+const uint8_t* app_data;
 
 /******************************************************************************************************
 * Loadable Applications
@@ -54,8 +50,6 @@ static bool button_press  = false;
 * 2. Set button callback to initiate the dynamic app load process on pressing button 1 (on nrf52840dk)
 *
 ******************************************************************************************************/
-
-// static void nop_callback(int a __attribute__((unused)), int b __attribute__((unused)), int c __attribute__((unused)), void *d __attribute__((unused))) {}
 
 static void app_setup_done_callback(__attribute__((unused)) int   arg0,
                                     __attribute__((unused)) int   arg1,
@@ -95,7 +89,7 @@ static void app_load_done_callback(int                           arg0,
 static void button_callback(__attribute__ ((unused)) returncode_t retval, int btn_num, bool pressed) {
   // Callback for button presses.
   // val: 1 if pressed, 0 if depressed
-  if (pressed == 1 && !button_press) {
+  if (pressed == 1 && !app_load) {
     // Note: this variable is introduced
     // because the current alarm upcall implementation
     // results in panic when a button is pressed within
@@ -103,13 +97,13 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
     // Setting the debounce interval to 100ms seems to work
     // but setting it to 200ms and rapidly clicking buttons
     // leads to the kernel panicking.
-    button_press = true;
+    app_load = true;
     libtocksync_alarm_delay_ms(200); // debounce
 
     if (pressed == 1) {
-      const char* app_name    = NULL;
-      const uint8_t* app_data = NULL;
-      size_t app_size         = 0;
+      app_name = NULL;
+      app_data = NULL;
+      app_size = 0;
 
       switch (btn_num) {
         case BUTTON1:
@@ -123,49 +117,55 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
           app_size = sizeof(APP_ADC);
           break;
         default:
-          button_press = false;
+          printf("[Log] Unsupported Button.\n");
+          app_load = false;
           return;
       }
-      printf("[Event] Button for %s Pressed!\n", app_name);
-      printf("size: %d\n", app_size);
-
-      int ret = libtock_app_loader_setup(app_size);
-      if (ret != RETURNCODE_SUCCESS) {
-        printf("[Error] Setup Failed: %d.\n", ret);
-        tock_exit(ret);
-      }
-
-      // wait on setup done callback
-      yield_for(&setup_done);
-      setup_done = false;
-
-      printf("[Success] Setup successful. Writing app to flash.\n");
-      int ret1 = write_app(app_size, app_data);
-      if (ret1 != RETURNCODE_SUCCESS) {
-        printf("[Error] App flash write unsuccessful: %d.\n", ret1);
-        tock_exit(ret1);
-      }
-
-      printf("[Success] App flashed successfully. Creating process now.\n");
-      int ret2 = libtock_app_loader_load();
-      if (ret2 != RETURNCODE_SUCCESS) {
-        printf("[Error] Process creation failed: %d.\n", ret2);
-        tock_exit(ret2);
-      }
-
-      // wait on load done callback
-      yield_for(&load_done);
-      load_done = false;
-
-      button_press = false;
-      printf("[Log] Waiting for a button press.\n");
     }
   }
 }
 
 
 /******************************************************************************************************
+* Helper Function for the apploader machine
 *
+* Takes app size and the app binary as arguments
+******************************************************************************************************/
+
+static void appload(double size, const uint8_t binary[]) {
+  int ret = libtock_app_loader_setup(size);
+  if (ret != RETURNCODE_SUCCESS) {
+    printf("[Error] Setup Failed: %d.\n", ret);
+    tock_exit(ret);
+  }
+
+  // wait on setup done callback
+  yield_for(&setup_done);
+  setup_done = false;
+
+  printf("[Success] Setup successful. Writing app to flash.\n");
+  int ret1 = write_app(size, binary);
+  if (ret1 != RETURNCODE_SUCCESS) {
+    printf("[Error] App flash write unsuccessful: %d.\n", ret1);
+    tock_exit(ret1);
+  }
+
+  printf("[Success] App flashed successfully. Creating process now.\n");
+  int ret2 = libtock_app_loader_load();
+  if (ret2 != RETURNCODE_SUCCESS) {
+    printf("[Error] Process creation failed: %d.\n", ret2);
+    tock_exit(ret2);
+  }
+
+  // wait on load done callback
+  yield_for(&load_done);
+  load_done = false;
+
+  printf("[Log] Waiting for a button press.\n");
+}
+
+
+/******************************************************************************************************
 * Function to write the app into the flash
 *
 * Takes app size and the app binary as arguments
@@ -206,7 +206,7 @@ int write_app(double size, const uint8_t binary[]) {
   }
 
   // Now that we are done writing the binary, we ask the kernel to finalize it.
-  printf("Done writing app, finalizing.\n");
+  printf("[Success] Done writing app. Finalizing app image.\n");
   int ret2 = libtock_app_loader_finalize();
   if (ret2 != 0) {
     printf("[Error] Failed to finalize new process binary.\n");
@@ -276,6 +276,12 @@ int main(void) {
   printf("[Log] Waiting for a button press.\n");
 
   while (1) {
+    if (app_load) {
+      printf("[Event] Button for %s pressed!\n", app_name);
+      printf("size: %d\n", app_size);
+      appload(app_size, app_data);
+      app_load = false;
+    }
     yield();
   }
 }
