@@ -3,14 +3,15 @@
 #   $(1)=archX
 define EMBED_RULES_PER_ARCH
 
-# Comment this flag if using GCC14 or lower.
-# Otherwise it won't compile.
-
-# override CFLAGS_$(1) += '--embed-dir=build/$(1)/'
-
 ####### LEGACY COMPILER SUPPORT
 ####### TODO: Delete when #embed is safer to assume as ubiquitous
 override CFLAGS_$(1) += '-Ibuild/$(1)/'
+####### END LEGACY BLOCK
+
+####### EMERGING COMPILER SUPPORT
+####### TODO: Uncomment below when the above is deleted
+#######       (older compilers fail on the unknown flag)
+####### override CFLAGS_$(1) += '--embed-dir=build/$(1)/'
 endef
 $(foreach platform, $(TOCK_ARCHS), $(eval $(call EMBED_RULES_PER_ARCH,$(platform))))
 
@@ -28,6 +29,7 @@ $$(OBJS_$$(1)): $$(BUILDDIR)/$$(1)/$(1).embed
 $$(BUILDDIR)/$$(1)/$(1).embed: $(2)/build/$$(1)/$$(1).tbf
 	cp $$$$< $$$$@
 
+
 ####### LEGACY COMPILER SUPPORT
 ####### TODO: Delete when #embed is safer to assume as ubiquitous
 
@@ -35,6 +37,7 @@ $$(OBJS_$$(1)): $$(BUILDDIR)/$$(1)/$(1).xxd
 
 $$(BUILDDIR)/$$(1)/$(1).xxd: $$(BUILDDIR)/$$(1)/$(1).embed
 	cd $$(BUILDDIR)/$$(1) && xxd -i $(1).embed > $(1).xxd
+####### END LEGACY BLOCK
 endef
 #$$(info $$(foreach platform, $$(TOCK_ARCHS),$$(call EMBED_RULES_PER_ARCH_FOR_$(1),$$(platform))))
 $$(foreach platform, $$(TOCK_ARCHS),$$(eval $$(call EMBED_RULES_PER_ARCH_FOR_$(1),$$(platform))))

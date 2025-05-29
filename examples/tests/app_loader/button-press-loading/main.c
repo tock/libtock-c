@@ -29,19 +29,22 @@ static bool button_press  = false;
 * Loadable Applications
 ******************************************************************************************************/
 
-#ifdef __has_embed
-static const uint8_t APP_BLINK[] = {
-#embed "blink.embed"
-};
-static const uint8_t APP_ADC[] = {
-#embed "adc.embed"
-};
-#else
+// LEGACY COMPILER SUPPORT
+// Avoid #embed until it's more ubiqutious (req's gcc15+, clang19+)
+//
+// #ifdef __has_embed
+// static const uint8_t APP_BLINK[] = {
+// #embed "blink.embed"
+// };
+// static const uint8_t APP_ADC[] = {
+// #embed "adc.embed"
+// };
+// #else
 #include "blink.xxd"
 #define APP_BLINK blink_embed
 #include "adc.xxd"
 #define APP_ADC adc_embed
-#endif
+// #endif
 
 
 /******************************************************************************************************
