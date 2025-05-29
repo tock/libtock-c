@@ -38,7 +38,7 @@ static bool abort_tracker = false;      // track when an abort was successful to
 ******************************************************************************************************/
 
 static const uint8_t APP_ADC[] = {
-#embed "build/cortex-m4/adc.embed"
+#embed "adc.embed"
 };
 
 /******************************************************************************************************

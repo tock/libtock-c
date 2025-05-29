@@ -1,7 +1,8 @@
 # Makefile for user application
 
-# Limit things to cortex-m4 while we figure things out
-TOCK_TARGETS := cortex-m4
+# Restrict to ARM targets for the moment, as we don't have the infrastructure in
+# place to enforce the placement rules for RISC-V binaries with dynamic loading
+TOCK_TARGETS ?= cortex-m0 cortex-m3 cortex-m4 cortex-m7
 
 # Specify this directory relative to the current application.
 TOCK_USERLAND_BASE_DIR = ../../../..
@@ -9,13 +10,13 @@ TOCK_USERLAND_BASE_DIR = ../../../..
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
 
-override CFLAGS += -I../app_binaries/cortex-m4
-
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.
 include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
 
+# List of apps to generate embed rules for
+APPS_TO_EMBED := \
+  $(TOCK_USERLAND_BASE_DIR)/examples/tests/adc/adc
+
 # Include app loading support rules. Rules to generate app binary images.
 include ../support/AppLoaderSupport.mk
-
-build/cortex-m4/main.o: build/cortex-m4/adc.embed

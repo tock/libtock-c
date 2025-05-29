@@ -30,10 +30,10 @@ static bool button_press  = false;
 ******************************************************************************************************/
 
 static const uint8_t APP_BLINK[] = {
-#embed "build/cortex-m4/blink.embed"
+#embed "blink.embed"
 };
 static const uint8_t APP_ADC[] = {
-#embed "build/cortex-m4/adc.embed"
+#embed "adc.embed"
 };
 
 
