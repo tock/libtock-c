@@ -2,7 +2,11 @@
 # foreach (arch1, ...) {
 #   $(1)=archX
 define EMBED_RULES_PER_ARCH
-override CFLAGS_$(1) += '--embed-dir=build/$(1)/'
+
+# Comment this flag if using GCC14 or lower.
+# Otherwise it won't compile.
+
+# override CFLAGS_$(1) += '--embed-dir=build/$(1)/'
 
 ####### LEGACY COMPILER SUPPORT
 ####### TODO: Delete when #embed is safer to assume as ubiquitous
@@ -30,7 +34,7 @@ $$(BUILDDIR)/$$(1)/$(1).embed: $(2)/build/$$(1)/$$(1).tbf
 $$(OBJS_$$(1)): $$(BUILDDIR)/$$(1)/$(1).xxd
 
 $$(BUILDDIR)/$$(1)/$(1).xxd: $$(BUILDDIR)/$$(1)/$(1).embed
-	pushd $$(BUILDDIR)/$$(1) && xxd -i $(1).embed > $(1).xxd
+	cd $$(BUILDDIR)/$$(1) && xxd -i $(1).embed > $(1).xxd
 endef
 #$$(info $$(foreach platform, $$(TOCK_ARCHS),$$(call EMBED_RULES_PER_ARCH_FOR_$(1),$$(platform))))
 $$(foreach platform, $$(TOCK_ARCHS),$$(eval $$(call EMBED_RULES_PER_ARCH_FOR_$(1),$$(platform))))
