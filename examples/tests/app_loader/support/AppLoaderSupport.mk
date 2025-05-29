@@ -14,6 +14,7 @@ $(foreach platform, $(TOCK_ARCHS), $(eval $(call EMBED_RULES_PER_ARCH,$(platform
 #     $$(1)=archX
 define EMBED_RULES_PER_APP
 define EMBED_RULES_PER_ARCH_FOR_$(1)
+$$(call reject_trailing_slash, $(2))
 $$(OBJS_$$(1)): $$(BUILDDIR)/$$(1)/$(1).embed
 
 $$(BUILDDIR)/$$(1)/$(1).embed: $(2)/build/$$(1)/$$(1).tbf
