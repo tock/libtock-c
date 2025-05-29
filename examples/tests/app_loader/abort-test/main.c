@@ -37,9 +37,14 @@ static bool abort_tracker = false;      // track when an abort was successful to
 * Loadable Applications
 ******************************************************************************************************/
 
+#ifdef __has_embed
 static const uint8_t APP_ADC[] = {
 #embed "adc.embed"
 };
+#else
+#include "adc.xxd"
+#define APP_ADC adc_embed
+#endif
 
 /******************************************************************************************************
 * Function Prototypes
