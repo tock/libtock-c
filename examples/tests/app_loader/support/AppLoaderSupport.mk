@@ -15,6 +15,9 @@ override CFLAGS_$(1) += '-Ibuild/$(1)/'
 endef
 $(foreach platform, $(TOCK_ARCHS), $(eval $(call EMBED_RULES_PER_ARCH,$(platform))))
 
+
+
+
 # App-specific and arch-specific rules, i.e.
 # foreach (app1|app1_path, app2|app2_path) {
 #   foreach (arch1, arch2) {
@@ -22,6 +25,12 @@ $(foreach platform, $(TOCK_ARCHS), $(eval $(call EMBED_RULES_PER_ARCH,$(platform
 #     $(2)=appX_path
 #     $$(1)=archX
 define EMBED_RULES_PER_APP
+
+## Rule to build the app to embed if-needed
+.PHONY: $(2)
+$(2):
+	@$(MAKE) -C $(2) -q build/$(1).tab || $(MAKE) -C $(2)
+
 define EMBED_RULES_PER_ARCH_FOR_$(1)
 $$(call reject_trailing_slash, $(2))
 $$(OBJS_$$(1)): $$(BUILDDIR)/$$(1)/$(1).embed
@@ -29,6 +38,8 @@ $$(OBJS_$$(1)): $$(BUILDDIR)/$$(1)/$(1).embed
 $$(BUILDDIR)/$$(1)/$(1).embed: $(2)/build/$$(1)/$$(1).tbf
 	cp $$$$< $$$$@
 
+## Use order-only rule for PHONY target to get run-once semantics
+$(2)/build/$$(1)/$$(1).tbf: | $(2)
 
 ####### LEGACY COMPILER SUPPORT
 ####### TODO: Delete when #embed is safer to assume as ubiquitous
