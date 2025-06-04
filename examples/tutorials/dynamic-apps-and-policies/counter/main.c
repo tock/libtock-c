@@ -29,7 +29,6 @@ int main(void) {
   u8g2_SetFont(&u8g2, u8g2_font_profont10_tf);
   u8g2_SetFontPosCenter(&u8g2);
 
-
   int count = 0;
 
   while (1) {
@@ -37,7 +36,7 @@ int main(void) {
 
     // Set the entire display as on.
     u8g2_SetDrawColor(&u8g2, 1);
-    u8g2_DrawBox(&u8g2, 0, 0, width-1, height);
+    u8g2_DrawBox(&u8g2, 0, 0, width - 1, height);
     u8g2_SetDrawColor(&u8g2, 0);
 
     snprintf(buf, 20, "Count: %i", count);

@@ -4,26 +4,34 @@
 #include <math.h>
 #include <string.h>
 
-#include "app_binaries.h"
-
 #include <libtock-sync/services/alarm.h>
-#include <libtock/kernel/ipc.h>
 #include <libtock/kernel/app_loader.h>
+#include <libtock/kernel/ipc.h>
 
+#include "temperature.xxd"
+#define APP_TEMPERATURE temperature_embed
+#include "counter.xxd"
+#define APP_COUNTER counter_embed
 
 #define FLASH_BUFFER_SIZE 512
 #define RETURNCODE_SUCCESS 0
 
-static bool setup_done     = false;   // to check if setup is done
-static bool write_done     = false;   // to check if writing to flash is done
-static bool finalize_done  = false;   // to check if the kernel is done finalizing the process binary
-static bool load_done      = false;   // to check if the process was loaded successfully
+static bool setup_done = false;       // to check if setup is done
+static bool write_done    = false;    // to check if writing to flash is done
+static bool finalize_done = false;    // to check if the kernel is done finalizing the process binary
+static bool load_done     = false;    // to check if the process was loaded successfully
 
-uint8_t* binaries[] = {dpl_hello, blink, adc};
-size_t binary_sizes[] = {sizeof(dpl_hello), sizeof(blink), sizeof(adc)};
-const char* binary_names[] = {"dpl_hello", "blink", "adc"};
+const uint8_t* binaries[]  = {APP_TEMPERATURE, APP_COUNTER};
+size_t binary_sizes[]      = {sizeof(APP_TEMPERATURE), sizeof(APP_COUNTER)};
+const char* binary_names[] = {"temperature", "counter"};
 
 uint8_t app_id = 0;
+
+
+/********************************
+ * Function prototypes
+ *********************************/
+int install_binary(uint8_t id);
 
 
 /******************************************************************************************************
@@ -33,8 +41,6 @@ uint8_t app_id = 0;
 * 2. Set button callback to initiate the dynamic app load process on pressing button 1 (on nrf52840dk)
 *
 ******************************************************************************************************/
-
-// static void nop_callback(int a __attribute__((unused)), int b __attribute__((unused)), int c __attribute__((unused)), void *d __attribute__((unused))) {}
 
 static void app_setup_done_callback(__attribute__((unused)) int   arg0,
                                     __attribute__((unused)) int   arg1,
@@ -70,45 +76,45 @@ static void app_load_done_callback(int                           arg0,
   load_done = true;
 }
 
-int install_binary(uint8_t id){
-    const char* app_name    = NULL;
-    unsigned char* app_data = NULL;
-    size_t app_size         = 0;
+int install_binary(uint8_t id) {
+  const char* app_name    = NULL;
+  unsigned char* app_data = NULL;
+  size_t app_size         = 0;
 
-    app_name = binary_names[id];// binaries[id].name;
-    app_data = binaries[id];// binaries[id].data;
-    app_size = binary_sizes[id];// binary_sizes[id];
+  app_name = binary_names[id];
+  app_data = (uint8_t*)(uintptr_t)binaries[id];
+  app_size = binary_sizes[id];
 
-    printf("[AppLoader] Requested to load %s!\n", app_name);
+  printf("[AppLoader] Requested to load %s!\n", app_name);
 
-    int ret = libtock_app_loader_setup(app_size);
-    if (ret != RETURNCODE_SUCCESS) {
-      printf("[Error] Setup Failed: %d.\n", ret);
-      return -1;
-    }
+  int ret = libtock_app_loader_setup(app_size);
+  if (ret != RETURNCODE_SUCCESS) {
+    printf("[Error] Setup Failed: %d.\n", ret);
+    return -1;
+  }
 
-    yield_for(&setup_done);
-    setup_done = false;
+  yield_for(&setup_done);
+  setup_done = false;
 
-    printf("[Success] Setup successful. Writing app to flash.\n");
-    int ret1 = write_app(app_size, app_data);
-    if (ret1 != RETURNCODE_SUCCESS) {
-      printf("[Error] App flash write unsuccessful: %d.\n", ret1);
-      return -1;
-    }
+  printf("[Success] Setup successful. Writing app to flash.\n");
+  int ret1 = write_app(app_size, app_data);
+  if (ret1 != RETURNCODE_SUCCESS) {
+    printf("[Error] App flash write unsuccessful: %d.\n", ret1);
+    return -1;
+  }
 
-    printf("[Success] App flashed successfully. Creating process now.\n");
-    int ret2 = libtock_app_loader_load();
-    if (ret2 != RETURNCODE_SUCCESS) {
-      printf("[Error] Process creation failed: %d.\n", ret2);
-      return -1;
-    }
+  printf("[Success] App flashed successfully. Creating process now.\n");
+  int ret2 = libtock_app_loader_load();
+  if (ret2 != RETURNCODE_SUCCESS) {
+    printf("[Error] Process creation failed: %d.\n", ret2);
+    return -1;
+  }
 
-    // wait on load done callback
-    yield_for(&load_done);
-    load_done = false;
+  // wait on load done callback
+  yield_for(&load_done);
+  load_done = false;
 
-    return 0;
+  return 0;
 }
 
 /******************************************************************************************************
@@ -166,10 +172,10 @@ int write_app(double size, uint8_t binary[]) {
 }
 
 static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
-  uint8_t* buffer = (uint8_t*) buf;
+  uint8_t* buffer         = (uint8_t*) buf;
   const char* name_buffer = (const char*) buf;
 
-  int offset = 0;
+  int offset       = 0;
   int num_binaries = sizeof(binary_sizes) / sizeof(binary_sizes[0]);
 
   if (len < 1) {
@@ -188,26 +194,26 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
 
     case 1:
       // Return the list of binaries to display on the menu
-      if (len < num_binaries + 1){
+      if (len < num_binaries + 1) {
         printf("[AppLoader] Returning on Command 0x01\n");
-        return; 
+        return;
       }
 
       for (int i = 0; i < num_binaries; i++) {
-          // printf("index: %d\n", i);
-          size_t name_len = strlen(binary_names[i]);
+        // printf("index: %d\n", i);
+        size_t name_len = strlen(binary_names[i]);
 
-          if ((size_t)(offset + name_len + 1) > (size_t)len) {  
-            printf("[AppLoader] Buffer overflow risk.\n");
-            return;
+        if ((size_t)(offset + name_len + 1) > (size_t)len) {
+          printf("[AppLoader] Buffer overflow risk.\n");
+          return;
         }
 
-          // Copy the binary name to the buffer
-          memcpy((void*) &name_buffer[offset], binary_names[i], name_len + 1); 
-          offset += name_len + 1;  
+        // Copy the binary name to the buffer
+        memcpy((void*) &name_buffer[offset], binary_names[i], name_len + 1);
+        offset += name_len + 1;
 
-          // printf("index: %d\n", offset - (name_len + 1));
-          // printf("%s\n", &name_buffer[offset - (name_len + 1)]); 
+        // printf("index: %d\n", offset - (name_len + 1));
+        // printf("%s\n", &name_buffer[offset - (name_len + 1)]);
       }
 
       ipc_notify_client(pid);
@@ -267,9 +273,9 @@ int main(void) {
   }
 
   ipc_register_service_callback("app_loader", ipc_callback,
-    NULL);
+                                NULL);
 
-  while(1){
+  while (1) {
     yield();
   }
 }
