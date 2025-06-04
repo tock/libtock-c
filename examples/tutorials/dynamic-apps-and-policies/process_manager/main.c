@@ -32,7 +32,7 @@ uint8_t my_value    = 2;
 uint8_t my_value2   = 2;
 uint8_t my_value3   = 0;
 uint8_t my_color    = 0;
-uint8_t my_color2    = 0;
+uint8_t my_color2   = 0;
 uint8_t fruit_input = 0;
 
 uint8_t touchscreen_selection = 255;
@@ -45,10 +45,10 @@ uint8_t checkbox_led3 = 0;
 uint8_t buf[512];
 uint8_t buf1[512];
 
-uint16_t selection = 0;
-uint16_t det_selection = 0;
+uint16_t selection        = 0;
+uint16_t det_selection    = 0;
 uint16_t binary_selection = 0;
-uint8_t process_control = 0;
+uint8_t process_control   = 0;
 
 size_t _app_load_service = -1;
 uint8_t _app_load_buf[SHARED_BUF_SIZE] __attribute__((aligned(SHARED_BUF_SIZE)));
@@ -65,7 +65,7 @@ static void get_process_name(uint16_t process_index, char* name, size_t size) {
 
   if (process_index < count) {
     uint32_t* pids = (uint32_t*) buf;
-    uint32_t pid = pids[process_index];
+    uint32_t pid   = pids[process_index];
     libtock_process_info_get_process_name(pid, buf1, 512);
     strncpy(name, (const char*) buf1, size);
   }
@@ -77,7 +77,7 @@ static void set_process_state(uint16_t process_index, uint32_t command) {
 
   if (process_index < count) {
     uint32_t* pids = (uint32_t*) buf;
-    uint32_t pid = pids[process_index];
+    uint32_t pid   = pids[process_index];
     libtock_process_info_set_process_state(pid, command);
   }
 }
@@ -106,10 +106,10 @@ static uint8_t mui_u8g2_draw_text_app_name(mui_t* ui_draw, uint8_t msg) {
 
 // Execute the operation on a given installed process.
 static uint8_t mui_u8g2_btn_goto_process_control(mui_t* ui_draw, uint8_t msg) {
- if (msg == MUIF_MSG_CURSOR_SELECT) {
-      // Need to start/stop/terminate/etc the process.
-      uint32_t command = process_control + 1;
-      set_process_state(selection, command);
+  if (msg == MUIF_MSG_CURSOR_SELECT) {
+    // Need to start/stop/terminate/etc the process.
+    uint32_t command = process_control + 1;
+    set_process_state(selection, command);
   }
 
   return mui_u8g2_btn_goto_wm_fi(ui_draw, msg);
@@ -132,7 +132,7 @@ static const char* process_menu_get_item(void* data, uint16_t index) {
   static char* process_names[20] = {NULL};
 
   if (process_names[index] == NULL) {
-    process_names[index] = malloc(50);
+    process_names[index]    = malloc(50);
     process_names[index][0] = '\x64';
     process_names[index][1] = '\0';
   }
@@ -157,93 +157,92 @@ static uint32_t get_stat(uint16_t process_index, uint16_t stat_index) {
   uint32_t count;
   libtock_process_info_get_process_ids(buf, 512, &count);
   uint32_t* pids = (uint32_t*) buf;
-  uint32_t pid = pids[process_index];
+  uint32_t pid   = pids[process_index];
   libtock_process_info_get_process_stats(pid, buf1, 512);
   uint32_t* stats = (uint32_t*) buf1;
   return stats[stat_index];
 }
 
 
-static uint16_t details_get_cnt(void *data) {
+static uint16_t details_get_cnt(void* data) {
   UNUSED(data);
 
   return 8;
 }
 
-static const char *details_get_str(void *data, uint16_t index) {
+static const char*details_get_str(void* data, uint16_t index) {
   UNUSED(data);
 
   static char* process_names[20] = {NULL};
 
   if (process_names[index] == NULL) {
-    process_names[index] = malloc(50);
+    process_names[index]    = malloc(50);
     process_names[index][0] = '\x64';
     process_names[index][1] = '\0';
   }
 
   switch (index) {
-   case 0: {
-    uint32_t count;
-    libtock_process_info_get_process_ids(buf, 512, &count);
+    case 0: {
+      uint32_t count;
+      libtock_process_info_get_process_ids(buf, 512, &count);
 
-    uint32_t* pids = (uint32_t*) buf;
-    uint32_t pid = pids[selection];
-    snprintf(process_names[index], 50, MUI_100 "PID: %lu", pid);
-    break;
-   }
-   case 1: {
-    uint32_t count;
-    libtock_process_info_get_short_ids(buf, 512, &count);
-
-    uint32_t* shortids = (uint32_t*) buf;
-    uint32_t shortid = shortids[selection];
-
-    if (shortid == 0) {
-            snprintf(process_names[index], 50, MUI_100 "ShortID: Unique");
-
-    } else {
-      snprintf(process_names[index], 50, MUI_100 "ShortID: %#02lx", shortid);
-    }
+      uint32_t* pids = (uint32_t*) buf;
+      uint32_t pid   = pids[selection];
+      snprintf(process_names[index], 50, MUI_100 "PID: %lu", pid);
       break;
-   }
-   case 2: {
-    uint32_t timeslices_expired = get_stat(selection, 0);
-    snprintf(process_names[index], 50, MUI_100 "Timeslices Exp: %lu", timeslices_expired);
-    break;
-   }
-   case 3: {
-    uint32_t syscall_count = get_stat(selection, 1);
-    snprintf(process_names[index], 50, MUI_100 "Syscall Count: %lu", syscall_count);
-    break;
-   }
-   case 4: {
-    uint32_t restart_count = get_stat(selection, 2);
-    snprintf(process_names[index], 50, MUI_100 "Restart Count: %lu", restart_count);
-    break;
-   }
-   case 5: {
-    const char* states[] = {
-      "Running",
-      "Yielded",
-      "YieldedFor",
-      "Stopped",
-      "Faulted",
-      "Terminated",
-    };
-    uint32_t state = get_stat(selection, 3);
-    snprintf(process_names[index], 50, MUI_100 "State: %s", states[state]);
-    break;
-   }
-   case 6: {
+    }
+    case 1: {
+      uint32_t count;
+      libtock_process_info_get_short_ids(buf, 512, &count);
+
+      uint32_t* shortids = (uint32_t*) buf;
+      uint32_t shortid   = shortids[selection];
+
+      if (shortid == 0) {
+        snprintf(process_names[index], 50, MUI_100 "ShortID: Unique");
+
+      } else {
+        snprintf(process_names[index], 50, MUI_100 "ShortID: %#02lx", shortid);
+      }
+      break;
+    }
+    case 2: {
+      uint32_t timeslices_expired = get_stat(selection, 0);
+      snprintf(process_names[index], 50, MUI_100 "Timeslices Exp: %lu", timeslices_expired);
+      break;
+    }
+    case 3: {
+      uint32_t syscall_count = get_stat(selection, 1);
+      snprintf(process_names[index], 50, MUI_100 "Syscall Count: %lu", syscall_count);
+      break;
+    }
+    case 4: {
+      uint32_t restart_count = get_stat(selection, 2);
+      snprintf(process_names[index], 50, MUI_100 "Restart Count: %lu", restart_count);
+      break;
+    }
+    case 5: {
+      const char* states[] = {
+        "Running",
+        "Yielded",
+        "YieldedFor",
+        "Stopped",
+        "Faulted",
+        "Terminated",
+      };
+      uint32_t state = get_stat(selection, 3);
+      snprintf(process_names[index], 50, MUI_100 "State: %s", states[state]);
+      break;
+    }
+    case 6: {
       snprintf(process_names[index], 50, MUI_10 "State Control");
       break;
     }
-   case 7: {
+    case 7: {
       snprintf(process_names[index], 50, MUI_3 "Back");
       break;
     }
   }
-
   return process_names[index];
 }
 
@@ -261,7 +260,7 @@ static void get_number_of_binaries(void) {
   if (_app_load_service == (size_t) -1) return;
 
   _app_load_buf[0] = 0;
-  _done       = false;
+  _done = false;
   ipc_notify_service(_app_load_service);
   yield_for(&_done);
 
@@ -280,7 +279,7 @@ static void get_binary_names(void) {
   }
 
   _app_load_buf[0] = 1;
-  _done       = false;
+  _done = false;
   ipc_notify_service(_app_load_service);
   yield_for(&_done);
 
@@ -298,7 +297,6 @@ static void get_binary_names(void) {
 
     offset += binary_name_len + 1;  // 1 for null terminator
   }
-  // printf("app name: %s\n", binary_names[i]);
 }
 
 // Uses the App Load service to install requested binary.
@@ -307,15 +305,15 @@ static int install_binary(uint8_t id) {
 
   _app_load_buf[0] = 2;
   _app_load_buf[1] = id;
-  _done       = false;
+  _done = false;
 
   ipc_notify_service(_app_load_service);
   yield_for(&_done);
 
-  return  _app_load_buf[0];
+  return _app_load_buf[0];
 }
 
-static uint16_t binaries_get_cnt(void *data) {
+static uint16_t binaries_get_cnt(void* data) {
   UNUSED(data);
 
   get_number_of_binaries();
@@ -330,13 +328,13 @@ static const char* binaries_get_str(void* data, uint16_t index) {
   static char* process_names[20] = {NULL};
 
   if (process_names[index] == NULL) {
-    process_names[index] = malloc(50);
+    process_names[index]    = malloc(50);
     process_names[index][0] = '\x64';
     process_names[index][1] = '\0';
   }
 
   snprintf(process_names[index], 50, "%s%s", MUI_21, binary_names[index]);
-  if (index == _number_of_binaries){
+  if (index == _number_of_binaries) {
     snprintf(process_names[index], 50, MUI_15 "Back");
   }
 
@@ -347,9 +345,9 @@ static const char* binaries_get_str(void* data, uint16_t index) {
 static uint8_t mui_u8g2_btn_goto_load_new_app(mui_t* ui_draw, uint8_t msg) {
   if (msg == MUIF_MSG_CURSOR_SELECT) {
     int ret = install_binary(binary_selection);
-    if (ret == 0){
+    if (ret == 0) {
       ui_draw->arg = 43;
-    } else{
+    } else {
       ui_draw->arg = 42;
     }
   }
@@ -388,17 +386,16 @@ muif_t muif_list[] = {
   MUIF(".g", MUIF_CFLAG_IS_CURSOR_SELECTABLE, 0, mui_u8g2_btn_goto_w1_pi),    /* MUI_goto has the id Fg */
   MUIF(".L", 0, 0, mui_u8g2_draw_text),
 
-  MUIF_U8G2_U16_LIST("ID", &selection, NULL, process_menu_get_item, process_menu_get_item_count, mui_u8g2_u16_list_goto_w1_pi),
+  MUIF_U8G2_U16_LIST("ID", &selection, NULL, process_menu_get_item, process_menu_get_item_count,
+                     mui_u8g2_u16_list_goto_w1_pi),
   MUIF_U8G2_U16_LIST("DE", &det_selection, NULL, details_get_str, details_get_cnt, mui_u8g2_u16_list_goto_w1_pi),
-  MUIF_U8G2_U16_LIST("LA", &binary_selection, NULL, binaries_get_str, binaries_get_cnt, mui_u8g2_u16_list_goto_w1_pi),
+  MUIF_U8G2_U16_LIST("BS", &binary_selection, NULL, binaries_get_str, binaries_get_cnt, mui_u8g2_u16_list_goto_w1_pi),
 
   MUIF_VARIABLE("CM", &process_control, mui_u8g2_u8_opt_line_wa_mse_pi),
   MUIF_BUTTON("CN", mui_u8g2_btn_goto_process_control),
   MUIF_BUTTON("CO", mui_u8g2_btn_goto_wm_fi),
 
   MUIF_BUTTON("AL", mui_u8g2_btn_goto_load_new_app),
-  // MUIF_RO("AL", mui_u8g2_btn_goto_load_new_app),
-  // MUIF_BUTTON("NO", mui_u8g2_btn_goto_no_load),
 
 
 };
@@ -411,37 +408,29 @@ fds_t* fds =
   MUI_XY("HR", 0, 12)
   MUI_STYLE(1)
   MUI_DATA("GP",
-      MUI_3  "Inspect Processes|"
-      MUI_20 "Load New Application")
+           MUI_3  "Inspect Processes|"
+           MUI_20 "Load New Application")
   MUI_XYA("GC", 5, 25, 0)
   MUI_XYA("GC", 5, 37, 1)
   MUI_XYA("GC", 5, 49, 2)
 
 
-
-
-
-
-
+  // APP LOAD SCREEN
   MUI_FORM(20)
   MUI_STYLE(0)
   MUI_LABEL(5, 10, "Select Application")
   MUI_XY("HR", 0, 12)
   MUI_STYLE(1)
-  MUI_XYA("LA", 5, 25, 0)
-  MUI_XYA("LA", 5, 37, 1)
-  MUI_XYA("LA", 5, 49, 2)
-  MUI_XYA("LA", 5, 61, 3)
+  MUI_XYA("BS", 5, 25, 0)
+  MUI_XYA("BS", 5, 37, 1)
+  MUI_XYA("BS", 5, 49, 2)
+  // MUI_XYA("BS", 5, 61, 3)
 
   MUI_FORM(21)
-  // MUI_AUX("AL")
   MUI_STYLE(0)
   MUI_LABEL(5, 10, "Load Application?")
-  // &u8g2.drawButtonUTF8(62, 20, U8G2_BTN_HCENTER, 34,  2,  2, "Yes" );
-  // MUI_XYAT("AL", 45, 25, 24, "Yes")
   MUI_XYAT(".G", 45, 35, 40, "Yes")
   MUI_XYAT(".G", 55, 48, 20, "No")
-  // MUI_XYT("NO", 65, 38, "No")
 
 
   MUI_FORM(40)
@@ -463,6 +452,7 @@ fds_t* fds =
   MUI_XYAT(".G", 46, 25, 20, "Back")
 
 
+  // PROCESS CONTROL SCREEN
   MUI_FORM(3)
   MUI_STYLE(0)
   MUI_LABEL(5, 10, "Process List")

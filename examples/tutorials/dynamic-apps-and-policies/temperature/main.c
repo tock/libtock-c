@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <libtock-sync/services/alarm.h>
 #include <libtock-sync/sensors/temperature.h>
+#include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 
 #include <u8g2-tock.h>
@@ -30,7 +30,7 @@ static void hijack_buttons(void) {
   ret = libtock_button_count(&button_count);
   if (ret != RETURNCODE_SUCCESS) return;
 
-  for (int i=0; i<button_count; i++) {
+  for (int i = 0; i < button_count; i++) {
     ret = libtock_button_notify_on_press(i, on_button_press);
     if (ret != RETURNCODE_SUCCESS) return;
   }
@@ -59,7 +59,7 @@ int main(void) {
 
     // Set the entire display as on.
     u8g2_SetDrawColor(&u8g2, 1);
-    u8g2_DrawBox(&u8g2, 0, 0, width-1, height);
+    u8g2_DrawBox(&u8g2, 0, 0, width - 1, height);
     u8g2_SetDrawColor(&u8g2, 0);
 
     int temperature_hundredths;
