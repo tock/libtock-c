@@ -43,6 +43,11 @@ function fetch_and_unpack() {
     # Note: There must be two space characters for `shasum` (sha256sum doesn't care)
     wget -O $ZIP_FILE "$URL" && check_sha256 "$NEWLIB_SHA" "$ZIP_FILE"
     if [ $? -ne 0 ]; then
+      if test -f $ZIP_FILE; then
+        file $ZIP_FILE
+        ls -l $ZIP_FILE
+        shasum -a 256 $ZIP_FILE
+      fi
       echo "  WARNING: Fetching newlib from mirror $MIRROR failed!" >&2
     else
       FOUND=1
