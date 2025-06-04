@@ -23,7 +23,7 @@ uint8_t my_value    = 2;
 uint8_t my_value2   = 2;
 uint8_t my_value3   = 0;
 uint8_t my_color    = 0;
-uint8_t my_color2    = 0;
+uint8_t my_color2   = 0;
 uint8_t fruit_input = 0;
 
 uint8_t touchscreen_selection = 255;
@@ -36,8 +36,8 @@ uint8_t checkbox_led3 = 0;
 uint8_t buf[512];
 uint8_t buf1[512];
 
-uint16_t selection = 0;
-uint16_t det_selection = 0;
+uint16_t selection      = 0;
+uint16_t det_selection  = 0;
 uint8_t process_control = 0;
 
 static void get_process_name(uint16_t process_index, char* name) {
@@ -46,7 +46,7 @@ static void get_process_name(uint16_t process_index, char* name) {
 
   if (process_index < count) {
     uint32_t* pids = (uint32_t*) buf;
-    uint32_t pid = pids[process_index];
+    uint32_t pid   = pids[process_index];
     libtock_process_info_get_process_name(pid, buf1, 512);
     strcpy(name, buf1);
   }
@@ -58,7 +58,7 @@ static void set_process_state(uint16_t process_index, uint32_t command) {
 
   if (process_index < count) {
     uint32_t* pids = (uint32_t*) buf;
-    uint32_t pid = pids[process_index];
+    uint32_t pid   = pids[process_index];
     libtock_process_info_set_process_state(pid, command);
   }
 }
@@ -75,41 +75,37 @@ static uint8_t mui_hrule(mui_t* mui, uint8_t msg) {
 }
 
 
-static uint8_t mui_u8g2_draw_text_app_name(mui_t *ui_draw, uint8_t msg) {
+static uint8_t mui_u8g2_draw_text_app_name(mui_t* ui_draw, uint8_t msg) {
   char app_name[100];
   get_process_name(selection, app_name);
   snprintf(ui_draw->text, 41, "App: %s", app_name);
   return mui_u8g2_draw_text(ui_draw, msg);
 }
 
-uint8_t mui_u8g2_btn_goto_process_control(mui_t *ui, uint8_t msg)
-{
+uint8_t mui_u8g2_btn_goto_process_control(mui_t* ui, uint8_t msg) {
 
- if (msg == MUIF_MSG_CURSOR_SELECT) {
-      // Need to start/stop/terminate/etc the process.
-      uint32_t command = process_control + 1;
-      get_process_name(selection, command);
+  if (msg == MUIF_MSG_CURSOR_SELECT) {
+    // Need to start/stop/terminate/etc the process.
+    uint32_t command = process_control + 1;
+    get_process_name(selection, command);
   }
-
-
 
   return mui_u8g2_btn_goto_wm_fi(ui, msg);
 }
 
 
 
-
-uint16_t menu_get_cnt(void *data) {
+uint16_t menu_get_cnt(void* data) {
   uint32_t count;
   libtock_process_info_command_get_process_count(&count);
   return count;
 }
 
-const char *menu_get_str(void *data, uint16_t index) {
+const char*menu_get_str(void* data, uint16_t index) {
   static char* process_names[20] = {NULL};
 
   if (process_names[index] == NULL) {
-    process_names[index] = malloc(50);
+    process_names[index]    = malloc(50);
     process_names[index][0] = MUI_100;
     process_names[index][1] = '\0';
   }
@@ -121,7 +117,6 @@ const char *menu_get_str(void *data, uint16_t index) {
 
     uint32_t* pids = (uint32_t*) buf;
 
-
     libtock_process_info_get_process_name(pids[index], buf1, 512);
 
     snprintf(process_names[index], 50, MUI_4 "%s", buf1);
@@ -129,25 +124,24 @@ const char *menu_get_str(void *data, uint16_t index) {
 
   return process_names[index];
 
-
 }
 
 static uint32_t get_stat(uint16_t process_index, uint16_t stat_index) {
   uint32_t count;
   libtock_process_info_get_process_ids(buf, 512, &count);
   uint32_t* pids = (uint32_t*) buf;
-  uint32_t pid = pids[process_index];
+  uint32_t pid   = pids[process_index];
   libtock_process_info_get_process_stats(pid, buf1, 512);
   uint32_t* stats = (uint32_t*) buf1;
   return stats[stat_index];
 }
 
 
-uint16_t details_get_cnt(void *data) {
+uint16_t details_get_cnt(void* data) {
   return 8;
 }
 
-const char *details_get_str(void *data, uint16_t index) {
+const char*details_get_str(void* data, uint16_t index) {
   // static const char *menu[] = {
   //   MUI_10 "PID: 5",
   //   MUI_11 "Address",
@@ -155,88 +149,79 @@ const char *details_get_str(void *data, uint16_t index) {
   // };
   // return menu[index];
 
-
   static char* process_names[20] = {NULL};
 
-
-
   if (process_names[index] == NULL) {
-    process_names[index] = malloc(50);
+    process_names[index]    = malloc(50);
     process_names[index][0] = MUI_100;
     process_names[index][1] = '\0';
   }
 
   switch (index) {
-   case 0: {
-    uint32_t count;
-    libtock_process_info_get_process_ids(buf, 512, &count);
+    case 0: {
+      uint32_t count;
+      libtock_process_info_get_process_ids(buf, 512, &count);
 
-    uint32_t* pids = (uint32_t*) buf;
-    uint32_t pid = pids[selection];
-
-
+      uint32_t* pids = (uint32_t*) buf;
+      uint32_t pid   = pids[selection];
 
       snprintf(process_names[index], 50, MUI_100 "PID: %d", pid);
       break;
     }
-   case 1: {
-    uint32_t count;
-    libtock_process_info_get_short_ids(buf, 512, &count);
+    case 1: {
+      uint32_t count;
+      libtock_process_info_get_short_ids(buf, 512, &count);
 
-    uint32_t* shortids = (uint32_t*) buf;
-    uint32_t shortid = shortids[selection];
+      uint32_t* shortids = (uint32_t*) buf;
+      uint32_t shortid   = shortids[selection];
 
-    if (shortid == 0) {
-            snprintf(process_names[index], 50, MUI_100 "ShortID: Unique");
+      if (shortid == 0) {
+        snprintf(process_names[index], 50, MUI_100 "ShortID: Unique");
 
-    } else {
-      snprintf(process_names[index], 50, MUI_100 "ShortID: %#02x", shortid);
-    }
+      } else {
+        snprintf(process_names[index], 50, MUI_100 "ShortID: %#02x", shortid);
+      }
       break;
-   }
-   case 2: {
-    uint32_t timeslices_expired = get_stat(selection, 0);
-    snprintf(process_names[index], 50, MUI_100 "Timeslices Exp: %d", timeslices_expired);
-    break;
-   }
-   case 3: {
-    uint32_t syscall_count = get_stat(selection, 1);
-    snprintf(process_names[index], 50, MUI_100 "Syscall Count: %d", syscall_count);
-    break;
-   }
-   case 4: {
-    uint32_t restart_count = get_stat(selection, 2);
-    snprintf(process_names[index], 50, MUI_100 "Restart Count: %d", restart_count);
-    break;
-   }
-   case 5: {
-    char* states[] = {
-      "Running",
-      "Yielded",
-      "YieldedFor",
-      "Stopped",
-      "Faulted",
-      "Terminated",
-    };
-    uint32_t state = get_stat(selection, 3);
-    snprintf(process_names[index], 50, MUI_100 "State: %s", states[state]);
-    break;
-   }
-   case 6: {
+    }
+    case 2: {
+      uint32_t timeslices_expired = get_stat(selection, 0);
+      snprintf(process_names[index], 50, MUI_100 "Timeslices Exp: %d", timeslices_expired);
+      break;
+    }
+    case 3: {
+      uint32_t syscall_count = get_stat(selection, 1);
+      snprintf(process_names[index], 50, MUI_100 "Syscall Count: %d", syscall_count);
+      break;
+    }
+    case 4: {
+      uint32_t restart_count = get_stat(selection, 2);
+      snprintf(process_names[index], 50, MUI_100 "Restart Count: %d", restart_count);
+      break;
+    }
+    case 5: {
+      char* states[] = {
+        "Running",
+        "Yielded",
+        "YieldedFor",
+        "Stopped",
+        "Faulted",
+        "Terminated",
+      };
+      uint32_t state = get_stat(selection, 3);
+      snprintf(process_names[index], 50, MUI_100 "State: %s", states[state]);
+      break;
+    }
+    case 6: {
       snprintf(process_names[index], 50, MUI_10 "State Control");
       break;
     }
-   case 7: {
+    case 7: {
       snprintf(process_names[index], 50, MUI_3 "Back");
       break;
     }
   }
-
   return process_names[index];
 }
-
-
-
 
 
 
