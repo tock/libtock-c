@@ -86,42 +86,25 @@ static void app_load_done_callback(int                           arg0,
 }
 
 // Callback for button presses.
-static void button_callback(__attribute__ ((unused)) returncode_t retval, int btn_num, bool pressed) {
+static void button_callback(__attribute__ ((unused)) returncode_t retval, int btn_num, __attribute__ (
+                              (unused)) bool pressed) {
   // Callback for button presses.
-  // val: 1 if pressed, 0 if depressed
-  if (pressed == 1 && !app_load) {
-    // Note: this variable is introduced
-    // because the current alarm upcall implementation
-    // results in panic when a button is pressed within
-    // the debounce period if the debounce period is long.
-    // Setting the debounce interval to 100ms seems to work
-    // but setting it to 200ms and rapidly clicking buttons
-    // leads to the kernel panicking.
-    app_load = true;
-    libtocksync_alarm_delay_ms(200); // debounce
-
-    if (pressed == 1) {
-      app_name = NULL;
-      app_data = NULL;
-      app_size = 0;
-
-      switch (btn_num) {
-        case BUTTON1:
-          app_name = "blink";
-          app_data = APP_BLINK;
-          app_size = sizeof(APP_BLINK);
-          break;
-        case BUTTON2:
-          app_name = "adc";
-          app_data = APP_ADC;
-          app_size = sizeof(APP_ADC);
-          break;
-        default:
-          printf("[Log] Unsupported Button.\n");
-          app_load = false;
-          return;
-      }
-    }
+  app_load = true;
+  switch (btn_num) {
+    case BUTTON1:
+      app_name = "blink";
+      app_data = APP_BLINK;
+      app_size = sizeof(APP_BLINK);
+      break;
+    case BUTTON2:
+      app_name = "adc";
+      app_data = APP_ADC;
+      app_size = sizeof(APP_ADC);
+      break;
+    default:
+      printf("[Log] Unsupported Button.\n");
+      app_load = false;
+      return;
   }
 }
 
