@@ -32,6 +32,13 @@ check_no_spaces = \
     $(if $(findstring $(strip $($(strip $1))),$($(strip $1))),,$(error Error: Space in variable $(strip $1))) \
     $(if $(word 2,$($(strip $1))),$(error Error: Multiple entries in variable $(strip $1)),)
 
+# Reject directory paths with trailing slashes.
+#
+# Params:
+#   1. Variable name holding path to test.
+reject_trailing_slash = \
+    $(if $(filter $(dir $1),$1),$(error Error: Trailing slash in path "$1"))
+
 # Check for a ~/ at the beginning of a path variable (TOCK_USERLAND_BASE_DIR).
 # Make will not properly expand this.
 ifdef TOCK_USERLAND_BASE_DIR
