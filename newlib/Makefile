@@ -30,12 +30,21 @@ newlib-$(NEWLIB_VERSION): newlib-$(NEWLIB_VERSION).tar.gz
 
 rebuild-newlib: newlib-$(NEWLIB_VERSION)
 	@echo ""
+	@echo "=== BEGINNING x86 BUILD =========================="
+	@echo ""
+	@mkdir -p newlib-x86-$(NEWLIB_VERSION)-out
+	@mkdir -p newlib-x86-$(NEWLIB_VERSION)-install
+	@echo "Entering directory newlib-x86-$(NEWLIB_VERSION)-out"
+	cd newlib-x86-$(NEWLIB_VERSION)-out; ../build-x86.sh ../$< ../newlib-x86-$(NEWLIB_VERSION)-install | tee build-x86.log
+	@;
+	@echo ""
 	@echo "=== BEGINNING ARM BUILD =========================="
 	@echo ""
 	@mkdir -p newlib-arm-$(NEWLIB_VERSION)-out
 	@mkdir -p newlib-arm-$(NEWLIB_VERSION)-install
 	@echo "Entering directory newlib-arm-$(NEWLIB_VERSION)-out"
 	cd newlib-arm-$(NEWLIB_VERSION)-out; ../build-arm.sh ../$< ../newlib-arm-$(NEWLIB_VERSION)-install | tee build-arm.log
+	@;
 	@echo ""
 	@echo "=== BEGINNING RISC-V BUILD ======================="
 	@echo ""

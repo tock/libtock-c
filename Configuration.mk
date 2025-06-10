@@ -81,6 +81,7 @@ TOCK_TARGETS ?= cortex-m0\
                 cortex-m3\
                 cortex-m4\
                 cortex-m7\
+                i386\
                 rv32imac|rv32imac.0x20040080.0x80002800|0x20040080|0x80002800\
                 rv32imac|rv32imac.0x403B0080.0x3FCC0000|0x403B0080|0x3FCC0000\
                 rv32imc|rv32imc.0x41000080.0x42008000|0x41000080|0x42008000\
@@ -534,9 +535,35 @@ override OBJDUMP_FLAGS_cortex-m0 += $(OBJDUMP_FLAGS_cortex-m)
 ##
 ################################################################################
 
-TOOLCHAIN_i386 := i386-elf
+ifneq (,$(shell which i386-elf-gcc 2>/dev/null))
+  TOOLCHAIN_i386 := i386-elf
+else ifneq (,$(shell which x86_64-elf-gcc 2>/dev/null))
+  TOOLCHAIN_i386 := x86_64-elf
+else
+  # Fallback option. We don't particularly want to throw an error as this
+  # configuration makefile can be useful without a proper toolchain.
+  TOOLCHAIN_i386 := i386-elf
+endif
 
 CC_i386 := -gcc
+
+# Determine the version of the x86 compiler. This is used to select the
+# version of the libgcc library that is compatible.
+ifneq ($(findstring i386,$(TOCK_ARCH_FAMILIES)),)
+  CC_i386_version := $(shell $(TOOLCHAIN_i386)$(CC_i386) -dumpfullversion)
+  CC_i386_version_major := $(shell echo $(CC_i386_version) | cut -f1 -d.)
+endif
+
+# Match compiler version to support libtock-newlib versions.
+ifeq ($(CC_rv32_version_major),14)
+  NEWLIB_VERSION_i386 := 
+else ifeq ($(CC_rv32_version_major),15)
+  NEWLIB_VERSION_i386 := 
+else
+  NEWLIB_VERSION_i386 := 4.4.0.20231231
+endif
+
+
 
 ifeq ($(NEWLIB_BASE_DIR_i386),)
   $(error "NEWLIB_BASE_DIR_i386 is not set. Please set it to the path of the newlib library for i386."))
