@@ -333,8 +333,9 @@ static const char* binaries_get_str(void* data, uint16_t index) {
     process_names[index][1] = '\0';
   }
 
-  snprintf(process_names[index], 50, "%s%s", MUI_21, binary_names[index]);
-  if (index == _number_of_binaries) {
+  if (index < _number_of_binaries) {
+    snprintf(process_names[index], 50, "%s%s", MUI_21, binary_names[index]);
+  } else if (index == _number_of_binaries) {
     snprintf(process_names[index], 50, MUI_15 "Back");
   }
 
