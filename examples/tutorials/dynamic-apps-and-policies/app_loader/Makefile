@@ -6,7 +6,7 @@ TOCK_TARGETS ?= cortex-m4
 # Specify this directory relative to the current application.
 TOCK_USERLAND_BASE_DIR = ../../../..
 
-PACKAGE_NAME = app_loader# org.tockos.processes-tutorial.app_loader
+PACKAGE_NAME = app_loader
 
 # Which files to compile.
 C_SRCS := $(wildcard *.c)
@@ -14,21 +14,17 @@ C_SRCS := $(wildcard *.c)
 # Include an ECDSA signature in the compiled TBF.
 ELF2TAB_ARGS += --ecdsa-nist-p256-private ../keys/ec-secp256r1-tutorial-key.private.p8
 
-# Include userland master makefile. Contains rules and flags for actually
-# building the application.
-include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
-
-# List of apps to generate embed rules for
+# List of apps to generate embed rules for:
 APPS_TO_EMBED := \
-  ../temperature \
-  ../counter \
-  ../../../../examples/blink \
-
-AUTOGEN_HEADER = autogen_binaries.h
-main.o: autogen_binaries.h
+	../../../blink \
+  
+AUTOGEN_HEADER = loadable_binaries.h
+ALL_TARGETS += $(AUTOGEN_HEADER)
+.PHONY: $(AUTOGEN_HEADER)
+main.o: $(AUTOGEN_HEADER)
 
 $(AUTOGEN_HEADER): $(APPS_TO_EMBED)
-	@echo "// `app_loader`'s makefile autogenerates this file. Do not edit manually." > $(AUTOGEN_HEADER)
+	@echo "// \`app_loader\`'s makefile autogenerates this file. Do not edit manually." > $(AUTOGEN_HEADER)
 	@echo "#pragma once" >> $(AUTOGEN_HEADER)
 	@echo "" >> $(AUTOGEN_HEADER)
 	@for app in $(notdir $(APPS_TO_EMBED)); do \
@@ -46,8 +42,7 @@ $(AUTOGEN_HEADER): $(APPS_TO_EMBED)
 	@echo "" >> $(AUTOGEN_HEADER)
 	@echo "size_t binary_sizes[] = {" >> $(AUTOGEN_HEADER)
 	@for app in $(notdir $(APPS_TO_EMBED)); do \
-		upper=$$(echo $$app | tr a-z A-Z); \
-		echo "  sizeof(APP_$$upper)," >> $(AUTOGEN_HEADER); \
+		echo "	$${app}_embed_size," >> $(AUTOGEN_HEADER); \
 	done
 	@echo "};" >> $(AUTOGEN_HEADER)
 	@echo "" >> $(AUTOGEN_HEADER)
@@ -56,6 +51,11 @@ $(AUTOGEN_HEADER): $(APPS_TO_EMBED)
 		echo "  \"$$app\"," >> $(AUTOGEN_HEADER); \
 	done
 	@echo "};" >> $(AUTOGEN_HEADER)
+
+
+# Include userland master makefile. Contains rules and flags for actually
+# building the application.
+include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
 
 # Include app loading support rules. Rules to generate app binary images.
 include ../support/AppLoaderSupport.mk
