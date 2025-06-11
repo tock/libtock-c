@@ -333,8 +333,9 @@ static const char* binaries_get_str(void* data, uint16_t index) {
     process_names[index][1] = '\0';
   }
 
-  snprintf(process_names[index], 50, "%s%s", MUI_21, binary_names[index]);
-  if (index == _number_of_binaries) {
+  if (index < _number_of_binaries) {
+    snprintf(process_names[index], 50, "%s%s", MUI_21, binary_names[index]);
+  } else if (index == _number_of_binaries) {
     snprintf(process_names[index], 50, MUI_15 "Back");
   }
 
@@ -345,11 +346,7 @@ static const char* binaries_get_str(void* data, uint16_t index) {
 static uint8_t mui_u8g2_btn_goto_load_new_app(mui_t* ui_draw, uint8_t msg) {
   if (msg == MUIF_MSG_CURSOR_SELECT) {
     int ret = install_binary(binary_selection);
-    if (ret == 0) {
-      ui_draw->arg = 43;
-    } else {
-      ui_draw->arg = 42;
-    }
+    ui_draw->arg = (ret == 0 ? 43 : 42);
   }
   return mui_u8g2_btn_goto_wm_fi(ui_draw, msg);
 }
@@ -429,14 +426,14 @@ fds_t* fds =
   MUI_FORM(21)
   MUI_STYLE(0)
   MUI_LABEL(5, 10, "Load Application?")
-  MUI_XYAT(".G", 45, 35, 40, "Yes")
-  MUI_XYAT(".G", 55, 48, 20, "No")
+  MUI_XYT("AL", 45, 35, "Yes")
+  MUI_XYAT("CO", 55, 48, 20, "No")
 
 
-  MUI_FORM(40)
-  MUI_AUX("AL")
-  MUI_STYLE(0)
-  MUI_LABEL(5, 10, "Loading App...")
+  // MUI_FORM(40)
+  // MUI_STYLE(0)
+  // MUI_LABEL(5, 10, "Loading App...")
+  // MUI_AUX("AL")
 
   MUI_FORM(42)
   MUI_STYLE(0)

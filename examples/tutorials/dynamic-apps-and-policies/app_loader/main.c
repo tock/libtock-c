@@ -8,22 +8,15 @@
 #include <libtock/kernel/app_loader.h>
 #include <libtock/kernel/ipc.h>
 
-#include "temperature.xxd"
-#define APP_TEMPERATURE temperature_embed
-#include "counter.xxd"
-#define APP_COUNTER counter_embed
+#include "loadable_binaries.h"
 
 #define FLASH_BUFFER_SIZE 512
 #define RETURNCODE_SUCCESS 0
 
-static bool setup_done = false;       // to check if setup is done
+static bool setup_done    = false;    // to check if setup is done
 static bool write_done    = false;    // to check if writing to flash is done
 static bool finalize_done = false;    // to check if the kernel is done finalizing the process binary
 static bool load_done     = false;    // to check if the process was loaded successfully
-
-const uint8_t* binaries[]  = {APP_TEMPERATURE, APP_COUNTER};
-size_t binary_sizes[]      = {sizeof(APP_TEMPERATURE), sizeof(APP_COUNTER)};
-const char* binary_names[] = {"temperature", "counter"};
 
 uint8_t app_id = 0;
 
