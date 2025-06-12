@@ -21,7 +21,9 @@ APPS_TO_EMBED := \
 	# ../../../blink \
 
 AUTOGEN_HEADER = loadable_binaries.h
+.PHONY: $(AUTOGEN_HEADER)
 main.c: $(AUTOGEN_HEADER)
+APPS_HASH := .apps_to_embed
 
 $(AUTOGEN_HEADER): $(APPS_TO_EMBED)
 	@echo "// \`app_loader\`'s makefile autogenerates this file. Do not edit manually." > $(AUTOGEN_HEADER)
@@ -52,6 +54,13 @@ $(AUTOGEN_HEADER): $(APPS_TO_EMBED)
 	done
 	@echo "};" >> $(AUTOGEN_HEADER)
 
+$(APPS_HASH):
+	@echo '$(APPS_TO_EMBED)' > $@.tmp
+	@if [ ! -f $@ ] || ! cmp -s $@ $@.tmp; then \
+		mv $@.tmp $@; \
+	else \
+		rm $@.tmp; \
+	fi
 
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.
