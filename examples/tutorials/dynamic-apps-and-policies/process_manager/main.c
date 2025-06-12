@@ -548,9 +548,9 @@ int main(void) {
 
   ret = ipc_discover("app_loader", &_app_load_service);
   if (ret != RETURNCODE_SUCCESS) {
-    printf("No App Loader Service\n");
+    printf("[Process Manager] No App Loader Service\n");
   } else {
-    printf("Discovered App Loader Service\n");
+    printf("[Process Manager] Discovered App Loader Service\n");
   }
 
   // Setup IPC for App Loader service
@@ -562,7 +562,7 @@ int main(void) {
   // Setup the screen.
   ret = u8g2_tock_init(&u8g2);
   if (ret != RETURNCODE_SUCCESS) {
-    printf("[Process Control] Unable to access screen.\n");
+    printf("[Process Manager] Unable to access screen.\n");
     return -1;
   }
 
