@@ -18,7 +18,7 @@ ELF2TAB_ARGS += --ecdsa-nist-p256-private ../keys/ec-secp256r1-tutorial-key.priv
 
 # List of apps to generate embed rules for:
 APPS_TO_EMBED := \
-	 ../../../blink \
+	# ../../../blink \
 
 AUTOGEN_HEADER = loadable_binaries.h
 main.c: $(AUTOGEN_HEADER)
