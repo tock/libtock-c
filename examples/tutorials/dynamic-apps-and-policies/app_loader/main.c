@@ -165,8 +165,8 @@ int write_app(double size, uint8_t binary[]) {
 }
 
 static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
-  uint8_t* buffer         = (uint8_t*) buf;
-  const char* name_buffer = (const char*) buf;
+  uint8_t* buffer         = (uint8_t*) (uintptr_t) buf;
+  const char* name_buffer = (const char*) (uintptr_t) buf;
 
   int offset       = 0;
   int num_binaries = sizeof(binary_sizes) / sizeof(binary_sizes[0]);
