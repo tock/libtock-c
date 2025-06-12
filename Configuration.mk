@@ -107,7 +107,7 @@ TOCK_ARCHS := $(sort $(foreach target, $(TOCK_TARGETS), $(firstword $(subst |, ,
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
-ELF2TAB_REQUIRED_VERSION := 0.12.0
+ELF2TAB_REQUIRED_VERSION := 0.13.0
 ELF2TAB_EXISTS := $(shell $(SHELL) -c "command -v $(ELF2TAB)")
 ELF2TAB_VERSION := $(shell $(SHELL) -c "$(ELF2TAB) --version | cut -d ' ' -f 2")
 
