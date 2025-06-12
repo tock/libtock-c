@@ -421,7 +421,7 @@ fds_t* fds =
   MUI_STYLE(1)
   MUI_DATA("GP",
            MUI_3  "Inspect Processes|"
-           MUI_20 "Load New Application")
+           MUI_20 "Load New Applications")
   MUI_XYA("GC", 5, 25, 0)
   MUI_XYA("GC", 5, 37, 1)
   MUI_XYA("GC", 5, 49, 2)
