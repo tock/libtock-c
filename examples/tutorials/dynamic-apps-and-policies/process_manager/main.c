@@ -170,6 +170,19 @@ static uint16_t details_get_cnt(void* data) {
   return 8;
 }
 
+static int hex_digits(unsigned long long number) {
+    if (number == 0) {
+        return 1;
+    }
+    int bits = ceil(log2(number + 1));
+    return ceil((double)bits / 4);
+}
+
+static void insert_zeros(char* buffer, int len, int number) {
+  memset(buffer, '0', len);
+  buffer[number] = '\0';
+}
+
 static const char*details_get_str(void* data, uint16_t index) {
   UNUSED(data);
 
@@ -202,7 +215,9 @@ static const char*details_get_str(void* data, uint16_t index) {
         snprintf(process_names[index], 50, MUI_100 "ShortID: Unique");
 
       } else {
-        snprintf(process_names[index], 50, MUI_100 "ShortID: %#02lx", shortid);
+        char zeros[10];
+        insert_zeros(zeros, 10, 8-hex_digits(shortid));
+        snprintf(process_names[index], 50, MUI_100 "ShortID: 0x%s%lx", zeros, shortid);
       }
       break;
     }
