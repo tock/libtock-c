@@ -1,5 +1,7 @@
 # Makefile for user application
 
+.DEFAULT_GOAL = all
+
 # Restrict to Cortex M4 for the moment. Add new chip families as needed.
 TOCK_TARGETS ?= cortex-m4
 
@@ -16,12 +18,10 @@ ELF2TAB_ARGS += --ecdsa-nist-p256-private ../keys/ec-secp256r1-tutorial-key.priv
 
 # List of apps to generate embed rules for:
 APPS_TO_EMBED := \
-	# ../../../blink \
-  
+	 ../../../blink \
+
 AUTOGEN_HEADER = loadable_binaries.h
-ALL_TARGETS += $(AUTOGEN_HEADER)
-.PHONY: $(AUTOGEN_HEADER)
-main.o: $(AUTOGEN_HEADER)
+main.c: $(AUTOGEN_HEADER)
 
 $(AUTOGEN_HEADER): $(APPS_TO_EMBED)
 	@echo "// \`app_loader\`'s makefile autogenerates this file. Do not edit manually." > $(AUTOGEN_HEADER)
