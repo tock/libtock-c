@@ -25,6 +25,7 @@ def main(input_path, output_path, array_name):
     with open(output_path, "w") as f:
         f.write(f"const unsigned char {array_name}[] = {c_data};\n")
         f.write(f"const size_t {array_name}_size = {len(data)};\n")
+        f.write(f"const size_t {array_name}_actual_size = {len(trimmed)};\n")
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:

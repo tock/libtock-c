@@ -284,8 +284,8 @@ static void get_number_of_binaries(void) {
 
 
 // Uses the App Load service to get the names of the binaries.
-static void get_binary_names(void) {
-  if (_app_load_service == (size_t) -1) return;
+static int get_binary_names(void) {
+  if (_app_load_service == (size_t) -1) return -1;
 
   for (int i = 0; i < _number_of_binaries + 1; i++) {
     if (binary_names[i] == NULL) {
@@ -312,6 +312,7 @@ static void get_binary_names(void) {
 
     offset += binary_name_len + 1;  // 1 for null terminator
   }
+  return 0;
 }
 
 // Uses the App Load service to install requested binary.
@@ -338,7 +339,7 @@ static uint16_t binaries_get_cnt(void* data) {
 static const char* binaries_get_str(void* data, uint16_t index) {
   UNUSED(data);
 
-  get_binary_names();
+  int retval = get_binary_names();
 
   static char* process_names[20] = {NULL};
 
@@ -346,6 +347,11 @@ static const char* binaries_get_str(void* data, uint16_t index) {
     process_names[index]    = malloc(50);
     process_names[index][0] = '\x64';
     process_names[index][1] = '\0';
+  }
+
+  if (retval != 0 && index == 0) {
+    snprintf(process_names[index], 50, MUI_15 "No AppLoader [Back]");
+    return process_names[index];
   }
 
   if (index < _number_of_binaries) {
@@ -443,12 +449,6 @@ fds_t* fds =
   MUI_LABEL(5, 10, "Load Application?")
   MUI_XYT("AL", 45, 35, "Yes")
   MUI_XYAT("CO", 55, 48, 20, "No")
-
-
-  // MUI_FORM(40)
-  // MUI_STYLE(0)
-  // MUI_LABEL(5, 10, "Loading App...")
-  // MUI_AUX("AL")
 
   MUI_FORM(42)
   MUI_STYLE(0)

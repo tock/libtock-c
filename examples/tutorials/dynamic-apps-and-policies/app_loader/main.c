@@ -73,10 +73,12 @@ int install_binary(uint8_t id) {
   const char* app_name    = NULL;
   unsigned char* app_data = NULL;
   size_t app_size         = 0;
+  size_t binary_size      = 0;
 
-  app_name = binary_names[id];
-  app_data = (uint8_t*)(uintptr_t)binaries[id];
-  app_size = binary_sizes[id];
+  app_name    = binary_names[id];
+  app_data    = (uint8_t*)(uintptr_t)binaries[id];
+  app_size    = binary_sizes[id];
+  binary_size = actual_sizes[id];
 
   printf("[AppLoader] Requested to load %s!\n", app_name);
 
@@ -90,7 +92,7 @@ int install_binary(uint8_t id) {
   setup_done = false;
 
   printf("[Success] Setup successful. Writing app to flash.\n");
-  int ret1 = write_app(app_size, app_data);
+  int ret1 = write_app(binary_size, app_data);
   if (ret1 != RETURNCODE_SUCCESS) {
     printf("[Error] App flash write unsuccessful: %d.\n", ret1);
     return -1;
@@ -127,8 +129,6 @@ int write_app(double size, uint8_t binary[]) {
   // to mimic different bus widths.
   uint32_t write_buffer_size = FLASH_BUFFER_SIZE;
 
-  write_count = ceil(size / write_buffer_size);
-
   // set the write buffer
   int ret = libtock_app_loader_set_buffer(write_buffer, FLASH_BUFFER_SIZE);
   if (ret != RETURNCODE_SUCCESS) {
@@ -136,10 +136,16 @@ int write_app(double size, uint8_t binary[]) {
     return -1;
   }
 
+  write_count = (size + write_buffer_size - 1) / write_buffer_size;
+
   for (uint32_t offset = 0; offset < write_count; offset++) {
+
+    memset(write_buffer, 0, write_buffer_size);
     // copy binary to write buffer
-    memcpy(write_buffer, &binary[write_buffer_size * offset], write_buffer_size);
     flash_offset = (offset * write_buffer_size);
+    size_t bytes_left = size - flash_offset;
+    size_t chunk      = bytes_left < write_buffer_size ? bytes_left : write_buffer_size;
+    memcpy(write_buffer, &binary[write_buffer_size * offset], chunk);
     int ret1 = libtock_app_loader_write(flash_offset, write_buffer_size);
     if (ret1 != 0) {
       printf("[Error] Failed writing data to flash at address: 0x%lx\n", flash_offset);
@@ -193,7 +199,6 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
       }
 
       for (int i = 0; i < num_binaries; i++) {
-        // printf("index: %d\n", i);
         size_t name_len = strlen(binary_names[i]);
 
         if ((size_t)(offset + name_len + 1) > (size_t)len) {
@@ -204,9 +209,6 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
         // Copy the binary name to the buffer
         memcpy((void*) &name_buffer[offset], binary_names[i], name_len + 1);
         offset += name_len + 1;
-
-        // printf("index: %d\n", offset - (name_len + 1));
-        // printf("%s\n", &name_buffer[offset - (name_len + 1)]);
       }
 
       ipc_notify_client(pid);
@@ -221,7 +223,6 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
       }
 
       app_id = buffer[1];
-      // binary_install = true;
       int ret = install_binary(app_id);
       buffer[0] = ret;
       ipc_notify_client(pid);
