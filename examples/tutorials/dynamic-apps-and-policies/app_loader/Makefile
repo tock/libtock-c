@@ -61,6 +61,12 @@ $(AUTOGEN_HEADER): $(APPS_HASH)
 		echo "  \"$$app\"," >> $(AUTOGEN_HEADER); \
 	done
 	@echo "};" >> $(AUTOGEN_HEADER)
+	@echo "" >> $(AUTOGEN_HEADER)
+	@echo "size_t actual_sizes[] = {" >> $(AUTOGEN_HEADER)
+	@for app in $(notdir $(APPS_TO_EMBED)); do \
+		echo "	$${app}_embed_actual_size," >> $(AUTOGEN_HEADER); \
+	done
+	@echo "};" >> $(AUTOGEN_HEADER)
 
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.
