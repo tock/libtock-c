@@ -26,6 +26,7 @@ APPS_HASH := build/apps_to_embed
 main.c: $(AUTOGEN_HEADER)
 
 $(APPS_HASH):
+	@mkdir -p $(dir $@)
 	@echo '$(APPS_TO_EMBED)' > $@.tmp
 	@if [ ! -f $@ ] || ! cmp -s $@ $@.tmp; then \
 		mv $@.tmp $@; \
