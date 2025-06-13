@@ -21,7 +21,7 @@ APPS_TO_EMBED := \
 	# ../../../blink \
 
 AUTOGEN_HEADER = loadable_binaries.h
-APPS_HASH := build/$(TOCK_TARGETS)/apps_to_embed
+APPS_HASH := build/apps_to_embed
 .PHONY: $(APPS_HASH)
 main.c: $(AUTOGEN_HEADER)
 
