@@ -26,6 +26,7 @@ APPS_HASH := build/apps_to_embed
 main.c: $(AUTOGEN_HEADER)
 
 $(APPS_HASH):
+	@mkdir -p $(dir $@)
 	@echo '$(APPS_TO_EMBED)' > $@.tmp
 	@if [ ! -f $@ ] || ! cmp -s $@ $@.tmp; then \
 		mv $@.tmp $@; \
@@ -59,6 +60,12 @@ $(AUTOGEN_HEADER): $(APPS_HASH)
 	@echo "const char* binary_names[] = {" >> $(AUTOGEN_HEADER)
 	@for app in $(notdir $(APPS_TO_EMBED)); do \
 		echo "  \"$$app\"," >> $(AUTOGEN_HEADER); \
+	done
+	@echo "};" >> $(AUTOGEN_HEADER)
+	@echo "" >> $(AUTOGEN_HEADER)
+	@echo "size_t actual_sizes[] = {" >> $(AUTOGEN_HEADER)
+	@for app in $(notdir $(APPS_TO_EMBED)); do \
+		echo "	$${app}_embed_actual_size," >> $(AUTOGEN_HEADER); \
 	done
 	@echo "};" >> $(AUTOGEN_HEADER)
 
