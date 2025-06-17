@@ -17,35 +17,35 @@ extern "C"
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_set_setup_upcall(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_subscribe_setup(subscribe_upcall cb, void* userdata);
 
 /*
  * Function to setup the callback from capsule.
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_set_write_upcall(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_subscribe_write(subscribe_upcall cb, void* userdata);
 
 /*
  * Function to setup the callback from capsule.
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_set_finalize_upcall(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_subscribe_finalize(subscribe_upcall cb, void* userdata);
 
 /*
  * Function to setup the callback from capsule.
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_set_load_upcall(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_subscribe_load(subscribe_upcall cb, void* userdata);
 
 /*
  * Function to setup the callback from capsule.
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_set_abort_upcall(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_subscribe_abort(subscribe_upcall cb, void* userdata);
 
 /*
  * Command to request the kernel to set up for a new app.
