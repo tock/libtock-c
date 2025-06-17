@@ -20,6 +20,7 @@ ELF2TAB_ARGS += --ecdsa-nist-p256-private ../keys/ec-secp256r1-tutorial-key.priv
 APPS_TO_EMBED := \
 	# ../../../blink \
 
+BINARY_COUNT = $(words $(APPS_TO_EMBED))
 AUTOGEN_HEADER = loadable_binaries.h
 APPS_HASH := build/apps_to_embed
 .PHONY: $(APPS_HASH)
@@ -37,6 +38,8 @@ $(APPS_HASH):
 $(AUTOGEN_HEADER): $(APPS_HASH)
 	@echo "// \`app_loader\`'s makefile autogenerates this file. Do not edit manually." > $(AUTOGEN_HEADER)
 	@echo "#pragma once" >> $(AUTOGEN_HEADER)
+	@echo "" >> $(AUTOGEN_HEADER)
+	@echo "#define BINARY_COUNT ${BINARY_COUNT}" >> $(AUTOGEN_HEADER)
 	@echo "" >> $(AUTOGEN_HEADER)
 	@for app in $(notdir $(APPS_TO_EMBED)); do \
 		echo "#include \"$$app.xxd\"" >> $(AUTOGEN_HEADER); \
