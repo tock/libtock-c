@@ -28,7 +28,10 @@ static void hijack_buttons(void) {
   int button_count;
 
   ret = libtock_button_count(&button_count);
-  if (ret != RETURNCODE_SUCCESS) return;
+  if (ret != RETURNCODE_SUCCESS) {
+    printf("[Temp App] Error: Unable to access the buttons.\n");
+    return;
+  }
 
   for (int i = 0; i < button_count; i++) {
     ret = libtock_button_notify_on_press(i, on_button_press);
@@ -44,7 +47,7 @@ int main(void) {
 
   ret = u8g2_tock_init(&u8g2);
   if (ret != RETURNCODE_SUCCESS) {
-    printf("[TEMPERATURE] Error: Unable to access the screen.\n");
+    printf("[Temp App] Error: Unable to access the screen.\n");
     return -1;
   }
 
