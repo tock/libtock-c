@@ -70,6 +70,11 @@ static void app_load_done_callback(int                           arg0,
 }
 
 int install_binary(uint8_t id) {
+  if (BINARY_COUNT == 0) {
+    printf("[App Loader] No included apps. Unable to install!\n");
+    return -1;
+  }
+
   const char* app_name    = NULL;
   unsigned char* app_data = NULL;
   size_t app_size         = 0;
