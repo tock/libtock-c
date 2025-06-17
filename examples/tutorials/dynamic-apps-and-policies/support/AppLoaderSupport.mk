@@ -2,8 +2,7 @@
 # foreach (arch1, ...) {
 #   $(1)=archX
 
-SUPPORT_MK_DIR := $(filter %AppLoaderSupport.mk,$(MAKEFILE_LIST))
-HELPER_DIR := $(abspath $(dir $(SUPPORT_MK_DIR)))
+HELPER_DIR := $(TOCK_USERLAND_BASE_DIR)/examples/tutorials/dynamic-apps-and-policies/support
 
 # Change this to link from the dyn app loader example when that is merged.
 
@@ -60,7 +59,7 @@ endef
 #$(info $(foreach app, $(APPS_TO_EMBED),$(call EMBED_RULES_PER_APP,$(notdir $(app)),$(app))))
 $(foreach app, $(APPS_TO_EMBED),$(eval $(call EMBED_RULES_PER_APP,$(notdir $(app)),$(app))))
 
-$(BUILDDIR)/%.xxd: $(BUILDDIR)/%.embed
+$(BUILDDIR)/%.xxd: $(BUILDDIR)/%.embed | $(HELPER_DIR)/trim_format.py
 	@mkdir -p $(@D)
 	@python3 $(HELPER_DIR)/trim_format.py \
 	  "$<" "$@" \
