@@ -22,20 +22,25 @@ APPS_TO_EMBED := \
 
 BINARY_COUNT = $(words $(APPS_TO_EMBED))
 AUTOGEN_HEADER = loadable_binaries.h
-APPS_HASH := build/apps_to_embed
-.PHONY: $(APPS_HASH)
 main.c: $(AUTOGEN_HEADER)
 
-$(APPS_HASH):
-	@mkdir -p $(dir $@)
-	@echo '$(APPS_TO_EMBED)' > $@.tmp
-	@if [ ! -f $@ ] || ! cmp -s $@ $@.tmp; then \
-		mv $@.tmp $@; \
-	else \
-		rm $@.tmp; \
-	fi
 
-$(AUTOGEN_HEADER): $(APPS_HASH)
+build:
+	$(TRACE_DIR)
+	@mkdir -p $@
+
+# Ensure we rebuild if `APPS_TO_EMBED` changes.
+.PHONY: FORCE
+define DEPENDABLE_VAR
+build/$(1): build
+	@printf '%s' "$($(1))" > build/$(1)
+ifneq ("$(shell cat build/$(1) 2>/dev/null)","$($(1))")
+build/$(1): FORCE
+endif
+endef
+$(eval $(call DEPENDABLE_VAR,APPS_TO_EMBED))
+
+$(AUTOGEN_HEADER): build/APPS_TO_EMBED
 	@echo "// \`app_loader\`'s makefile autogenerates this file. Do not edit manually." > $(AUTOGEN_HEADER)
 	@echo "#pragma once" >> $(AUTOGEN_HEADER)
 	@echo "" >> $(AUTOGEN_HEADER)
