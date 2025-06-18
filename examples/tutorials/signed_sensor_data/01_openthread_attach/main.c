@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <string.h>
+
 #include <assert.h>
 
 #include <libopenthread/platform/openthread-system.h>
@@ -5,27 +8,15 @@
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
 #include <openthread/ip6.h>
-#include <openthread/message.h>
 #include <openthread/platform/alarm-milli.h>
 #include <openthread/tasklet.h>
 #include <openthread/thread.h>
 #include <openthread/udp.h>
 
-#include <libtock/interface/led.h>
-
+#include <libtock-sync/services/alarm.h>
+#include <libtock/kernel/ipc.h>
+#include <libtock/services/alarm.h>
 #include <libtock/tock.h>
-
-#include <stdio.h>
-#include <string.h>
-
-#define UDP_PORT 1212
-
-static otUdpSocket sUdpSocket;
-static void initUdp(otInstance* aInstance);
-
-// Callback method for received udp packets.
-static void handleUdpReceive(void* aContext, otMessage* aMessage,
-                             const otMessageInfo* aMessageInfo);
 
 // helper utility demonstrating network config setup
 static void setNetworkConfiguration(otInstance* aInstance);
@@ -43,7 +34,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
   instance = otInstanceInitSingle();
   assert(instance);
 
-  // Set child timeout to 60 seconds.
+  // set child timeout to 60 seconds.
   otThreadSetChildTimeout(instance, 60);
 
   // Set callback to be notified when thread state changes.
@@ -52,16 +43,28 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
   ///////////////////////////////////////////////////
   // THREAD NETWORK SETUP HERE
 
-  // TODO: Configure network.
+  // Configure network.
+  setNetworkConfiguration(instance);
 
-  // TODO: Enable network interface.
+  // Enable network interface.
+  while (otIp6SetEnabled(instance, true) != OT_ERROR_NONE) {
+    printf("Failed to start Thread network interface!\n");
+    libtocksync_alarm_delay_ms(100);
+  }
 
-  // TODO: Start Thread network.
+  // Print IPv6 address.
+  print_ip_addr(instance);
+
+  // Start Thread network.
+  while (otThreadSetEnabled(instance, true) != OT_ERROR_NONE) {
+    printf("Failed to start Thread stack!\n");
+    libtocksync_alarm_delay_ms(100);
+  }
 
   //
   ////////////////////////////////////////////////////
 
-  // OpenThread main loop
+  // OpenThread main loop.
   for ( ;;) {
     // Execute any pending OpenThread related work.
     otTaskletsProcess(instance);
@@ -70,7 +73,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
     // radio buffer for new packets).
     otSysProcessDrivers(instance);
 
-    if (!otTaskletsArePending(instance) && !openthread_platform_pending_work()) {
+    // If there is not pending platform or OpenThread
+    // related work -- yield.
+    if (!otTaskletsArePending(instance) &&
+        !openthread_platform_pending_work()) {
       yield();
     }
 
@@ -145,10 +151,10 @@ static void print_ip_addr(otInstance* instance) {
   char addr_string[64];
   const otNetifAddress* unicastAddrs = otIp6GetUnicastAddresses(instance);
 
+  printf("[THREAD] Device IPv6 Addresses: ");
   for (const otNetifAddress* addr = unicastAddrs; addr; addr = addr->mNext) {
     const otIp6Address ip6_addr = addr->mAddress;
     otIp6AddressToString(&ip6_addr, addr_string, sizeof(addr_string));
     printf("%s\n", addr_string);
   }
-
 }
