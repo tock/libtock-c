@@ -18,15 +18,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define UDP_PORT 1212
-
-static otUdpSocket sUdpSocket;
-static void initUdp(otInstance* aInstance);
-
-// Callback method for received udp packets.
-static void handleUdpReceive(void* aContext, otMessage* aMessage,
-                             const otMessageInfo* aMessageInfo);
-
 // helper utility demonstrating network config setup
 static void setNetworkConfiguration(otInstance* aInstance);
 
