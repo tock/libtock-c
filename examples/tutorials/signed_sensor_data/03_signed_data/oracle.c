@@ -1,8 +1,8 @@
 #include <stdbool.h>
 
+#include "oracle.h"
 #include <libtock-sync/peripherals/rng.h>
 #include <stdio.h>
-#include "oracle.h"
 
 struct crypt_upcall_ud {
   bool done;
@@ -52,8 +52,4 @@ int oracle_decrypt(const uint8_t* iv, const uint8_t* cipher, int cipher_len, uin
   yield_for(&ud.done);
 
   return ud.len;
-}
-
-int oracle_encrypt(const uint8_t* plaintext, int plaintext_len, uint8_t* output, int output_len, uint8_t iv[16]) {
-  return oracle_decrypt(iv, plaintext, plaintext_len, output, output_len);
 }
