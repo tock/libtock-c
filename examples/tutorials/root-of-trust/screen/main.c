@@ -177,7 +177,7 @@ static int select_rot_service(const char* service) {
   // Discover the provided encryption app IPC service.
   ret = ipc_discover(service, &app_start_service);
   if (ret != RETURNCODE_SUCCESS) {
-    printf("Encryption oracle service not found.\n");
+    printf("Root of trust service not found.\n");
     return ret;
   }
 
