@@ -35,7 +35,11 @@ let
       sha256 = "sha256-+VeWLBI6md399Oaumt4pJrOkm0Nz7fmpXN2TjglUE34=";
     };
 
-    cargoHash = "sha256-UHAwk1fBcabRqy7VMhz4aoQuIur+MQshDOhC7KFyGm4=";
+    cargoHash =
+      if lib.versionAtLeast lib.version "25.05pre" then
+        "sha256-C1hg2/y557jRLkSBvFLxYKH+t8xEJudDvU72kO9sPug="
+      else
+        "sha256-UHAwk1fBcabRqy7VMhz4aoQuIur+MQshDOhC7KFyGm4=";
   };
 
   # The formatting scripts require a specific version of uncrustify:

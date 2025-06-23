@@ -174,9 +174,6 @@ int tock_allow_ro_return_to_returncode(allow_ro_return_t);
 // Convert a `allow_userspace_r_return_t` to a `returncode_t`.
 int tock_allow_userspace_r_return_to_returncode(allow_userspace_r_return_t);
 
-int tock_enqueue(subscribe_upcall cb, int arg0, int arg1, int arg2, void* ud);
-
-int yield_check_tasks(void);
 void yield(void);
 void yield_for(bool*);
 int yield_no_wait(void);

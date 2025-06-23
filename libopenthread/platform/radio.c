@@ -11,6 +11,8 @@
 
 #define ACK_SIZE 3
 
+returncode_t ieee802154_set_channel_and_commit(uint8_t channel);
+
 static uint8_t tx_mPsdu[OT_RADIO_FRAME_MAX_SIZE];
 static otRadioFrame transmitFrame = {
   .mPsdu   = tx_mPsdu,
@@ -49,6 +51,15 @@ bool pending_tx_done_callback_status(otRadioFrame *ackFrame, returncode_t *statu
 
 void reset_pending_tx_done_callback(void) {
 	pending_tx_done_callback.flag = false;
+}
+
+// Helper method for setting radio channel and calling config commit.
+returncode_t ieee802154_set_channel_and_commit(uint8_t channel) {
+  returncode_t retCode = libtock_ieee802154_set_channel(channel);
+  if (retCode != RETURNCODE_SUCCESS) {
+    return retCode;
+  }
+  return libtock_ieee802154_config_commit();
 }
 
 void otPlatRadioGetIeeeEui64(otInstance *aInstance, uint8_t *aIeeeEui64) {
@@ -137,7 +148,7 @@ otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel) {
     otPlatRadioEnable(aInstance);
   }
 
-  int retCode = libtock_ieee802154_set_channel(aChannel);
+  int retCode = ieee802154_set_channel_and_commit(aChannel);
   if (retCode != RETURNCODE_SUCCESS) {
     return OT_ERROR_FAILED;
   }
@@ -156,7 +167,7 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame) {
   // final two bytes.
   aFrame->mLength = aFrame->mLength - 2;
 
-  int retCode = libtock_ieee802154_set_channel(aFrame->mChannel);
+  int retCode = ieee802154_set_channel_and_commit(aFrame->mChannel);
   if (retCode != RETURNCODE_SUCCESS) {
     return OT_ERROR_FAILED;
   }
