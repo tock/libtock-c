@@ -1,16 +1,13 @@
-USB Security Key Application
-----------------------------
+Hardware Root of Trust (HWRoT) Demo Encryption Service Application
+------------------------------------------------------------------
 
-This application implements a basic
-[HOTP hardware token](https://en.wikipedia.org/wiki/HMAC-based_one-time_password)
-which creates HOTP codes based on a secret key and outputs the codes over USB
-HID as if it were a keyboard.
+This application implements a basic UART encryption service for a mock hardware root of trust (HWRoT) which inputs 
 
 This is part of a tutorial which improves the application in multiple steps. A
-writeup for the tutorial is available at https://book.tockos.org/
+writeup for the tutorial is available at https://book.tockos.org/.
 
 Specific abilities of this version:
- * Outputs an HOTP code over USB HID when button is pressed
- * Can program a new key on button hold
- * Does NOT save key in Flash across reboots
- * Does NOT support multiple keys
+
+* Allows logging to screen over IPC
+* Allows prompting for plaintext over returning results in hex over UART
+* Allows for encryping user-provided plaintext using an encryption oracle driver
