@@ -5,10 +5,7 @@
 #include <libtock-sync/interface/console.h>
 #include <libtock/kernel/ipc.h>
 
-#include "oracle.h"
-
 #define LOG_WIDTH      32
-#define AES_BLOCK_SIZE 16
 
 bool started          = false;
 bool log_done         = false;
@@ -135,39 +132,33 @@ int main(void) {
   wait_for_start();
 
   // Set up logging service.
-  setup_logging();
+  ret = setup_logging();
+  if (ret < 0) {
+    printf("ERROR: cannot set up logging\n");
+  }
 
-  // Prepare buffers for encryption.
-  uint8_t plaintext[4 * AES_BLOCK_SIZE];
-  uint8_t output[4 * AES_BLOCK_SIZE];
-  char output_hex[33];
-  uint8_t iv[16];
-  char iv_hex[33];
+  // Prepare buffers for receiving plaintext
+  uint8_t plaintext[512];
+  char plaintext_hex[1024];
 
   while (1) {
     // Request a plaintext.
-    log_to_screen("Requesting plaintext...");
-    int plaintext_len = request_plaintext(plaintext, sizeof(plaintext));
-
-    // Encrypt the plaintext.
-    log_to_screen("Encrypting...");
-    ret = oracle_encrypt(plaintext, plaintext_len, output, sizeof(output), iv);
+    ret = log_to_screen("Requesting plaintext...");
     if (ret < 0) {
-      printf("ERROR(%i): %s.\r\n", ret, tock_strrcode(ret));
-      printf("ERROR cannot encrypt plaintext\r\n");
-      return ret;
+      printf("ERROR: cannot log to screen\n");
     }
+    size_t plaintext_len = request_plaintext(plaintext, sizeof(plaintext));
 
-    // Show generated IV.
-    bytes_to_hex(iv_hex, iv, sizeof(iv));
-    log_to_screen("Generated IV:\n");
-    log_to_screen(iv_hex);
-    printf("IV: %s\n", iv_hex);
+    // Convert first 16 bytes of plaintext to hex.
+    bytes_to_hex(plaintext_hex, plaintext, plaintext_len);
 
-    // Show first 16 bytes of ciphertext.
-    bytes_to_hex(output_hex, output, 16);
-    log_to_screen("Returning ciphertext:\n");
-    log_to_screen(output_hex);
-    printf("Ciphertext: %s\n\n", output_hex);
+    // Display the resulting hex.
+    ret = log_to_screen("Returning plaintext...");
+    if (ret < 0) {
+      printf("ERROR: cannot log to screen\n");
+    }
+    printf("Received plaintext: %s\n", plaintext_hex);
   }
+
+  return 0;
 }
