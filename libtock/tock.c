@@ -2,38 +2,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #include "tock.h"
-
-typedef struct {
-  subscribe_upcall* cb;
-  int arg0;
-  int arg1;
-  int arg2;
-  void* ud;
-} tock_task_t;
-
-#define TASK_QUEUE_SIZE  16
-static tock_task_t task_queue[TASK_QUEUE_SIZE];
-static int task_cur  = 0;
-static int task_last = 0;
-
-int tock_enqueue(subscribe_upcall cb, int arg0, int arg1, int arg2, void* ud) {
-  int next_task_last = (task_last + 1) % TASK_QUEUE_SIZE;
-  if (next_task_last == task_cur) {
-    return -1;
-  }
-
-  task_queue[task_last].cb   = cb;
-  task_queue[task_last].arg0 = arg0;
-  task_queue[task_last].arg1 = arg1;
-  task_queue[task_last].arg2 = arg2;
-  task_queue[task_last].ud   = ud;
-  task_last = next_task_last;
-
-  return task_last;
-}
 
 int tock_status_to_returncode(statuscode_t status) {
   // Conversion is easy. Since ReturnCode numeric mappings are -1*ErrorCode,
@@ -143,95 +113,75 @@ void yield_for(bool* cond) {
   }
 }
 
-// Returns 1 if a task is processed, 0 otherwise
-int yield_check_tasks(void) {
-  if (task_cur != task_last) {
-    tock_task_t task = task_queue[task_cur];
-    task_cur = (task_cur + 1) % TASK_QUEUE_SIZE;
-    task.cb(task.arg0, task.arg1, task.arg2, task.ud);
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
 #if defined(__thumb__)
 
 
 void yield(void) {
-  if (yield_check_tasks()) {
-    return;
-  } else {
-    // Note: A process stops yielding when there is a callback ready to run,
-    // which the kernel executes by modifying the stack frame pushed by the
-    // hardware. The kernel copies the PC value from the stack frame to the LR
-    // field, and sets the PC value to callback to run. When this frame is
-    // unstacked during the interrupt return, the effectively clobbers the LR
-    // register.
-    //
-    // At this point, the callback function is now executing, which may itself
-    // clobber any of the other caller-saved registers. Thus we mark this
-    // inline assembly as conservatively clobbering all caller-saved registers,
-    // forcing yield to save any live registers.
-    //
-    // Upon direct observation of this function, the LR is the only register
-    // that is live across the SVC invocation, however, if the yield call is
-    // inlined, it is possible that the LR won't be live at all (commonly seen
-    // for the `while (1) { yield(); }` idiom) or that other registers are
-    // live, thus it is important to let the compiler do the work here.
-    //
-    // According to the AAPCS: A subroutine must preserve the contents of the
-    // registers r4-r8, r10, r11 and SP (and r9 in PCS variants that designate
-    // r9 as v6) As our compilation flags mark r9 as the PIC base register, it
-    // does not need to be saved. Thus we must clobber r0-3, r12, and LR
-    register uint32_t wait __asm__ ("r0")       = 1; // yield-wait
-    register uint32_t wait_field __asm__ ("r1") = 0; // yield result ptr
-    __asm__ volatile (
-      "svc 0       \n"
-      :
-      : "r" (wait), "r" (wait_field)
-      : "memory", "r2", "r3", "r12", "lr"
-      );
-  }
+  // Note: A process stops yielding when there is a callback ready to run,
+  // which the kernel executes by modifying the stack frame pushed by the
+  // hardware. The kernel copies the PC value from the stack frame to the LR
+  // field, and sets the PC value to callback to run. When this frame is
+  // unstacked during the interrupt return, the effectively clobbers the LR
+  // register.
+  //
+  // At this point, the callback function is now executing, which may itself
+  // clobber any of the other caller-saved registers. Thus we mark this
+  // inline assembly as conservatively clobbering all caller-saved registers,
+  // forcing yield to save any live registers.
+  //
+  // Upon direct observation of this function, the LR is the only register
+  // that is live across the SVC invocation, however, if the yield call is
+  // inlined, it is possible that the LR won't be live at all (commonly seen
+  // for the `while (1) { yield(); }` idiom) or that other registers are
+  // live, thus it is important to let the compiler do the work here.
+  //
+  // According to the AAPCS: A subroutine must preserve the contents of the
+  // registers r4-r8, r10, r11 and SP (and r9 in PCS variants that designate
+  // r9 as v6) As our compilation flags mark r9 as the PIC base register, it
+  // does not need to be saved. Thus we must clobber r0-3, r12, and LR
+  register uint32_t wait __asm__ ("r0")       = 1;   // yield-wait
+  register uint32_t wait_field __asm__ ("r1") = 0;   // yield result ptr
+  __asm__ volatile (
+    "svc 0       \n"
+    :
+    : "r" (wait), "r" (wait_field)
+    : "memory", "r2", "r3", "r12", "lr"
+    );
 }
 
 int yield_no_wait(void) {
-  if (yield_check_tasks()) {
-    return 1;
-  } else {
-    // Note: A process stops yielding when there is a callback ready to run,
-    // which the kernel executes by modifying the stack frame pushed by the
-    // hardware. The kernel copies the PC value from the stack frame to the LR
-    // field, and sets the PC value to callback to run. When this frame is
-    // unstacked during the interrupt return, the effectively clobbers the LR
-    // register.
-    //
-    // At this point, the callback function is now executing, which may itself
-    // clobber any of the other caller-saved registers. Thus we mark this
-    // inline assembly as conservatively clobbering all caller-saved registers,
-    // forcing yield to save any live registers.
-    //
-    // Upon direct observation of this function, the LR is the only register
-    // that is live across the SVC invocation, however, if the yield call is
-    // inlined, it is possible that the LR won't be live at all (commonly seen
-    // for the `while (1) { yield(); }` idiom) or that other registers are
-    // live, thus it is important to let the compiler do the work here.
-    //
-    // According to the AAPCS: A subroutine must preserve the contents of the
-    // registers r4-r8, r10, r11 and SP (and r9 in PCS variants that designate
-    // r9 as v6) As our compilation flags mark r9 as the PIC base register, it
-    // does not need to be saved. Thus we must clobber r0-3, r12, and LR
-    uint8_t result = 0;
-    register uint32_t wait __asm__ ("r0")       = 0; // yield-no-wait
-    register uint8_t* wait_field __asm__ ("r1") = &result; // yield result ptr
-    __asm__ volatile (
-      "svc 0       \n"
-      :
-      : "r" (wait), "r" (wait_field)
-      : "memory", "r2", "r3", "r12", "lr"
-      );
-    return (int)result;
-  }
+  // Note: A process stops yielding when there is a callback ready to run,
+  // which the kernel executes by modifying the stack frame pushed by the
+  // hardware. The kernel copies the PC value from the stack frame to the LR
+  // field, and sets the PC value to callback to run. When this frame is
+  // unstacked during the interrupt return, the effectively clobbers the LR
+  // register.
+  //
+  // At this point, the callback function is now executing, which may itself
+  // clobber any of the other caller-saved registers. Thus we mark this
+  // inline assembly as conservatively clobbering all caller-saved registers,
+  // forcing yield to save any live registers.
+  //
+  // Upon direct observation of this function, the LR is the only register
+  // that is live across the SVC invocation, however, if the yield call is
+  // inlined, it is possible that the LR won't be live at all (commonly seen
+  // for the `while (1) { yield(); }` idiom) or that other registers are
+  // live, thus it is important to let the compiler do the work here.
+  //
+  // According to the AAPCS: A subroutine must preserve the contents of the
+  // registers r4-r8, r10, r11 and SP (and r9 in PCS variants that designate
+  // r9 as v6) As our compilation flags mark r9 as the PIC base register, it
+  // does not need to be saved. Thus we must clobber r0-3, r12, and LR
+  uint8_t result = 0;
+  register uint32_t wait __asm__ ("r0")       = 0;   // yield-no-wait
+  register uint8_t* wait_field __asm__ ("r1") = &result;   // yield result ptr
+  __asm__ volatile (
+    "svc 0       \n"
+    :
+    : "r" (wait), "r" (wait_field)
+    : "memory", "r2", "r3", "r12", "lr"
+    );
+  return (int)result;
 }
 
 void tock_exit(uint32_t completion_code) {
@@ -423,40 +373,31 @@ memop_return_t memop(uint32_t op_type, int arg1) {
 // a0-a3. Nothing specifically syscall related is pushed to the process stack.
 
 void yield(void) {
-  if (yield_check_tasks()) {
-    return;
-  } else {
-    register uint32_t a0  __asm__ ("a0")        = 1; // yield-wait
-    register uint32_t wait_field __asm__ ("a1") = 0; // yield result ptr
-    __asm__ volatile (
-      "li       a4, 0\n"
-      "ecall\n"
-      :
-      : "r" (a0), "r" (wait_field)
-      : "memory", "a2", "a3", "a4", "a5", "a6", "a7",
-      "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
-      );
-
-  }
+  register uint32_t a0  __asm__ ("a0")        = 1;   // yield-wait
+  register uint32_t wait_field __asm__ ("a1") = 0;   // yield result ptr
+  __asm__ volatile (
+    "li       a4, 0\n"
+    "ecall\n"
+    :
+    : "r" (a0), "r" (wait_field)
+    : "memory", "a2", "a3", "a4", "a5", "a6", "a7",
+    "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
+    );
 }
 
 int yield_no_wait(void) {
-  if (yield_check_tasks()) {
-    return 1;
-  } else {
-    uint8_t result = 0;
-    register uint32_t a0  __asm__ ("a0") = 0; // yield-no-wait
-    register uint8_t* a1  __asm__ ("a1") = &result;
-    __asm__ volatile (
-      "li       a4, 0\n"
-      "ecall\n"
-      :
-      : "r" (a0), "r" (a1)
-      : "memory", "a2", "a3", "a4", "a5", "a6", "a7",
-      "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
-      );
-    return (int)result;
-  }
+  uint8_t result = 0;
+  register uint32_t a0  __asm__ ("a0") = 0;   // yield-no-wait
+  register uint8_t* a1  __asm__ ("a1") = &result;
+  __asm__ volatile (
+    "li       a4, 0\n"
+    "ecall\n"
+    :
+    : "r" (a0), "r" (a1)
+    : "memory", "a2", "a3", "a4", "a5", "a6", "a7",
+    "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
+    );
+  return (int)result;
 }
 
 
