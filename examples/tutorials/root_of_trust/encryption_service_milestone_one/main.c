@@ -79,17 +79,25 @@ static int log_to_screen(const char* message) {
 }
 
 int main(void) {
+  returncode_t ret;
+
   // Wait to receive the signal to start from the app selector.
   wait_for_start();
 
   // Set up logging service.
-  setup_logging();
+  ret = setup_logging();
+  if (ret < 0) {
+    printf("ERROR: cannot set up logging");
+  }
 
   // Test logging to screen over IPC.
   char message_buf[32];
   for (int i = 0; i < 10; i++) {
     sprintf(message_buf, "Test message #%i...", i);
-    log_to_screen(message_buf);
+    ret = log_to_screen(message_buf);
+    if (ret < 0) {
+      printf("ERROR: cannot log to screen");
+    }
   }
 
   return 0;
