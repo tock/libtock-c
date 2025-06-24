@@ -11,8 +11,6 @@
 
 #define ENCRYPTION_SRAM_START  0x2000A000
 #define ENCRYPTION_SRAM_END    0x2000BFFF
-#define SELF_SRAM_START        0x2000C000
-#define SELF_SRAM_END          0x2000CFFF
 
 #define LOG_WIDTH      32
 
@@ -110,7 +108,9 @@ int main(void) {
   if (ret < 0) {
     printf("ERROR: cannot log to screen\n");
   }
-  dump_memory((uint32_t*)SELF_SRAM_START, (uint32_t*)SELF_SRAM_END, "SELF");
+
+  uint32_t* start = (uint32_t*)tock_app_memory_begins_at();
+  dump_memory(start, start + 0x1000, "SELF");
   ret = log_to_screen("Dumping own SRAM complete!");
   if (ret < 0) {
     printf("ERROR: cannot log to screen\n");
