@@ -361,7 +361,6 @@ static bool subtest_set_get_region(uint32_t start, uint32_t stop) {
     for (uint32_t j = 0; j < value_len; j++) {
       CHECK(value_buf[j] == (uint8_t) (j + i));
     }
-
   }
   return true;
 }

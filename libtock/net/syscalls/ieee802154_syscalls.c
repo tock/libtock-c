@@ -57,7 +57,6 @@ returncode_t libtock_ieee802154_command_set_channel(uint8_t channel) {
 returncode_t libtock_ieee802154_command_set_power(uint32_t power) {
   syscall_return_t com = command(DRIVER_NUM_IEEE802154, COMMAND_SET_POWER, power, 0);
   return tock_command_return_novalue_to_returncode(com);
-
 }
 
 returncode_t libtock_ieee802154_command_config_commit(void) {

@@ -282,7 +282,6 @@ int main(void) {
 
     /* go in low power */
     hal_mcu_set_sleep_for_ms(sleep_time_ms);
-
   }
 }
 

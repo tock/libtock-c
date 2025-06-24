@@ -51,7 +51,6 @@ static void alarm_fire_callback(__attribute__ ((unused)) uint32_t unused0,
   } else {
     printf("\tFailed! Difference of %ld ms (> 1ms)\n", difference_ms);
   }
-
 }
 
 int main(void) {

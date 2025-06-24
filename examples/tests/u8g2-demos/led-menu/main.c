@@ -214,6 +214,5 @@ int main(void) {
     } else {
       libtock_led_off(3);
     }
-
   }
 }

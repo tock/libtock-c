@@ -159,7 +159,6 @@ static void root_insert(libtock_alarm_ticks_t* alarm) {
   prev->next  = alarm;
   alarm->prev = prev;
   alarm->next = NULL;
-
 }
 
 static libtock_alarm_ticks_t* root_pop(void) {

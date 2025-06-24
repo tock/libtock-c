@@ -59,5 +59,4 @@ int display_hotp_keys(hotp_key_t* hotp_key, int num_keys) {
   u8g2_SendBuffer(&u8g2);
 
   return 0;
-
 }

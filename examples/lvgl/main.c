@@ -59,7 +59,6 @@ int main(void) {
       uint32_t time_till_next = lv_timer_handler();
       libtocksync_alarm_delay_ms(time_till_next);
     }
-
   } else {
     printf("lvgl init error: %s\n", tock_strrcode(status));
   }

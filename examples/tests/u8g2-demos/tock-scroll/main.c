@@ -53,5 +53,4 @@ int main(void) {
       cwidth = u8g2_GetUTF8Width(&u8g2, buf);
     }
   }
-
 }

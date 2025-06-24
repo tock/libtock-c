@@ -75,7 +75,6 @@ static void update_network_timer_callback(__attribute__ ((unused)) uint32_t now,
   openthread_buffer[0] = local_temperature_setpoint;
   ipc_notify_service(openthread_svc_num);
   libtock_alarm_in_ms(500, update_network_timer_callback, NULL, &network_timer);
-
 }
 
 static void sensor_callback(__attribute__ ((unused)) int   pid,
@@ -103,7 +102,6 @@ static void openthread_callback(__attribute__ ((unused)) int   pid,
 
   // Indicate that we have received a callback.
   callback_event = true;
-
 }
 
 
@@ -135,7 +133,6 @@ int main(void) {
       prior_local_temperature_setpoint  = local_temperature_setpoint;
       update_screen();
     }
-
   }
 }
 

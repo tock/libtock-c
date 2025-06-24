@@ -69,7 +69,6 @@ returncode_t libtock_adc_set_buffer(uint16_t* buffer, uint32_t length) {
 
 returncode_t libtock_adc_set_double_buffer(uint16_t* buffer, uint32_t length) {
   return libtock_adc_set_readwrite_allow_set_double_buffer((uint8_t*) buffer, length * 2);
-
 }
 
 returncode_t libtock_adc_channel_count(int* count) {

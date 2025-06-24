@@ -117,5 +117,4 @@ int main(void) {
   } else {
     printf("Socket closed.\n");
   }
-
 }

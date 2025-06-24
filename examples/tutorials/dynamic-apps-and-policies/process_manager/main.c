@@ -213,7 +213,6 @@ static const char*details_get_str(void* data, uint16_t index) {
 
       if (shortid == 0) {
         snprintf(process_names[index], 50, MUI_100 "ShortID: Unique");
-
       } else {
         char zeros[10];
         insert_zeros(zeros, 10, 8 - hex_digits(shortid));
@@ -361,7 +360,6 @@ static const char* binaries_get_str(void* data, uint16_t index) {
   }
 
   return process_names[index];
-
 }
 
 static uint8_t mui_u8g2_btn_goto_load_new_app(mui_t* ui_draw, uint8_t msg) {
@@ -414,8 +412,6 @@ muif_t muif_list[] = {
   MUIF_BUTTON("CO", mui_u8g2_btn_goto_wm_fi),
 
   MUIF_BUTTON("AL", mui_u8g2_btn_goto_load_new_app),
-
-
 };
 
 fds_t* fds =

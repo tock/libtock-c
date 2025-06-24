@@ -74,7 +74,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
     if (!otTaskletsArePending(instance) && !openthread_platform_pending_work()) {
       yield();
     }
-
   }
 
   return 0;
@@ -101,7 +100,6 @@ void setNetworkConfiguration(otInstance* aInstance) {
 
   otError error = otDatasetSetActive(aInstance, &aDataset);
   assert(error == 0);
-
 }
 
 void initUdp(otInstance* aInstance) {
@@ -137,7 +135,6 @@ void handleUdpReceive(void* aContext, otMessage* aMessage,
   }
 
   printf("\n");
-
 }
 
 static void stateChangeCallback(uint32_t flags, void* context) {
@@ -177,5 +174,4 @@ static void print_ip_addr(otInstance* instance) {
     otIp6AddressToString(&ip6_addr, addr_string, sizeof(addr_string));
     printf("%s\n", addr_string);
   }
-
 }

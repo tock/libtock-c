@@ -99,7 +99,6 @@ static int initialize_keys(void) {
       // Looks valid, copy into our local array of keys.
       memcpy(&keys[i], value, sizeof(hotp_encrypted_key_t));
     }
-
   }
 
   return RETURNCODE_SUCCESS;
