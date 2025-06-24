@@ -1,3 +1,8 @@
+// Hardware Root of Trust (HWRoT) Demo SRAM Dump Application
+//
+// When selected by the main screen HWRoT Demo application, attempts to dump its
+// own SRAM, followed by the SRAM of the encryption service application.
+
 #include "libtock/tock.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -82,8 +87,8 @@ static int log_to_screen(const char* message) {
   return 0;
 }
 
-static void dump_memory(uint32_t *start, uint32_t *end, const char *label) {
-  for (uint32_t *addr = start; addr < end; addr++) {
+static void dump_memory(uint32_t* start, uint32_t* end, const char* label) {
+  for (uint32_t* addr = start; addr < end; addr++) {
     printf("[%s] %p: %08lX\n", label, addr, *addr);
   }
 }
@@ -105,7 +110,7 @@ int main(void) {
   if (ret < 0) {
     printf("ERROR: cannot log to screen\n");
   }
-  dump_memory((uint32_t *)SELF_SRAM_START, (uint32_t *)SELF_SRAM_END, "SELF");
+  dump_memory((uint32_t*)SELF_SRAM_START, (uint32_t*)SELF_SRAM_END, "SELF");
   ret = log_to_screen("Dumping own SRAM complete!");
   if (ret < 0) {
     printf("ERROR: cannot log to screen\n");
@@ -116,11 +121,11 @@ int main(void) {
   if (ret < 0) {
     printf("ERROR: cannot log to screen\n");
   }
-  dump_memory((uint32_t *)ENCRYPTION_SRAM_START, (uint32_t *)ENCRYPTION_SRAM_END, "ENCRYPTION");
+  dump_memory((uint32_t*)ENCRYPTION_SRAM_START, (uint32_t*)ENCRYPTION_SRAM_END, "ENCRYPTION");
   ret = log_to_screen("Dumping encryption SRAM complete!");
   if (ret < 0) {
     printf("ERROR: cannot log to screen\n");
   }
-  
+
   return 0;
 }
