@@ -12,6 +12,8 @@ Specific abilities of this version:
 
 * Does NOT allow logging to screen over IPC
 * Does NOT allow for plaintext over returning results in hex over UART
-* Does NOT allow for encryping user-provided plaintext using an encryption oracle driver
+* Does NOT allow for encrypting user-provided plaintext using an encryption
+  oracle driver
 
-This application is essentially just a scaffold to build from while following the tutorial.
+This version of the application is essentially just a scaffold to build from
+while following the tutorial.
