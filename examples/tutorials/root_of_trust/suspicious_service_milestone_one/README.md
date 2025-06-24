@@ -1,7 +1,7 @@
 Hardware Root of Trust (HWRoT) "Suspicious" Userspace Attack Application
 ------------------------------------------------------------------------
 
-This application implements a basic SRAM dump attack on the encryption servicde
+This application implements a basic SRAM dump attack on the encryption service
 application in the Hardware Root of Trust demo.
 
 This is part of a tutorial which improves the encryption application in multiple

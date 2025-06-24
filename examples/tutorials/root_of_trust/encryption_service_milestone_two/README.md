@@ -12,4 +12,5 @@ Specific abilities of this version:
 
 * Allows logging to screen over IPC
 * Allows prompting for plaintext over returning results in hex over UART
-* Does NOT allow for encryping user-provided plaintext using an encryption oracle driver
+* Does NOT allow for encrypting user-provided plaintext using an encryption
+  oracle driver

@@ -1,3 +1,9 @@
+// Hardware Root of Trust (HWRoT) Demo Encryption Service Application
+//
+// When selected by the main screen HWRoT Demo application, listens for user-provided
+// plaintexts over UART and encrypts them, logging status over IPC back to the screen
+// application.
+
 #include "libtock/tock.h"
 #include <stdio.h>
 #include <stdlib.h>
