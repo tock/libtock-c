@@ -90,9 +90,9 @@ typedef struct unit_test_fun_s {
   char name[24];
 } unit_test_fun;
 
-#define TEST(NAME) { \
-          test_##NAME,     \
-          #NAME            \
+#define TEST(NAME) {   \
+          test_##NAME, \
+          #NAME        \
 }
 
 /** \brief remember the reason a test has failed */
