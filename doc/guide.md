@@ -419,7 +419,7 @@ operation:
 returncode_t libtocksync_sensor_read(int* val) {
   returncode_t err;
 
-  err = libtock_sensor_command_read(sensor_cb);
+  err = libtock_sensor_command_read();
   if (err != RETURNCODE_SUCCESS) return err;
 
   // Wait for the operation to finish.
