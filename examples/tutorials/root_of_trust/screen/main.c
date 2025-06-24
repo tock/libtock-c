@@ -188,7 +188,7 @@ static int select_rot_service(const char* service) {
   // Notify it so the correct encryption app can start.
   ret = ipc_notify_service(app_start_service);
   if (ret != RETURNCODE_SUCCESS) {
-    printf("Encryption oracle service unable to be notified.\n");
+    printf("Selected service unable to be notified.\n");
     return ret;
   }
 
