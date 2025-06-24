@@ -83,7 +83,6 @@ void ble_address_set(void) {
 }
 
 
-
 uint16_t _conn_handle          = BLE_CONN_HANDLE_INVALID;
 uint16_t _char_handle_sensor   = 0;
 uint16_t _char_handle_systemid = 0;

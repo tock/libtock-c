@@ -4,6 +4,7 @@ returncode_t libtock_ieee802154_set_upcall_frame_received(subscribe_upcall callb
   subscribe_return_t sval = subscribe(DRIVER_NUM_IEEE802154, SUBSCRIBE_RX, callback, opaque);
   return tock_subscribe_return_to_returncode(sval);
 }
+
 returncode_t libtock_ieee802154_set_upcall_frame_transmitted(subscribe_upcall callback, void* opaque) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_IEEE802154, SUBSCRIBE_TX, callback, opaque);
   return tock_subscribe_return_to_returncode(sval);
@@ -18,6 +19,7 @@ returncode_t libtock_ieee802154_set_readwrite_allow_rx(uint8_t* buffer, uint32_t
   allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_IEEE802154, ALLOW_RW_RX, buffer, len);
   return tock_allow_rw_return_to_returncode(aval);
 }
+
 returncode_t libtock_ieee802154_set_readwrite_allow_cfg(uint8_t* buffer, uint32_t len) {
   allow_rw_return_t aval = allow_readwrite(DRIVER_NUM_IEEE802154, ALLOW_RW_CFG, buffer, len);
   return tock_allow_rw_return_to_returncode(aval);

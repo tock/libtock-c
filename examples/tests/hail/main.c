@@ -40,6 +40,7 @@ static void reference_crc32(const void* data, size_t n_bytes, uint32_t* crc) {
   for (size_t i = 0; i < n_bytes; ++i)
     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
 }
+
 /////////////////////////////////////////////////////////////////////
 
 

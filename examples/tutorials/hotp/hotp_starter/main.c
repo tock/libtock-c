@@ -208,7 +208,6 @@ static void get_next_code(hotp_key_t* hotp_key) {
 }
 
 
-
 // --- Main Loop ---
 
 // Performs initialization and interactivity.

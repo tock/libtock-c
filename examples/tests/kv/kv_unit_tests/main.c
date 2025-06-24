@@ -372,24 +372,31 @@ static bool subtest_set_get_region(uint32_t start, uint32_t stop) {
 static bool test_set_get_32regions_1(void) {
   return subtest_set_get_region(0, 4);
 }
+
 static bool test_set_get_32regions_2(void) {
   return subtest_set_get_region(4, 8);
 }
+
 static bool test_set_get_32regions_3(void) {
   return subtest_set_get_region(8, 12);
 }
+
 static bool test_set_get_32regions_4(void) {
   return subtest_set_get_region(12, 16);
 }
+
 static bool test_set_get_32regions_5(void) {
   return subtest_set_get_region(16, 20);
 }
+
 static bool test_set_get_32regions_6(void) {
   return subtest_set_get_region(20, 24);
 }
+
 static bool test_set_get_32regions_7(void) {
   return subtest_set_get_region(24, 28);
 }
+
 static bool test_set_get_32regions_8(void) {
   return subtest_set_get_region(28, 32);
 }

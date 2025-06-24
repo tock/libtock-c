@@ -18,6 +18,7 @@ void libtocksync_alarm_delay_ms(int ms) {
   ts.tv_nsec = (long)ms * 1000 * 1000;
   nanosleep(&ts, NULL);
 }
+
 #endif
 
 int main(void) {

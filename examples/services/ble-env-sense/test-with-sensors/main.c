@@ -85,7 +85,6 @@ static void do_sensing_cb(__attribute__ ((unused)) uint32_t now,
 }
 
 
-
 int main(void) {
   int err = ipc_discover("org.tockos.services.ble-ess", &_svc_num);
   if (err < 0) {

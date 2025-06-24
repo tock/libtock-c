@@ -160,7 +160,6 @@ static void button_callback(
 }
 
 
-
 int main(void) {
   returncode_t ret;
 
