@@ -27,10 +27,10 @@ static bool rainfall       = false;
 static void alarm_cb(__attribute__ ((unused)) uint32_t now,
                      __attribute__ ((unused)) uint32_t scheduled,
                      __attribute__ ((unused)) void*    opaque) {
-  int lite = 0;
-  int temp = 0;
-  int humi = 0;
-  int mois = 0;
+  int lite      = 0;
+  int temp      = 0;
+  int humi      = 0;
+  int mois      = 0;
   uint32_t rain = 0;
   int ninedof_accel_x = 0, ninedof_accel_y = 0, ninedof_accel_z = 0;
   int ninedof_magneto_x = 0, ninedof_magneto_y = 0, ninedof_magneto_z = 0;

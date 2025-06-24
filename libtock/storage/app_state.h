@@ -56,13 +56,13 @@ extern "C" {
 // users must explicitly `load` and `save` application state as appropriate.
 // Note that each process may only use APP_STATE_DECLARE once.
 #define LIBTOCK_APP_STATE_DECLARE(_type, _identifier)                 \
-  __attribute__((section(".app_state")))                              \
-  _type _app_state_flash;                                             \
-  _type _identifier;                                                  \
-  void* _app_state_flash_pointer = NULL;                              \
-  void* _app_state_ram_pointer   = &_identifier;                        \
-  size_t _app_state_size         = sizeof(_type);                             \
-  bool _app_state_inited         = false;
+        __attribute__((section(".app_state")))                              \
+        _type _app_state_flash;                                             \
+        _type _identifier;                                                  \
+        void* _app_state_flash_pointer = NULL;                              \
+        void* _app_state_ram_pointer   = &_identifier;                        \
+        size_t _app_state_size         = sizeof(_type);                             \
+        bool _app_state_inited         = false;
 
 
 // Function signature save done callbacks.

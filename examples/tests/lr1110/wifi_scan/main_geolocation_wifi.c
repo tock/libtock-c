@@ -105,27 +105,27 @@
  */
 #define CUSTOM_NB_TRANS_DR5_DR3 1
 #define ADR_CUSTOM_LIST_DR5_DR3                        \
-  {                                                  \
-    5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3 \
-  }   /* 125kHz - SF7, SF8, SF9 */
+        {                                                  \
+          5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3 \
+        } /* 125kHz - SF7, SF8, SF9 */
 
 /*!
  * @brief ADR custom list and retransmission parameters for US915 region
  */
 #define CUSTOM_NB_TRANS_US915 2 // 1 in code, 2 on README
 #define ADR_CUSTOM_LIST_US915                          \
-  {                                                  \
-    5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3 \
-  }   /* 125kHz - SF7, SF8, SF9 */
+        {                                                  \
+          5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3 \
+        } /* 125kHz - SF7, SF8, SF9 */
 
 /*!
  * @brief ADR custom list and retransmission parameters for WW2G4 region
  */
 #define CUSTOM_NB_TRANS_WW2G4 1
 #define ADR_CUSTOM_LIST_WW2G4                          \
-  {                                                  \
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 \
-  }   /* SF12 */
+        {                                                  \
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 \
+        } /* SF12 */
 
 
 /*

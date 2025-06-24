@@ -39,10 +39,10 @@
 const uint32_t tap_driver_num = 0x30007;
 
 #define debug_print(...)   \
-  do {                     \
-    if (DEBUG)             \
-    printf(__VA_ARGS__); \
-  } while (0)
+        do {                     \
+          if (DEBUG)             \
+          printf(__VA_ARGS__); \
+        } while (0)
 
 // Transmission metadata feedback buffer len:
 #if TX_FRAME_INFO_ENABLE
@@ -62,8 +62,8 @@ static uint8_t tx_frame_buffer[ETHERNET_MTU];
 // Ethernet frames (encoded as TAP_DRIVER_FRAME_HEADER_LEN + payload, assumed to
 // be ETHERNET_MTU bytes).
 #define RX_FRAME_BUFFER_LEN \
-  STREAMING_PROCESS_SLICE_HEADER_LEN \
-  + ((ETHERNET_MTU + TAP_DRIVER_FRAME_HEADER_LEN) * (RX_FRAME_BUFFER_FRAMES / 2))
+        STREAMING_PROCESS_SLICE_HEADER_LEN \
+        + ((ETHERNET_MTU + TAP_DRIVER_FRAME_HEADER_LEN) * (RX_FRAME_BUFFER_FRAMES / 2))
 static uint8_t rx_frames_streaming_buffer_a[RX_FRAME_BUFFER_LEN];
 static uint8_t rx_frames_streaming_buffer_b[RX_FRAME_BUFFER_LEN];
 
