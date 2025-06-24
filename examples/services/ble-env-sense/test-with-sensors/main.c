@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <libtock-sync/services/alarm.h>
-#include <libtock/kernel/ipc.h>
-
 #include <libtock-sync/sensors/ambient_light.h>
 #include <libtock-sync/sensors/humidity.h>
 #include <libtock-sync/sensors/temperature.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/kernel/ipc.h>
 
 size_t _svc_num = 0;
 

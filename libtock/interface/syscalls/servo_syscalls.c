@@ -1,5 +1,6 @@
-#include "servo_syscalls.h"
 #include <stdio.h>
+
+#include "servo_syscalls.h"
 
 bool libtock_servo_exists(void) {
   return driver_exists(DRIVER_NUM_SERVO);

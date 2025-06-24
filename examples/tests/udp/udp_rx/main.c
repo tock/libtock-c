@@ -2,11 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <libtock-sync/net/ieee802154.h>
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/led.h>
-#include <libtock/net/udp.h>
-
-#include <libtock-sync/net/ieee802154.h>
 #include <libtock/net/ieee802154.h>
 #include <libtock/net/udp.h>
 

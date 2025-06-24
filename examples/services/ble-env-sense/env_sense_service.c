@@ -1,8 +1,7 @@
-#include <stdint.h>
-#include <string.h>
-
 #include <app_error.h>
 #include <ble.h>
+#include <stdint.h>
+#include <string.h>
 
 #include "env_sense_service.h"
 

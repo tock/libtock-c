@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <libtock-sync/services/alarm.h>
-
 #include <u8g2-tock.h>
 #include <u8g2.h>
+
+#include <libtock-sync/services/alarm.h>
 
 u8g2_t u8g2;
 

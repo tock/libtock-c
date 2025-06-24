@@ -1,7 +1,6 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <math.h>
 #include <string.h>
 
 #include <libtock-sync/services/alarm.h>

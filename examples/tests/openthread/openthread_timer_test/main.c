@@ -1,4 +1,6 @@
 #include <assert.h>
+#include <stdio.h>
+#include <string.h>
 
 #include <libopenthread/platform/openthread-system.h>
 #include <openthread/dataset_ftd.h>
@@ -9,9 +11,6 @@
 #include <openthread/thread.h>
 
 #include <libtock-sync/services/alarm.h>
-
-#include <stdio.h>
-#include <string.h>
 
 ////////////////////////////////////////////////////////////
 // OPENTHREAD TIMER TEST //

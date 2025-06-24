@@ -1,8 +1,9 @@
 #include <stdbool.h>
+#include <stdio.h>
+
+#include <libtock-sync/peripherals/rng.h>
 
 #include "oracle.h"
-#include <libtock-sync/peripherals/rng.h>
-#include <stdio.h>
 
 struct crypt_upcall_ud {
   bool done;

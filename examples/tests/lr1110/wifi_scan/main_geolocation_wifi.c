@@ -49,10 +49,10 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <libtock-sync/services/alarm.h>
-
 #include <lr1110/lr1110.h>
 #include <lr1110/us_915_ttn.h>
+
+#include <libtock-sync/services/alarm.h>
 
 /*
  * -----------------------------------------------------------------------------

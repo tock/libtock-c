@@ -1,9 +1,3 @@
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
 #include <ble_conn_params.h>
 #include <ble_db_discovery.h>
 #include <ble_stack_handler_types.h>
@@ -11,9 +5,13 @@
 #include <nrf.h>
 #include <nrf_error.h>
 #include <nrf_sdm.h>
-#include <softdevice_handler.h>
-
 #include <simple_ble.h>
+#include <softdevice_handler.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>

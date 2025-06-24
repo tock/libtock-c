@@ -2,14 +2,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <u8g2-tock.h>
+#include <u8g2.h>
 
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
 #include <libtock/kernel/ipc.h>
 #include <libtock/services/alarm.h>
-
-#include <u8g2-tock.h>
-#include <u8g2.h>
 
 // Global reference to the u8g2 context.
 u8g2_t u8g2;

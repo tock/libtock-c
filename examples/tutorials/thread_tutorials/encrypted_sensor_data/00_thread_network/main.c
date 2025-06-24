@@ -1,4 +1,6 @@
 #include <assert.h>
+#include <stdio.h>
+#include <string.h>
 
 #include <libopenthread/platform/openthread-system.h>
 #include <libopenthread/platform/plat.h>
@@ -12,11 +14,7 @@
 #include <openthread/udp.h>
 
 #include <libtock/interface/led.h>
-
 #include <libtock/tock.h>
-
-#include <stdio.h>
-#include <string.h>
 
 // helper utility demonstrating network config setup
 static void __attribute__((unused)) setNetworkConfiguration(otInstance* aInstance);

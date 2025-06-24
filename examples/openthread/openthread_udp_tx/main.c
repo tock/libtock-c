@@ -1,4 +1,6 @@
 #include <assert.h>
+#include <stdio.h>
+#include <string.h>
 
 #include <libopenthread/platform/openthread-system.h>
 #include <libopenthread/platform/plat.h>
@@ -12,9 +14,6 @@
 #include <openthread/udp.h>
 
 #include <libtock/tock.h>
-
-#include <stdio.h>
-#include <string.h>
 
 #define UDP_PORT 1212
 

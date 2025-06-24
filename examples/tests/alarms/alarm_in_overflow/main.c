@@ -1,9 +1,9 @@
-#include <libtock/services/alarm.h>
-#include <libtock/tock.h>
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <libtock/services/alarm.h>
+#include <libtock/tock.h>
 
 
 /*

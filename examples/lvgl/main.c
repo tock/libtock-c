@@ -1,9 +1,9 @@
 #include <stdio.h>
 
+#include <lvgl/lvgl.h>
+
 #include <libtock-sync/display/screen.h>
 #include <libtock-sync/services/alarm.h>
-
-#include <lvgl/lvgl.h>
 
 #include "lvgl_driver.h"
 

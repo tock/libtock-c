@@ -1,8 +1,7 @@
-#include <stdio.h>
-#include <string.h>
-
 #include <assert.h>
 #include <ctype.h>
+#include <stdio.h>
+#include <string.h>
 
 #include <libopenthread/platform/openthread-system.h>
 #include <libopenthread/platform/plat.h>

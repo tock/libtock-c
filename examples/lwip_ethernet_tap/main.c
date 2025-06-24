@@ -1,8 +1,8 @@
 /* vim: set sw=2 expandtab tw=80: */
 
-#include <libtock/services/alarm.h>
-#include <libtock/tock.h>
-#include <libtock/util/streaming_process_slice.h>
+#include <stdio.h>
+#include <string.h>
+
 #include <lwip/apps/httpd.h>
 #include <lwip/dhcp.h>
 #include <lwip/err.h>
@@ -11,8 +11,10 @@
 #include <lwip/prot/ethernet.h>
 #include <lwip/sys.h>
 #include <lwip/timeouts.h>
-#include <stdio.h>
-#include <string.h>
+
+#include <libtock/services/alarm.h>
+#include <libtock/tock.h>
+#include <libtock/util/streaming_process_slice.h>
 
 // ########## Settings
 

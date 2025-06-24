@@ -11,6 +11,7 @@
  */
 
 #include "ble_nus.h"
+
 #include "ble_srv_common.h"
 #include "sdk_common.h"
 

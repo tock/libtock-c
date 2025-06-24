@@ -1,6 +1,7 @@
-#include "alarm.h"
 #include <assert.h>
 #include <stdlib.h>
+
+#include "alarm.h"
 
 #define MAX_TICKS UINT32_MAX
 

@@ -6,11 +6,10 @@
 #include <libtock/interface/led.h>
 
 // These have to be included before mui.h
-#include <u8g2-tock.h>
-#include <u8g2.h>
-
 #include <mui.h>
 #include <mui_u8g2.h>
+#include <u8g2-tock.h>
+#include <u8g2.h>
 
 u8g2_t u8g2;
 mui_t ui;

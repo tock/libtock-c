@@ -1,13 +1,12 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include <libtock-sync/net/ieee802154.h>
+#include <libtock-sync/net/udp.h>
 #include <libtock-sync/sensors/ambient_light.h>
 #include <libtock-sync/sensors/humidity.h>
 #include <libtock-sync/sensors/temperature.h>
 #include <libtock-sync/services/alarm.h>
-
-#include <libtock-sync/net/ieee802154.h>
-#include <libtock-sync/net/udp.h>
 
 static unsigned char BUF_BIND_CFG[2 * sizeof(sock_addr_t)];
 

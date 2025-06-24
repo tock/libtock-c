@@ -1,9 +1,8 @@
+#include <stdio.h>
+
 #include <libtock-sync/services/alarm.h>
 
 #include "ieee802154.h"
-
-
-#include <stdio.h>
 struct ieee802154_receive_data {
   bool fired;
   int pan;

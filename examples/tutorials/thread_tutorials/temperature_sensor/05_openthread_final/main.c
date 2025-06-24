@@ -1,7 +1,6 @@
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
-
-#include <assert.h>
 
 #include <libopenthread/platform/openthread-system.h>
 #include <libopenthread/platform/plat.h>
