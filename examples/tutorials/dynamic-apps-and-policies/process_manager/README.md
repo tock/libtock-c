@@ -1,5 +1,5 @@
 Process Manager App
 ===================
 
-This app is GUI-based to allow developers to explore the applications installed
+This is a GUI-based application to allow developers to explore the applications installed
 and running on a board.
