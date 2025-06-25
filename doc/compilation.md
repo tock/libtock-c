@@ -122,6 +122,10 @@ a prerequisite of building the app.
 The `Makefile.setup` file should have rules to download the source for the
 library.
 
+If a library includes a `Makefile.version` with a `<LIBRARY_NAME>_SENTINEL_FILE`
+variable set, that file will be used to determine if the library needs to be
+rebuilt.
+
 **Example:** the `u8g2` library uses this.
 
 ### Pre-built libraries
