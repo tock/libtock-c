@@ -1,5 +1,5 @@
-# Git hash of the library to use. Must match the hash in Makefile.
-U8G2_VERSION_HASH := c4f9cd9f8717661c46be16bfbcb0017d785db3c1
+# Git hash of the library to use. Must match the hash in Makefile.version.
+U8G2_VERSION_HASH := bde09fbf787892c79a184e88b124aa5c79393aed
 
 # Base folder definitions
 U8G2_LIB_DIR := $(TOCK_USERLAND_BASE_DIR)/u8g2
