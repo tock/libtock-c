@@ -1,6 +1,6 @@
-U8G2 Menu Example
+AppLoader Helper
 =================
 
-This creates a simple example menu with two pages. One is a dummy selector that
-scrolls through a list of fruit. The other supports turning on and off four
-LEDs.
+This is a helper application that works in tandem with
+the `process_manager` application and enables users to 
+load new apps during runtime.
