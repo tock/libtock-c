@@ -12,10 +12,10 @@
 
 #pragma once
 
+#include <sys/time.h>
+
 #include "../peripherals/syscalls/alarm_syscalls.h"
 #include "../tock.h"
-
-#include <sys/time.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,5 +1,6 @@
-#include "streaming_process_slice.h"
 #include <string.h>
+
+#include "streaming_process_slice.h"
 
 static void streaming_process_slice_prepare_header(uint8_t* buf) {
   buf[0] = 0;  // version[H]

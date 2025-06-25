@@ -20,6 +20,7 @@ static uint32_t read_cpsr(void) {
     );
   return ret;
 }
+
 #endif
 
 

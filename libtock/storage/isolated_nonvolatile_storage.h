@@ -28,9 +28,10 @@ returncode_t libtock_isolated_nonvolatile_storage_get_number_bytes(
   libtock_isolated_nonvolatile_storage_callback_get_number_bytes cb);
 
 // Write bytes from `buffer` to the storage starting at `offset`.
-returncode_t libtock_isolated_nonvolatile_storage_write(uint64_t                                            offset,
-                                                        uint8_t*                                            buffer,
-                                                        size_t                                              buffer_length,
+returncode_t libtock_isolated_nonvolatile_storage_write(uint64_t offset,
+                                                        uint8_t* buffer,
+                                                        size_t
+                                                        buffer_length,
                                                         libtock_isolated_nonvolatile_storage_callback_write cb);
 
 // Read bytes into `buffer` from the storage starting at `offset`.

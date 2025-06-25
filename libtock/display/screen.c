@@ -59,7 +59,6 @@ int libtock_screen_get_bits_per_pixel(libtock_screen_format_t format) {
 }
 
 
-
 returncode_t libtock_screen_get_supported_resolutions(uint32_t* resolutions) {
   return libtock_screen_command_get_supported_resolutions(resolutions);
 }
@@ -119,7 +118,6 @@ returncode_t libtock_screen_invert_off(libtock_screen_callback_done cb) {
 }
 
 
-
 returncode_t libtock_screen_get_resolution(uint32_t* width, uint32_t* height) {
   return libtock_screen_command_get_resolution(width, height);
 }
@@ -133,7 +131,6 @@ returncode_t libtock_screen_set_resolution(uint32_t width, uint32_t height, libt
   ret = libtock_screen_command_set_resolution(width, height);
   return ret;
 }
-
 
 
 returncode_t libtock_screen_get_pixel_format(libtock_screen_callback_format cb) {
@@ -176,7 +173,6 @@ returncode_t libtock_screen_set_rotation(libtock_screen_rotation_t rotation, lib
   ret = libtock_screen_command_set_rotation((uint32_t) rotation);
   return ret;
 }
-
 
 
 returncode_t libtock_screen_set_frame(uint16_t x, uint16_t y, uint16_t width, uint16_t height,

@@ -1,12 +1,10 @@
-#include <stdbool.h>
-#include <stdio.h>
-
 #include <ble_advdata.h>
 #include <nordic_common.h>
 #include <nrf_error.h>
-
 #include <simple_adv.h>
 #include <simple_ble.h>
+#include <stdbool.h>
+#include <stdio.h>
 
 #include <libtock-sync/peripherals/adc.h>
 #include <libtock-sync/peripherals/crc.h>
@@ -40,6 +38,7 @@ static void reference_crc32(const void* data, size_t n_bytes, uint32_t* crc) {
   for (size_t i = 0; i < n_bytes; ++i)
     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
 }
+
 /////////////////////////////////////////////////////////////////////
 
 

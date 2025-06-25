@@ -56,7 +56,6 @@ returncode_t libtock_gpio_async_make_input(uint32_t port, uint8_t pin, libtock_g
 
   ret = libtock_gpio_async_command_make_input(port, pin, (uint32_t) pin_config);
   return ret;
-
 }
 
 returncode_t libtock_gpio_async_read(uint32_t port, uint8_t pin, libtock_gpio_async_callback_command cb) {
