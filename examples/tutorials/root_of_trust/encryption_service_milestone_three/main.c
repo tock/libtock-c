@@ -4,13 +4,13 @@
 // plaintexts over UART and encrypts them, logging status over IPC back to the screen
 // application.
 
-#include "libtock/tock.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <libtock-sync/interface/console.h>
 #include <libtock/kernel/ipc.h>
+#include <libtock/tock.h>
 
 #include "oracle.h"
 

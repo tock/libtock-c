@@ -3,12 +3,12 @@
 // When selected by the main screen HWRoT Demo application, attempts to dump its
 // own SRAM, followed by the SRAM of the encryption service application.
 
-#include "libtock/tock.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <libtock/kernel/ipc.h>
+#include <libtock/tock.h>
 
 #define ENCRYPTION_SRAM_START  0x2000A000
 #define ENCRYPTION_SRAM_END    0x2000BFFF
