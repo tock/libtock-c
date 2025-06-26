@@ -64,6 +64,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
     libtocksync_alarm_delay_ms(100);
   }
 
+  // initUDP
+  initUdp(instance);
+
   // Print IPv6 address.
   print_ip_addr(instance);
 

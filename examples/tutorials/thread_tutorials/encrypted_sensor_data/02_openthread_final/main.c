@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include <assert.h>
+#include <ctype.h>
 
 #include <libopenthread/platform/openthread-system.h>
 #include <libopenthread/platform/plat.h>
@@ -61,6 +62,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
 
   // Print IPv6 address.
   print_ip_addr(instance);
+
+  // Initialize UDP interface.
+  initUdp(instance);
 
   // Start Thread network.
   while (otThreadSetEnabled(instance, true) != OT_ERROR_NONE) {
@@ -182,7 +186,13 @@ void handleUdpRecv(void* aContext, otMessage* aMessage,
   buf[length] = '\n';
 
   for (int i = 0; i < length; i++) {
-    printf("%c", buf[i]);
+    if (isprint((unsigned char)buf[i])) {
+      printf("%c", buf[i]);
+    } else {
+      // In case the received char is not
+      // printable, print '-'
+      printf("-");
+    }
   }
 
   printf("\n");
