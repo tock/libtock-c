@@ -3,11 +3,12 @@
 // When selected by the main screen HWRoT Demo application, attempts to dump its
 // own SRAM, followed by the SRAM of the encryption service application.
 
-#include "libtock/tock.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <libtock/kernel/ipc.h>
+#include <libtock/tock.h>
 
 #define ENCRYPTION_SRAM_START  0x2000A000
 #define ENCRYPTION_SRAM_END    0x2000BFFF
@@ -64,12 +65,8 @@ static int setup_logging() {
 static int log_to_screen(const char* message) {
   returncode_t ret;
 
-  // Copy up to the log buffer's size of the message, with room for a null byte.
-  uint16_t len = strnlen(message, sizeof(log_buf) - 1);
-  memcpy(log_buf, message, len);
-
-  // Add the null byte.
-  log_buf[len] = '\0';
+  // Load the log buffer with our message
+  strlcpy(log_buf, message, LOG_WIDTH);
 
   // Start the logging process.
   ret = ipc_notify_service(screen_service);

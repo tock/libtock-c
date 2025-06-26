@@ -99,7 +99,7 @@ int main(void) {
   }
 
   // Bring everything down!
-  syscall_return_t cr = command(0x99998, 1, 0, 0);
+  syscall_return_t cr = command(0x99999, 2, 0, 0);
   if (cr.type != TOCK_SYSCALL_SUCCESS) {
     return tock_command_return_novalue_to_returncode(cr);
   }
