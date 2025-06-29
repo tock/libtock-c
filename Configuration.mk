@@ -211,6 +211,12 @@ override CPPFLAGS_PIC += \
       -Wl,--emit-relocs\
       -fPIC
 
+ifneq ($(PICOLIB),)
+  # Use picolib for libc. We need to include the `picolib-tock` library which
+  # maps Tock's system-level functions to the names that picolib expects.
+  EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/picolib-tock
+endif
+
 ################################################################################
 ##
 ## RISC-V compiler/linker flags
@@ -274,10 +280,19 @@ else ifeq ($(CC_rv32_version_major),14)
 else
   NEWLIB_VERSION_rv32 := 4.4.0.20231231
 endif
-NEWLIB_VERSION_rv32i    := $(NEWLIB_VERSION_rv32)
-NEWLIB_VERSION_rv32imc  := $(NEWLIB_VERSION_rv32)
-NEWLIB_VERSION_rv32imac := $(NEWLIB_VERSION_rv32)
-NEWLIB_BASE_DIR_rv32 := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-$(NEWLIB_VERSION_rv32)
+
+ifeq ($(PICOLIB),)
+  # Use newlib
+  TOCK_LIBC_FOLDER_rv32 := libtock-newlib-$(NEWLIB_VERSION_rv32)
+else
+  # Use picolib
+  TOCK_LIBC_FOLDER_rv32 := libtock-picolib-1.8.5
+endif
+
+TOCK_LIBC_FOLDER_rv32i    := $(TOCK_LIBC_FOLDER_rv32)
+TOCK_LIBC_FOLDER_rv32imc  := $(TOCK_LIBC_FOLDER_rv32)
+TOCK_LIBC_FOLDER_rv32imac := $(TOCK_LIBC_FOLDER_rv32)
+TOCK_LIBC_BASE_DIR_rv32   := $(TOCK_USERLAND_BASE_DIR)/lib/$(TOCK_LIBC_FOLDER_rv32)
 
 # Match compiler version to supported libtock-libc++ versions.
 ifeq ($(CC_rv32_version_major),10)
@@ -319,7 +334,7 @@ override CFLAGS_rv32imac += $(CFLAGS_rv32)
 # Set the base `CPPFLAGS` for all RISC-V variants based on the toolchain family.
 override CPPFLAGS_rv32 += \
       $(CPPFLAGS_toolchain_rv32) \
-      -isystem $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/include \
+      -isystem $(TOCK_LIBC_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/include \
       -isystem $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/include/c++/$(LIBCPP_VERSION_rv32) \
       -isystem $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/include/c++/$(LIBCPP_VERSION_rv32)/riscv64-unknown-elf
 
@@ -350,8 +365,8 @@ override WLFLAGS_rv32imc  += $(WLFLAGS_rv32)
 override WLFLAGS_rv32imac += $(WLFLAGS_rv32)
 
 override SYSTEM_LIBS_rv32i    += \
-      $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libc.a \
-      $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libm.a
+      $(TOCK_LIBC_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libc.a \
+      $(TOCK_LIBC_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libm.a
 
 override SYSTEM_LIBS_CXX_rv32i += \
       $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32i/ilp32/libstdc++.a \
@@ -359,8 +374,8 @@ override SYSTEM_LIBS_CXX_rv32i += \
       $(LIBCPP_BASE_DIR_rv32)/riscv/lib/gcc/riscv64-unknown-elf/$(LIBCPP_VERSION_rv32)/rv32i/ilp32/libgcc.a
 
 override SYSTEM_LIBS_rv32imc  += \
-      $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libc.a \
-      $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libm.a
+      $(TOCK_LIBC_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libc.a \
+      $(TOCK_LIBC_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libm.a
 
 override SYSTEM_LIBS_CXX_rv32imc += \
       $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32im/ilp32/libstdc++.a \
@@ -368,8 +383,8 @@ override SYSTEM_LIBS_CXX_rv32imc += \
       $(LIBCPP_BASE_DIR_rv32)/riscv/lib/gcc/riscv64-unknown-elf/$(LIBCPP_VERSION_rv32)/rv32im/ilp32/libgcc.a
 
 override SYSTEM_LIBS_rv32imac += \
-      $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libc.a \
-      $(NEWLIB_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libm.a
+      $(TOCK_LIBC_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libc.a \
+      $(TOCK_LIBC_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libm.a
 
 override SYSTEM_LIBS_CXX_rv32imac += \
       $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libstdc++.a \
@@ -420,11 +435,20 @@ else ifeq ($(CC_cortex-m_version_major),14)
 else
   NEWLIB_VERSION_cortex-m := 4.4.0.20231231
 endif
-NEWLIB_VERSION_cortex-m0 := $(NEWLIB_VERSION_cortex-m)
-NEWLIB_VERSION_cortex-m3 := $(NEWLIB_VERSION_cortex-m)
-NEWLIB_VERSION_cortex-m4 := $(NEWLIB_VERSION_cortex-m)
-NEWLIB_VERSION_cortex-m7 := $(NEWLIB_VERSION_cortex-m)
-NEWLIB_BASE_DIR_cortex-m := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-$(NEWLIB_VERSION_cortex-m)
+
+ifeq ($(PICOLIB),)
+  # Use newlib
+  TOCK_LIBC_FOLDER_cortex-m := libtock-newlib-$(NEWLIB_VERSION_cortex-m)
+else
+  # Use picolib
+  TOCK_LIBC_FOLDER_cortex-m := libtock-picolib-1.8.5
+endif
+
+TOCK_LIBC_FOLDER_cortex-m0  := $(TOCK_LIBC_FOLDER_cortex-m)
+TOCK_LIBC_FOLDER_cortex-m3  := $(TOCK_LIBC_FOLDER_cortex-m)
+TOCK_LIBC_FOLDER_cortex-m4  := $(TOCK_LIBC_FOLDER_cortex-m)
+TOCK_LIBC_FOLDER_cortex-m7  := $(TOCK_LIBC_FOLDER_cortex-m)
+TOCK_LIBC_BASE_DIR_cortex-m := $(TOCK_USERLAND_BASE_DIR)/lib/$(TOCK_LIBC_FOLDER_cortex-m)
 
 # Match compiler version to supported libtock-libc++ versions.
 ifeq ($(CC_cortex-m_version_major),10)
@@ -467,7 +491,7 @@ override CPPFLAGS_cortex-m += \
       -msingle-pic-base\
       -mpic-register=r9\
       -mno-pic-data-is-text-relative\
-      -isystem $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/include\
+      -isystem $(TOCK_LIBC_BASE_DIR_cortex-m)/arm/arm-none-eabi/include\
       -isystem $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/include/c++/$(LIBCPP_VERSION_cortex-m)\
       -isystem $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/include/c++/$(LIBCPP_VERSION_cortex-m)/arm-none-eabi
 
@@ -486,8 +510,8 @@ override CPPFLAGS_cortex-m7 += $(CPPFLAGS_cortex-m) \
       -mcpu=cortex-m7
 
 override SYSTEM_LIBS_cortex-m0 += \
-      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libc.a \
-      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libm.a
+      $(TOCK_LIBC_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libc.a \
+      $(TOCK_LIBC_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libm.a
 
 override SYSTEM_LIBS_CXX_cortex-m0 += \
       $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v6-m/nofp/libstdc++.a \
@@ -495,8 +519,8 @@ override SYSTEM_LIBS_CXX_cortex-m0 += \
       $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v6-m/nofp/libgcc.a
 
 override SYSTEM_LIBS_cortex-m3 += \
-      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libc.a \
-      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libm.a
+      $(TOCK_LIBC_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libc.a \
+      $(TOCK_LIBC_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libm.a
 
 override SYSTEM_LIBS_CXX_cortex-m3 += \
       $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7-m/nofp/libstdc++.a \
@@ -504,8 +528,8 @@ override SYSTEM_LIBS_CXX_cortex-m3 += \
       $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v7-m/nofp/libgcc.a
 
 override SYSTEM_LIBS_cortex-m4 += \
-      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libc.a \
-      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libm.a
+      $(TOCK_LIBC_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libc.a \
+      $(TOCK_LIBC_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libm.a
 
 override SYSTEM_LIBS_CXX_cortex-m4 += \
       $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libstdc++.a \
@@ -513,8 +537,8 @@ override SYSTEM_LIBS_CXX_cortex-m4 += \
       $(LIBCPP_BASE_DIR_cortex-m)/arm/lib/gcc/arm-none-eabi/$(LIBCPP_VERSION_cortex-m)/thumb/v7e-m/nofp/libgcc.a
 
 override SYSTEM_LIBS_cortex-m7 += \
-      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libc.a \
-      $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libm.a
+      $(TOCK_LIBC_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libc.a \
+      $(TOCK_LIBC_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libm.a
 
 override SYSTEM_LIBS_CXX_cortex-m7 += \
       $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/lib/thumb/v7e-m/nofp/libstdc++.a \

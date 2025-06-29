@@ -1,7 +1,5 @@
 #include "interface/console.h"
 
-#include "tock_sys.h"
-
 // XXX Suppress missing prototype warnings for this file as the headers should
 // be in newlib internals, but first stab at including things didn't quite work
 // and the warnings are just noise
@@ -13,6 +11,8 @@
 // SYNCHRONOUS LIBC SUPPORT STUBS
 // ------------------------------
 
-int _write(int fd, const void* buf, uint32_t count) {
-  return _tock_write(fd, buf, count);
+int _tock_write(__attribute__ ((unused)) int fd, const void* buf, uint32_t count) {
+  int written;
+  libtocksync_console_write((const uint8_t*) buf, count, &written);
+  return written;
 }
