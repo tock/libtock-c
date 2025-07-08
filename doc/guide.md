@@ -236,7 +236,7 @@ they should have the last argument be a callback function pointer.
 returncode_t libtock_[name]_[desc](<arguments>, libtock_[name]_callback_[desc] cb);
 ```
 
-### Example
+### Example:
 
 
 For example, a library called "sensor" with a sensor read operation should look
@@ -294,7 +294,7 @@ application upcall will run until the synchronous API has finished.
 | Source File Name | `libtock-sync/[category]/syscalls/[name]_syscalls.c` |
 | Header File Name | `libtock-sync/[category]/syscalls/[name]_syscalls.h` |
 
-### Header File
+### Synchronous Syscall Header File
 
 The `[name]_syscalls.h` must be wrapped in `extern "C" { ... }` if the header
 file is used in a C++ app.
@@ -354,7 +354,7 @@ returncode_t libtocksync_[name]_yield_wait_for(int* value) {
 }
 ```
 
-### Synchronous APIs
+### Synchronous Operations
 
 The asynchronous operations should have matching synchronous versions using
 Yield-WaitFor internally.
@@ -365,7 +365,7 @@ Yield-WaitFor internally.
 | Source File Name | `libtock-sync/[category]/[name].c` |
 | Header File Name | `libtock-sync/[category]/[name].h` |
 
-### Header Files
+### Synchronous Operation Header Files
 
 The libtock-sync `[name].h` header file must look like:
 
@@ -386,7 +386,7 @@ extern "C" {
 #endif
 ```
 
-### Synchronous APIs
+### Example:
 
 For our sensor example:
 
