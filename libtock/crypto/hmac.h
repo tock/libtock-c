@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../tock.h"
+#include "hmac_types.h"
 #include "syscalls/hmac_syscalls.h"
 
 #ifdef __cplusplus
@@ -11,13 +12,6 @@ extern "C" {
 //
 // - `arg1` (`returncode_t`): Status from computing the HMAC.
 typedef void (*libtock_hmac_callback_hmac)(returncode_t);
-
-typedef enum {
-  LIBTOCK_HMAC_SHA256 = 0,
-  LIBTOCK_HMAC_SHA384 = 1,
-  LIBTOCK_HMAC_SHA512 = 2,
-} libtock_hmac_algorithm_t;
-
 
 
 // Compute an HMAC using `keyb_buffer` over `input_buffer` and store the result
