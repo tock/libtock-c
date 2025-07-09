@@ -57,14 +57,29 @@ $(call check_no_spaces, PACKAGE_NAME)
 # Arguments:
 # - $(1): Pattern matching all arch-specific library files.
 # - $(2): The path to the library.
+# - $(3): The uppercase name of the library.
 define EXTERN_LIB_BUILD_RULE
 
 ifneq "$$(wildcard $(2)/Makefile.setup)" ""
 # Since a Makefile.setup exists, do any setup steps needed to fetch the library.
+
+ifneq "$$(wildcard $(2)/Makefile.version)" ""
+# Since a Makefile.version exists, use it to set the necessary dependency.
+include $(2)/Makefile.version
+
+$$($(3)_SENTINEL_FILE):
+	$$(MAKE) -C $(2) -f Makefile.setup all
+	$$(MAKE) -C $(2) -f Makefile all
+
+$(1): $$($(3)_SENTINEL_FILE) ;
+else
+# No Makefile.version, so this will work the first time the library is built.
 $(1):
 	$$(MAKE) -C $(2) -f Makefile.setup all
 	$$(MAKE) -C $(2) -f Makefile all
+endif
 else
+# No setup needed, just build the library the first time.
 $(1):
 	$$(MAKE) -C $(2) -f Makefile all
 endif
@@ -90,8 +105,8 @@ $$(notdir $(1))_BUILDDIR ?= $(1)/build
 $$(foreach arch, $$(TOCK_ARCHS), $$(eval LIBS_$$(arch) += $$($(notdir $(1))_BUILDDIR)/$$(arch)/$(notdir $(1)).a))
 
 # Generate rule for building the library.
-# $$(info $$(call EXTERN_LIB_BUILD_RULE,$$(foreach arch,$$(TOCK_ARCHS),%/$$(arch)/$(notdir $(1)).a),$(1)))
-$$(eval $$(call EXTERN_LIB_BUILD_RULE,$$(foreach arch,$$(TOCK_ARCHS),%/$$(arch)/$(notdir $(1)).a),$(1)))
+# $$(info $$(call EXTERN_LIB_BUILD_RULE,$$(foreach arch,$$(TOCK_ARCHS),%/$$(arch)/$(notdir $(1)).a),$(1),$(shell echo '$(notdir $(1))' | tr '[:lower:]' '[:upper:]')))
+$$(eval $$(call EXTERN_LIB_BUILD_RULE,$$(foreach arch,$$(TOCK_ARCHS),%/$$(arch)/$(notdir $(1)).a),$(1),$(shell echo '$(notdir $(1))' | tr '[:lower:]' '[:upper:]')))
 
 endef
 

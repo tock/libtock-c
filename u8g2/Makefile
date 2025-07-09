@@ -1,11 +1,10 @@
-# Git hash of the library to use
-VERSION_HASH := c4f9cd9f8717661c46be16bfbcb0017d785db3c1
+include Makefile.version
 
 # Base folder definitions
 TOCK_USERLAND_BASE_DIR ?= ..
 LIBNAME := u8g2
 $(LIBNAME)_DIR := $(TOCK_USERLAND_BASE_DIR)/$(LIBNAME)
-LIB_SRC_DIR := $($(LIBNAME)_DIR)/u8g2-$(VERSION_HASH)
+LIB_SRC_DIR := $($(LIBNAME)_DIR)/u8g2-$(U8G2_VERSION_HASH)
 
 # List all C and Assembly files
 $(LIBNAME)_SRCS_ALL  += $(wildcard $(LIB_SRC_DIR)/csrc/u8g2*.c)
