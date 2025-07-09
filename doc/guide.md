@@ -286,6 +286,10 @@ All synchronous APIs MUST use the
 behavior for `libtock-sync` users because Yield-WaitFor ensures that no other
 application upcall will run until the synchronous API has finished.
 
+As of July 2025 we are in the process of converting `libtock-sync` from using
+`yield()` to `yield_wait_for()`. See the
+[tracking issue](https://github.com/tock/libtock-c/issues/530) for progress.
+
 ### Synchronous Syscall APIs
 
 | Characteristic   | Value                                                |
