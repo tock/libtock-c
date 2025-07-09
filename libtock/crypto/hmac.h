@@ -27,7 +27,7 @@ typedef enum {
 returncode_t libtock_hmac_simple(libtock_hmac_algorithm_t hmac_type,
                                  uint8_t* key_buffer, uint32_t key_length,
                                  uint8_t* input_buffer, uint32_t input_length,
-                                 uint8_t* hash_buffer, uint32_t hash_length,
+                                 uint8_t* hmac_buffer, uint32_t hmac_length,
                                  libtock_hmac_callback_hmac cb);
 
 #ifdef __cplusplus
