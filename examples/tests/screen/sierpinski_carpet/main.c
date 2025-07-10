@@ -42,7 +42,7 @@ int main(void) {
 
   uint32_t width, height;
 
-  err = libtock_screen_get_resolution(&width, &height);
+  err = libtocksync_screen_get_resolution(&width, &height);
   if (err != RETURNCODE_SUCCESS) return -1;
 
   // Make width smaller of width and height.
