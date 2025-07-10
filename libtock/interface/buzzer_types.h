@@ -1,9 +1,5 @@
 #pragma once
 
-#include "../tock.h"
-#include "syscalls/buzzer_syscalls.h"
-#include "buzzer_types.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -97,14 +93,6 @@ extern "C" {
 #define NOTE_CS8 4435
 #define NOTE_D8  4699
 #define NOTE_DS8 4978
-
-// Function signature for buzzer done callbacks.
-typedef void (*libtock_buzzer_done_callback)(void);
-
-// Play a tone and call a callback when the tone finishes.
-//
-// The tone will play at the frequency specified for the duration.
-returncode_t libtock_buzzer_tone(uint32_t frequency_hz, uint32_t duration_ms, libtock_buzzer_done_callback cb);
 
 #ifdef __cplusplus
 }

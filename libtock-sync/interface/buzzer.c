@@ -1,24 +1,12 @@
 #include "buzzer.h"
 
-struct data {
-  bool fired;
-};
-
-static struct data result = { .fired = false };
-
-
-static void buzzer_cb(void) {
-  result.fired = true;
-}
-
 returncode_t libtocksync_buzzer_tone(uint32_t frequency_hz, uint32_t duration_ms) {
-  int err;
-  result.fired = false;
+  returncode_t ret;
 
-  err = libtock_buzzer_tone(frequency_hz,  duration_ms, buzzer_cb);
-  if (err != RETURNCODE_SUCCESS) return err;
+  ret = libtock_buzzer_command_tone(frequency_hz,  duration_ms);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Wait for the callback meaning the tone is finished.
-  yield_for(&result.fired);
+  libtocksync_buzzer_yield_wait_for();
   return RETURNCODE_SUCCESS;
 }
