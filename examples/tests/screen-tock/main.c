@@ -12,7 +12,7 @@ int main(void) {
   printf("[SCREEN-TOCK] Test Screen Display\n");
 
   uint32_t width, height;
-  libtock_screen_get_resolution(&width, &height);
+  libtocksync_screen_get_resolution(&width, &height);
 
   libtocksync_screen_set_brightness(32000);
 

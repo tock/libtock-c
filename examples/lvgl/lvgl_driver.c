@@ -58,12 +58,12 @@ static uint32_t tick_cb(void) {
 
 int lvgl_driver_init(int buffer_lines) {
   uint32_t width, height;
-  int error = libtock_screen_get_resolution(&width, &height);
+  int error = libtocksync_screen_get_resolution(&width, &height);
   if (error != RETURNCODE_SUCCESS) return error;
 
   uint32_t buffer_size = width * buffer_lines * PIXEL_SIZE;
   uint8_t* buffer      = NULL;
-  error = libtock_screen_buffer_init(buffer_size, &buffer);
+  error = libtocksync_screen_buffer_init(buffer_size, &buffer);
   if (error != RETURNCODE_SUCCESS) return error;
 
   /* initialize littlevgl */
