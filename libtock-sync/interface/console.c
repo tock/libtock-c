@@ -1,51 +1,41 @@
+#include <libtock/defer.h>
 #include <libtock/interface/syscalls/console_syscalls.h>
 
 #include "console.h"
 
-struct console_result {
-  bool fired;
-  int length;
-  returncode_t result;
-};
-
-static struct console_result result = { .fired = false };
-
-static void generic_cb(returncode_t ret, uint32_t length) {
-  result.length = length;
-  result.fired  = true;
-  result.result = ret;
-}
+#include "syscalls/console_syscalls.h"
 
 bool libtocksync_console_exists(void) {
   return libtock_console_driver_exists();
 }
 
-returncode_t libtocksync_console_write(const uint8_t* buffer, uint32_t length, int* written) {
-  int err;
-  result.fired = false;
+returncode_t libtocksync_console_write(const uint8_t* buffer, uint32_t length, uint32_t* written) {
+  returncode_t ret;
 
-  err = libtock_console_write(buffer, length, &generic_cb);
-  if (err != RETURNCODE_SUCCESS) return err;
+  ret = libtock_console_set_read_allow(buffer, length);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+  defer { libtock_console_set_read_allow(NULL, 0);
+  };
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  if (result.result != RETURNCODE_SUCCESS) return result.result;
+  ret = libtock_console_command_write(length);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  *written = result.length;
-  return RETURNCODE_SUCCESS;
+  ret = libtocksync_console_yield_wait_for_write(written);
+  return ret;
 }
 
-returncode_t libtocksync_console_read(uint8_t* buffer, uint32_t length, int* read) {
-  int err;
-  result.fired = false;
 
-  err = libtock_console_read(buffer, length, &generic_cb);
-  if (err != RETURNCODE_SUCCESS) return err;
+returncode_t libtocksync_console_read(uint8_t* buffer, uint32_t length, uint32_t* read) {
+  returncode_t ret;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  if (result.result != RETURNCODE_SUCCESS) return result.result;
+  ret = libtock_console_set_readwrite_allow(buffer, length);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+  defer { libtock_console_set_readwrite_allow(NULL, 0);
+  };
 
-  *read = result.length;
-  return RETURNCODE_SUCCESS;
+  ret = libtock_console_command_read(length);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  ret = libtocksync_console_yield_wait_for_write(read);
+  return ret;
 }

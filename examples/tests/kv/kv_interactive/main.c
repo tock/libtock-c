@@ -17,7 +17,7 @@ char read_buf[DATA_LEN];
 
 static int getch(void) {
   uint8_t buffer[1];
-  int number_read;
+  uint32_t number_read;
   libtocksync_console_read(buffer, 1, &number_read);
   return buffer[0];
 }

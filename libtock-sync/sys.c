@@ -12,7 +12,7 @@
 // ------------------------------
 
 int _write(__attribute__ ((unused)) int fd, const void* buf, uint32_t count) {
-  int written;
+  uint32_t written;
   libtocksync_console_write((const uint8_t*) buf, count, &written);
-  return written;
+  return (int) written;
 }
