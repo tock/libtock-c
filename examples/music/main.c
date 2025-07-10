@@ -33,7 +33,7 @@ int melody[] = {
 #define TEMPO 114
 
 int main(void) {
-  if (!libtock_buzzer_exists()) {
+  if (!libtocksync_buzzer_exists()) {
     printf("There is no available buzzer\n");
     return -1;
   }
