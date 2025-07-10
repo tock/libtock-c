@@ -13,7 +13,7 @@ int main(void) {
   returncode_t ret;
   printf("[TEST] SHA\r\n");
 
-  if (!libtock_sha_exists()) {
+  if (!libtocksync_sha_exists()) {
     printf("No SHA driver.\n");
     return -2;
   }
