@@ -1,7 +1,8 @@
 #pragma once
 
-#include <libtock/interface/button.h>
 #include <libtock/tock.h>
+
+#include "syscalls/button_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
