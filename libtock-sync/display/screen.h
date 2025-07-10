@@ -1,7 +1,9 @@
 #pragma once
 
-#include <libtock/display/screen.h>
+#include <libtock/display/screen_types.h>
 #include <libtock/tock.h>
+
+#include "syscalls/screen_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,6 +20,9 @@ returncode_t libtocksync_screen_invert_off(void);
 
 // Get the current pixel format used by the screen.
 returncode_t libtocksync_screen_get_pixel_format(libtock_screen_format_t* format);
+
+// Get the current screen resolution.
+returncode_t libtocksync_screen_get_resolution(uint32_t* width, uint32_t* height);
 
 // Get the current screen rotation.
 returncode_t libtocksync_screen_get_rotation(libtock_screen_rotation_t* rotation);
