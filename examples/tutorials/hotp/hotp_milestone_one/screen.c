@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <u8g2-tock.h>
 #include <u8g2.h>
 
 #include "screen.h"
+
 #include "step0.h"
 
 u8g2_t u8g2;
@@ -59,5 +59,4 @@ int display_hotp_keys(hotp_key_t* hotp_key, int num_keys) {
   u8g2_SendBuffer(&u8g2);
 
   return 0;
-
 }

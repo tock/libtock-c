@@ -1,9 +1,8 @@
 // Micro:bit v2 testing application.
 // This app is modeled after the Hail test app by bradjc.
 
-#include <stdio.h>
-
 #include <gap.h>
+#include <stdio.h>
 
 #include <libtock-sync/peripherals/adc.h>
 #include <libtock-sync/peripherals/crc.h>
@@ -80,8 +79,8 @@ static void sample_sensors(void) {
   int temp = 0;
   check_err(libtocksync_temperature_read(&temp), "temperature_read_sync");
   double accel_mag;
-  check_err(libtocksync_ninedof_read_accelerometer_magnitude(
-              &accel_mag), "libtocksync_ninedof_read_accelerometer_magnitude");
+  check_err(libtocksync_ninedof_read_accelerometer_magnitude(&accel_mag),
+            "libtocksync_ninedof_read_accelerometer_magnitude");
   int x = 0;
   int y = 0;
   int z = 0;

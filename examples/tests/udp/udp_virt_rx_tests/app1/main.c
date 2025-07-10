@@ -5,7 +5,6 @@
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/led.h>
 #include <libtock/net/udp.h>
-#include <libtock/net/udp.h>
 
 /*
  * UDP sample packet reception app.
@@ -101,5 +100,4 @@ int main(void) {
   } else {
     printf("Socket closed.\n");
   }
-
 }

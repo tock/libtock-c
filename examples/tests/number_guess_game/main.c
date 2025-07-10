@@ -30,7 +30,6 @@ static int get_number(void) {
     if (c == RETURNCODE_FAIL) {
       printf("\ngetch() failed!\n");
       return 0;
-
     } else {
       char in = c;
 
@@ -39,7 +38,6 @@ static int get_number(void) {
 
         // On a newline go ahead and parse the buffer and return the number.
         return atoi(buffer);
-
       } else if ((in >= 48 && in <= 57) || in == 45) {
         // If this is a valid number record it
         buffer[idx] = in;

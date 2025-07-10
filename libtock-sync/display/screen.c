@@ -24,11 +24,13 @@ static void screen_cb_done(returncode_t ret) {
   result.ret   = ret;
   result.fired = true;
 }
+
 static void screen_cb_format(returncode_t ret, libtock_screen_format_t format) {
   result_format.ret    = ret;
   result_format.format = format;
   result_format.fired  = true;
 }
+
 static void screen_cb_rotation(returncode_t ret, libtock_screen_rotation_t rotation) {
   result_rotation.ret      = ret;
   result_rotation.rotation = rotation;
