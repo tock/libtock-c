@@ -12,26 +12,26 @@ int main(void) {
 
   printf("available resolutions\n");
   uint32_t resolutions;
-  err = libtock_screen_get_supported_resolutions(&resolutions);
+  err = libtocksync_screen_get_supported_resolutions(&resolutions);
   if (err < 0) return -1;
   for (uint32_t idx = 0; idx < resolutions; idx++) {
     uint32_t width, height;
-    libtock_screen_get_supported_resolution(idx, &width, &height);
+    libtocksync_screen_get_supported_resolution(idx, &width, &height);
     printf("  %ld x %ld\n", width, height);
   }
 
   printf("available colors depths\n");
   uint32_t pixel_format;
-  err = libtock_screen_get_supported_pixel_formats(&pixel_format);
+  err = libtocksync_screen_get_supported_pixel_formats(&pixel_format);
   if (err < 0) return -1;
   for (uint32_t idx = 0; idx < pixel_format; idx++) {
     libtock_screen_format_t format;
-    libtock_screen_get_supported_pixel_format(idx, &format);
-    int bits = libtock_screen_get_bits_per_pixel(format);
+    libtocksync_screen_get_supported_pixel_format(idx, &format);
+    int bits = libtocksync_screen_get_bits_per_pixel(format);
     printf("  %d bpp\n", bits);
   }
 
-  err = libtock_screen_buffer_init(BUFFER_SIZE, &buffer);
+  err = libtocksync_screen_buffer_init(BUFFER_SIZE, &buffer);
   if (err < 0) {
     printf("buffer allocation failed\n");
     return -1;
@@ -40,7 +40,7 @@ int main(void) {
   printf("screen init\n");
   libtocksync_screen_set_brightness(100);
   uint32_t width, height;
-  libtock_screen_get_resolution(&width, &height);
+  libtocksync_screen_get_resolution(&width, &height);
   libtocksync_screen_set_frame(0, 0, width, height);
   libtocksync_screen_fill(buffer, BUFFER_SIZE, 0);
   bool invert = false;
