@@ -1,7 +1,10 @@
 #pragma once
 
-#include <libtock/interface/buzzer.h>
+#include <libtock/interface/syscalls/buzzer_syscalls.h>
+#include <libtock/interface/buzzer_types.h>
 #include <libtock/tock.h>
+
+#include "syscalls/buzzer_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
