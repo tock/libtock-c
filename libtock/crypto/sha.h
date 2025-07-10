@@ -2,6 +2,7 @@
 
 #include "../tock.h"
 #include "syscalls/sha_syscalls.h"
+#include "sha_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,13 +12,6 @@ extern "C" {
 //
 // - `arg1` (`returncode_t`): Status from computing the hash.
 typedef void (*libtock_sha_callback_hash)(returncode_t);
-
-typedef enum {
-  LIBTOCK_SHA256 = 0,
-  LIBTOCK_SHA384 = 1,
-  LIBTOCK_SHA512 = 2,
-} libtock_sha_algorithm_t;
-
 
 
 // Compute a SHA hash over `input_buffer` and store the hash in `hash_buffer`.
