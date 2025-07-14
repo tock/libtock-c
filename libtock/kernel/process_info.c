@@ -1,5 +1,10 @@
 #include "process_info.h"
+#include "syscalls/process_info_syscalls.h"
 
+
+bool libtock_process_info_exists(void) {
+  return libtock_process_info_driver_exists();
+}
 
 returncode_t libtock_process_info_get_process_ids(uint8_t* buffer, size_t buffer_length, uint32_t* count) {
   returncode_t ret;

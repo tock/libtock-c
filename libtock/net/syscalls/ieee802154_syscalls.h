@@ -63,7 +63,7 @@ returncode_t libtock_ieee802154_set_readwrite_allow_rx(uint8_t* buffer, uint32_t
 returncode_t libtock_ieee802154_set_readwrite_allow_cfg(uint8_t* buffer, uint32_t len);
 
 // Check for presence of the driver
-bool libtock_ieee802154_exists(void);
+bool libtock_ieee802154_driver_exists(void);
 
 // IEEE 802.15.4 command syscalls //
 returncode_t libtock_ieee802154_command_status(void);

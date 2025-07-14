@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_BUTTON 0x3
 
 // Check if the button system call driver is available on this board.
-bool libtock_button_exists(void);
+bool libtock_button_driver_exists(void);
 
 // Set the upcall for the button driver.
 returncode_t libtock_button_set_upcall(subscribe_upcall callback, void* opaque);

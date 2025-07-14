@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/rng_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,6 +11,9 @@ extern "C" {
 // - `arg1` (`returncode_t`): Returncode indicating status of the RNG call.
 // - `arg2` (`int`): Number of random bytes available.
 typedef void (*libtock_rng_callback)(returncode_t, int);
+
+// Check if the driver exists.
+bool libtock_rng_exists(void);
 
 // Get random bytes.
 //

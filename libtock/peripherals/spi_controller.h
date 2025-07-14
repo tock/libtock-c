@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/spi_controller_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,6 +10,9 @@ extern "C" {
 //
 // - `arg1` (`returncode_t`): Status from reading/writing SPI data.
 typedef void (*libtock_spi_controller_callback)(returncode_t);
+
+// Check if the driver exists.
+bool libtock_spi_controller_exists(void);
 
 // Set the chip select.
 returncode_t libtock_spi_controller_set_chip_select(uint32_t chip_select);

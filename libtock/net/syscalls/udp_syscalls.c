@@ -1,6 +1,6 @@
 #include "udp_syscalls.h"
 
-bool libtock_udp_exists(void) {
+bool libtock_udp_driver_exists(void) {
   return driver_exists(DRIVER_NUM_UDP);
 }
 

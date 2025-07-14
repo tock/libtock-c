@@ -21,7 +21,7 @@ returncode_t libtock_console_set_read_allow(const uint8_t* buffer, uint32_t len)
 returncode_t libtock_console_set_readwrite_allow(uint8_t* buffer, uint32_t len);
 
 // Check if the console driver exists
-bool libtock_console_command_exists(void);
+bool libtock_console_driver_exists(void);
 
 // Initiate a write operation of the allowed read-only buffer with the provided length
 returncode_t libtock_console_command_write(int length);

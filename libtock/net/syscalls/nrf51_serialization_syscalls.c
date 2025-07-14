@@ -6,7 +6,7 @@
 #define NRF51_SERIALIZATION_COMMAND_RESET 3
 
 
-bool libtock_nrf51_serialization_exists(void) {
+bool libtock_nrf51_serialization_driver_exists(void) {
   return driver_exists(DRIVER_NUM_NRF51_SERIALIZATION);
 }
 

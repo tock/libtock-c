@@ -8,7 +8,7 @@ extern "C" {
 
 #define DRIVER_NUM_ADC 0x5
 
-bool libtock_adc_exists(void);
+bool libtock_adc_driver_exists(void);
 
 returncode_t libtock_adc_set_upcall(subscribe_upcall callback, void* opaque);
 

@@ -1,11 +1,13 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/dac_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// Check if the driver exists.
+bool libtock_dac_exists(void);
 
 // Initialize the Digital-to-Analog converter.
 returncode_t libtock_dac_initialize(void);
