@@ -5,7 +5,7 @@
 
 #include "tock.h"
 
-int tock_status_to_returncode(statuscode_t status) {
+returncode_t tock_status_to_returncode(statuscode_t status) {
   // Conversion is easy. Since ReturnCode numeric mappings are -1*ErrorCode,
   // and success is 0 in both cases, we can just multiply by -1.
   return -1 * status;

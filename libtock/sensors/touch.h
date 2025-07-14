@@ -7,13 +7,31 @@
 extern "C" {
 #endif
 
+// Touch status.
+typedef enum {
+  TOUCH_STATUS_RELEASED  = 0,
+  TOUCH_STATUS_PRESSED   = 1,
+  TOUCH_STATUS_MOVED     = 2,
+  TOUCH_STATUS_UNSTARTED = 3,
+} libtock_touch_status_t;
+
+// Gesture types.
+typedef enum {
+  GESTURE_NO          = 0,
+  GESTURE_SWIPE_UP    = 1,
+  GESTURE_SWIPE_DOWN  = 2,
+  GESTURE_SWIPE_LEFT  = 3,
+  GESTURE_SWIPE_RIGHT = 4,
+  GESTURE_ZOOM_IN     = 5,
+  GESTURE_ZOOM_OUT    = 6,
+} libtock_touch_gesture_t;
 
 // Function signature for touch data callback.
 //
-// - `arg1` (`int`): Status from touch device.
+// - `arg1` (`libtock_touch_status_t`): Status from touch device.
 // - `arg2` (`uint16_t`): X coordinate of the touch event.
 // - `arg3` (`uint16_t`): Y coordinate of the touch event.
-typedef void (*libtock_touch_touch_callback)(int, uint16_t, uint16_t);
+typedef void (*libtock_touch_touch_callback)(libtock_touch_status_t, uint16_t, uint16_t);
 
 // Function signature for multi touch data callback.
 //
@@ -26,22 +44,8 @@ typedef void (*libtock_touch_multi_touch_callback)(returncode_t, int, int, int);
 // Function signature for gesture callback.
 //
 // - `arg1` (`returncode_t`): Status from touch device.
-// - `arg2` (`int`): Gesture type.
-typedef void (*libtock_touch_gesture_callback)(returncode_t, int);
-
-
-#define LIBTOCK_TOUCH_STATUS_RELEASED 0
-#define LIBTOCK_TOUCH_STATUS_PRESSED 1
-#define LIBTOCK_TOUCH_STATUS_MOVED 2
-#define LIBTOCK_TOUCH_STATUS_UNSTARTED 3
-
-#define GESTURE_NO 0
-#define GESTURE_SWIPE_UP 1
-#define GESTURE_SWIPE_DOWN 2
-#define GESTURE_SWIPE_LEFT 3
-#define GESTURE_SWIPE_RIGHT 4
-#define GESTURE_ZOOM_IN 5
-#define GESTURE_ZOOM_OUT 6
+// - `arg2` (`libtock_touch_gesture_t`): Gesture type.
+typedef void (*libtock_touch_gesture_callback)(returncode_t, libtock_touch_gesture_t);
 
 
 typedef struct __attribute__((__packed__)) {

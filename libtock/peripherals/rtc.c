@@ -29,7 +29,7 @@ static void rtc_date_cb(int   status,
   libtock_rtc_date_t rtc_date;
 
   rtc_convert_args_to_date((uint32_t) date, (uint32_t) time, &rtc_date);
-  cb(status, rtc_date);
+  cb(tock_status_to_returncode(status), rtc_date);
 }
 
 static void rtc_set_cb(int                          status,
@@ -37,7 +37,7 @@ static void rtc_set_cb(int                          status,
                        __attribute__ ((unused)) int arg2,
                        void*                        opaque) {
   libtock_rtc_callback_done cb = (libtock_rtc_callback_done) opaque;
-  cb(status);
+  cb(tock_status_to_returncode(status));
 }
 
 returncode_t libtock_rtc_get_date(libtock_rtc_callback_date cb) {

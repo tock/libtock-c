@@ -2,7 +2,7 @@
 
 static void crc_upcall(int status, int v1, __attribute__((unused)) int v2, void* opaque) {
   libtock_crc_callback_computed cb = (libtock_crc_callback_computed) opaque;
-  cb(status, v1);
+  cb(tock_status_to_returncode(status), v1);
 }
 
 returncode_t libtock_crc_compute(const uint8_t* buf, uint32_t buflen, libtock_crc_alg_t algorithm,

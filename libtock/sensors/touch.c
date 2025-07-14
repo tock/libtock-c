@@ -2,7 +2,7 @@
 
 #include "touch.h"
 
-static void single_touch_upcall(int                          status,
+static void single_touch_upcall(int                          touch_status,
                                 int                          xy,
                                 __attribute__ ((unused)) int unused1,
                                 void*                        opaque) {
@@ -11,7 +11,7 @@ static void single_touch_upcall(int                          status,
   uint16_t x = (uint16_t) (((uint32_t) xy) >> 16);
   uint16_t y = (uint16_t) (((uint32_t) xy) & 0xFFFF);
 
-  cb(status, x, y);
+  cb((libtock_touch_status_t) touch_status, x, y);
 }
 
 static void multi_touch_upcall(int   num_events,
@@ -29,7 +29,7 @@ static void gesture_upcall(int                          gesture,
                            void*                        opaque) {
   libtock_touch_gesture_callback cb = (libtock_touch_gesture_callback) opaque;
 
-  cb(RETURNCODE_SUCCESS, gesture);
+  cb(RETURNCODE_SUCCESS, (libtock_touch_gesture_t) gesture);
 }
 
 returncode_t libtock_touch_get_number_of_touches(int* touches) {

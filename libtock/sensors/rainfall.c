@@ -4,7 +4,7 @@ static void rainfall_upcall(int status,
                             int rainfall,
                             __attribute__ ((unused)) int unused2, void* opaque) {
   libtock_rainfall_callback cb = (libtock_rainfall_callback) opaque;
-  cb(status, rainfall);
+  cb(tock_status_to_returncode(status), rainfall);
 }
 
 returncode_t libtock_rainfall_read(libtock_rainfall_callback cb, int hours) {
