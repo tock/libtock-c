@@ -1,4 +1,9 @@
 #include "aes.h"
+#include "syscalls/aes_syscalls.h"
+
+bool libtock_aes_exists(void) {
+  return libtock_aes_driver_exists();
+}
 
 returncode_t libtock_aes_set_algorithm(libtock_aes_algorithm_t operation, bool encrypting) {
   return libtock_aes_command_set_algorithm((uint8_t) operation, encrypting);
