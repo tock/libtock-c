@@ -392,34 +392,13 @@ extern "C" {
 
 ### Example:
 
-For our sensor example:
-
-Create a struct to be set by the asynchronous callback:
-
-```c
-struct data {
-  bool fired;
-  int val;
-  returncode_t result;
-};
-
-static struct data result = { .fired = false };
-```
-
-Define a static callback function to pass to the asynchronous implementation:
+For our sensor example, define the external function in the `libtocksync_` name
+space for the sync operation:
 
 ```c
-static void sensor_cb(returncode_t ret, int val) {
-  result.val = val;
-  result.fired = true;
-  result.result = ret;
-}
-```
+#include "temperature.h"
+#include "syscalls/temperature_syscalls.h"
 
-Define the external function in the `libtocksync_` name space for the sync
-operation:
-
-```c
 returncode_t libtocksync_sensor_read(int* val) {
   returncode_t err;
 
