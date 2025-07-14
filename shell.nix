@@ -26,20 +26,20 @@ let
 
   elf2tab = pkgs.rustPlatform.buildRustPackage rec {
     name = "elf2tab-${version}";
-    version = "0.12.0";
+    version = "0.13.0";
 
     src = pkgs.fetchFromGitHub {
       owner = "tock";
       repo = "elf2tab";
       rev = "v${version}";
-      sha256 = "sha256-+VeWLBI6md399Oaumt4pJrOkm0Nz7fmpXN2TjglUE34=";
+      sha256 = "sha256-tVxYdokrHzlA8SqZN/+kpznvnnjx7X8z2Du4p4nU0V4=";
     };
 
     cargoHash =
       if lib.versionAtLeast lib.version "25.05pre" then
-        "sha256-C1hg2/y557jRLkSBvFLxYKH+t8xEJudDvU72kO9sPug="
+        "sha256-5bQVk77gMtMfnRXf7rlRf/ABr73K9ZosB6E/gGZFpz4="
       else
-        "sha256-UHAwk1fBcabRqy7VMhz4aoQuIur+MQshDOhC7KFyGm4=";
+        "sha256-A2w3nYw0A+qcZbVLC+C7ZLsWFcEaP8tc7XVBmuwsIgM=";
   };
 
   # The formatting scripts require a specific version of uncrustify:
