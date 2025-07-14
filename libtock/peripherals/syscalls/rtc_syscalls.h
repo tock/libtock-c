@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_RTC 0x00090007
 
 // Check if the RTC driver exists.
-bool libtock_rtc_exists(void);
+bool libtock_rtc_driver_exists(void);
 
 // Set the upcall for get and set complete callbacks.
 returncode_t libtock_rtc_set_upcall(subscribe_upcall callback, void* opaque);

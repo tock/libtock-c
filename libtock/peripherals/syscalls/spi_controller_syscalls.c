@@ -1,6 +1,6 @@
 #include "spi_controller_syscalls.h"
 
-bool libtock_spi_controller_exists(void) {
+bool libtock_spi_controller_driver_exists(void) {
   return driver_exists(DRIVER_NUM_SPI_CONTROLLER);
 }
 

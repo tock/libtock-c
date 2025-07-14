@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/udp_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,6 +27,9 @@ typedef void (*libtock_udp_callback_send_done) (returncode_t);
 
 /// Callback for when a rx is completed.
 typedef void (*libtock_udp_callback_recv_done) (returncode_t, int);
+
+// Check if the driver exists.
+bool libtock_udp_exists(void);
 
 // Creates a new datagram socket bound to an address.
 // Returns 0 on success, negative on failure.

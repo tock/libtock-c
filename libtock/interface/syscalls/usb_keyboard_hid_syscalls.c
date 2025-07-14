@@ -1,6 +1,6 @@
 #include "usb_keyboard_hid_syscalls.h"
 
-bool libtock_usb_keyboard_hid_exists(void) {
+bool libtock_usb_keyboard_hid_driver_exists(void) {
   return driver_exists(DRIVER_NUM_USB_KEYBOARD_HID);
 }
 

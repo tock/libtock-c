@@ -1,8 +1,13 @@
 #include "crc.h"
+#include "syscalls/crc_syscalls.h"
 
 static void crc_upcall(int status, int v1, __attribute__((unused)) int v2, void* opaque) {
   libtock_crc_callback_computed cb = (libtock_crc_callback_computed) opaque;
   cb(tock_status_to_returncode(status), v1);
+}
+
+bool libtock_crc_exists(void) {
+  return libtock_crc_driver_exists();
 }
 
 returncode_t libtock_crc_compute(const uint8_t* buf, uint32_t buflen, libtock_crc_alg_t algorithm,

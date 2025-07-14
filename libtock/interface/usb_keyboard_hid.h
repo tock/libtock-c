@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/usb_keyboard_hid_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,6 +10,9 @@ extern "C" {
 //
 // - `arg1` (`returncode_t`): Status of USB keyboard HID send operation.
 typedef void (*libtock_usb_keyboard_hid_callback)(returncode_t);
+
+// Check if the driver exists.
+bool libtock_usb_keyboard_hid_exists(void);
 
 // Set the buffer to the over the USB keyboard HID interface. The callback will
 // be triggered when the send has completed.

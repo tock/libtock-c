@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_LORA_PHY_SPI  0x30003
 #define DRIVER_NUM_LORA_PHY_GPIO 0x30004
 
-bool libtock_lora_phy_exists(void);
+bool libtock_lora_phy_driver_exists(void);
 
 returncode_t libtock_lora_phy_set_upcall_spi(subscribe_upcall callback, void* opaque);
 

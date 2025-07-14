@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "console.h"
+#include "syscalls/console_syscalls.h"
 
 static void generic_upcall(int   status,
                            int   length,
@@ -10,6 +11,10 @@ static void generic_upcall(int   status,
                            void* ud) {
   libtock_console_callback_write cb = (libtock_console_callback_write)ud;
   cb(tock_status_to_returncode(status), length);
+}
+
+bool libtock_console_exists(void) {
+  return libtock_console_driver_exists();
 }
 
 returncode_t libtock_console_write(const uint8_t* buffer, uint32_t len, libtock_console_callback_write cb) {

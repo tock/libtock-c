@@ -13,7 +13,7 @@ extern "C"
 /*
  * Command to check if the `app_loader` capsule exists.
  */
-bool libtock_app_loader_exists(void);
+bool libtock_app_loader_driver_exists(void);
 
 /*
  * Function to setup the callback from capsule.

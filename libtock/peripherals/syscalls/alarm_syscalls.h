@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_ALARM 0x0
 
 // Check if the alarm driver is available on this board.
-bool libtock_alarm_exists(void);
+bool libtock_alarm_driver_exists(void);
 
 /*
  * Sets the callback for alarms

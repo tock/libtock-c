@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/ieee802154_syscalls.h"
 
 /* IEEE 802.15.4 system call interface */
 // The libtock-c IEEE 802.15.4 driver consists of a set of system calls
@@ -29,7 +28,7 @@ typedef void (*libtock_ieee802154_callback_send_done)(returncode_t, bool);
 typedef void (*libtock_ieee802154_callback_recv_done)(int, int, int);
 
 // Check for presence of the driver
-bool libtock_ieee802154_driver_exists(void);
+bool libtock_ieee802154_exists(void);
 
 // Disable the 802.15.4 radio. -- NOT SUPPORTED --
 int libtock_ieee802154_down(void);

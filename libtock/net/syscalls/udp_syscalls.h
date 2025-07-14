@@ -22,7 +22,7 @@ extern "C" {
 #define COMMAND_BIND       3
 #define COMMAND_GET_TX_LEN 4
 
-bool libtock_udp_exists(void);
+bool libtock_udp_driver_exists(void);
 
 returncode_t libtock_udp_set_upcall_frame_received(subscribe_upcall callback, void* opaque);
 returncode_t libtock_udp_set_upcall_frame_transmitted(subscribe_upcall callback, void* opaque);

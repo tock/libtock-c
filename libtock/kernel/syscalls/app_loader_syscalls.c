@@ -1,6 +1,6 @@
 #include "app_loader_syscalls.h"
 
-bool libtock_app_loader_exists(void) {
+bool libtock_app_loader_driver_exists(void) {
   return driver_exists(DRIVER_NUM_APP_LOADER);
 }
 

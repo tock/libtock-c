@@ -1,6 +1,6 @@
 #include "adc_syscalls.h"
 
-bool libtock_adc_exists(void) {
+bool libtock_adc_driver_exists(void) {
   return driver_exists(DRIVER_NUM_ADC);
 }
 

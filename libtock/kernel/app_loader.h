@@ -5,12 +5,14 @@ extern "C"
 {
 #endif
 
-#include "libtock/kernel/syscalls/app_loader_syscalls.h"
-#include "libtock/tock.h"
+#include "../tock.h"
 
 #define BUTTON1 0
 #define BUTTON2 1
 #define BUTTON3 2
+
+// Check if the driver exists.
+bool libtock_app_loader_exists(void);
 
 /*
  * Function to setup the callback from capsule.

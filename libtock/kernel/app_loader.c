@@ -1,4 +1,9 @@
 #include "app_loader.h"
+#include "syscalls/app_loader_syscalls.h"
+
+bool libtock_app_loader_exists(void) {
+  return libtock_app_loader_driver_exists();
+}
 
 /*
  * Function to setup the callback from capsule.

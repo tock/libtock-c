@@ -2,7 +2,6 @@
 
 #include "../peripherals/gpio.h"
 #include "../tock.h"
-#include "syscalls/lora_phy_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,6 +11,9 @@ extern "C" {
 //
 // - `arg1` (`returncode_t`): Status from doing the SPI transaction.
 typedef void (*libtock_lora_phy_callback_spi)(returncode_t);
+
+// Check if the driver exists.
+bool libtock_lora_phy_exists(void);
 
 returncode_t libtock_lora_phy_write(const uint8_t*                buf,
                                     uint32_t                      len,

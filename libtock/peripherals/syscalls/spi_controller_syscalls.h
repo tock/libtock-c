@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_SPI_CONTROLLER 0x20001
 
 // Check if the SPI driver is available on this board.
-bool libtock_spi_controller_exists(void);
+bool libtock_spi_controller_driver_exists(void);
 
 // Set the upcall function.
 returncode_t libtock_spi_controller_set_upcall(subscribe_upcall callback, void* opaque);

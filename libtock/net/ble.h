@@ -66,6 +66,9 @@ typedef enum {
   NEGATIVE_20_DBM = 0xec,
 } TxPower_t;
 
+// Check if the driver exists.
+bool libtock_ble_exists(void);
+
 // start advertising
 //
 // pdu_type           - Type of advertising PDU. One of ADV_IND, ADV_NONCONN_IND or ADV_SCAN_IND

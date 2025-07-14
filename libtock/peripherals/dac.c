@@ -1,4 +1,9 @@
 #include "dac.h"
+#include "syscalls/dac_syscalls.h"
+
+bool libtock_dac_exists(void) {
+  return libtock_dac_driver_exists();
+}
 
 returncode_t libtock_dac_initialize(void) {
   return libtock_dac_command_initialize();

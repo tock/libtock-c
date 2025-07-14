@@ -11,6 +11,10 @@
 
 #include "tock.h"
 
+bool libtock_ble_exists(void) {
+  return libtock_ble_driver_exists();
+}
+
 int ble_start_advertising(int pdu_type, uint8_t* advd, int len, uint16_t interval) {
   allow_ro_return_t err = allow_readonly(BLE_DRIVER_NUMBER, BLE_CFG_ADV_BUF_ALLOWRO, advd, len);
   if (!err.success) return tock_status_to_returncode(err.status);

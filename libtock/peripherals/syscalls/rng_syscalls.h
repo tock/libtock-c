@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_RNG 0x40001
 
 // Check if the RNG driver exists.
-bool libtock_rng_exists(void);
+bool libtock_rng_driver_exists(void);
 
 // Allows buffer to hold received randomness.
 //

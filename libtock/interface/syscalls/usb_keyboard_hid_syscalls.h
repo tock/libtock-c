@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_USB_KEYBOARD_HID 0x90005
 
 // Check if this driver exists.
-bool libtock_usb_keyboard_hid_exists(void);
+bool libtock_usb_keyboard_hid_driver_exists(void);
 
 // Configure the upcall for send/receive events.
 returncode_t libtock_usb_keyboard_hid_set_upcall(subscribe_upcall callback, void* opaque);

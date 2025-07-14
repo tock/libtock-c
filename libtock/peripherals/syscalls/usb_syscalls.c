@@ -1,6 +1,6 @@
 #include "usb_syscalls.h"
 
-bool libtock_usb_exists(void) {
+bool libtock_usb_driver_exists(void) {
   return driver_exists(DRIVER_NUM_USB);
 }
 

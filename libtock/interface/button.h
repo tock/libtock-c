@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/button_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,6 +12,9 @@ extern "C" {
 // - `arg2` (`int`): Button index.
 // - `arg3` (`bool`): True if pressed, false otherwise.
 typedef void (*libtock_button_callback)(returncode_t, int, bool);
+
+// Check if the driver exists.
+bool libtock_button_exists(void);
 
 // Read the current button state into `button_value`.
 //

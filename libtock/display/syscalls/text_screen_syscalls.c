@@ -1,5 +1,9 @@
 #include "text_screen_syscalls.h"
 
+bool libtock_text_screen_driver_exists(void) {
+  return driver_exists(DRIVER_NUM_TEXT_SCREEN);
+}
+
 returncode_t libtock_text_screen_set_upcall(subscribe_upcall callback, void* opaque) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_TEXT_SCREEN, 0, callback, opaque);
   return tock_subscribe_return_to_returncode(sval);

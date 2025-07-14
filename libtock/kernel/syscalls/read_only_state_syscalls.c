@@ -1,6 +1,6 @@
 #include "read_only_state_syscalls.h"
 
-bool libtock_read_only_state_exists(void) {
+bool libtock_read_only_state_driver_exists(void) {
   return driver_exists(DRIVER_NUM_READ_ONLY_STATE);
 }
 
