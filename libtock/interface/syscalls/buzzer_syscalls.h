@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_BUZZER 0x90000
 
 // Check if the buzzer system call driver is available on this board.
-bool libtock_buzzer_exists(void);
+bool libtock_buzzer_driver_exists(void);
 
 // Subscribe an upcall for the buzzer.
 returncode_t libtock_buzzer_set_upcall(subscribe_upcall callback, void* opaque);

@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_SPI_PERIPHERAL 0x20002
 
 // Check if the SPI peripheral driver is available on this board.
-bool libtock_spi_peripheral_exists(void);
+bool libtock_spi_peripheral_driver_exists(void);
 
 // Set the upcall function.
 returncode_t libtock_spi_peripheral_set_upcall(subscribe_upcall callback, void* opaque);

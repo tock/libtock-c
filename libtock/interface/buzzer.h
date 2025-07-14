@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/buzzer_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,6 +98,9 @@ extern "C" {
 
 // Function signature for buzzer done callbacks.
 typedef void (*libtock_buzzer_done_callback)(void);
+
+// Check if the driver exists.
+bool libtock_buzzer_exists(void);
 
 // Play a tone and call a callback when the tone finishes.
 //

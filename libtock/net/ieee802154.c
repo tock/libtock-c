@@ -1,9 +1,10 @@
 #include <string.h>
 
 #include "ieee802154.h"
+#include "syscalls/ieee802154_syscalls.h"
 
-bool libtock_ieee802154_driver_exists(void) {
-  return driver_exists(DRIVER_NUM_IEEE802154);
+bool libtock_ieee802154_exists(void) {
+  return libtock_ieee802154_driver_exists();
 }
 
 // Temporary buffer used for some commands where the system call interface

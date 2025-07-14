@@ -1,5 +1,10 @@
 #include "read_only_state.h"
+#include "syscalls/read_only_state_syscalls.h"
 
+
+bool libtock_read_only_state_exists(void) {
+  return libtock_read_only_state_driver_exists();
+}
 
 returncode_t libtock_read_only_state_allocate_region(uint8_t* base, int len) {
   if (len < LIBTOCK_READ_ONLY_STATE_BUFFER_LEN) {

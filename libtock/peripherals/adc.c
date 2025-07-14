@@ -1,4 +1,5 @@
 #include "adc.h"
+#include "syscalls/adc_syscalls.h"
 
 
 // Internal callback for routing to operation-specific callbacks
@@ -62,6 +63,10 @@ static void adc_routing_upcall(int   callback_type,
   }
 }
 
+
+bool libtock_adc_exists(void) {
+  return libtock_adc_driver_exists();
+}
 
 returncode_t libtock_adc_set_buffer(uint16_t* buffer, uint32_t length) {
   return libtock_adc_set_readwrite_allow_set_buffer((uint8_t*) buffer, length * 2);

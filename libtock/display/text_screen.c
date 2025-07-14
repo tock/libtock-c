@@ -1,4 +1,5 @@
 #include "text_screen.h"
+#include "syscalls/text_screen_syscalls.h"
 
 static void text_screen_callback(int                          status,
                                  __attribute__ ((unused)) int data1,
@@ -14,6 +15,10 @@ static void text_screen_callback_size(int   status,
                                       void* opaque) {
   libtock_text_screen_callback_size cb = (libtock_text_screen_callback_size) opaque;
   cb(tock_status_to_returncode(status), (uint32_t) data1, (uint32_t) data2);
+}
+
+bool libtock_text_screen_exists(void) {
+  return libtock_text_screen_driver_exists();
 }
 
 returncode_t libtock_text_screen_display_on(libtock_text_screen_callback_done cb) {
