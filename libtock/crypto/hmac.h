@@ -2,7 +2,6 @@
 
 #include "../tock.h"
 #include "hmac_types.h"
-#include "syscalls/hmac_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,6 +12,7 @@ extern "C" {
 // - `arg1` (`returncode_t`): Status from computing the HMAC.
 typedef void (*libtock_hmac_callback_hmac)(returncode_t);
 
+bool libtock_hmac_exists(void);
 
 // Compute an HMAC using `keyb_buffer` over `input_buffer` and store the result
 // in `hash_buffer`.

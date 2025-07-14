@@ -170,13 +170,13 @@ There must be a function to check for syscall driver existence.
 Signature:
 
 ```
-bool libtock_[name]_exists(void);
+bool libtock_[name]_driver_exists(void);
 ```
 
 Example:
 
 ```c
-bool libtock_[name]_exists(void) {
+bool libtock_[name]_driver_exists(void) {
   return driver_exists(DRIVER_NUM_[NAME]);
 }
 ```
@@ -202,7 +202,6 @@ The `[name].h` header file must look like:
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/[name]_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -215,7 +214,8 @@ extern "C" {
 #endif
 ```
 
-The `[name].h` header file must include the syscalls header.
+The `[name].h` header file must NOT include the syscalls header. Applications
+wanting to use the syscalls directly must include the syscalls header.
 
 ### Defining a Callback for Asynchronous Operations
 
@@ -234,6 +234,24 @@ they should have the last argument be a callback function pointer.
 
 ```c
 returncode_t libtock_[name]_[desc](<arguments>, libtock_[name]_callback_[desc] cb);
+```
+
+#### Exists
+
+There must be a function to check for syscall driver existence.
+
+Signature:
+
+```
+bool libtock_[name]_exists(void);
+```
+
+Example:
+
+```c
+bool libtock_[name]_exists(void) {
+  return libtock_[name]_driver_exists();
+}
 ```
 
 ### Example:
@@ -309,7 +327,6 @@ file is used in a C++ app.
 #pragma once
 
 #include <libtock/tock.h>
-#include <libtock/[category]/syscalls/[name]_syscalls.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -379,7 +396,6 @@ The libtock-sync `[name].h` header file must look like:
 ```c
 #pragma once
 
-#include "syscalls/temperature_syscalls.h"
 #include <libtock/tock.h>
 
 #ifdef __cplusplus
