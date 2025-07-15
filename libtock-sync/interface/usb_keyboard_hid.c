@@ -1,33 +1,25 @@
 #include <ctype.h>
 
 #include "usb_keyboard_hid.h"
+#include "syscalls/usb_keyboard_hid_syscalls.h"
 
-
-struct usb_keyboard_hid_result {
-  bool fired;
-  returncode_t ret;
-};
-
-static struct usb_keyboard_hid_result result = {.fired = false};
-
-static void usb_keyboard_hil_cb(returncode_t ret) {
-  result.fired = true;
-  result.ret   = ret;
-}
 
 returncode_t libtocksync_usb_keyboard_hid_send(uint8_t* buffer, uint32_t len) {
-  int err;
-  result.fired = false;
+  int ret;
 
-  err = libtock_usb_keyboard_hid_send(buffer, len, usb_keyboard_hil_cb);
-  if (err != RETURNCODE_SUCCESS) return err;
+  ret = libtock_usb_keyboard_hid_set_readwrite_allow_send_buffer(buffer, len);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  if (result.ret != RETURNCODE_SUCCESS) return result.ret;
+  ret = libtock_usb_keyboard_hid_command_send();
+  if (ret != RETURNCODE_SUCCESS) goto exit;
 
-  err = libtock_usb_keyboard_hid_set_readwrite_allow_send_buffer(NULL, 0);
-  return err;
+  // Wait for the operation.
+  ret = libtocksync_usb_keyboard_hid_yield_wait_for();
+
+exit:
+  libtock_usb_keyboard_hid_set_readwrite_allow_send_buffer(NULL, 0);
+
+  return ret;
 }
 
 static int to_hid_keycode(char c, uint8_t* modifier, uint8_t* key) {
