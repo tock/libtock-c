@@ -20,7 +20,7 @@ bool libtock_app_loader_exists(void);
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_setup_subscribe(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_set_setup_upcall(subscribe_upcall cb, void* userdata);
 
 /*
  * Command to request the kernel to set up for a new app.
@@ -33,7 +33,7 @@ returncode_t libtock_app_loader_command_setup(uint32_t app_length);
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_write_subscribe(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_set_write_upcall(subscribe_upcall cb, void* userdata);
 
 /*
  * Function to set up a shared buffer with the capsule.
@@ -56,7 +56,7 @@ returncode_t libtock_app_loader_command_write(uint32_t flash_offset, uint32_t wr
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_finalize_subscribe(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_set_finalize_upcall(subscribe_upcall cb, void* userdata);
 
 /*
  * Signal to kernel we are done writing a new process binary.
@@ -73,7 +73,7 @@ returncode_t libtock_app_loader_command_load(void);
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_load_subscribe(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_set_load_upcall(subscribe_upcall cb, void* userdata);
 
 /*
  * Command to request the kernel to abort setup/writing process.
@@ -85,7 +85,7 @@ returncode_t libtock_app_loader_command_abort(void);
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
-returncode_t libtock_app_loader_abort_subscribe(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_set_abort_upcall(subscribe_upcall cb, void* userdata);
 
 
 

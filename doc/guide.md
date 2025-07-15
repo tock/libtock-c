@@ -236,7 +236,7 @@ they should have the last argument be a callback function pointer.
 returncode_t libtock_[name]_[desc](<arguments>, libtock_[name]_callback_[desc] cb);
 ```
 
-### Example
+### Example:
 
 
 For example, a library called "sensor" with a sensor read operation should look
@@ -277,7 +277,91 @@ returncode_t libtock_sensor_read(libtock_sensor_callback_reading cb) {
 
 ## Synchronous APIs
 
-Most system call interfaces will want to provide a synchronous API as well.
+Most system call interfaces will want to provide a synchronous API as well. This
+requires another file for syscalls.
+
+All synchronous APIs MUST use the
+[Yield-WaitFor](https://book.tockos.org/trd/trd104-syscalls.html#413-yield-waitfor)
+(`yield_wait_for()`) variant of the yield syscall. This ensures predictable
+behavior for `libtock-sync` users because Yield-WaitFor ensures that no other
+application upcall will run until the synchronous API has finished.
+
+As of July 2025 we are in the process of converting `libtock-sync` from using
+`yield()` to `yield_wait_for()`. See the
+[tracking issue](https://github.com/tock/libtock-c/issues/530) for progress.
+
+### Synchronous Syscall APIs
+
+| Characteristic   | Value                                                |
+|------------------|------------------------------------------------------|
+| Location         | `libtock-sync/[category]/syscalls`                   |
+| Source File Name | `libtock-sync/[category]/syscalls/[name]_syscalls.c` |
+| Header File Name | `libtock-sync/[category]/syscalls/[name]_syscalls.h` |
+
+### Synchronous Syscall Header File
+
+The `[name]_syscalls.h` must be wrapped in `extern "C" { ... }` if the header
+file is used in a C++ app.
+
+#### Example:
+
+```c
+#pragma once
+
+#include <libtock/tock.h>
+#include <libtock/[category]/syscalls/[name]_syscalls.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Signatures go here.
+
+#ifdef __cplusplus
+}
+#endif
+```
+
+### Yield-WaitFor
+
+Each supported upcall must have a matching Yield-WaitFor call. This function
+calls `yield_wait_for()` and interprets the `yield_waitfor_return_t` return
+value arguments.
+
+The signature is:
+
+```c
+returncode_t libtocksync_[name]_yield_wait_for(<arguments>);
+```
+
+If only one upcall is supported, the function name must be
+`libtocksync_[name]_yield_wait_for`.
+
+If more than one upcall is supported, the function names must start with
+`libtocksync_[name]_yield_wait_for_` followed by the same description of what
+the upcall is used for from the `libtock` library.
+
+The arguments must be appropriately named pointers to data types returned by the
+upcall, except for any returned ReturnCode. The ReturnCode must be returned from
+the function.
+
+#### Example:
+
+```c
+returncode_t libtocksync_[name]_yield_wait_for(int* value) {
+  yield_waitfor_return_t ret;
+  ret = yield_wait_for(DRIVER_NUM_[NAME], 0);
+  if (ret.data0 != RETURNCODE_SUCCESS) return ret.data0;
+
+  *value = (int) ret.data1;
+  return RETURNCODE_SUCCESS;
+}
+```
+
+### Synchronous Operations
+
+The asynchronous operations should have matching synchronous versions using
+Yield-WaitFor internally.
 
 | Characteristic   | Value                              |
 |------------------|------------------------------------|
@@ -285,15 +369,15 @@ Most system call interfaces will want to provide a synchronous API as well.
 | Source File Name | `libtock-sync/[category]/[name].c` |
 | Header File Name | `libtock-sync/[category]/[name].h` |
 
-### Header Files
+### Synchronous Operation Header Files
 
 The libtock-sync `[name].h` header file must look like:
 
 ```c
 #pragma once
 
+#include "syscalls/temperature_syscalls.h"
 #include <libtock/tock.h>
-#include <libtock/[category]/[name].h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -306,48 +390,23 @@ extern "C" {
 #endif
 ```
 
-### Synchronous APIs
+### Example:
 
-For our sensor example:
-
-Create a struct to be set by the asynchronous callback:
-
-```c
-struct data {
-  bool fired;
-  int val;
-  returncode_t result;
-};
-
-static struct data result = { .fired = false };
-```
-
-Define a static callback function to pass to the asynchronous implementation:
+For our sensor example, define the external function in the `libtocksync_` name
+space for the sync operation:
 
 ```c
-static void sensor_cb(returncode_t ret, int val) {
-  result.val = val;
-  result.fired = true;
-  result.result = ret;
-}
-```
+#include "temperature.h"
+#include "syscalls/temperature_syscalls.h"
 
-Define the external function in the `libtocksync_` name space for the sync
-operation:
-
-```c
 returncode_t libtocksync_sensor_read(int* val) {
-  int err;
-  result.fired = false;
+  returncode_t err;
 
-  err = libtock_sensor_read(sensor_cb);
+  err = libtock_sensor_command_read();
   if (err != RETURNCODE_SUCCESS) return err;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  if (result.result != RETURNCODE_SUCCESS) return result.result;
-
-  *val = result.val;
-  return RETURNCODE_SUCCESS;
+  // Wait for the operation to finish.
+  err = libtock_temperature_yield_wait_for(val);
+  return err;
 }
 ```
