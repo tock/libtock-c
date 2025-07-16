@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "app_state.h"
+#include "syscalls/app_state_syscalls.h"
 
 
 // Internal callback for synchronous interfaces
@@ -12,6 +13,10 @@ static void app_state_upcall(__attribute__ ((unused)) int callback_type,
   cb(RETURNCODE_SUCCESS);
 }
 
+
+bool libtock_app_state_exists(void) {
+  return libtock_app_state_driver_exists();
+}
 
 static returncode_t app_state_init(void) {
   returncode_t ret;

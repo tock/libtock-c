@@ -1,4 +1,5 @@
 #include "sound_pressure.h"
+#include "syscalls/sound_pressure_syscalls.h"
 
 static void sound_pressure_upcall(int                          sound_pressure,
                                   __attribute__ ((unused)) int unused,
@@ -6,6 +7,10 @@ static void sound_pressure_upcall(int                          sound_pressure,
                                   void*                        opaque) {
   libtock_sound_pressure_callback cb = (libtock_sound_pressure_callback) opaque;
   cb(RETURNCODE_SUCCESS, (uint8_t) sound_pressure);
+}
+
+bool libtock_sound_pressure_exists(void) {
+  return libtock_sound_pressure_driver_exists();
 }
 
 returncode_t libtock_sound_pressure_read(libtock_sound_pressure_callback cb) {

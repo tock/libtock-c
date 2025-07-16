@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_PROXIMITY 0x60005
 
 // Check if the proximity driver exists.
-bool libtock_proximity_exists(void);
+bool libtock_proximity_driver_exists(void);
 
 // Configure the upcall for the driver.
 returncode_t libtock_proximity_set_upcall(subscribe_upcall upcall, void* opaque);

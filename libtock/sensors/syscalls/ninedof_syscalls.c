@@ -1,6 +1,6 @@
 #include "ninedof_syscalls.h"
 
-bool libtock_ninedof_exists(void) {
+bool libtock_ninedof_driver_exists(void) {
   return driver_exists(DRIVER_NUM_NINEDOF);
 }
 

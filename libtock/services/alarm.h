@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include "../peripherals/syscalls/alarm_syscalls.h"
 #include "../tock.h"
 
 #include <sys/time.h>

@@ -10,7 +10,7 @@
 #include <string.h>
 
 bool libtock_ble_exists(void) {
-  return libtock_ble_driver_exists();
+  return driver_exists(BLE_DRIVER_NUMBER);
 }
 
 int ble_start_advertising(int pdu_type, uint8_t* advd, int len, uint16_t interval) {
