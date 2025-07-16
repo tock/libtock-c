@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <libtock/peripherals/syscalls/alarm_syscalls.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/peripherals/syscalls/alarm_syscalls.h>
 
 volatile int a = 0;
 int b = 0;

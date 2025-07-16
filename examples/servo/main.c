@@ -2,10 +2,9 @@
 #include <stdlib.h>
 
 #include <libtock-sync/services/alarm.h>
-#include <libtock/tock.h>
 #include <libtock/interface/syscalls/servo_syscalls.h>
+#include <libtock/tock.h>
 
-#include "../../libtock/interface/syscalls/servo_syscalls.h"
 
 int main(void) {
   // Checks if the driver exists and, if not, returns -1.
