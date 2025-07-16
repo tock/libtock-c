@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/rng_syscalls.h>
+
 #include "rng.h"
 
 struct rng_data {

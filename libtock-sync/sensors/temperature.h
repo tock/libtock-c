@@ -1,6 +1,5 @@
 #pragma once
 
-#include "syscalls/temperature_syscalls.h"
 #include <libtock/tock.h>
 
 #ifdef __cplusplus

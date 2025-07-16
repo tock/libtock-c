@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/rtc_syscalls.h>
+
 #include "rtc.h"
 
 struct rtc_date_data {

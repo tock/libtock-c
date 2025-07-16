@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/crc_syscalls.h>
+
 #include "crc.h"
 
 struct crc_data {

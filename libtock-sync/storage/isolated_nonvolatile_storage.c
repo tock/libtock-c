@@ -1,3 +1,5 @@
+#include <libtock/storage/syscalls/isolated_nonvolatile_storage_syscalls.h>
+
 #include "isolated_nonvolatile_storage.h"
 #include <stdio.h>
 

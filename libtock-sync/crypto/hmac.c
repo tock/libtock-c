@@ -1,3 +1,5 @@
+#include <libtock/crypto/syscalls/hmac_syscalls.h>
+
 #include "hmac.h"
 
 struct hmac_data {
