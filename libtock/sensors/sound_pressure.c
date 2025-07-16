@@ -13,6 +13,14 @@ bool libtock_sound_pressure_exists(void) {
   return libtock_sound_pressure_driver_exists();
 }
 
+returncode_t libtock_sound_pressure_enable(void) {
+  return libtock_sound_pressure_command_enable();
+}
+
+returncode_t libtock_sound_pressure_disable(void) {
+  return libtock_sound_pressure_command_disable();
+}
+
 returncode_t libtock_sound_pressure_read(libtock_sound_pressure_callback cb) {
   returncode_t err;
 

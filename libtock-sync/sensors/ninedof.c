@@ -26,6 +26,10 @@ static void ninedof_cb(returncode_t ret, int x, int y, int z) {
 }
 
 
+bool libtocksync_ninedof_exists(void) {
+  return libtock_ninedof_driver_exists();
+}
+
 returncode_t libtocksync_ninedof_read_accelerometer(int* x, int* y, int* z) {
   returncode_t err;
 
