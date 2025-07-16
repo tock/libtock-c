@@ -9,6 +9,9 @@ extern "C" {
 // Check if the driver exists.
 bool libtock_process_info_exists(void);
 
+// Get the number of running processes on the board.
+returncode_t libtock_process_info_get_process_count(uint32_t* count);
+
 // Get an array of `uint32_t` process IDs.
 //
 // `count` is set to the number of process IDs.
