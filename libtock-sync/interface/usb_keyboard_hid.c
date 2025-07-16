@@ -17,6 +17,10 @@ static void usb_keyboard_hil_cb(returncode_t ret) {
   result.ret   = ret;
 }
 
+bool libtocksync_usb_keyboard_hid_exists(void) {
+  return libtock_usb_keyboard_hid_driver_exists();
+}
+
 returncode_t libtocksync_usb_keyboard_hid_send(uint8_t* buffer, uint32_t len) {
   int err;
   result.fired = false;

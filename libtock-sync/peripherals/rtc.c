@@ -27,6 +27,10 @@ static void rtc_done_cb(returncode_t ret) {
   result_done.ret   = ret;
 }
 
+bool libtocksync_rtc_exists(void) {
+  return libtock_rtc_driver_exists();
+}
+
 returncode_t libtocksync_rtc_get_date(libtock_rtc_date_t* date) {
   returncode_t ret;
 

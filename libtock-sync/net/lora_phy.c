@@ -14,6 +14,10 @@ static void lora_phy_spi_cb(returncode_t ret) {
   result.ret   = ret;
 }
 
+bool libtocksync_lora_phy_exists(void) {
+  return libtock_lora_phy_driver_exists();
+}
+
 returncode_t libtocksync_lora_phy_write(const uint8_t* write,
                                         uint32_t       len) {
   result.fired = false;

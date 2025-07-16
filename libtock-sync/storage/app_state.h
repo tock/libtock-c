@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_app_state_exists(void);
+
 // Save the application state.
 returncode_t libtocksync_app_state_save(void);
 
