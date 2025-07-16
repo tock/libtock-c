@@ -6,6 +6,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_temperature_exists(void);
+
 // Read the temperature sensor synchronously.
 //
 // ## Arguments

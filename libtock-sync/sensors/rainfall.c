@@ -17,6 +17,10 @@ static void rainfall_callback(returncode_t ret, uint32_t rainfall) {
   result.fired    = true;
 }
 
+bool libtocksync_rainfall_exists(void) {
+  return libtock_rainfall_driver_exists();
+}
+
 returncode_t libtocksync_rainfall_read(uint32_t* rainfall, int hours) {
   returncode_t err;
 

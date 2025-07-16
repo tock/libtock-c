@@ -15,6 +15,12 @@ typedef void (*libtock_sound_pressure_callback)(returncode_t, uint8_t);
 // Check if the driver exists.
 bool libtock_sound_pressure_exists(void);
 
+// Enable the sound pressure sensor.
+returncode_t libtock_sound_pressure_enable(void);
+
+// Disable the sound pressure sensor.
+returncode_t libtock_sound_pressure_disable(void);
+
 // Initiate an ambient sound pressure measurement.
 //
 // The sound pressure reading will be returned via the callback.

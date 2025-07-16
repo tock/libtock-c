@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_ninedof_exists(void);
+
 // Read the accelerometer synchronously.
 //
 // ## Arguments
