@@ -14,6 +14,10 @@ static void usb_callback(returncode_t ret) {
   result.ret   = ret;
 }
 
+bool libtocksync_usb_exists(void) {
+  return libtock_usb_driver_exists();
+}
+
 returncode_t libtocksync_usb_enable_and_attach(void) {
   int err;
 

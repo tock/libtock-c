@@ -22,6 +22,10 @@ static void read_cb(returncode_t ret, int length) {
   result.length = length;
 }
 
+bool libtocksync_nonvolatile_storage_exists(void) {
+  return libtock_nonvolatile_storage_driver_exists();
+}
+
 returncode_t libtocksync_nonvolatile_storage_write(uint32_t offset, uint32_t length, uint8_t* buffer,
                                                    uint32_t buffer_length, int* length_written) {
   returncode_t ret;

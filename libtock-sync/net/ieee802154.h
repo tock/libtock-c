@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_ieee802154_exists(void);
+
 // Sends an IEEE 802.15.4 frame synchronously. The desired key must first be
 // added to the key list.  It is then looked up with the security level and key
 // ID provided. Returns TOCK_SUCCESS or TOCK_ENOACK on successful transmission,

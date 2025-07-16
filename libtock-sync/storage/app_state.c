@@ -14,6 +14,10 @@ static void app_state_cb(returncode_t ret) {
   result.ret   = ret;
 }
 
+bool libtocksync_app_state_exists(void) {
+  return libtock_app_state_driver_exists();
+}
+
 returncode_t libtocksync_app_state_save(void) {
   returncode_t err;
 

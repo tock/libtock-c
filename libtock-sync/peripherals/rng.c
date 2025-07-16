@@ -17,6 +17,10 @@ static void rng_cb(returncode_t ret, int received) {
   result.received = received;
 }
 
+bool libtocksync_rng_exists(void) {
+  return libtock_rng_driver_exists();
+}
+
 returncode_t libtocksync_rng_get_random_bytes(uint8_t* buf, uint32_t len, uint32_t num, int* num_received) {
   returncode_t ret;
 

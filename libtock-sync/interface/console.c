@@ -16,6 +16,10 @@ static void generic_cb(returncode_t ret, uint32_t length) {
   result.result = ret;
 }
 
+bool libtocksync_console_exists(void) {
+  return libtock_console_driver_exists();
+}
+
 returncode_t libtocksync_console_write(const uint8_t* buffer, uint32_t length, int* written) {
   int err;
   result.fired = false;
