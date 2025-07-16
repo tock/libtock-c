@@ -194,25 +194,25 @@ yield_waitfor_return_t yield_wait_for(uint32_t driver, uint32_t subscribe);
 void tock_exit(uint32_t completion_code) __attribute__ ((noreturn));
 void tock_restart(uint32_t completion_code) __attribute__ ((noreturn));
 
-__attribute__ ((warn_unused_result))
+[[ nodiscard ]]
 syscall_return_t command(uint32_t driver, uint32_t command, int arg1, int arg2);
 
 // Pass this to the subscribe syscall as a function pointer to
 // be the Null Upcall.
 #define TOCK_NULL_UPCALL 0
 
-__attribute__ ((warn_unused_result))
+[[ nodiscard ]]
 subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe, subscribe_upcall uc, void* userdata);
 
-__attribute__ ((warn_unused_result))
+[[ nodiscard ]]
 allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow, void* ptr, size_t size);
 
-__attribute__ ((warn_unused_result))
+[[ nodiscard ]]
 allow_userspace_r_return_t allow_userspace_read(uint32_t driver,
                                                 uint32_t allow, void* ptr,
                                                 size_t size);
 
-__attribute__ ((warn_unused_result))
+[[ nodiscard ]]
 allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow, const void* ptr, size_t size);
 
 // Call the memop syscall.
