@@ -1,4 +1,5 @@
 #include "sound_pressure.h"
+
 #include "syscalls/sound_pressure_syscalls.h"
 
 static void sound_pressure_upcall(int                          sound_pressure,

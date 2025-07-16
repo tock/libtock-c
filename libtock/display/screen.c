@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "screen.h"
+
 #include "syscalls/screen_syscalls.h"
 
 static void screen_callback_done(int                          status,

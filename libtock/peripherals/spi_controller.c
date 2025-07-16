@@ -1,4 +1,5 @@
 #include "spi_controller.h"
+
 #include "syscalls/spi_controller_syscalls.h"
 
 bool libtock_spi_controller_exists(void) {

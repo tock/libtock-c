@@ -1,7 +1,7 @@
 #include <string.h>
 
-#include "udp.h"
 #include "syscalls/udp_syscalls.h"
+#include "udp.h"
 
 bool libtock_udp_exists(void) {
   return libtock_udp_driver_exists();

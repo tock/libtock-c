@@ -1,4 +1,5 @@
 #include "analog_comparator.h"
+
 #include "syscalls/analog_comparator_syscalls.h"
 
 bool libtock_analog_comparator_exists(void) {

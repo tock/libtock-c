@@ -1,4 +1,5 @@
 #include "button.h"
+
 #include "syscalls/button_syscalls.h"
 
 bool libtock_button_exists(void) {

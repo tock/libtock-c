@@ -1,5 +1,5 @@
-#include "usb.h"
 #include "syscalls/usb_syscalls.h"
+#include "usb.h"
 
 static void usb_upcall(int                         status,
                        __attribute__((unused)) int v1,

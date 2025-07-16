@@ -7,8 +7,8 @@
 #include <libtock/interface/led.h>
 #include <libtock/net/ieee802154.h>
 #include <libtock/net/syscalls/ieee802154_syscalls.h>
-#include <libtock/net/udp.h>
 #include <libtock/net/syscalls/udp_syscalls.h>
+#include <libtock/net/udp.h>
 
 /*
  * UDP sample packet reception app.

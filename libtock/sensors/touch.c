@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
-#include "touch.h"
 #include "syscalls/touch_syscalls.h"
+#include "touch.h"
 
 static void single_touch_upcall(int                          touch_status,
                                 int                          xy,

@@ -1,4 +1,5 @@
 #include "rng.h"
+
 #include "syscalls/rng_syscalls.h"
 
 // Internal upcall.

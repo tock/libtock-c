@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "console.h"
+
 #include "syscalls/console_syscalls.h"
 
 static void generic_upcall(int   status,

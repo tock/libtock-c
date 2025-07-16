@@ -1,5 +1,5 @@
-#include "text_screen.h"
 #include "syscalls/text_screen_syscalls.h"
+#include "text_screen.h"
 
 static void text_screen_callback(int                          status,
                                  __attribute__ ((unused)) int data1,

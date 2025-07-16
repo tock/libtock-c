@@ -1,4 +1,5 @@
 #include "crc.h"
+
 #include "syscalls/crc_syscalls.h"
 
 static void crc_upcall(int status, int v1, __attribute__((unused)) int v2, void* opaque) {

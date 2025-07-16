@@ -1,4 +1,5 @@
 #include "aes.h"
+
 #include "syscalls/aes_syscalls.h"
 
 bool libtock_aes_exists(void) {

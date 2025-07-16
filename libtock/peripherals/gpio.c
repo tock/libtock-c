@@ -1,4 +1,5 @@
 #include "gpio.h"
+
 #include "syscalls/gpio_syscalls.h"
 
 static void gpio_upcall(int                          pin_number,

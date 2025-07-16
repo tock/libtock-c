@@ -1,4 +1,5 @@
 #include "proximity.h"
+
 #include "syscalls/proximity_syscalls.h"
 
 // Internal callback for faking synchronous reads

@@ -1,4 +1,5 @@
 #include "gpio_async.h"
+
 #include "syscalls/gpio_async_syscalls.h"
 
 static void gpio_async_upcall_interrupt(int                          pin_number,

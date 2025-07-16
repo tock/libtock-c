@@ -1,4 +1,5 @@
 #include "spi_peripheral.h"
+
 #include "syscalls/spi_peripheral_syscalls.h"
 
 bool libtock_spi_peripheral_exists(void) {
