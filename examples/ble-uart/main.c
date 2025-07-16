@@ -1,14 +1,15 @@
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 #include <ble_advdata.h>
 #include <eddystone.h>
 #include <nordic_common.h>
 #include <nrf_error.h>
 #include <simple_adv.h>
 #include <simple_ble.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 
 #include <libtock-sync/interface/console.h>
 #include <libtock/interface/console.h>

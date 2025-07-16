@@ -1,6 +1,7 @@
-#include <gap.h>
 #include <stdbool.h>
 #include <stdio.h>
+
+#include <gap.h>
 
 #include <libtock/net/ble.h>
 #include <libtock/tock.h>

@@ -1,8 +1,9 @@
 // Micro:bit v2 testing application.
 // This app is modeled after the Hail test app by bradjc.
 
-#include <gap.h>
 #include <stdio.h>
+
+#include <gap.h>
 
 #include <libtock-sync/peripherals/adc.h>
 #include <libtock-sync/peripherals/crc.h>

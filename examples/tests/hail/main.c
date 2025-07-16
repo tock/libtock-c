@@ -1,10 +1,11 @@
+#include <stdbool.h>
+#include <stdio.h>
+
 #include <ble_advdata.h>
 #include <nordic_common.h>
 #include <nrf_error.h>
 #include <simple_adv.h>
 #include <simple_ble.h>
-#include <stdbool.h>
-#include <stdio.h>
 
 #include <libtock-sync/peripherals/adc.h>
 #include <libtock-sync/peripherals/crc.h>
