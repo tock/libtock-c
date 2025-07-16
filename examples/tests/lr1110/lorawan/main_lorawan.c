@@ -335,8 +335,8 @@ static void on_modem_alarm(void) {
 
   printf("[Sensors] Sampling Temperature and Humidity sensors once.\n");
 
-  bool temperature_available = driver_exists(DRIVER_NUM_TEMPERATURE);
-  bool humidity_available    = driver_exists(DRIVER_NUM_HUMIDITY);
+  bool temperature_available = libtocksync_temperature_exists();
+  bool humidity_available    = libtocksync_temperature_exists();
   int temp = 0;
   int humi = 0;
   if (temperature_available) {

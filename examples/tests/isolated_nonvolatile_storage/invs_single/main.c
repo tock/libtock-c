@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include <libtock-sync/storage/isolated_nonvolatile_storage.h>
+#include <libtock/storage/syscalls/isolated_nonvolatile_storage_syscalls.h>
 
 
 

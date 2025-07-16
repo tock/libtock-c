@@ -118,7 +118,7 @@ static uint16_t process_menu_get_item_count(void* data) {
   UNUSED(data);
 
   uint32_t count;
-  libtock_process_info_command_get_process_count(&count);
+  libtock_process_info_get_process_count(&count);
   return count + 1; // +1 for back
 }
 

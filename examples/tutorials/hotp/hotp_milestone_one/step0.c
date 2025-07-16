@@ -4,6 +4,7 @@
 
 #include <libtock-sync/interface/usb_keyboard_hid.h>
 #include <libtock/crypto/hmac.h>
+#include <libtock/crypto/syscalls/hmac_syscalls.h>
 #include <libtock/interface/button.h>
 #include <libtock/interface/led.h>
 

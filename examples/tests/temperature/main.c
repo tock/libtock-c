@@ -7,7 +7,7 @@
 int main(void) {
   returncode_t ret;
 
-  if (!libtock_temperature_exists()) {
+  if (!libtocksync_temperature_exists()) {
     printf("[Temperature] No temperature sensor found.\n");
     exit(-1);
   }
