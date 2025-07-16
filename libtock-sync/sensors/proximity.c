@@ -16,6 +16,10 @@ static void proximity_cb(returncode_t ret, uint8_t proximity) {
   result.fired     = true;
 }
 
+bool libtocksync_proximity_exists(void) {
+  return libtock_proximity_driver_exists();
+}
+
 returncode_t libtocksync_proximity_read(uint8_t* proximity) {
   returncode_t err;
   result.fired = false;

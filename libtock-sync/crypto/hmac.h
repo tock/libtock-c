@@ -9,6 +9,9 @@
 extern "C" {
 #endif
 
+
+bool libtocksync_hmac_exists(void);
+
 // Compute an HMAC on the given buffer.
 returncode_t libtocksync_hmac_simple(libtock_hmac_algorithm_t hmac_type,
                                      uint8_t* key_buffer, uint32_t key_length,

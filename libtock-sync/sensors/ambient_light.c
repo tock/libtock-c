@@ -17,6 +17,10 @@ static void ambient_light_callback(returncode_t ret, int intensity) {
   result.fired     = true;
 }
 
+bool libtocksync_ambient_light_exists(void) {
+  return libtock_ambient_light_driver_exists();
+}
+
 returncode_t libtocksync_ambient_light_read_intensity(int* lux_value) {
   returncode_t err;
 

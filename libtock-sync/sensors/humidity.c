@@ -17,6 +17,10 @@ static void humidity_callback(returncode_t ret, int humidity) {
   result.fired    = true;
 }
 
+bool libtocksync_humidity_exists(void) {
+  return libtock_humidity_driver_exists();
+}
+
 returncode_t libtocksync_humidity_read(int* humidity) {
   returncode_t err;
 

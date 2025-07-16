@@ -15,7 +15,7 @@ extern "C" {
 typedef void (*libtock_proximity_callback)(returncode_t, uint8_t);
 
 // Check if the driver exists.
-bool libtock_poximity_exists(void);
+bool libtock_proximity_exists(void);
 
 // Read proximity asynchronously.
 //

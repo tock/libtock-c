@@ -3,6 +3,10 @@
 
 #include "hmac.h"
 
+bool libtocksync_hmac_exists(void) {
+  return libtocksync_hmac_driver_exists();
+}
+
 returncode_t libtocksync_hmac_simple(libtock_hmac_algorithm_t hmac_type,
                                      uint8_t* key_buffer, uint32_t key_length,
                                      uint8_t* input_buffer, uint32_t input_length,

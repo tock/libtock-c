@@ -16,6 +16,10 @@ static void pressure_cb(returncode_t ret, int pressure) {
   result.ret      = ret;
 }
 
+bool libtocksync_pressure_exists(void) {
+  return libtock_pressure_driver_exists();
+}
+
 returncode_t libtocksync_pressure_read(int* pressure) {
   returncode_t err;
 

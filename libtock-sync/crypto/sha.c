@@ -14,6 +14,10 @@ static void sha_cb_hash(returncode_t ret) {
   result.ret   = ret;
 }
 
+bool libtocksync_sha_exists(void) {
+  return libtocksync_sha_driver_exists();
+}
+
 returncode_t libtocksync_sha_simple_hash(libtock_sha_algorithm_t hash_type,
                                          uint8_t* input_buffer, uint32_t input_length,
                                          uint8_t* hash_buffer, uint32_t hash_length) {

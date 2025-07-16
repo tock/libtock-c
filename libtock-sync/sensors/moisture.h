@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_moisture_exists(void);
+
 // Read the moisture sensor synchronously.
 //
 // ## Arguments

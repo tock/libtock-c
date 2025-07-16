@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_proximity_exists(void);
+
 // Read proximity synchronously.
 //
 // This function queries the sensor for a proximity reading which is then
