@@ -1,6 +1,6 @@
 #include "nonvolatile_storage_syscalls.h"
 
-bool libtock_nonvolatile_storage_exists(void) {
+bool libtock_nonvolatile_storage_driver_exists(void) {
   return driver_exists(DRIVER_NUM_NONVOLATILE_STORAGE);
 }
 

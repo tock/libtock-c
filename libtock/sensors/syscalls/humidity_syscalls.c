@@ -1,6 +1,6 @@
 #include "humidity_syscalls.h"
 
-bool libtock_humidity_exists(void) {
+bool libtock_humidity_driver_exists(void) {
   return driver_exists(DRIVER_NUM_HUMIDITY);
 }
 

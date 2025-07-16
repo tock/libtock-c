@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/sound_pressure_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,6 +11,9 @@ extern "C" {
 // - `arg1` (`returncode_t`): Status from sampling the sensor.
 // - `arg2` (`uint8_t`): Sound pressure reading in dB.
 typedef void (*libtock_sound_pressure_callback)(returncode_t, uint8_t);
+
+// Check if the driver exists.
+bool libtock_sound_pressure_exists(void);
 
 // Initiate an ambient sound pressure measurement.
 //
