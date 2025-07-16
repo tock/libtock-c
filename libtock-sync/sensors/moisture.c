@@ -1,3 +1,5 @@
+#include <libtock/sensors/syscalls/moisture_syscalls.h>
+
 #include "moisture.h"
 
 typedef struct {

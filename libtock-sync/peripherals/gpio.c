@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/gpio_syscalls.h>
+
 #include "gpio.h"
 
 struct gpio_data {

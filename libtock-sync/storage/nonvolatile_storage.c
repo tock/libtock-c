@@ -1,3 +1,5 @@
+#include <libtock/storage/syscalls/nonvolatile_storage_syscalls.h>
+
 #include "nonvolatile_storage.h"
 
 struct nv_data {

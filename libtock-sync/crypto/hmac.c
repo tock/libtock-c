@@ -1,3 +1,4 @@
+#include <libtock/crypto/syscalls/hmac_syscalls.h>
 #include <libtock/defer.h>
 
 #include "hmac.h"

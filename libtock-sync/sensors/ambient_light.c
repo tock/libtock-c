@@ -1,3 +1,5 @@
+#include <libtock/sensors/syscalls/ambient_light_syscalls.h>
+
 #include "ambient_light.h"
 
 typedef struct {

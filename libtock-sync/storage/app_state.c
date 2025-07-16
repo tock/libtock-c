@@ -1,3 +1,5 @@
+#include <libtock/storage/syscalls/app_state_syscalls.h>
+
 #include "app_state.h"
 
 struct app_state_data {

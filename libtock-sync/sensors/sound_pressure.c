@@ -1,3 +1,5 @@
+#include <libtock/sensors/syscalls/sound_pressure_syscalls.h>
+
 #include "sound_pressure.h"
 
 struct sound_pressure_data {

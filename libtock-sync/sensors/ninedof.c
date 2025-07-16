@@ -1,6 +1,8 @@
 #include <math.h>
 #include <stdio.h>
 
+#include <libtock/sensors/syscalls/ninedof_syscalls.h>
+
 #include "ninedof.h"
 
 struct ninedof_data {

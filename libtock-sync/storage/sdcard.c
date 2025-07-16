@@ -1,3 +1,5 @@
+#include <libtock/storage/syscalls/sdcard_syscalls.h>
+
 #include "sdcard.h"
 
 // used for creating synchronous versions of functions

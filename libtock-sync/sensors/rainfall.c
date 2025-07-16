@@ -1,3 +1,5 @@
+#include <libtock/sensors/syscalls/rainfall_syscalls.h>
+
 #include "rainfall.h"
 
 typedef struct {

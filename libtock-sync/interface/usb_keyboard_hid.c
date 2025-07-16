@@ -1,5 +1,7 @@
 #include <ctype.h>
 
+#include <libtock/interface/syscalls/usb_keyboard_hid_syscalls.h>
+
 #include "usb_keyboard_hid.h"
 
 

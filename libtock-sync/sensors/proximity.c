@@ -1,3 +1,5 @@
+#include <libtock/sensors/syscalls/proximity_syscalls.h>
+
 #include "proximity.h"
 
 struct data {

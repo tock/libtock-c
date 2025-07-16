@@ -1,3 +1,5 @@
+#include <libtock/net/syscalls/lora_phy_syscalls.h>
+
 #include "lora_phy.h"
 
 struct lora_phy_spi_data {

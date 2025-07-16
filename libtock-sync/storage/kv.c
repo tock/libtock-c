@@ -1,3 +1,5 @@
+#include <libtock/storage/syscalls/kv_syscalls.h>
+
 #include "kv.h"
 
 struct kv_data {

@@ -1,3 +1,5 @@
+#include <libtock/crypto/syscalls/sha_syscalls.h>
+
 #include "sha.h"
 
 struct sha_data {
