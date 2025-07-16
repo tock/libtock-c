@@ -188,11 +188,12 @@ All common system call operations should have asynchronous versions.
 
 These asynchronous APIs must not use or include any internal/global state.
 
-| Characteristic   | Value                         |
-|------------------|-------------------------------|
-| Location         | `libtock/[category]`          |
-| Source File Name | `libtock/[category]/[name].c` |
-| Header File Name | `libtock/[category]/[name].h` |
+| Characteristic                    | Value                               |
+|-----------------------------------|-------------------------------------|
+| Location                          | `libtock/[category]`                |
+| Source File Name                  | `libtock/[category]/[name].c`       |
+| Header File Name                  | `libtock/[category]/[name].h`       |
+| Types Header File Name (Optional) | `libtock/[category]/[name]_types.h` |
 
 ### Header Files
 
@@ -274,6 +275,13 @@ returncode_t libtock_sensor_read(libtock_sensor_callback_reading cb) {
   return ret;
 }
 ```
+
+### Types Header
+
+If there are any additional types, beyond the callback signature, that are
+exposed in the public API of the driver they must be included in the
+`libtock/[category]/[name]_types.h` file. This makes it possible to include
+these types from `libtock-sync` implementations.
 
 ## Synchronous APIs
 
@@ -408,5 +416,49 @@ returncode_t libtocksync_sensor_read(int* val) {
   // Wait for the operation to finish.
   err = libtock_temperature_yield_wait_for(val);
   return err;
+}
+```
+
+### More Complicated Example:
+
+Drivers that use allow buffers must un-allow the buffers after the operation
+finishes.
+
+```c
+#include "digest.h"
+#include "syscalls/digest_syscalls.h"
+
+returncode_t libtocksync_digest_compute(uint8_t* input_buffer,
+                                        uint32_t input_buffer_len,
+                                        uint8_t* output_buffer,
+                                        uint32_t output_buffer_len) {
+  returncode_t ret;
+
+  // First allow for input. If it fails, return.
+  ret = libtock_digest_set_readonly_allow(input_buffer, input_buffer_len);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  // Second allow for output. If it fails, unallow first buffer then return.
+  ret = libtock_digest_set_readwrite_allow(output_buffer, output_buffer_len);
+  if (ret != RETURNCODE_SUCCESS) goto exit1;
+
+  // Attempt the command. If it fails, unallow both buffers.
+  ret = libtock_digest_command_compute_digest();
+  if (err != RETURNCODE_SUCCESS) goto exit2;
+
+  // Wait for the digest to compute.
+  ret = libtock_digest_yield_wait_for(val);
+
+exit2:
+  // Do the input unallow. We have to ignore the return value to 1) return the
+  // correct error of the actual failing operation if something happened, and
+  // 2) do the second unallow unconditionally.
+  libtock_digest_set_readonly_allow(NULL, 0);
+
+exit1:
+  // Do the output unallow.
+  libtock_digest_set_readonly_allow(NULL, 0);
+
+  return ret;
 }
 ```
