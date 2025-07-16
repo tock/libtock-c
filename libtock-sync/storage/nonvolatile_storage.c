@@ -1,3 +1,5 @@
+#include <libtock/storage/syscalls/nonvolatile_storage_syscalls.h>
+
 #include "nonvolatile_storage.h"
 
 struct nv_data {
@@ -18,6 +20,10 @@ static void read_cb(returncode_t ret, int length) {
   result.fired  = true;
   result.ret    = ret;
   result.length = length;
+}
+
+bool libtocksync_nonvolatile_storage_exists(void) {
+  return libtock_nonvolatile_storage_driver_exists();
 }
 
 returncode_t libtocksync_nonvolatile_storage_write(uint32_t offset, uint32_t length, uint8_t* buffer,

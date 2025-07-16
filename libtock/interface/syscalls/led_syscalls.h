@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_LED 0x2
 
 // Check if the button system call driver is available on this board.
-bool libtock_led_exists(void);
+bool libtock_led_driver_exists(void);
 
 // Returns the number of LEDs on the host platform.
 returncode_t libtock_led_command_count(int* count);

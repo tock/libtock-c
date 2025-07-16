@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_lora_phy_exists(void);
+
 returncode_t libtocksync_lora_phy_write(const uint8_t* write,
                                         uint32_t       len);
 

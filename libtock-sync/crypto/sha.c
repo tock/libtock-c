@@ -1,3 +1,5 @@
+#include <libtock/crypto/syscalls/sha_syscalls.h>
+
 #include "sha.h"
 
 struct sha_data {
@@ -10,6 +12,10 @@ static struct sha_data result = {.fired = false};
 static void sha_cb_hash(returncode_t ret) {
   result.fired = true;
   result.ret   = ret;
+}
+
+bool libtocksync_sha_exists(void) {
+  return libtock_sha_driver_exists();
 }
 
 returncode_t libtocksync_sha_simple_hash(libtock_sha_algorithm_t hash_type,

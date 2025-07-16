@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <libtock/crypto/aes.h>
+#include <libtock/crypto/syscalls/aes_syscalls.h>
 
 #define KEY_LEN  16
 #define IV_LEN  16

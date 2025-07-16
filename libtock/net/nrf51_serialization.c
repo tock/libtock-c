@@ -1,4 +1,9 @@
 #include "nrf51_serialization.h"
+#include "syscalls/nrf51_serialization_syscalls.h"
+
+bool libtock_nrf51_serialization_exists(void) {
+  return libtock_nrf51_serialization_driver_exists();
+}
 
 returncode_t libtock_nrf51_serialization_reset(void) {
   return libtock_nrf51_serialization_command_reset();

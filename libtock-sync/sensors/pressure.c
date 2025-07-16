@@ -1,3 +1,5 @@
+#include <libtock/sensors/syscalls/pressure_syscalls.h>
+
 #include "pressure.h"
 
 struct pressure_data {
@@ -12,6 +14,10 @@ static void pressure_cb(returncode_t ret, int pressure) {
   result.pressure = pressure;
   result.fired    = true;
   result.ret      = ret;
+}
+
+bool libtocksync_pressure_exists(void) {
+  return libtock_pressure_driver_exists();
 }
 
 returncode_t libtocksync_pressure_read(int* pressure) {

@@ -1,6 +1,6 @@
 #include "sound_pressure_syscalls.h"
 
-bool libtock_sound_pressure_exists(void) {
+bool libtock_sound_pressure_driver_exists(void) {
   return driver_exists(DRIVER_NUM_SOUND_PRESSURE);
 }
 

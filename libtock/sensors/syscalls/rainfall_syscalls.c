@@ -1,6 +1,6 @@
 #include "rainfall_syscalls.h"
 
-bool libtock_rainfall_exists(void) {
+bool libtock_rainfall_driver_exists(void) {
   return driver_exists(DRIVER_NUM_RAINFALL);
 }
 

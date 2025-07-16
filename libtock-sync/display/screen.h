@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_screen_exists(void);
+
 // Set the screen brightness.
 returncode_t libtocksync_screen_set_brightness(uint32_t brightness);
 

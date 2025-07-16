@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_rainfall_exists(void);
+
 // Read the rainfall sensor synchronously.
 //
 // ## Arguments

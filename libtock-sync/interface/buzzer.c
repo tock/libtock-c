@@ -1,3 +1,5 @@
+#include <libtock/interface/syscalls/buzzer_syscalls.h>
+
 #include "buzzer.h"
 
 struct data {

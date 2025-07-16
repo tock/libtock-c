@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_SOUND_PRESSURE 0x60006
 
 // Check if the sound pressure sensor exists.
-bool libtock_sound_pressure_exists(void);
+bool libtock_sound_pressure_driver_exists(void);
 
 // Set the upcall function for the sound pressure sensor.
 returncode_t libtock_sound_pressure_set_upcall(subscribe_upcall callback, void* opaque);

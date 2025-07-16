@@ -1,6 +1,6 @@
 #include "sdcard_syscalls.h"
 
-bool libtock_sdcard_exists(void) {
+bool libtock_sdcard_driver_exists(void) {
   return driver_exists(DRIVER_NUM_SDCARD);
 }
 

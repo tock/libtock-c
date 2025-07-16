@@ -4,6 +4,7 @@
 
 #include <libtock-sync/services/alarm.h>
 #include <libtock/peripherals/analog_comparator.h>
+#include <libtock/peripherals/syscalls/analog_comparator_syscalls.h>
 #include <libtock/tock.h>
 
 static int callback_channel;

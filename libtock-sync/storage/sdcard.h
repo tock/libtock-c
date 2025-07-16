@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_sdcard_exists(void);
+
 // Initialize the SD card.
 returncode_t libtocksync_sdcard_initialize(uint32_t* block_size, uint32_t* size_in_kB);
 
