@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/kv_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,6 +17,9 @@ typedef void (*libtock_kv_callback_get)(returncode_t, int);
 // - `arg1` (`returncode_t`): Status of kv operation.
 typedef void (*libtock_kv_callback_done)(returncode_t);
 
+
+// Check if the driver exists.
+bool libtock_kv_exists(void);
 
 returncode_t libtock_kv_get(const uint8_t* key_buffer, uint32_t key_len, uint8_t* ret_buffer, uint32_t ret_len,
                             libtock_kv_callback_get cb);

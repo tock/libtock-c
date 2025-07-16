@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/pressure_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,6 +11,9 @@ extern "C" {
 // - `arg1` (`returncode_t`): Status from sampling the sensor.
 // - `arg2` (`int`): Pressure reading in hPa.
 typedef void (*libtock_pressure_callback)(returncode_t, int);
+
+// Check if the driver exists.
+bool libtock_pressure_exists(void);
 
 // Initiate a pressure measurement and call the callback with the reading when
 // finished.

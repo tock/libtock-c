@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_MOISTURE 0x6000A
 
 // Check if the moisture driver is installed.
-bool libtock_moisture_exists(void);
+bool libtock_moisture_driver_exists(void);
 
 // Configure the upcall for when the reading is ready.
 returncode_t libtock_moisture_set_upcall(subscribe_upcall callback, void* opaque);

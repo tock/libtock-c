@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_APP_STATE 0x50000
 
 // Check if the app state system call driver is available on this board.
-bool libtock_app_state_exists(void);
+bool libtock_app_state_driver_exists(void);
 
 // Configure the upcall for the app state driver.
 returncode_t libtock_app_state_set_upcall(subscribe_upcall cb, void* opaque);

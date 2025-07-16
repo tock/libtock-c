@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/sdcard_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,6 +17,9 @@ typedef void (*libtock_sdcard_callback_initialized)(returncode_t, uint32_t, uint
 //
 // - `arg1` (`returncode_t`): Status of the init operation.
 typedef void (*libtock_sdcard_callback_operations)(returncode_t);
+
+// Check if the driver exists.
+bool libtock_sdcard_exists(void);
 
 // Initialize an SD card asynchronously.
 //

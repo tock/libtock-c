@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/proximity_syscalls.h"
 
 #ifdef _cplusplus
 extern "C" {
@@ -14,6 +13,9 @@ extern "C" {
 //   indicates the closest measurable distance and '0' that no object is
 //   detected.
 typedef void (*libtock_proximity_callback)(returncode_t, uint8_t);
+
+// Check if the driver exists.
+bool libtock_poximity_exists(void);
 
 // Read proximity asynchronously.
 //

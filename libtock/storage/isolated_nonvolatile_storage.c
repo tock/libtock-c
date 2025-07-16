@@ -29,6 +29,10 @@ static void read_done(int                          status,
   cb(tock_status_to_returncode(status));
 }
 
+bool libtock_isolated_nonvolatile_storage_exists(void) {
+  return libtock_isolated_nonvolatile_storage_driver_exists();
+}
+
 returncode_t libtock_isolated_nonvolatile_storage_get_number_bytes(
   libtock_isolated_nonvolatile_storage_callback_get_number_bytes cb) {
   returncode_t ret;

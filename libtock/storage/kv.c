@@ -1,4 +1,5 @@
 #include "kv.h"
+#include "syscalls/kv_syscalls.h"
 
 static void kv_upcall_get(int                          status,
                           int                          length,
@@ -17,6 +18,10 @@ static void kv_upcall_done(int                          status,
 
   libtock_kv_callback_done cb = (libtock_kv_callback_done) opaque;
   cb(tock_status_to_returncode(status));
+}
+
+bool libtock_kv_exists(void) {
+  return libtock_kv_driver_exists();
 }
 
 returncode_t libtock_kv_get(const uint8_t* key_buffer, uint32_t key_len, uint8_t* ret_buffer, uint32_t ret_len,

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/ambient_light_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,6 +12,9 @@ extern "C" {
 // - `arg2` (`int`): Ambient light reading in lux (lx).
 typedef void (*libtock_ambient_light_callback)(returncode_t, int);
 
+
+// Check if the driver exists.
+bool libtock_ambient_light_exists(void);
 
 // Request an ambient light reading.
 //

@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_PRESSURE 0x60008
 
 // Check if the pressure driver exists.
-bool libtock_pressure_exists(void);
+bool libtock_pressure_driver_exists(void);
 
 // Set the upcall for the pressure sensor.
 returncode_t libtock_pressure_set_upcall(subscribe_upcall callback, void* opaque);

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 
 #include "alarm.h"
+#include "../peripherals/syscalls/alarm_syscalls.h"
+
 
 #define MAX_TICKS UINT32_MAX
 

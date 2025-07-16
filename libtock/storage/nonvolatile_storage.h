@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/nonvolatile_storage_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,6 +17,9 @@ typedef void (*libtock_nonvolatile_storage_callback_write)(returncode_t, int);
 // - `arg1` (`returncode_t`): Status of read.
 // - `arg2` (`int`): Length ead.
 typedef void (*libtock_nonvolatile_storage_callback_read)(returncode_t, int);
+
+// Check if the driver exists.
+bool libtock_nonvolatile_storage_exists(void);
 
 // Get the number of bytes available for storage.
 returncode_t libtock_nonvolatile_storage_get_number_bytes(uint32_t* number_bytes);

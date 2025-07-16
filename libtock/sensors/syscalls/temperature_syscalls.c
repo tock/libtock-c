@@ -1,6 +1,6 @@
 #include "temperature_syscalls.h"
 
-bool libtock_temperature_exists(void) {
+bool libtock_temperature_driver_exists(void) {
   return driver_exists(DRIVER_NUM_TEMPERATURE);
 }
 

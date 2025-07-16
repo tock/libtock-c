@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_SDCARD 0x50002
 
 // Check if an SD Card driver is installed.
-bool libtock_sdcard_exists(void);
+bool libtock_sdcard_driver_exists(void);
 
 // Set a callback function for SD card commands.
 returncode_t libtock_sdcard_set_upcall(subscribe_upcall callback, void* opque);

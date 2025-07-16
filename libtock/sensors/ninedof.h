@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/ninedof_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,6 +15,9 @@ extern "C" {
 // - `arg4` (`int`): Reading in z dimension.
 typedef void (*libtock_ninedof_callback)(returncode_t, int, int, int);
 
+
+// Check if the driver exists.
+bool libtock_ninedof_exists(void);
 
 // Read the accelerometer.
 //
