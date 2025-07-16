@@ -29,6 +29,10 @@ static void recv_callback(returncode_t ret, int len) {
   recv_sync_result.ret   = ret;
 }
 
+bool libtocksync_udp_exists(void) {
+  return libtock_udp_driver_exists();
+}
+
 returncode_t libtocksync_udp_send(void* buf, size_t len,
                                   sock_addr_t* dst_addr) {
   returncode_t ret;

@@ -40,6 +40,10 @@ static returncode_t text_screen_op(returncode_t (*op)(void (*)(returncode_t))) {
   return result.ret;
 }
 
+bool libtocksync_text_screen_exists(void) {
+  return libtock_text_screen_driver_exists();
+}
+
 returncode_t libtocksync_text_screen_display_on(void) {
   return text_screen_op(libtock_text_screen_display_on);
 }

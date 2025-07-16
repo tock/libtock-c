@@ -28,6 +28,10 @@ static void read_cb(returncode_t ret) {
   result.ret   = ret;
 }
 
+bool libtocksync_isolated_nonvolatile_storage_exists(void) {
+  return libtock_isolated_nonvolatile_storage_driver_exists();
+}
+
 returncode_t libtocksync_isolated_nonvolatile_storage_get_number_bytes(uint64_t* number_bytes) {
   returncode_t ret;
   result.fired = false;

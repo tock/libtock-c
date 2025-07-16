@@ -1,3 +1,5 @@
+#include <libtock/interface/syscalls/button_syscalls.h>
+
 #include "button.h"
 
 struct data {
@@ -17,6 +19,10 @@ static void button_cb(returncode_t ret, int button_num, bool pressed) {
   result.result     = ret;
 }
 
+
+bool libtocksync_button_exists(void) {
+  return libtock_button_driver_exists();
+}
 
 returncode_t libtocksync_button_wait_for_press(int button_num) {
   returncode_t err;

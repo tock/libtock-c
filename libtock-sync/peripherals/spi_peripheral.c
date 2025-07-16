@@ -15,6 +15,10 @@ static void cb(returncode_t ret) {
   result.ret   = ret;
 }
 
+bool libtocksync_spi_peripheral_exists(void) {
+  return libtock_spi_peripheral_driver_exists();
+}
+
 returncode_t libtocksync_spi_peripheral_write(const uint8_t* write,
                                               size_t         len) {
   returncode_t err;

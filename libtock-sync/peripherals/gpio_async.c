@@ -29,6 +29,10 @@ static returncode_t gpio_async_op(uint32_t port, uint8_t pin, returncode_t (*op)
   return result.ret;
 }
 
+bool libtocksync_gpio_async_exists(void) {
+  return libtock_gpio_async_driver_exists();
+}
+
 returncode_t libtocksync_gpio_async_make_output(uint32_t port, uint8_t pin) {
   return gpio_async_op(port, pin, libtock_gpio_async_make_output);
 }

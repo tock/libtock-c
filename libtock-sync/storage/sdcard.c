@@ -30,6 +30,10 @@ static void sdcard_cb_general(returncode_t ret) {
 }
 
 
+bool libtocksync_sdcard_exists(void) {
+  return libtock_sdcard_driver_exists();
+}
+
 returncode_t libtocksync_sdcard_initialize(uint32_t* block_size, uint32_t* size_in_kB) {
   returncode_t ret;
   result.fired = false;

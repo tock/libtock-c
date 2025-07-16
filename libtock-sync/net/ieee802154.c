@@ -43,6 +43,10 @@ static void ieee802154_send_raw_done_cb(returncode_t ret, bool acked) {
   send_result_raw.ret   = ret;
 }
 
+bool libtocksync_ieee802154_exists(void) {
+  return libtock_ieee802154_driver_exists();
+}
+
 returncode_t libtocksync_ieee802154_send(uint16_t         addr,
                                          security_level_t level,
                                          key_id_mode_t    key_id_mode,

@@ -4,7 +4,7 @@
 #include "hmac.h"
 
 bool libtocksync_hmac_exists(void) {
-  return libtocksync_hmac_driver_exists();
+  return libtock_hmac_driver_exists();
 }
 
 returncode_t libtocksync_hmac_simple(libtock_hmac_algorithm_t hmac_type,

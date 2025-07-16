@@ -46,6 +46,9 @@ static libtock_adc_callbacks callbacks = {
 };
 
 
+bool libtocksync_adc_exists(void) {
+  return libtock_adc_driver_exists();
+}
 
 returncode_t libtocksync_adc_sample(uint8_t channel, uint16_t* sample) {
   int err;

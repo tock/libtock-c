@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_isolated_nonvolatile_storage_exists(void);
+
 // Get number of bytes available to this app in nonvolatile storage.
 returncode_t libtocksync_isolated_nonvolatile_storage_get_number_bytes(uint64_t* number_bytes);
 

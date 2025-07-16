@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_buzzer_exists(void);
+
 // Play a constant tone for a certain amount of time.
 //
 // This blocks until the tone has played.

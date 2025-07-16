@@ -21,6 +21,10 @@ static void kv_cb_done(returncode_t ret) {
   result.ret   = ret;
 }
 
+bool libtocksync_kv_exists(void) {
+  return libtock_kv_driver_exists();
+}
+
 returncode_t libtocksync_kv_get(const uint8_t* key_buffer, uint32_t key_len, uint8_t* ret_buffer, uint32_t ret_len,
                                 uint32_t* value_len) {
   returncode_t err;

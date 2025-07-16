@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_crc_exists(void);
+
 // Compute a CRC.
 //
 // Returns `SUCCESS` and sets `result` on success.

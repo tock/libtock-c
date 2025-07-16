@@ -1,3 +1,5 @@
+#include <libtock/display/syscalls/screen_syscalls.h>
+
 #include "screen.h"
 
 struct screen_done {
@@ -35,6 +37,10 @@ static void screen_cb_rotation(returncode_t ret, libtock_screen_rotation_t rotat
   result_rotation.ret      = ret;
   result_rotation.rotation = rotation;
   result_rotation.fired    = true;
+}
+
+bool libtocksync_screen_exists(void) {
+  return libtock_screen_driver_exists();
 }
 
 returncode_t libtocksync_screen_set_brightness(uint32_t brightness) {

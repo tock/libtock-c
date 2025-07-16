@@ -20,7 +20,7 @@ int main(void) {
   returncode_t ret;
   printf("[TEST] HMAC\r\n");
 
-  if (!libtock_hmac_exists()) {
+  if (!libtocksync_hmac_exists()) {
     printf("No HMAC driver.\n");
     return -2;
   }

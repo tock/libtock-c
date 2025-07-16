@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_udp_exists(void);
+
 // TODO: fix these names
 
 returncode_t libtocksync_udp_send(void* buf, size_t len,
