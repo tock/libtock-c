@@ -1,5 +1,7 @@
 #include <string.h>
 
+#include <libtock/net/syscalls/udp_syscalls.h>
+
 #include "udp.h"
 
 struct recv_data {

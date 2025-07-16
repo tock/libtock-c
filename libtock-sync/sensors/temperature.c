@@ -1,3 +1,4 @@
+#include "syscalls/temperature_syscalls.h"
 #include "temperature.h"
 
 returncode_t libtocksync_temperature_read(int* temperature) {

@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/usb_syscalls.h>
+
 #include "usb.h"
 
 struct usb_data {

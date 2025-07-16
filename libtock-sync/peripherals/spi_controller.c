@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/spi_controller_syscalls.h>
+
 #include "spi_controller.h"
 
 struct spi_data {

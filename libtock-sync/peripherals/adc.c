@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/adc_syscalls.h>
+
 #include "adc.h"
 
 // used for creating synchronous versions of functions

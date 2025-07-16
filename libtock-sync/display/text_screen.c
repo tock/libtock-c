@@ -1,3 +1,5 @@
+#include <libtock/display/syscalls/text_screen_syscalls.h>
+
 #include "text_screen.h"
 
 struct text_screen_data {

@@ -1,3 +1,5 @@
+#include <libtock/interface/syscalls/console_syscalls.h>
+
 #include "console.h"
 
 struct console_result {
