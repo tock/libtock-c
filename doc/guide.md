@@ -188,11 +188,12 @@ All common system call operations should have asynchronous versions.
 
 These asynchronous APIs must not use or include any internal/global state.
 
-| Characteristic   | Value                         |
-|------------------|-------------------------------|
-| Location         | `libtock/[category]`          |
-| Source File Name | `libtock/[category]/[name].c` |
-| Header File Name | `libtock/[category]/[name].h` |
+| Characteristic                    | Value                               |
+|-----------------------------------|-------------------------------------|
+| Location                          | `libtock/[category]`                |
+| Source File Name                  | `libtock/[category]/[name].c`       |
+| Header File Name                  | `libtock/[category]/[name].h`       |
+| Types Header File Name (Optional) | `libtock/[category]/[name]_types.h` |
 
 ### Header Files
 
@@ -274,6 +275,13 @@ returncode_t libtock_sensor_read(libtock_sensor_callback_reading cb) {
   return ret;
 }
 ```
+
+### Types Header
+
+If there are any additional types, beyond the callback signature, that are
+exposed in the public API of the driver they must be included in the
+`libtock/[category]/[name]_types.h` file. This makes it possible to include
+these types from `libtock-sync` implementations.
 
 ## Synchronous APIs
 
