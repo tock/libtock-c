@@ -24,7 +24,6 @@ static void ninedof_cb(returncode_t ret, int x, int y, int z) {
 }
 
 
-
 returncode_t libtocksync_ninedof_read_accelerometer(int* x, int* y, int* z) {
   returncode_t err;
 

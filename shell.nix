@@ -45,13 +45,13 @@ let
   # The formatting scripts require a specific version of uncrustify:
   uncrustify-0_75_1 = stdenv.mkDerivation rec {
     pname = "uncrustify";
-    version = "0.75.1";
+    version = "0.81.0";
 
     src = pkgs.fetchFromGitHub {
       owner = "uncrustify";
       repo = "uncrustify";
       rev = "uncrustify-${version}";
-      sha256 = "sha256-wLzj/KcqXlcTsOJo7T166jLcWi1KNLmgblIqqkj7/9c=";
+      sha256 = "sha256-8KTsrXUYOfqsWSGBAl0mZpGOYr+duFrRB0ITmq2Auqg=";
     };
 
     nativeBuildInputs = with pkgs; [

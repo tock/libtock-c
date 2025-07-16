@@ -1,4 +1,6 @@
 #include <assert.h>
+#include <stdio.h>
+#include <string.h>
 
 #include <libopenthread/platform/openthread-system.h>
 #include <openthread/dataset_ftd.h>
@@ -9,9 +11,6 @@
 #include <openthread/thread.h>
 
 #include <libtock-sync/services/alarm.h>
-
-#include <stdio.h>
-#include <string.h>
 
 ////////////////////////////////////////////////////////////
 // OPENTHREAD TIMER TEST //
@@ -119,7 +118,6 @@ void setNetworkConfiguration(otInstance* aInstance) {
 
   otError error = otDatasetSetActive(aInstance, &aDataset);
   assert(error == 0);
-
 }
 
 static void stateChangeCallback(uint32_t flags, void* context) {
@@ -159,5 +157,4 @@ static void print_ip_addr(otInstance* instance) {
     otIp6AddressToString(&ip6_addr, addr_string, sizeof(addr_string));
     printf("%s\n", addr_string);
   }
-
 }

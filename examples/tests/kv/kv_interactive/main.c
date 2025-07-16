@@ -33,13 +33,11 @@ static int get_command(void) {
     if (c == RETURNCODE_FAIL) {
       printf("\ngetch() failed!\n");
       return c;
-
     } else {
       char in = c;
 
       if (in == '\n' || in == '\r') {
         return 0;
-
       } else {
         // If this is a valid number record it
         read_buf[idx] = in;
@@ -104,7 +102,6 @@ int main(void) {
         }
         printf("\n");
       }
-
     } else if (strncmp(read_buf, "set", 3) == 0) {
       int key_start   = 4;
       int key_end     = find_end(key_start);
@@ -131,7 +128,6 @@ int main(void) {
       } else {
         printf("Set key-value\n");
       }
-
     } else if (strncmp(read_buf, "add", 3) == 0) {
       int key_start   = 4;
       int key_end     = find_end(key_start);
@@ -158,7 +154,6 @@ int main(void) {
       } else {
         printf("Added key-value\n");
       }
-
     } else if (strncmp(read_buf, "update", 6) == 0) {
       int key_start   = 7;
       int key_end     = find_end(key_start);
@@ -185,7 +180,6 @@ int main(void) {
       } else {
         printf("Updated key-value\n");
       }
-
     } else if (strncmp(read_buf, "delete", 6) == 0) {
       int key_start = 7;
       int key_end   = find_end(key_start);
@@ -202,7 +196,6 @@ int main(void) {
       } else {
         printf("Deleted key\n");
       }
-
     } else {
       printf("KV: unknown command\n");
     }

@@ -4,7 +4,7 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # The version we are currently using
-UNCRUSTIFY_VERSION=0.75.1
+UNCRUSTIFY_VERSION=0.81.0
 
 if [ -x $SCRIPT_DIR/uncrustify-uncrustify-$UNCRUSTIFY_VERSION/build/uncrustify ]; then
   PATH="$SCRIPT_DIR/uncrustify-uncrustify-$UNCRUSTIFY_VERSION/build:$PATH"

@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <libtock-sync/services/alarm.h>
-#include <libtock/kernel/ipc.h>
-
 #include <libtock-sync/sensors/ambient_light.h>
 #include <libtock-sync/sensors/humidity.h>
 #include <libtock-sync/sensors/temperature.h>
+#include <libtock-sync/services/alarm.h>
+#include <libtock/kernel/ipc.h>
 
 size_t _svc_num = 0;
 
@@ -83,7 +82,6 @@ static void do_sensing_cb(__attribute__ ((unused)) uint32_t now,
 
   libtock_alarm_in_ms(3000, do_sensing_cb,  NULL, &_alarm);
 }
-
 
 
 int main(void) {

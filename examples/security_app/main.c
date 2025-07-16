@@ -27,7 +27,6 @@ static void gpio_cb(uint32_t pin_num,
   if (pin_num == 1) {
     // interrupt from pir sensor
     sensor_data.pir = pin_val;
-
   } else if (pin_num == 2) {
     // interrupt from reed switch
     sensor_data.reed_switch = pin_val;

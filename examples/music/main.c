@@ -28,7 +28,6 @@ int melody[] = {
   NOTE_G6, 4,  NOTE_F6, 4,  NOTE_E6, 4,  NOTE_D6, 4,
   NOTE_C6, 4,  NOTE_C6, 4,  NOTE_D6, 4,  NOTE_E6, 4,
   NOTE_D6, -4,  NOTE_C6, 8,  NOTE_C6, 2
-
 };
 
 #define TEMPO 114

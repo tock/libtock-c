@@ -173,6 +173,7 @@ static bool test_gpio0_int_falling(void) {
   CHECK(int_nr == GPIO0_IN);
   return true;
 }
+
 static bool test_gpio0_int_both(void) {
   CHECK(libtock_gpio_set_interrupt_callback(test_gpio_callback) == 0);
   CHECK(libtock_gpio_enable_interrupt(GPIO0_IN, libtock_change) == 0);
@@ -210,6 +211,7 @@ static bool test_gpio1_int_falling(void) {
   CHECK(int_nr == GPIO1_IN);
   return true;
 }
+
 static bool test_gpio1_int_both(void) {
   CHECK(libtock_gpio_set_interrupt_callback(test_gpio_callback) == 0);
   CHECK(libtock_gpio_enable_interrupt(GPIO1_IN, libtock_change) == 0);
@@ -220,6 +222,7 @@ static bool test_gpio1_int_both(void) {
   CHECK(int_nr == GPIO1_IN);
   return true;
 }
+
 static bool test_leds_start_off(void) {
   int count, val;
   /* LED outputs are low active */
@@ -235,6 +238,7 @@ static bool test_leds_start_off(void) {
   CHECK(val == 1);
   return true;
 }
+
 static bool test_switch_led1(void) {
   int val;
   CHECK(libtock_led_on(0) == 0);
@@ -257,6 +261,7 @@ static bool test_switch_led1(void) {
   CHECK(val == 1);
   return true;
 }
+
 static bool test_switch_led2(void) {
   int val;
   CHECK(libtock_led_on(1) == 0);
@@ -279,6 +284,7 @@ static bool test_switch_led2(void) {
   CHECK(val == 1);
   return true;
 }
+
 static bool test_switch_led3(void) {
   int val;
   CHECK(libtock_led_on(2) == 0);
@@ -301,6 +307,7 @@ static bool test_switch_led3(void) {
   CHECK(val == 1);
   return true;
 }
+
 static bool test_switch_led4(void) {
   int val;
   CHECK(libtock_led_on(3) == 0);
@@ -323,6 +330,7 @@ static bool test_switch_led4(void) {
   CHECK(val == 1);
   return true;
 }
+
 static bool test_toggle_led1(void) {
   int val;
   CHECK(libtock_led_toggle(0) == 0);
@@ -345,6 +353,7 @@ static bool test_toggle_led1(void) {
   CHECK(val == 1);
   return true;
 }
+
 static bool test_toggle_led2(void) {
   int val;
   CHECK(libtock_led_toggle(1) == 0);
@@ -367,6 +376,7 @@ static bool test_toggle_led2(void) {
   CHECK(val == 1);
   return true;
 }
+
 static bool test_toggle_led3(void) {
   int val;
   CHECK(libtock_led_toggle(2) == 0);
@@ -389,6 +399,7 @@ static bool test_toggle_led3(void) {
   CHECK(val == 1);
   return true;
 }
+
 static bool test_toggle_led4(void) {
   int val;
   CHECK(libtock_led_toggle(3) == 0);
@@ -426,6 +437,7 @@ static bool test_buttons_start_off(void) {
   CHECK(val == 0);
   return true;
 }
+
 static bool test_push_button1(void) {
   int val;
   CHECK(libtock_gpio_clear(BUTTON1_OUT) == 0);
@@ -448,6 +460,7 @@ static bool test_push_button1(void) {
   CHECK(val == 0);
   return true;
 }
+
 static bool test_push_button2(void) {
   int val;
   CHECK(libtock_gpio_clear(BUTTON2_OUT) == 0);
@@ -470,6 +483,7 @@ static bool test_push_button2(void) {
   CHECK(val == 0);
   return true;
 }
+
 static bool test_push_button3(void) {
   int val;
   CHECK(libtock_gpio_clear(BUTTON3_OUT) == 0);
@@ -492,6 +506,7 @@ static bool test_push_button3(void) {
   CHECK(val == 0);
   return true;
 }
+
 static bool test_push_button4(void) {
   int val;
   CHECK(libtock_gpio_clear(BUTTON4_OUT) == 0);
@@ -514,6 +529,7 @@ static bool test_push_button4(void) {
   CHECK(val == 0);
   return true;
 }
+
 static bool test_button1_int(void) {
   CHECK(libtock_button_notify_on_press(0, test_button_callback) == 0);
   CHECK(libtock_gpio_clear(BUTTON1_OUT) == 0);
@@ -526,6 +542,7 @@ static bool test_button1_int(void) {
   CHECK(int_nr == 0);
   return true;
 }
+
 static bool test_two_buttons_int(void) {
   CHECK(libtock_button_notify_on_press(0, test_button_callback) == 0);
   CHECK(libtock_button_notify_on_press(1, test_button_callback) == 0);
@@ -547,6 +564,7 @@ static bool test_two_buttons_int(void) {
   CHECK(int_nr == 0);
   return true;
 }
+
 static bool test_disable_button_int(void) {
   CHECK(libtock_button_notify_on_press(0, test_button_callback) == 0);
   CHECK(libtock_button_notify_on_press(1, test_button_callback) == 0);

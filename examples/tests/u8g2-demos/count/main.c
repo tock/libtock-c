@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <libtock-sync/services/alarm.h>
-
 #include <u8g2-tock.h>
 #include <u8g2.h>
+
+#include <libtock-sync/services/alarm.h>
 
 #define max(a, b) ((a) > (b) ? (a) : (b))
 

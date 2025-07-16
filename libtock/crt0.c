@@ -1,6 +1,7 @@
-#include "tock.h"
 #include <stdlib.h>
 #include <string.h>
+
+#include "tock.h"
 
 #if defined(STACK_SIZE)
 #warning Attempt to compile libtock with a fixed STACK_SIZE.

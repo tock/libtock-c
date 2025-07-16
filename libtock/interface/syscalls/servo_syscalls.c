@@ -1,5 +1,6 @@
-#include "servo_syscalls.h"
 #include <stdio.h>
+
+#include "servo_syscalls.h"
 
 bool libtock_servo_exists(void) {
   return driver_exists(DRIVER_NUM_SERVO);
@@ -11,7 +12,6 @@ returncode_t libtock_servo_count(uint32_t* servo_count) {
   returncode_t ret   = tock_command_return_u32_to_returncode(r, &value);
   *servo_count = (uint16_t)value;
   return ret;
-
 }
 
 returncode_t libtock_servo_set_angle(uint16_t index, uint16_t angle) {

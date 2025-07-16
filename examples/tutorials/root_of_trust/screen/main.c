@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <libtock/interface/button.h>
-#include <libtock/kernel/ipc.h>
-
+#include <mui.h>
+#include <mui_u8g2.h>
 #include <u8g2-tock.h>
 #include <u8g2.h>
 
-#include <mui.h>
-#include <mui_u8g2.h>
+#include <libtock/interface/button.h>
+#include <libtock/kernel/ipc.h>
 
 #define MIN(i, j) (((i) < (j)) ? (i) : (j))
 

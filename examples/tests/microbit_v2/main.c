@@ -80,8 +80,8 @@ static void sample_sensors(void) {
   int temp = 0;
   check_err(libtocksync_temperature_read(&temp), "temperature_read_sync");
   double accel_mag;
-  check_err(libtocksync_ninedof_read_accelerometer_magnitude(
-              &accel_mag), "libtocksync_ninedof_read_accelerometer_magnitude");
+  check_err(libtocksync_ninedof_read_accelerometer_magnitude(&accel_mag),
+            "libtocksync_ninedof_read_accelerometer_magnitude");
   int x = 0;
   int y = 0;
   int z = 0;
