@@ -1,5 +1,5 @@
-#include "temperature.h"
 #include "syscalls/temperature_syscalls.h"
+#include "temperature.h"
 
 // Internal upcall for passing to the syscall driver.
 static void temperature_upcall(int                          temp,

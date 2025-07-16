@@ -1,5 +1,5 @@
-#include "usb_keyboard_hid.h"
 #include "syscalls/usb_keyboard_hid_syscalls.h"
+#include "usb_keyboard_hid.h"
 
 static void usb_keyboard_hid_upcall(__attribute__ ((unused)) int callback_type,
                                     __attribute__ ((unused)) int unused1,

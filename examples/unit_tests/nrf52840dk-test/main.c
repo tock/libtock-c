@@ -4,8 +4,8 @@
 #include <libtock-sync/services/alarm.h>
 #include <libtock-sync/services/unit_test.h>
 #include <libtock/interface/button.h>
-#include <libtock/interface/syscalls/button_syscalls.h>
 #include <libtock/interface/led.h>
+#include <libtock/interface/syscalls/button_syscalls.h>
 #include <libtock/peripherals/gpio.h>
 
 
