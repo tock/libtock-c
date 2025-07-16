@@ -91,6 +91,7 @@ override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
 
 # Avoid failing in CI due to warnings in the library.
 CPPFLAGS_$(LIBNAME) += -Wno-error
+CPPFLAGS_$(LIBNAME) += -Wno-implicit-function-declaration
 
 # Include the rules to build the library.
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
