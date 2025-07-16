@@ -1,12 +1,12 @@
-#include "../../libtock/interface/syscalls/servo_syscalls.h"
 #include <libtock-sync/services/alarm.h>
 #include <libtock/tock.h>
+#include <libtock/interface/syscalls/servo_syscalls.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 int main(void) {
   // Checks if the driver exists and, if not, returns -1.
-  if (!libtock_servo_exists()) {
+  if (!libtock_servo_driver_exists()) {
     printf("There is no available servo\n");
     return -1;
   }

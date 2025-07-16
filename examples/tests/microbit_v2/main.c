@@ -149,7 +149,7 @@ int main(void) {
   printf("Set up button callbacks!\n");
 
   // Enable sound pressure sensor
-  check_err(libtock_sound_pressure_command_enable(), "libtock_sound_pressure_command_enable");
+  check_err(libtock_sound_pressure_enable(), "libtock_sound_pressure_command_enable");
   printf("Enabled sound pressure!\n");
 
   // Setup P8, P9, P16
