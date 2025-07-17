@@ -22,11 +22,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: false # LVGL makefile manually installs the submodule
-      - uses: carlosperate/arm-none-eabi-gcc-action@v1
-        with:
-          release: '10.3-2021.07' # The arm-none-eabi-gcc release to use.
-      - name: setup-riscv-toolchain
-        run: sudo apt-get install -y gcc-riscv64-unknown-elf
       - name: ci-format
         run: pushd examples; ./format_all.sh || exit; popd
 
@@ -43,8 +38,7 @@ jobs:
         with:
           submodules: recursive
       - uses: carlosperate/arm-none-eabi-gcc-action@v1
-        with:
-          release: '10.3-2021.07' # The arm-none-eabi-gcc release to use.
+      - run: arm-none-eabi-gcc --version
       - name: setup-riscv-toolchain
         run: sudo apt-get install -y gcc-riscv64-unknown-elf
       - name: ci-build
