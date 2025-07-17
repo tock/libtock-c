@@ -148,7 +148,7 @@ typedef struct {
 // Convert a kernel StatusCode to the libtock-c ReturnCode. ReturnCodes are used
 // in libtock-c because they follow the C convention of 0 as success and
 // negative numbers as errors.
-int tock_status_to_returncode(statuscode_t);
+returncode_t tock_status_to_returncode(statuscode_t);
 
 // Convert a `syscall_return_t` with no values to a `returncode_t`.
 //

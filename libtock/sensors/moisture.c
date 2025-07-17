@@ -4,7 +4,7 @@ static void moisture_upcall(int status,
                             int moisture,
                             __attribute__ ((unused)) int unused2, void* opaque) {
   libtock_moisture_callback cb = (libtock_moisture_callback) opaque;
-  cb(status, moisture);
+  cb(tock_status_to_returncode(status), moisture);
 }
 
 returncode_t libtock_moisture_read(libtock_moisture_callback cb) {

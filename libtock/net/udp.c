@@ -59,7 +59,7 @@ static void udp_send_done_upcall(int                          status,
                                  __attribute__ ((unused)) int unused2,
                                  void*                        opaque) {
   libtock_udp_callback_send_done cb = (libtock_udp_callback_send_done) opaque;
-  cb(status);
+  cb(tock_status_to_returncode(status));
 }
 
 returncode_t libtock_udp_send(void* buf, size_t len,
@@ -85,7 +85,7 @@ static void udp_recv_done_upcall(int                          length,
                                  __attribute__ ((unused)) int unused2,
                                  void*                        opaque) {
   libtock_udp_callback_recv_done cb = (libtock_udp_callback_recv_done) opaque;
-  cb(TOCK_STATUSCODE_SUCCESS, length);
+  cb(RETURNCODE_SUCCESS, length);
 }
 
 returncode_t libtock_udp_recv(void* buf, size_t len, libtock_udp_callback_recv_done cb) {
