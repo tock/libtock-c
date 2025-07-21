@@ -9,21 +9,21 @@ extern "C" {
 
 // Touch status.
 typedef enum {
-  TOUCH_STATUS_RELEASED  = 0,
-  TOUCH_STATUS_PRESSED   = 1,
-  TOUCH_STATUS_MOVED     = 2,
-  TOUCH_STATUS_UNSTARTED = 3,
+  LIBTOCK_TOUCH_STATUS_RELEASED  = 0,
+  LIBTOCK_TOUCH_STATUS_PRESSED   = 1,
+  LIBTOCK_TOUCH_STATUS_MOVED     = 2,
+  LIBTOCK_TOUCH_STATUS_UNSTARTED = 3,
 } libtock_touch_status_t;
 
 // Gesture types.
 typedef enum {
-  GESTURE_NO          = 0,
-  GESTURE_SWIPE_UP    = 1,
-  GESTURE_SWIPE_DOWN  = 2,
-  GESTURE_SWIPE_LEFT  = 3,
-  GESTURE_SWIPE_RIGHT = 4,
-  GESTURE_ZOOM_IN     = 5,
-  GESTURE_ZOOM_OUT    = 6,
+  LIBTOCK_TOUCH_GESTURE_NO          = 0,
+  LIBTOCK_TOUCH_GESTURE_SWIPE_UP    = 1,
+  LIBTOCK_TOUCH_GESTURE_SWIPE_DOWN  = 2,
+  LIBTOCK_TOUCH_GESTURE_SWIPE_LEFT  = 3,
+  LIBTOCK_TOUCH_GESTURE_SWIPE_RIGHT = 4,
+  LIBTOCK_TOUCH_GESTURE_ZOOM_IN     = 5,
+  LIBTOCK_TOUCH_GESTURE_ZOOM_OUT    = 6,
 } libtock_touch_gesture_t;
 
 // Function signature for touch data callback.
