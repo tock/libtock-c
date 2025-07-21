@@ -1,6 +1,6 @@
-#include "hmac.h"
-
 #include <libtock/defer.h>
+
+#include "hmac.h"
 
 returncode_t libtocksync_hmac_simple(libtock_hmac_algorithm_t hmac_type,
                                      uint8_t* key_buffer, uint32_t key_length,
@@ -13,15 +13,18 @@ returncode_t libtocksync_hmac_simple(libtock_hmac_algorithm_t hmac_type,
 
   ret = libtock_hmac_set_readonly_allow_key_buffer(key_buffer, key_length);
   if (ret != RETURNCODE_SUCCESS) return ret;
-  defer { libtock_hmac_set_readonly_allow_key_buffer(NULL, 0); };
+  defer { libtock_hmac_set_readonly_allow_key_buffer(NULL, 0);
+  };
 
   ret = libtock_hmac_set_readonly_allow_data_buffer(input_buffer, input_length);
   if (ret != RETURNCODE_SUCCESS) return ret;
-  defer { libtock_hmac_set_readonly_allow_data_buffer(NULL, 0); };
+  defer { libtock_hmac_set_readonly_allow_data_buffer(NULL, 0);
+  };
 
   ret = libtock_hmac_set_readwrite_allow_destination_buffer(hmac_buffer, hmac_length);
   if (ret != RETURNCODE_SUCCESS) return ret;
-  defer { libtock_hmac_set_readwrite_allow_destination_buffer(NULL, 0); };
+  defer { libtock_hmac_set_readwrite_allow_destination_buffer(NULL, 0);
+  };
 
   ret = libtock_hmac_command_run();
   if (ret != RETURNCODE_SUCCESS) return ret;
