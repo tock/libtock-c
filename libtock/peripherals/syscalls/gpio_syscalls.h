@@ -9,7 +9,7 @@ extern "C" {
 #define GPIO_DRIVER_NUM 0x4
 
 // Check if the GPIO driver is available in the kernel.
-bool libtock_gpio_exists(void);
+bool libtock_gpio_driver_exists(void);
 
 // Set the upcall for getting GPIO pin interrupts.
 returncode_t libtock_gpio_set_upcall(subscribe_upcall callback, void* opaque);

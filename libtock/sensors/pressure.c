@@ -1,4 +1,5 @@
 #include "pressure.h"
+#include "syscalls/pressure_syscalls.h"
 
 static void pressure_upcall(int                          pressure,
                             __attribute__ ((unused)) int unused,
@@ -6,6 +7,10 @@ static void pressure_upcall(int                          pressure,
                             void*                        opaque) {
   libtock_pressure_callback cb = (libtock_pressure_callback) opaque;
   cb(RETURNCODE_SUCCESS, pressure);
+}
+
+bool libtock_pressure_exists(void) {
+  return libtock_pressure_driver_exists();
 }
 
 returncode_t libtock_pressure_read(libtock_pressure_callback cb) {

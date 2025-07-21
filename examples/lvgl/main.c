@@ -2,6 +2,7 @@
 
 #include <libtock-sync/display/screen.h>
 #include <libtock-sync/services/alarm.h>
+#include <libtock/peripherals/syscalls/alarm_syscalls.h>
 
 #include <lvgl/lvgl.h>
 

@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_SERVO 0x90009
 
 // Check if the servo system call driver is available on this board.
-bool libtock_servo_exists(void);
+bool libtock_servo_driver_exists(void);
 // Returns the number of available servomotors.
 returncode_t libtock_servo_count(uint32_t* servo_count);
 // Change the angle.

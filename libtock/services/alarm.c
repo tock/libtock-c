@@ -2,6 +2,9 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include "../peripherals/syscalls/alarm_syscalls.h"
+
+
 #define MAX_TICKS UINT32_MAX
 
 /** \brief Checks if `now` is between `reference` and `dt`, meaning

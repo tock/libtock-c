@@ -1,3 +1,5 @@
+#include <libtock/storage/syscalls/app_state_syscalls.h>
+
 #include "app_state.h"
 
 struct app_state_data {
@@ -10,6 +12,10 @@ static struct app_state_data result = {.fired = false};
 static void app_state_cb(returncode_t ret) {
   result.fired = true;
   result.ret   = ret;
+}
+
+bool libtocksync_app_state_exists(void) {
+  return libtock_app_state_driver_exists();
 }
 
 returncode_t libtocksync_app_state_save(void) {

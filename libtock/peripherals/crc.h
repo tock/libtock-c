@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/crc_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,6 +27,9 @@ typedef enum {
   /// Polynomial 0x1021, no output post-processing
   LIBTOCK_CRC_16CCITT,
 } libtock_crc_alg_t;
+
+// Check if the driver exists.
+bool libtock_crc_exists(void);
 
 // Compute a CRC value over the given buffer using the given algorithm.
 returncode_t libtock_crc_compute(const uint8_t* buf, uint32_t buflen, libtock_crc_alg_t algorithm,

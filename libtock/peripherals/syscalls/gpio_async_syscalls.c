@@ -4,7 +4,7 @@
 
 
 
-bool libtock_gpio_async_exists(void) {
+bool libtock_gpio_async_driver_exists(void) {
   return driver_exists(DRIVER_NUM_GPIO_ASYNC);
 }
 

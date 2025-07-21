@@ -1,6 +1,6 @@
 #include "alarm_syscalls.h"
 
-bool libtock_alarm_exists(void) {
+bool libtock_alarm_driver_exists(void) {
   return driver_exists(DRIVER_NUM_ALARM);
 }
 

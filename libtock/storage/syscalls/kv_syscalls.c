@@ -13,7 +13,7 @@
 #define TOCK_KV_UPDATE          5
 #define TOCK_KV_GARBAGE_COLLECT 6
 
-bool libtock_kv_exists(void) {
+bool libtock_kv_driver_exists(void) {
   return driver_exists(DRIVER_NUM_KV);
 }
 

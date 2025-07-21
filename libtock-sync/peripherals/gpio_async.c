@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/gpio_async_syscalls.h>
+
 #include "gpio_async.h"
 
 struct gpio_async_data {
@@ -25,6 +27,10 @@ static returncode_t gpio_async_op(uint32_t port, uint8_t pin, returncode_t (*op)
   // Wait for the callback.
   yield_for(&result.fired);
   return result.ret;
+}
+
+bool libtocksync_gpio_async_exists(void) {
+  return libtock_gpio_async_driver_exists();
 }
 
 returncode_t libtocksync_gpio_async_make_output(uint32_t port, uint8_t pin) {

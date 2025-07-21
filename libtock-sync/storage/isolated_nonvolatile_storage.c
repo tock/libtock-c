@@ -1,3 +1,5 @@
+#include <libtock/storage/syscalls/isolated_nonvolatile_storage_syscalls.h>
+
 #include "isolated_nonvolatile_storage.h"
 #include <stdio.h>
 
@@ -23,6 +25,10 @@ static void write_cb(returncode_t ret) {
 static void read_cb(returncode_t ret) {
   result.fired = true;
   result.ret   = ret;
+}
+
+bool libtocksync_isolated_nonvolatile_storage_exists(void) {
+  return libtock_isolated_nonvolatile_storage_driver_exists();
 }
 
 returncode_t libtocksync_isolated_nonvolatile_storage_get_number_bytes(uint64_t* number_bytes) {

@@ -1,3 +1,5 @@
+#include <libtock/sensors/syscalls/moisture_syscalls.h>
+
 #include "moisture.h"
 
 typedef struct {
@@ -13,6 +15,10 @@ static void moisture_callback(returncode_t ret, int moisture) {
   result.moisture = moisture;
   result.ret      = ret;
   result.fired    = true;
+}
+
+bool libtocksync_moisture_exists(void) {
+  return libtock_moisture_driver_exists();
 }
 
 returncode_t libtocksync_moisture_read(int* moisture) {

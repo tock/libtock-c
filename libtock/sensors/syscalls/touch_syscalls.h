@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_TOUCH 0x90002
 
 // Check if touch sensor exists.
-bool libtock_touch_exists(void);
+bool libtock_touch_driver_exists(void);
 
 // Set the upcall for upcalls on a single touch.
 returncode_t libtock_touch_set_upcall_single_touch(subscribe_upcall callback, void* opaque);

@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_READ_ONLY_STATE 0x00009
 
 // Check if this driver is available on the kernel.
-bool libtock_read_only_state_exists(void);
+bool libtock_read_only_state_driver_exists(void);
 
 // Share a buffer with the kernel to use for read only state
 //

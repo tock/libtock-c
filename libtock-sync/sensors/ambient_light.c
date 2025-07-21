@@ -1,3 +1,5 @@
+#include <libtock/sensors/syscalls/ambient_light_syscalls.h>
+
 #include "ambient_light.h"
 
 typedef struct {
@@ -13,6 +15,10 @@ static void ambient_light_callback(returncode_t ret, int intensity) {
   result.intensity = intensity;
   result.ret       = ret;
   result.fired     = true;
+}
+
+bool libtocksync_ambient_light_exists(void) {
+  return libtock_ambient_light_driver_exists();
 }
 
 returncode_t libtocksync_ambient_light_read_intensity(int* lux_value) {

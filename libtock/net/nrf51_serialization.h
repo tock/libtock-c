@@ -1,11 +1,13 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/nrf51_serialization_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// Check if the driver exists.
+bool libtock_nrf51_serialization_exists(void);
 
 // Toggle the reset line to the nRF51 chip to reset the BLE MCU.
 returncode_t libtock_nrf51_serialization_reset(void);

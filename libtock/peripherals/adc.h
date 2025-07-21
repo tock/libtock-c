@@ -3,7 +3,6 @@
 #include <stdint.h>
 
 #include "../tock.h"
-#include "syscalls/adc_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,6 +61,9 @@ typedef struct {
 // ***** System Call Interface *****
 
 
+
+// Check if the driver exists.
+bool libtock_adc_exists(void);
 
 // provides an application buffer to the ADC driver to fill with samples
 //

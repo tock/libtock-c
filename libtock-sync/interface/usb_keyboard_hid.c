@@ -1,5 +1,7 @@
 #include <ctype.h>
 
+#include <libtock/interface/syscalls/usb_keyboard_hid_syscalls.h>
+
 #include "usb_keyboard_hid.h"
 
 
@@ -13,6 +15,10 @@ static struct usb_keyboard_hid_result result = {.fired = false};
 static void usb_keyboard_hil_cb(returncode_t ret) {
   result.fired = true;
   result.ret   = ret;
+}
+
+bool libtocksync_usb_keyboard_hid_exists(void) {
+  return libtock_usb_keyboard_hid_driver_exists();
 }
 
 returncode_t libtocksync_usb_keyboard_hid_send(uint8_t* buffer, uint32_t len) {

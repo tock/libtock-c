@@ -1,3 +1,5 @@
+#include <libtock/crypto/syscalls/hmac_syscalls.h>
+
 #include "hmac.h"
 
 struct hmac_data {
@@ -10,6 +12,10 @@ static struct hmac_data result = {.fired = false};
 static void hmac_cb_hmac(returncode_t ret) {
   result.fired = true;
   result.ret   = ret;
+}
+
+bool libtocksync_hmac_exists(void) {
+  return libtock_hmac_driver_exists();
 }
 
 returncode_t libtocksync_hmac_simple(libtock_hmac_algorithm_t hmac_type,

@@ -35,7 +35,6 @@
 //   }
 
 #include "../tock.h"
-#include "syscalls/app_state_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,6 +76,9 @@ extern size_t _app_state_size;
 extern bool _app_state_inited;
 
 
+
+// Check if the driver exists.
+bool libtock_app_state_exists(void);
 
 // Load application state from persistent storage into the in-memory storage
 // location.

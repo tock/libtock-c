@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_usb_keyboard_hid_exists(void);
+
 // Send a buffer to the USB HID keyboard.
 returncode_t libtocksync_usb_keyboard_hid_send(uint8_t* buffer, uint32_t len);
 

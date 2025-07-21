@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/rtc_syscalls.h>
+
 #include "rtc.h"
 
 struct rtc_date_data {
@@ -23,6 +25,10 @@ static void rtc_date_cb(returncode_t ret, libtock_rtc_date_t date) {
 static void rtc_done_cb(returncode_t ret) {
   result_done.fired = true;
   result_done.ret   = ret;
+}
+
+bool libtocksync_rtc_exists(void) {
+  return libtock_rtc_driver_exists();
 }
 
 returncode_t libtocksync_rtc_get_date(libtock_rtc_date_t* date) {

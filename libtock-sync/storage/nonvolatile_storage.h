@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_nonvolatile_storage_exists(void);
+
 // Write `length` bytes from `buffer` to the nonvolatile storage starting at
 // `offset`.
 returncode_t libtocksync_nonvolatile_storage_write(uint32_t offset, uint32_t length, uint8_t* buffer,

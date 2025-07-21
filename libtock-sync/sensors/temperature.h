@@ -1,11 +1,12 @@
 #pragma once
 
-#include "syscalls/temperature_syscalls.h"
 #include <libtock/tock.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+bool libtocksync_temperature_exists(void);
 
 // Read the temperature sensor synchronously.
 //
