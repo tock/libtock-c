@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -e
+set -u
+
 GCC_VERSION=$1
 
 if [ $GCC_VERSION = "14.1.0" ]; then
@@ -27,7 +30,7 @@ else
   CHECK_SHA_CMD="sha256sum -c"
 fi
 
-let FOUND=0
+let FOUND=0 || true
 
 # Try from each mirror until we successfully download a .zip file.
 for MIRROR in ${MIRRORS[@]}; do
@@ -35,17 +38,17 @@ for MIRROR in ${MIRRORS[@]}; do
   echo "Fetching libc++ from ${MIRROR}..."
   echo "  Fetching ${URL}..."
   # Note: There must be two space characters for `shasum` (sha256sum doesn't care)
-  wget -O $ZIP_FILE  "$URL" && (echo "$GCC_SHA  $ZIP_FILE" | $CHECK_SHA_CMD)
-  if [ $? -ne 0 ]; then
+  if wget -O $ZIP_FILE  "$URL" && (echo "$GCC_SHA  $ZIP_FILE" | $CHECK_SHA_CMD); then
+    let FOUND=1
+    break
+  else
     if test -f $ZIP_FILE; then
+      # Print some debugging output if wget succeeded but hash failed
       file $ZIP_FILE
       ls -l $ZIP_FILE
       shasum -a 256 $ZIP_FILE
     fi
     echo "  WARNING: Fetching libc++ from mirror $MIRROR failed!" >&2
-  else
-    let FOUND=1
-    break
   fi
 done
 
