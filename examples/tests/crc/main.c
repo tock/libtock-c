@@ -18,7 +18,7 @@ struct test_case {
 
 static struct test_case test_cases[] = {
 #define CASE(alg, output, input) \
-  { alg, output, input_##alg##_##output },
+        { alg, output, input_##alg##_##output },
 #include "test_cases.h"
 #undef CASE
 };

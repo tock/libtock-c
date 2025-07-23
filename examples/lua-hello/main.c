@@ -2,11 +2,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include <libtock-sync/services/alarm.h>
-
 #include <lua/lauxlib.h>
 #include <lua/lua.h>
 #include <lua/lualib.h>
+
+#include <libtock-sync/services/alarm.h>
 
 // POSIX wrapper for `nanosleep` to make this compilable and runnable on
 // Linux/OS X/BSD for testing.
@@ -18,6 +18,7 @@ void libtocksync_alarm_delay_ms(int ms) {
   ts.tv_nsec = (long)ms * 1000 * 1000;
   nanosleep(&ts, NULL);
 }
+
 #endif
 
 int main(void) {

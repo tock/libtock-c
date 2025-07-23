@@ -1,8 +1,7 @@
-#include <stdio.h>
-#include <string.h>
-
 #include <assert.h>
 #include <ctype.h>
+#include <stdio.h>
+#include <string.h>
 
 #include <libopenthread/platform/openthread-system.h>
 #include <libopenthread/platform/plat.h>
@@ -90,7 +89,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
         !openthread_platform_pending_work()) {
       yield();
     }
-
   }
 
   return 0;
@@ -123,7 +121,6 @@ void setNetworkConfiguration(otInstance* aInstance) {
 
   otError error = otDatasetSetActive(aInstance, &aDataset);
   assert(error == 0);
-
 }
 
 // Helper method that registers a stateChangeCallback to print

@@ -54,7 +54,6 @@ static uint64_t get_region_size(void) {
 }
 
 
-
 static bool test_exists(void) {
   bool exists = libtock_isolated_nonvolatile_storage_exists();
 
@@ -245,7 +244,6 @@ static bool test_write_fail_notwithinregion(void) {
 
   return true;
 }
-
 
 
 int main(void) {

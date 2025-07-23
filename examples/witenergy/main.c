@@ -11,9 +11,8 @@
 #include <nrf.h>
 #include <nrf_error.h>
 #include <nrf_sdm.h>
-#include <softdevice_handler.h>
-
 #include <simple_ble.h>
+#include <softdevice_handler.h>
 
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
@@ -45,7 +44,7 @@ simple_ble_config_t _ble_config = {
 
 
 #define OORT_BASE_UUID {0x00, 0x00, 0x48, 0x43, 0x45, 0x54, 0x43, 0x49, \
-    0x47, 0x4f, 0x4c, 0x49, 0xe0, 0xfe, 0x00, 0x00}
+          0x47, 0x4f, 0x4c, 0x49, 0xe0, 0xfe, 0x00, 0x00}
 #define BLE_UUID_OORT_SERVICE_SENSOR  0xfee0
 #define BLE_UUID_OORT_CHAR_SENSOR     0xfee1
 #define BLE_UUID_OORT_CHAR_CLOCK      0xfee3
@@ -81,7 +80,6 @@ static const ble_gap_scan_params_t _scan_param = {
 void ble_address_set(void) {
   // nop
 }
-
 
 
 uint16_t _conn_handle          = BLE_CONN_HANDLE_INVALID;
@@ -299,7 +297,6 @@ static void __next(void) {
         printf("error writing Characteristic 0x%lx\n", err_code);
       }
       break;
-
     }
 
     case OORT_STATE_SETUP_ENABLING_NOTIFICATIONS: {
@@ -532,7 +529,6 @@ void db_disc_handler(ble_db_discovery_evt_t* p_evt) {
     if (_char_handle_systemid != 0 && _char_handle_clock != 0 && _char_handle_sensor != 0) {
       __next();
     }
-
   } else if (p_evt->evt_type == BLE_DB_DISCOVERY_ERROR) {
     printf("BLE_DB_DISCOVERY_ERROR\n");
   } else if (p_evt->evt_type == BLE_DB_DISCOVERY_SRV_NOT_FOUND) {

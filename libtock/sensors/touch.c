@@ -65,7 +65,6 @@ returncode_t libtock_touch_enable_multi_touch(libtock_touch_event_t* buffer, int
 
   ret = libtock_touch_set_upcall_multi_touch(multi_touch_upcall, cb);
   return ret;
-
 }
 
 returncode_t libtock_touch_disable_multi_touch(void) {

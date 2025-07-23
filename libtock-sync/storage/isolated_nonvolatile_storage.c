@@ -1,5 +1,6 @@
-#include "isolated_nonvolatile_storage.h"
 #include <stdio.h>
+
+#include "isolated_nonvolatile_storage.h"
 
 struct nv_data {
   bool fired;

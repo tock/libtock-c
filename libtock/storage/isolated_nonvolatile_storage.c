@@ -1,4 +1,5 @@
 #include "isolated_nonvolatile_storage.h"
+
 #include "syscalls/isolated_nonvolatile_storage_syscalls.h"
 
 static void get_number_bytes_done(int   ret,

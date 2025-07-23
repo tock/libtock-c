@@ -1,4 +1,5 @@
 #include "i2c_master_slave.h"
+
 #include "tock.h"
 
 struct i2c_master_slave_data {

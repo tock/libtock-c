@@ -5,7 +5,6 @@
 #include <ble_advdata.h>
 #include <nordic_common.h>
 #include <nrf_error.h>
-
 #include <simple_adv.h>
 #include <simple_ble.h>
 

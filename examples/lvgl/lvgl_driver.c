@@ -1,8 +1,9 @@
+#include <lvgl/lvgl.h>
+
 #include <libtock-sync/display/screen.h>
 #include <libtock/sensors/touch.h>
 #include <libtock/services/alarm.h>
 #include <libtock/tock.h>
-#include <lvgl/lvgl.h>
 
 #include "lvgl_driver.h"
 
