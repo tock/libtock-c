@@ -23,6 +23,8 @@ jobs:
         with:
           submodules: false # LVGL makefile manually installs the submodule
       - name: ci-format
+        env:
+          TOCK_SUPPRESS_CC_VERSION_CHECK: "true"
         run: pushd examples; ./format_all.sh || exit; popd
 
   ci-build:
