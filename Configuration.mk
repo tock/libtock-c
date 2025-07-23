@@ -18,6 +18,9 @@ CONFIGURATION_MAKEFILE = 1
 MAKEFLAGS += -r
 MAKEFLAGS += -R
 
+# Enforce a minimum complier version
+MINIMUM_GCC_MAJOR := 13
+
 # Toolchain programs.
 AR := -ar
 AS := -as
@@ -260,6 +263,16 @@ ifneq ($(findstring rv32i,$(TOCK_ARCH_FAMILIES)),)
   CC_rv32_version_major := $(shell echo $(CC_rv32_version) | cut -f1 -d.)
 endif
 
+# Validate the the toolchain is new enough
+ifeq ($(TOCK_SUPPRESS_CC_VERSION_CHECK),)
+ifneq ($(CC_rv32_version),)
+ifneq (1,$(shell [ $(CC_rv32_version_major) -ge $(MINIMUM_GCC_MAJOR) ] && echo "1"))
+  $(info $(TOOLCHAIN_rv32)$(CC_rv32) -dumpfullversion: $(CC_rv32_version))
+  $(error Your compiler is too old. Need gcc version >= $(MINIMUM_GCC_MAJOR))
+endif
+endif
+endif
+
 # Match compiler version to support libtock-newlib versions.
 ifeq ($(CC_rv32_version_major),10)
   NEWLIB_VERSION_rv32 := 4.2.0.20211231
@@ -404,6 +417,16 @@ CC_cortex-m7 := $(CC_cortex-m)
 ifneq ($(findstring cortex-m,$(TOCK_ARCH_FAMILIES)),)
   CC_cortex-m_version := $(shell $(TOOLCHAIN_cortex-m)$(CC_cortex-m) -dumpfullversion)
   CC_cortex-m_version_major := $(shell echo $(CC_cortex-m_version) | cut -f1 -d.)
+endif
+
+# Validate the the toolchain is new enough
+ifeq ($(TOCK_SUPPRESS_CC_VERSION_CHECK),)
+ifneq ($(CC_cortex-m_version),)
+ifneq (1,$(shell [ $(CC_cortex-m_version_major) -ge $(MINIMUM_GCC_MAJOR) ] && echo "1"))
+  $(info $(TOOLCHAIN_cortex-m)$(CC_cortex-m) -dumpfullversion: $(CC_cortex-m_version))
+  $(error Your compiler is too old. Need gcc version >= $(MINIMUM_GCC_MAJOR))
+endif
+endif
 endif
 
 # Match compiler version to support libtock-newlib versions.
