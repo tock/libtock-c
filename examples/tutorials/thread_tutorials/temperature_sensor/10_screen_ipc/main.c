@@ -83,7 +83,7 @@ static void sensor_callback(__attribute__ ((unused)) int   pid,
                             __attribute__ ((unused)) int   arg2,
                             __attribute__ ((unused)) void* ud) {
   // update measured temperature
-  measured_temperature = *((int*) &temperature_buffer[0]);
+  memcpy(&measured_temperature, temperature_buffer, sizeof(measured_temperature));
 
   // Indicate that we have received a callback.
   callback_event = true;
@@ -99,7 +99,7 @@ static void openthread_callback(__attribute__ ((unused)) int   pid,
   network_up = true;
 
   // update setpoint temperature
-  global_temperature_setpoint = *((int*) &openthread_buffer[0]);
+  memcpy(&global_temperature_setpoint, openthread_buffer, sizeof(global_temperature_setpoint));
 
   // Indicate that we have received a callback.
   callback_event = true;
