@@ -20,23 +20,46 @@ let
   tockloader = import (pkgs.fetchFromGitHub {
     owner = "tock";
     repo = "tockloader";
-    rev = "v1.12.0";
-    sha256 = "sha256-VgbAKDY/7ZVINDkqSHF7C0zRzVgtk8YG6O/ZmUpsh/g=";
+    rev = "v1.13.0";
+    sha256 = "sha256-NRcCPTrLFZLubI5KzMmDkKJdvCdbnW97JMZSmedAQ8s=";
   }) { inherit pkgs withUnfreePkgs; };
 
   elf2tab = pkgs.rustPlatform.buildRustPackage rec {
     name = "elf2tab-${version}";
-    version = "0.12.0";
+    version = "0.13.0";
 
     src = pkgs.fetchFromGitHub {
       owner = "tock";
       repo = "elf2tab";
       rev = "v${version}";
-      sha256 = "sha256-+VeWLBI6md399Oaumt4pJrOkm0Nz7fmpXN2TjglUE34=";
+      sha256 = "sha256-tVxYdokrHzlA8SqZN/+kpznvnnjx7X8z2Du4p4nU0V4=";
     };
 
-    cargoSha256 = "sha256-UHAwk1fBcabRqy7VMhz4aoQuIur+MQshDOhC7KFyGm4=";
+    cargoHash =
+      if lib.versionAtLeast lib.version "25.05pre" then
+        "sha256-5bQVk77gMtMfnRXf7rlRf/ABr73K9ZosB6E/gGZFpz4="
+      else
+        "sha256-A2w3nYw0A+qcZbVLC+C7ZLsWFcEaP8tc7XVBmuwsIgM=";
   };
+
+  # The formatting scripts require a specific version of uncrustify:
+  uncrustify-0_75_1 = stdenv.mkDerivation rec {
+    pname = "uncrustify";
+    version = "0.81.0";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "uncrustify";
+      repo = "uncrustify";
+      rev = "uncrustify-${version}";
+      sha256 = "sha256-8KTsrXUYOfqsWSGBAl0mZpGOYr+duFrRB0ITmq2Auqg=";
+    };
+
+    nativeBuildInputs = with pkgs; [
+      cmake
+      python3
+    ];
+  };
+
 in
   pkgs.mkShell {
     name = "tock-dev";
@@ -47,9 +70,9 @@ in
       python3Full
       tockloader
       pkgsCross.riscv32-embedded.buildPackages.gcc
-      uncrustify
       unzip
       openocd
+      uncrustify-0_75_1
     ] ++ (lib.optionals withUnfreePkgs [
       segger-jlink
       tockloader.nrf-command-line-tools
@@ -57,7 +80,7 @@ in
 
     shellHook = ''
       # TODO: This should be patched into the rpath of the respective libraries!
-      export LD_LIBRARY_PATH=${pkgs.libusb}/lib:$LD_LIBRARY_PATH
+      export LD_LIBRARY_PATH=${pkgs.libusb1}/lib:$LD_LIBRARY_PATH
     '' + (lib.optionalString withUnfreePkgs ''
       export LD_LIBRARY_PATH=${pkgs.segger-jlink}/lib:$LD_LIBRARY_PATH
     '');

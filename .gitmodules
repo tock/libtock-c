@@ -1,12 +1,23 @@
 [submodule "lua53/lua"]
 	path = lua53/lua
 	url = https://github.com/lua/lua.git
+	shallow = true
 [submodule "lvgl/lvgl"]
 	path = lvgl/lvgl
 	url = https://github.com/littlevgl/lvgl.git
+	shallow = true
 [submodule "libopenthread/openthread"]
 	path = libopenthread/openthread
 	url = https://github.com/openthread/openthread.git
+	shallow = true
 [submodule "RadioLib/RadioLib"]
 	path = RadioLib/RadioLib
 	url = https://github.com/jgromes/RadioLib.git
+	shallow = true
+[submodule "lwip/lwip"]
+	path = lwip/lwip
+	# Using GitHub mirror, as git.savannah.gnu.org seems to cause
+	# problems with `git submodule sync`
+	#url = https://git.savannah.gnu.org/git/lwip.git
+	url =  https://github.com/lwip-tcpip/lwip.git
+	shallow = true

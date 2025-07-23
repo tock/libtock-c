@@ -33,6 +33,7 @@ returncode_t libtock_kv_update(const uint8_t* key_buffer, uint32_t key_len, cons
 
 returncode_t libtock_kv_delete(const uint8_t* key_buffer, uint32_t key_len, libtock_kv_callback_done cb);
 
+returncode_t libtock_kv_garbage_collect(libtock_kv_callback_done cb);
 
 #ifdef __cplusplus
 }

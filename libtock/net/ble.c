@@ -2,12 +2,14 @@
  * BLE setup functions
  */
 
-#include "ble.h"
-#include "tock.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "ble.h"
+
+#include "tock.h"
 
 int ble_start_advertising(int pdu_type, uint8_t* advd, int len, uint16_t interval) {
   allow_ro_return_t err = allow_readonly(BLE_DRIVER_NUMBER, BLE_CFG_ADV_BUF_ALLOWRO, advd, len);

@@ -27,8 +27,7 @@ static void text_screen_size_cb(returncode_t ret, uint32_t width, uint32_t heigh
   result_size.height = height;
 }
 
-
-static returncode_t text_screen_op(returncode_t (*op)()) {
+static returncode_t text_screen_op(returncode_t (*op)(void (*)(returncode_t))) {
   returncode_t ret;
   result.fired = false;
 

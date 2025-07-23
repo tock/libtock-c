@@ -361,7 +361,6 @@ static bool subtest_set_get_region(uint32_t start, uint32_t stop) {
     for (uint32_t j = 0; j < value_len; j++) {
       CHECK(value_buf[j] == (uint8_t) (j + i));
     }
-
   }
   return true;
 }
@@ -372,26 +371,77 @@ static bool subtest_set_get_region(uint32_t start, uint32_t stop) {
 static bool test_set_get_32regions_1(void) {
   return subtest_set_get_region(0, 4);
 }
+
 static bool test_set_get_32regions_2(void) {
   return subtest_set_get_region(4, 8);
 }
+
 static bool test_set_get_32regions_3(void) {
   return subtest_set_get_region(8, 12);
 }
+
 static bool test_set_get_32regions_4(void) {
   return subtest_set_get_region(12, 16);
 }
+
 static bool test_set_get_32regions_5(void) {
   return subtest_set_get_region(16, 20);
 }
+
 static bool test_set_get_32regions_6(void) {
   return subtest_set_get_region(20, 24);
 }
+
 static bool test_set_get_32regions_7(void) {
   return subtest_set_get_region(24, 28);
 }
+
 static bool test_set_get_32regions_8(void) {
   return subtest_set_get_region(28, 32);
+}
+
+static bool test_garbage_collect(void) {
+  int ret;
+  char key[] = "kvtestapp";
+  strcpy((char*) key_buf, key);
+  int num_of_keys    = 0;
+  uint32_t value_len = 500;
+
+  printf("Filling up storage with invalid (deleted) keys\r\n");
+
+  // Fill up the storage
+  do {
+    for (uint32_t i = 0; i < value_len; i++) {
+      value_buf[i] = num_of_keys;
+    }
+
+    printf("Setting key %d\r\n", num_of_keys);
+    ret = libtocksync_kv_set(key_buf, strlen(key), value_buf, value_len);
+
+    if (ret == RETURNCODE_SUCCESS) {
+      num_of_keys++;
+    }
+  } while (ret == RETURNCODE_SUCCESS);
+
+  printf("Wrote %d K/V entries to flash, running garbage collection\n", num_of_keys);
+
+  ret = libtocksync_kv_garbage_collect();
+  CHECK(ret == RETURNCODE_SUCCESS);
+
+  printf("Garbage collection finished, trying to re-set the keys\r\n");
+
+  for (int i = 0; i < num_of_keys; i++) {
+    printf("Setting key %d\r\n", i);
+    for (uint32_t j = 0; j < value_len; j++) {
+      value_buf[j] = i;
+    }
+
+    CHECK(libtocksync_kv_set(key_buf, strlen(key), value_buf, value_len) == RETURNCODE_SUCCESS);
+  }
+
+  printf("Set all keys\r\n");
+
+  return true;
 }
 
 int main(void) {
@@ -419,6 +469,7 @@ int main(void) {
     TEST(set_get_32regions_6),
     TEST(set_get_32regions_7),
     TEST(set_get_32regions_8),
+    TEST(garbage_collect),
   };
   unit_test_runner(tests, sizeof(tests) / sizeof(unit_test_fun), 2000, "org.tockos.unit_test");
   return 0;

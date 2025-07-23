@@ -127,6 +127,18 @@ typedef struct {
   uint32_t data;
 } memop_return_t;
 
+// Return structure for a Yield-WaitFor syscall. The return value are the
+// arguments that would have been passed to the upcall the the Yield-WaitFor was
+// waiting on.
+typedef struct {
+  // Upcall argument 1.
+  uint32_t data0;
+  // Upcall argument 2.
+  uint32_t data1;
+  // Upcall argument 3.
+  uint32_t data2;
+} yield_waitfor_return_t;
+
 ////////////////////////////////////////////////////////////////////////////////
 ///
 /// HELPER FUNCTIONS
@@ -174,12 +186,10 @@ int tock_allow_ro_return_to_returncode(allow_ro_return_t);
 // Convert a `allow_userspace_r_return_t` to a `returncode_t`.
 int tock_allow_userspace_r_return_to_returncode(allow_userspace_r_return_t);
 
-int tock_enqueue(subscribe_upcall cb, int arg0, int arg1, int arg2, void* ud);
-
-int yield_check_tasks(void);
 void yield(void);
 void yield_for(bool*);
 int yield_no_wait(void);
+yield_waitfor_return_t yield_wait_for(uint32_t driver, uint32_t subscribe);
 
 void tock_exit(uint32_t completion_code) __attribute__ ((noreturn));
 void tock_restart(uint32_t completion_code) __attribute__ ((noreturn));

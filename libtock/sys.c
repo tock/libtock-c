@@ -35,28 +35,36 @@ int _isatty(int fd) {
   }
   return 0;
 }
+
 int _open(const char* path, int flags, ...) {
   return -1;
 }
+
 int _close(int fd) {
   return -1;
 }
+
 int _fstat(int fd, struct stat* st) {
   st->st_mode = S_IFCHR;
   return 0;
 }
+
 int _lseek(int fd, uint32_t offset, int whence) {
   return 0;
 }
+
 int _read(int fd, void* buf, uint32_t count) {
   return 0;   // k_read(fd, (uint8_t*) buf, count);
 }
+
 void _exit(int __status) {
   tock_exit((uint32_t) __status);
 }
+
 int _getpid(void) {
   return 0;
 }
+
 int _kill(pid_t pid, int sig) {
   return -1;
 }

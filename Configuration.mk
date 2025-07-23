@@ -66,6 +66,10 @@ OPENTITAN_TOCK_TARGETS := rv32imc|rv32imc.0x20030080.0x10005000|0x20030080|0x100
 ARTY_E21_TOCK_TARGETS := rv32imac|rv32imac.0x40430080.0x80004000|0x40430080|0x80004000\
                          rv32imac|rv32imac.0x40440080.0x80007000|0x40440080|0x80007000
 
+# Specific addresses useful for the QEMU rv32i "virt" machine memory map.
+QEMU_RV32_VIRT_TOCK_TARGETS := rv32imac|rv32imac.0x80100080.0x80210000|0x80100080|0x80210000\
+                               rv32imac|rv32imac.0x80104080.0x80214000|0x80104080|0x80214000
+
 VEER_EL2_TOCK_TARGETS := rv32imc|rv32imc.0x20300080.0x20602000|0x20300080|0x20602000
 
 # Include the RISC-V targets.
@@ -83,7 +87,8 @@ TOCK_TARGETS ?= cortex-m0\
                 rv32imc|rv32imc.0x00080080.0x40008000|0x00080080|0x40008000\
                 $(OPENTITAN_TOCK_TARGETS) \
                 $(ARTY_E21_TOCK_TARGETS) \
-                $(VEER_EL2_TOCK_TARGETS)
+                $(VEER_EL2_TOCK_TARGETS) \
+                $(QEMU_RV32_VIRT_TOCK_TARGETS)
 
 # Generate `TOCK_ARCH_FAMILIES`, the set of architecture families which will be
 # used to determine toolchains to use in the build process.
@@ -102,7 +107,7 @@ TOCK_ARCHS := $(sort $(foreach target, $(TOCK_TARGETS), $(firstword $(subst |, ,
 
 # Check if elf2tab exists, if not, install it using cargo.
 ELF2TAB ?= elf2tab
-ELF2TAB_REQUIRED_VERSION := 0.12.0
+ELF2TAB_REQUIRED_VERSION := 0.13.0
 ELF2TAB_EXISTS := $(shell $(SHELL) -c "command -v $(ELF2TAB)")
 ELF2TAB_VERSION := $(shell $(SHELL) -c "$(ELF2TAB) --version | cut -d ' ' -f 2")
 
@@ -158,7 +163,13 @@ endif
 # the dos/microsoft lineage chose `.cpp` to address this same issue, leading to
 # confusion nowadays about the meaning of 'cpp'.]
 override ASFLAGS += -mthumb
-override CFLAGS  += -std=gnu11
+# '-gnu2x' is a deprecated alias for '-gnu23'. We're close enough in time still
+# (spring 2025) to the formal ratification of C23 (October 2024) that some
+# folks likely still have toolchains which only support the 2x _name_ for the
+# now-official C23 standard (even if the toolchain supports all the features
+# we care about under the 2x name). Eventually we should replace this with
+# explicit C23 selection.
+override CFLAGS  += -std=gnu2x
 override CPPFLAGS += \
       -frecord-gcc-switches\
       -gdwarf-2\
@@ -244,8 +255,10 @@ CC_rv32imac := $(CC_rv32)
 
 # Determine the version of the RISC-V compiler. This is used to select the
 # version of the libgcc library that is compatible.
-CC_rv32_version := $(shell $(TOOLCHAIN_rv32)$(CC_rv32) -dumpfullversion)
-CC_rv32_version_major := $(shell echo $(CC_rv32_version) | cut -f1 -d.)
+ifneq ($(findstring rv32i,$(TOCK_ARCH_FAMILIES)),)
+  CC_rv32_version := $(shell $(TOOLCHAIN_rv32)$(CC_rv32) -dumpfullversion)
+  CC_rv32_version_major := $(shell echo $(CC_rv32_version) | cut -f1 -d.)
+endif
 
 # Match compiler version to support libtock-newlib versions.
 ifeq ($(CC_rv32_version_major),10)
@@ -388,8 +401,10 @@ CC_cortex-m7 := $(CC_cortex-m)
 
 # Determine the version of the ARM compiler. This is used to select the version
 # of the libgcc library that is compatible.
-CC_cortex-m_version := $(shell $(TOOLCHAIN_cortex-m)$(CC_cortex-m) -dumpfullversion)
-CC_cortex-m_version_major := $(shell echo $(CC_cortex-m_version) | cut -f1 -d.)
+ifneq ($(findstring cortex-m,$(TOCK_ARCH_FAMILIES)),)
+  CC_cortex-m_version := $(shell $(TOOLCHAIN_cortex-m)$(CC_cortex-m) -dumpfullversion)
+  CC_cortex-m_version_major := $(shell echo $(CC_cortex-m_version) | cut -f1 -d.)
+endif
 
 # Match compiler version to support libtock-newlib versions.
 ifeq ($(CC_cortex-m_version_major),10)
@@ -675,12 +690,17 @@ ifneq ($(V),)
   $(info **************************************************)
   $(info Config:)
   $(info GIT: $(shell git describe --always 2>&1))
+ifneq ($(findstring cortex-m,$(TOCK_ARCH_FAMILIES)),)
   $(info $(TOOLCHAIN_cortex-m4)$(CC_cortex-m4) --version: $(shell $(TOOLCHAIN_cortex-m4)$(CC_cortex-m4) --version))
+endif
+ifneq ($(findstring rv32i,$(TOCK_ARCH_FAMILIES)),)
   $(info $(TOOLCHAIN_rv32i)$(CC_rv32i) --version: $(shell $(TOOLCHAIN_rv32i)$(CC_rv32i) --version))
+endif
   $(info LAYOUT=$(LAYOUT))
   $(info MAKEFLAGS=$(MAKEFLAGS))
   $(info PACKAGE_NAME=$(PACKAGE_NAME))
   $(info TOCK_ARCHS=$(TOCK_ARCHS))
+  $(info TOCK_ARCH_FAMILIES=$(TOCK_ARCH_FAMILIES))
   $(info TOCK_TARGETS=$(TOCK_TARGETS))
   $(info TOCK_USERLAND_BASE_DIR=$(TOCK_USERLAND_BASE_DIR))
   $(info TOOLCHAIN=$(TOOLCHAIN))

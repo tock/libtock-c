@@ -1,8 +1,9 @@
-#include "include/gap.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "include/gap.h"
 
 AdvData_t gap_adv_data_new(uint8_t* buf, int len) {
   AdvData_t result;

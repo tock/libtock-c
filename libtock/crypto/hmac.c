@@ -33,5 +33,4 @@ returncode_t libtock_hmac_simple(libtock_hmac_algorithm_t hmac_type,
 
   ret = libtock_hmac_command_run();
   return ret;
-
 }

@@ -19,7 +19,6 @@ static void test_single_samples(uint8_t channel) {
   int err = libtocksync_adc_sample(channel, &sample);
   if (err < 0) {
     printf("Error sampling ADC: %d\n", err);
-
   } else {
     // All ADC results are left-aligned, resulting in a 16-bit resolution
     // millivolts = sample * reference_voltage_mv / resolution
@@ -37,7 +36,6 @@ static void test_sampling_buffer(uint8_t channel, int index) {
   int err = libtocksync_adc_sample_buffer(channel, FREQS[index], buf, length);
   if (err < 0) {
     printf("Error sampling ADC: %d\n", err);
-
   } else {
     printf("\t[ ");
     for (uint32_t i = 0; i < length; i++) {

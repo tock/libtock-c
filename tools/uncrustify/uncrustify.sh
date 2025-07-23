@@ -4,7 +4,7 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # The version we are currently using
-UNCRUSTIFY_VERSION=0.75.1
+UNCRUSTIFY_VERSION=0.81.0
 
 if [ -x $SCRIPT_DIR/uncrustify-uncrustify-$UNCRUSTIFY_VERSION/build/uncrustify ]; then
   PATH="$SCRIPT_DIR/uncrustify-uncrustify-$UNCRUSTIFY_VERSION/build:$PATH"
@@ -16,7 +16,7 @@ if ! command -v uncrustify >/dev/null; then
   do_install=true
 else
   # Validate uncrustify version
-  VERSION=$(uncrustify --version | egrep -o '0.[0-9]+[.0-9]*')
+  VERSION=$(uncrustify --version | grep -E -o '0.[0-9]+[.0-9]*')
   if [[ "$VERSION" != $UNCRUSTIFY_VERSION ]]; then
     do_install=true
   fi

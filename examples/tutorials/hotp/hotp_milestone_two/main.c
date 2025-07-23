@@ -82,7 +82,6 @@ static void save_key(hotp_key_t* hotp_key, int index) {
 }
 
 
-
 // --- Main Loop ---
 
 // Performs initialization and interactivity.

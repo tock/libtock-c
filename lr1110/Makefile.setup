@@ -1,0 +1,39 @@
+TOCK_USERLAND_BASE_DIR ?= ..
+LR1110_DIR = $(TOCK_USERLAND_BASE_DIR)/lr1110/lr1110
+
+VERSION_HASH := e34742993932c97731f513ffa3028d284b163d31
+
+SEEED_DIR := $(LR1110_DIR)/seeed
+ZIP_FILE := $(SEEED_DIR).zip
+EXTRACTED_DIR := $(SEEED_DIR)/Seeed_Wio_WM1110_Dev_Board-$(VERSION_HASH)
+
+all: $(LR1110_DIR)/wifi_helpers.c $(LR1110_DIR)/smtc_modem.c $(LR1110_DIR)/radio_planner.c
+
+# Apply patch to wifi_helpers.c and use that version instead of what is provided
+# in the seeed library.
+$(LR1110_DIR)/wifi_helpers.c: $(SEEED_DIR)/smtc_hal/smtc_modem_hal.c
+	cp $(LR1110_DIR)/seeed/geolocation_middleware/wifi/src/wifi_helpers.c $(LR1110_DIR)/wifi_helpers.c
+	cd $(LR1110_DIR); patch -p0 < ../wifi_helpers.patch
+
+# Apply patch to smtc_modem.c and use that version instead of what is provided
+# in the seeed library.
+$(LR1110_DIR)/smtc_modem.c: $(SEEED_DIR)/smtc_hal/smtc_modem_hal.c
+	cp $(LR1110_DIR)/seeed/lora_basics_modem/smtc_modem_core/modem_core/smtc_modem.c $(LR1110_DIR)/smtc_modem.c
+	cd $(LR1110_DIR); patch -p0 < ../smtc_modem.patch
+
+# Apply patch to radio_planner.c and use that version instead of what is provided
+# in the seeed library.
+$(LR1110_DIR)/radio_planner.c: $(SEEED_DIR)/smtc_hal/smtc_modem_hal.c
+	cp $(LR1110_DIR)/seeed/lora_basics_modem/smtc_modem_core/radio_planner/src/radio_planner.c $(LR1110_DIR)/radio_planner.c
+	cd $(LR1110_DIR); patch -p0 < ../radio_planner.patch
+
+
+$(SEEED_DIR):
+	mkdir -p $(SEEED_DIR)
+
+$(SEEED_DIR)/smtc_hal/smtc_modem_hal.c: | $(SEEED_DIR)
+	curl -L "https://github.com/Seeed-Studio/Seeed_Wio_WM1110_Dev_Board/archive/$(VERSION_HASH).tar.gz" | \
+		tar --strip-components=1 -xz -C $(SEEED_DIR)
+	touch $(SEEED_DIR)
+	# Need to remove certain system headers because we provide our own.
+	rm $(SEEED_DIR)/smtc_hal/inc/smtc_hal_flash.h
