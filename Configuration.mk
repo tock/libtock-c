@@ -265,9 +265,11 @@ endif
 
 # Validate the the toolchain is new enough
 ifeq ($(TOCK_SUPPRESS_CC_VERSION_CHECK),)
+ifneq ($(CC_rv32_version),)
 ifneq (1,$(shell [ $(CC_rv32_version_major) -ge $(MINIMUM_GCC_MAJOR) ] && echo "1"))
   $(info $(TOOLCHAIN_rv32)$(CC_rv32) -dumpfullversion: $(CC_rv32_version))
   $(error Your compiler is too old. Need gcc version >= $(MINIMUM_GCC_MAJOR))
+endif
 endif
 endif
 
@@ -419,9 +421,11 @@ endif
 
 # Validate the the toolchain is new enough
 ifeq ($(TOCK_SUPPRESS_CC_VERSION_CHECK),)
+ifneq ($(CC_cortex-m_version),)
 ifneq (1,$(shell [ $(CC_cortex-m_version_major) -ge $(MINIMUM_GCC_MAJOR) ] && echo "1"))
   $(info $(TOOLCHAIN_cortex-m)$(CC_cortex-m) -dumpfullversion: $(CC_cortex-m_version))
   $(error Your compiler is too old. Need gcc version >= $(MINIMUM_GCC_MAJOR))
+endif
 endif
 endif
 
