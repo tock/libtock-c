@@ -8,10 +8,6 @@ extern "C"
 #include "libtock/kernel/syscalls/app_loader_syscalls.h"
 #include "libtock/tock.h"
 
-#define BUTTON1 0
-#define BUTTON2 1
-#define BUTTON3 2
-
 /*
  * Function to setup the callback from capsule.
  * This function takes in the function that will be executed

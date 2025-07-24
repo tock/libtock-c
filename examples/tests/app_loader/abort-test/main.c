@@ -7,8 +7,10 @@
 #include <libtock/kernel/app_loader.h>
 #include <libtock/tock.h>
 
+#include "loadable_binaries.h"
 
-#define FLASH_BUFFER_SIZE   512
+
+#define FLASH_BUFFER_SIZE   4096
 #define RETURNCODE_SUCCESS  0
 
 static bool setup_done    = false;      // to check if setup is done
@@ -17,25 +19,6 @@ static bool finalize_done = false;      // to check if the kernel is done finali
 static bool load_done     = false;      // to check if the process was loaded successfully
 static bool abort_done    = false;      // to check if the process binary writing
                                         // was aborted successfully
-
-static bool abort_tracker = false;      // track when an abort was successful to stop writing
-                                        // process binary data
-
-/******************************************************************************************************
-* Loadable Applications
-******************************************************************************************************/
-
-// LEGACY COMPILER SUPPORT
-// Avoid #embed until it's more ubiqutious (req's gcc15+, clang19+)
-//
-// #ifdef __has_embed
-// static const uint8_t APP_ADC[] = {
-// #embed "adc.embed"
-// };
-// #else
-#include "adc.xxd"
-#define APP_ADC adc_embed
-// #endif
 
 /******************************************************************************************************
 * Function Prototypes
@@ -94,9 +77,9 @@ static void app_abort_done_callback(__attribute__((unused)) int   arg0,
 // Callback for console commands.
 void abort_test(void) {
 
-  const uint8_t* app_data = APP_ADC;
-  uint32_t app_size       = sizeof(APP_ADC);
-  abort_tracker = true;
+  unsigned char* app_data = (uint8_t*)(uintptr_t)binaries[0];
+  size_t app_size         = binary_sizes[0];
+  size_t binary_size      = actual_sizes[0];
 
   int ret = libtock_app_loader_setup(app_size);
   if (ret != RETURNCODE_SUCCESS) {
@@ -109,26 +92,11 @@ void abort_test(void) {
   setup_done = false;
 
   printf("[Success] Setup successful. Writing app to flash.\n");
-  int ret1 = write_app(app_size, app_data);
+  int ret1 = write_app(binary_size, app_data);
   if (ret1 != RETURNCODE_SUCCESS) {
     printf("[Error] App flash write unsuccessful: %d.\n", ret1);
     tock_exit(ret1);
   }
-
-  if (!abort_tracker) {
-    printf("[Success] App flashed successfully. Creating process now.\n");
-    int ret2 = libtock_app_loader_load();
-    if (ret2 != RETURNCODE_SUCCESS) {
-      printf("[Error] Process creation failed: %d.\n", ret2);
-      tock_exit(ret2);
-    }
-
-    // wait on load done callback
-    yield_for(&load_done);
-    load_done = false;
-  }
-
-  abort_tracker = false;
 }
 
 
@@ -139,34 +107,37 @@ void abort_test(void) {
 * Takes app size and the app binary as arguments
 ******************************************************************************************************/
 
-int write_app(double size, const uint8_t binary[]) {
+int write_app(double size, uint8_t binary[]) {
 
-  int ret;
   uint32_t write_count = 0;
-  uint8_t write_buffer[FLASH_BUFFER_SIZE];
+  static uint8_t write_buffer[FLASH_BUFFER_SIZE];
   uint32_t flash_offset = 0;
 
-  write_count = ceil(size / FLASH_BUFFER_SIZE);
+  // This value can be changed to different sizes
+  // to mimic different bus widths.
+  uint32_t write_buffer_size = FLASH_BUFFER_SIZE;
 
   // set the write buffer
-  ret = libtock_app_loader_set_buffer(write_buffer, FLASH_BUFFER_SIZE);
+  int ret = libtock_app_loader_set_buffer(write_buffer, FLASH_BUFFER_SIZE);
   if (ret != RETURNCODE_SUCCESS) {
     printf("[Error] Failed to set the write buffer: %d.\n", ret);
     return -1;
   }
 
-  if (abort_tracker) {
-    write_count = write_count / 2;
-  }
+  write_count = (size + write_buffer_size - 1) / write_buffer_size;
 
   for (uint32_t offset = 0; offset < write_count; offset++) {
+
+    memset(write_buffer, 0, write_buffer_size);
     // copy binary to write buffer
-    memcpy(write_buffer, &binary[FLASH_BUFFER_SIZE * offset], FLASH_BUFFER_SIZE);
-    flash_offset = (offset * FLASH_BUFFER_SIZE);
-    ret = libtock_app_loader_write(flash_offset, FLASH_BUFFER_SIZE);
-    if (ret != 0) {
+    flash_offset = (offset * write_buffer_size);
+    size_t bytes_left = size - flash_offset;
+    size_t chunk      = bytes_left < write_buffer_size ? bytes_left : write_buffer_size;
+    memcpy(write_buffer, &binary[write_buffer_size * offset], chunk);
+    int ret1 = libtock_app_loader_write(flash_offset, write_buffer_size);
+    if (ret1 != 0) {
       printf("[Error] Failed writing data to flash at address: 0x%lx\n", flash_offset);
-      printf("[Error] Error nature: %d\n", ret);
+      printf("[Error] Error nature: %d\n", ret1);
       return -1;
     }
     // wait on write done callback
@@ -174,28 +145,17 @@ int write_app(double size, const uint8_t binary[]) {
     write_done = false;
   }
 
-  if (!abort_tracker) {
-    // Now that we are done writing the binary, we ask the kernel to finalize it.
-    printf("Done writing app, finalizing.\n");
-    int ret2 = libtock_app_loader_finalize();
-    if (ret2 != 0) {
-      printf("[Error] Failed to finalize new process binary.\n");
-      return -1;
-    }
-    yield_for(&finalize_done);
-    finalize_done = false;
-  } else {
-    printf("[Log] Aborting Setup/Write.\n");
-    int ret0 = libtock_app_loader_abort();
-    if (ret0 != RETURNCODE_SUCCESS) {
-      printf("[Error] Abort Failed: %d.\n", ret0);
-    }
-
-    // wait on abort done callback
-    yield_for(&abort_done);
-    abort_done = false;
-    printf("[Success] Abort Successful.\n");
+  printf("[Log] Aborting Setup/Write.\n");
+  int ret0 = libtock_app_loader_abort();
+  if (ret0 != RETURNCODE_SUCCESS) {
+    printf("[Error] Abort Failed: %d.\n", ret0);
   }
+
+  // wait on abort done callback
+  yield_for(&abort_done);
+  abort_done = false;
+  printf("[Success] Abort Successful.\n");
+
   return 0;
 }
 
@@ -216,35 +176,35 @@ int main(void) {
   }
 
   // set up the setup done callback
-  int err1 = libtock_app_loader_setup_set_upcall(app_setup_done_callback, NULL);
+  int err1 = libtock_app_loader_set_setup_upcall(app_setup_done_callback, NULL);
   if (err1 != 0) {
     printf("[Error] Failed to set setup done callback: %d\n", err1);
     return err1;
   }
 
   // set up the write done callback
-  int err2 = libtock_app_loader_write_set_upcall(app_write_done_callback, NULL);
+  int err2 = libtock_app_loader_set_write_upcall(app_write_done_callback, NULL);
   if (err2 != 0) {
     printf("[Error] Failed to set flash write done callback: %d\n", err2);
     return err2;
   }
 
   // set up the finalize done callback
-  int err3 = libtock_app_loader_finalize_set_upcall(app_finalize_done_callback, NULL);
+  int err3 = libtock_app_loader_set_finalize_upcall(app_finalize_done_callback, NULL);
   if (err3 != 0) {
     printf("[Error] Failed to set finalize done callback: %d\n", err3);
     return err3;
   }
 
   // set up the load done callback
-  int err4 = libtock_app_loader_load_set_upcall(app_load_done_callback, NULL);
+  int err4 = libtock_app_loader_set_load_upcall(app_load_done_callback, NULL);
   if (err4 != 0) {
     printf("[Error] Failed to set load done callback: %d\n", err4);
     return err4;
   }
 
   // set up the abort done callback
-  int err5 = libtock_app_loader_abort_set_upcall(app_abort_done_callback, NULL);
+  int err5 = libtock_app_loader_set_abort_upcall(app_abort_done_callback, NULL);
   if (err5 != 0) {
     printf("[Error] Failed to set abort done callback: %d\n", err5);
     return err5;
