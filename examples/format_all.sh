@@ -9,6 +9,12 @@ normal=$(tput sgr0)
 $SCRIPT_DIR/../tools/check_unstaged.sh || exit
 export TOCK_NO_CHECK_UNSTAGED=1
 
+# Explicitly build no targets if we're only formatting.
+#
+# This allows a system (i.e., a CI instance) with no cross-compilers to still
+# format without generating any warnings.
+export TOCK_TARGETS=
+
 function opt_rebuild {
 	if [ "$CI" == "true" ]; then
 		echo "::group::Verbose Rebuild for $1"

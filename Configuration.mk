@@ -222,6 +222,8 @@ override CPPFLAGS_PIC += \
 # which a compiler is found.
 ifneq (,$(shell which riscv64-none-elf-gcc 2>/dev/null))
   TOOLCHAIN_rv32 := riscv64-none-elf
+else ifneq (,$(shell which riscv-none-elf-gcc 2>/dev/null))
+  TOOLCHAIN_rv32 := riscv-none-elf
 else ifneq (,$(shell which riscv32-none-elf-gcc 2>/dev/null))
   TOOLCHAIN_rv32 := riscv32-none-elf
 else ifneq (,$(shell which riscv64-elf-gcc 2>/dev/null))
