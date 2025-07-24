@@ -19,9 +19,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: false # LVGL makefile manually installs the submodule
+          show-progress: false
       - name: Disable wget progress output
         run: |
           echo "verbose = off" >> $HOME/.wgetrc
@@ -57,9 +58,10 @@ jobs:
           riscv-none-elf-gcc --version
       ###########################################
       # libtock-c specific build steps begin here
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
+          show-progress: false
       - name: Disable wget progress output
         run: |
           echo "verbose = off" >> $HOME/.wgetrc
@@ -86,9 +88,10 @@ jobs:
           riscv64-unknown-elf-gcc --version
       ###########################################
       # libtock-c specific build steps begin here
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
+          show-progress: false
       - name: ci-build
         run: pushd examples; ./build_all.sh || exit; popd
       - name: ci-debug-build
