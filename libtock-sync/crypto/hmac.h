@@ -1,7 +1,9 @@
 #pragma once
 
-#include <libtock/crypto/hmac.h>
+#include <libtock/crypto/hmac_types.h>
 #include <libtock/tock.h>
+
+#include "syscalls/hmac_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
