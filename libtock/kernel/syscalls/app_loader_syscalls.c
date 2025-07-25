@@ -4,27 +4,27 @@ bool libtock_app_loader_exists(void) {
   return driver_exists(DRIVER_NUM_APP_LOADER);
 }
 
-returncode_t libtock_app_loader_setup_subscribe(subscribe_upcall cb, void* userdata) {
+returncode_t libtock_app_loader_set_setup_upcall(subscribe_upcall cb, void* userdata) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_APP_LOADER, 0, cb, userdata);
   return tock_subscribe_return_to_returncode(sval);
 }
 
-returncode_t libtock_app_loader_write_subscribe(subscribe_upcall cb, void* userdata) {
+returncode_t libtock_app_loader_set_write_upcall(subscribe_upcall cb, void* userdata) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_APP_LOADER, 1, cb, userdata);
   return tock_subscribe_return_to_returncode(sval);
 }
 
-returncode_t libtock_app_loader_finalize_subscribe(subscribe_upcall cb, void* userdata) {
+returncode_t libtock_app_loader_set_finalize_upcall(subscribe_upcall cb, void* userdata) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_APP_LOADER, 2, cb, userdata);
   return tock_subscribe_return_to_returncode(sval);
 }
 
-returncode_t libtock_app_loader_load_subscribe(subscribe_upcall cb, void* userdata) {
+returncode_t libtock_app_loader_set_load_upcall(subscribe_upcall cb, void* userdata) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_APP_LOADER, 3, cb, userdata);
   return tock_subscribe_return_to_returncode(sval);
 }
 
-returncode_t libtock_app_loader_abort_subscribe(subscribe_upcall cb, void* userdata) {
+returncode_t libtock_app_loader_set_abort_upcall(subscribe_upcall cb, void* userdata) {
   subscribe_return_t sval = subscribe(DRIVER_NUM_APP_LOADER, 4, cb, userdata);
   return tock_subscribe_return_to_returncode(sval);
 }
