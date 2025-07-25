@@ -1,9 +1,10 @@
-#include "app_loader.h"
-
-#include <libtock/tock.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <libtock/tock.h>
+
+#include "app_loader.h"
 
 #define FLASH_BUFFER_SIZE 4096
 
@@ -105,7 +106,6 @@ returncode_t libtock_app_loader_finalize(subscribe_upcall cb) {
   }
 
   return libtock_app_loader_command_finalize();
-
 }
 
 /******************************************************************************************************
@@ -124,8 +124,6 @@ returncode_t libtock_app_loader_load(subscribe_upcall cb) {
 
   return libtock_app_loader_command_load();
 }
-<<<<<<< HEAD
-=======
 
 /******************************************************************************************************
 * Function to abort the setup/writing of new app binary
@@ -145,12 +143,6 @@ returncode_t libtock_app_loader_abort(subscribe_upcall cb) {
 
   return libtock_app_loader_command_abort();
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 4f06f7bc (added abort test + refactored code for other apps.)
-=======
->>>>>>> de87deb1 (redistribute logic from test main.c to app_loader.c)
-=======
 
 /******************************************************************************************************
 * Function to uninstall an existing application
@@ -168,4 +160,3 @@ returncode_t libtock_app_loader_uninstall(uint32_t app_short_id, uint32_t app_ve
 
   return libtock_app_loader_command_uninstall(app_short_id, app_version);
 }
->>>>>>> 7a8b8766 (tests: app_loader: add uninstall test app + matching syscalls and wrappers)

@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,8 +7,6 @@
 #include <libtock/interface/button.h>
 #include <libtock/kernel/app_loader.h>
 #include <libtock/tock.h>
-
-#include <inttypes.h>
 
 /******************************************************************************************************
 * Short ID and version of app that has to be uninstalled (Blink in this case)
