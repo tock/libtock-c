@@ -146,6 +146,26 @@ returncode_t libtock_app_loader_abort(subscribe_upcall cb) {
   return libtock_app_loader_command_abort();
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 4f06f7bc (added abort test + refactored code for other apps.)
 =======
 >>>>>>> de87deb1 (redistribute logic from test main.c to app_loader.c)
+=======
+
+/******************************************************************************************************
+* Function to uninstall an existing application
+*
+* Takes the short id and version of the app and the callback function as arguments
+******************************************************************************************************/
+
+returncode_t libtock_app_loader_uninstall(uint32_t app_short_id, uint32_t app_version, subscribe_upcall cb) {
+  // set up the uninstall done callback
+  int err = libtock_app_loader_set_uninstall_upcall(cb, NULL);
+  if (err != 0) {
+    printf("[Error] Failed to set setup done callback: %d\n", err);
+    return err;
+  }
+
+  return libtock_app_loader_command_uninstall(app_short_id, app_version);
+}
+>>>>>>> 7a8b8766 (tests: app_loader: add uninstall test app + matching syscalls and wrappers)
