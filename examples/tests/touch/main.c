@@ -7,7 +7,7 @@
 
 libtock_touch_event_t* multi_touch_buffer;
 
-static void touch_event(int status, uint16_t x, uint16_t y) {
+static void touch_event(libtock_touch_status_t status, uint16_t x, uint16_t y) {
   switch (status) {
     case LIBTOCK_TOUCH_STATUS_PRESSED: {
       printf("pressed ");

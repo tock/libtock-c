@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-typedef void (*libtock_ieee802154_callback_send_done)(statuscode_t, bool);
+typedef void (*libtock_ieee802154_callback_send_done)(returncode_t, bool);
 typedef void (*libtock_ieee802154_callback_recv_done)(int, int, int);
 
 // Check for presence of the driver

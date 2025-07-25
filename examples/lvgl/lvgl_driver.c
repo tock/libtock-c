@@ -32,7 +32,7 @@ static void screen_lvgl_driver(lv_display_t* disp, const lv_area_t* area,
   lv_display_flush_ready(disp);           /* Indicate you are ready with the flushing*/
 }
 
-static void touch_event(int status, uint16_t x, uint16_t y) {
+static void touch_event(libtock_touch_status_t status, uint16_t x, uint16_t y) {
   touch_status = status;
   touch_x      = x;
   touch_y      = y;

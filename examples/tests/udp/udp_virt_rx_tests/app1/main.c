@@ -28,10 +28,9 @@ void print_ipv6(ipv6_addr_t* ipv6_addr) {
   printf("%02x%02x", ipv6_addr->addr[14], ipv6_addr->addr[15]);
 }
 
-static void callback(statuscode_t status,
+static void callback(returncode_t ret,
                      int          payload_len) {
 
-  returncode_t ret = tock_status_to_returncode(status);
   if (ret != RETURNCODE_SUCCESS) {
     printf("Error in receiving packet: %d\n", ret);
     return;

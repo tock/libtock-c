@@ -30,22 +30,22 @@ static otRadioFrame ackFrame_radio = {
 static struct pending_tx_done_callback {
   bool flag;
   bool acked;
-  statuscode_t status;
-} pending_tx_done_callback = {false, false, TOCK_STATUSCODE_FAIL};
+  returncode_t ret;
+} pending_tx_done_callback = {false, false, RETURNCODE_FAIL};
 
-static void tx_done_callback(statuscode_t status, bool acked) {
+static void tx_done_callback(returncode_t ret, bool acked) {
 	pending_tx_done_callback.flag = true;
   pending_tx_done_callback.acked = acked;
-  pending_tx_done_callback.status = status;
+  pending_tx_done_callback.ret = ret;
 }
 
-bool pending_tx_done_callback_status(otRadioFrame *ackFrame, returncode_t *status, otRadioFrame *txFrame) {
+bool pending_tx_done_callback_status(otRadioFrame *ackFrame, returncode_t *ret, otRadioFrame *txFrame) {
   if (pending_tx_done_callback.flag) {
     *ackFrame = ackFrame_radio;
-    *status = tock_status_to_returncode(pending_tx_done_callback.status);
+    *ret = pending_tx_done_callback.ret;
     *txFrame = transmitFrame;
-  } 
-	
+  }
+
   return pending_tx_done_callback.flag;
 }
 

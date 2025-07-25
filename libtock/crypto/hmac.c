@@ -4,7 +4,7 @@ static void hmac_upcall(int ret,
                         __attribute__ ((unused)) int unused1,
                         __attribute__ ((unused)) int unused2, void* opaque) {
   libtock_hmac_callback_hmac cb = (libtock_hmac_callback_hmac) opaque;
-  cb((returncode_t) ret);
+  cb(tock_status_to_returncode(ret));
 }
 
 
