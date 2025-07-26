@@ -24,7 +24,7 @@ const char* new_app_name    = NULL;
 unsigned char* new_app_data = NULL;
 size_t new_app_size         = 0;
 size_t new_binary_size      = 0;
-
+uint32_t write_buffer_size  = 4096;
 
 /******************************************************************************************************
 * Callback functions
@@ -81,7 +81,7 @@ static void button_callback(__attribute__ ((unused)) returncode_t retval, int bt
 * Takes app size and the app binary as arguments
 ******************************************************************************************************/
 
-static void appload(double binary_size, double app_size, uint8_t binary[]) {
+static void appload(size_t binary_size, size_t app_size, uint8_t binary[]) {
   int ret = libtock_app_loader_setup(app_size, app_setup_done_callback);
   if (ret != RETURNCODE_SUCCESS) {
     printf("[Error] Setup Failed: %d.\n", ret);
@@ -93,10 +93,19 @@ static void appload(double binary_size, double app_size, uint8_t binary[]) {
   setup_done = false;
 
   printf("[Success] Setup successful. Writing app to flash.\n");
-  int ret1 = libtock_app_loader_write(binary_size, binary);
-  if (ret1 != RETURNCODE_SUCCESS) {
-    printf("[Error] App flash write unsuccessful: %d.\n", ret1);
-    tock_exit(ret1);
+
+  size_t offset = 0;
+  while (offset < binary_size) {
+    size_t chunk_len = (binary_size - offset > write_buffer_size)
+                        ? write_buffer_size
+                        : binary_size - offset;
+
+    int ret1 = libtock_app_loader_write(offset, &binary[offset], chunk_len);
+    if (ret1 != RETURNCODE_SUCCESS) {
+      printf("[Error] Chunk write failed at offset %zu\n", offset);
+      break;
+    }
+    offset += chunk_len;
   }
 
   int ret2 = libtock_app_loader_finalize(app_finalize_done_callback);

@@ -10,6 +10,7 @@
 
 static bool write_done   = false;
 volatile bool abort_flag = false;
+static bool write_upcall_registered = false;
 
 /******************************************************************************************************
  * Callback functions
@@ -43,50 +44,45 @@ returncode_t libtock_app_loader_setup(uint32_t app_size, subscribe_upcall cb) {
 
 
 /******************************************************************************************************
-* Function to write the app binary into the flash
+* Function to write app binary chunks into the flash
 *
-* Takes binary size and the app binary as arguments
+* Takes offset, binary chunk and the chunk length as arguments
+* The user has to keep track of the offset, and has control
+* over the sequence of bytes being written
 ******************************************************************************************************/
 
-returncode_t libtock_app_loader_write(double size, uint8_t binary[]) {
-  uint32_t write_count = 0;
+returncode_t libtock_app_loader_write(uint32_t offset, uint8_t* chunk_data, size_t chunk_len) {
   static uint8_t write_buffer[FLASH_BUFFER_SIZE];
-  uint32_t flash_offset      = 0;
-  uint32_t write_buffer_size = FLASH_BUFFER_SIZE;
 
-  // Set up write and finalize done upcalls
-  libtock_app_loader_set_write_upcall(write_done_callback, NULL);
+  if (chunk_len > FLASH_BUFFER_SIZE) {
+    return RETURNCODE_FAIL;
+  }
 
-  // Set the shared write buffer
+  if (!write_upcall_registered) {
+    // set up the write done callback
+    libtock_app_loader_set_write_upcall(write_done_callback, NULL);
+    write_upcall_registered = true;
+  }
+
   int ret = libtock_app_loader_write_buffer(write_buffer, FLASH_BUFFER_SIZE);
   if (ret != RETURNCODE_SUCCESS) {
     printf("[Error] Failed to set the write buffer: %d.\n", ret);
     return ret;
   }
 
-  write_count = (size + write_buffer_size - 1) / write_buffer_size;
-
-  for (uint32_t offset = 0; offset < write_count; offset++) {
-    if (abort_flag) {
-      break;
-    }
-    memset(write_buffer, 0, write_buffer_size);
-    flash_offset = offset * write_buffer_size;
-
-    size_t bytes_left = size - flash_offset;
-    size_t chunk      = bytes_left < write_buffer_size ? bytes_left : write_buffer_size;
-
-    memcpy(write_buffer, &binary[flash_offset], chunk);
-
-    int ret1 = libtock_app_loader_command_write(flash_offset, write_buffer_size);
-    if (ret1 != RETURNCODE_SUCCESS) {
-      printf("[Error] Failed writing to flash at offset: 0x%lx, err: %d\n", flash_offset, ret1);
-      return ret1;
-    }
-
-    yield_for(&write_done);
-    write_done = false;
+  memcpy(write_buffer, chunk_data, chunk_len);
+  if (chunk_len < FLASH_BUFFER_SIZE) {
+    memset(write_buffer + chunk_len, 0, FLASH_BUFFER_SIZE - chunk_len);
   }
+
+  ret = libtock_app_loader_command_write(offset, FLASH_BUFFER_SIZE);
+  if (ret != RETURNCODE_SUCCESS) {
+    printf("[Error] Flash write failed at offset 0x%lx: err %d\n", offset, ret);
+    return ret;
+  }
+
+  yield_for(&write_done);
+  write_done = false;
 
   return RETURNCODE_SUCCESS;
 }
@@ -98,7 +94,8 @@ returncode_t libtock_app_loader_write(double size, uint8_t binary[]) {
 ******************************************************************************************************/
 
 returncode_t libtock_app_loader_finalize(subscribe_upcall cb) {
-
+  write_upcall_registered = false;
+  // set up the finalize done callbacks
   int err = libtock_app_loader_set_finalize_upcall(cb, NULL);
   if (err != 0) {
     printf("[Error] Failed to set finalize done callback: %d\n", err);

@@ -10,7 +10,7 @@ extern "C"
 
 returncode_t libtock_app_loader_setup(uint32_t app_length, subscribe_upcall cb);
 
-returncode_t libtock_app_loader_write(double size, uint8_t binary[]);
+returncode_t libtock_app_loader_write(uint32_t offset, uint8_t* chunk_data, size_t chunk_len);
 
 returncode_t libtock_app_loader_finalize(subscribe_upcall cb);
 
