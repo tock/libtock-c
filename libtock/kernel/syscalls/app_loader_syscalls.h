@@ -16,24 +16,10 @@ extern "C"
 bool libtock_app_loader_exists(void);
 
 /*
- * Function to setup the callback from capsule.
- * This function takes in the function that will be executed
- * when the callback is triggered.
- */
-returncode_t libtock_app_loader_set_setup_upcall(subscribe_upcall cb, void* userdata);
-
-/*
  * Command to request the kernel to set up for a new app.
  * This functions takes the size of the new app as the argument.
  */
 returncode_t libtock_app_loader_command_setup(uint32_t app_length);
-
-/*
- * Function to setup the callback from capsule.
- * This function takes in the function that will be executed
- * when the callback is triggered.
- */
-returncode_t libtock_app_loader_set_write_upcall(subscribe_upcall cb, void* userdata);
 
 /*
  * Function to set up a shared buffer with the capsule.
@@ -52,13 +38,6 @@ returncode_t libtock_app_loader_write_buffer(uint8_t* buffer, uint32_t len);
 returncode_t libtock_app_loader_command_write(uint32_t flash_offset, uint32_t write_length);
 
 /*
- * Function to setup the callback from capsule.
- * This function takes in the function that will be executed
- * when the callback is triggered.
- */
-returncode_t libtock_app_loader_set_finalize_upcall(subscribe_upcall cb, void* userdata);
-
-/*
  * Signal to kernel we are done writing a new process binary.
  */
 returncode_t libtock_app_loader_command_finalize(void);
@@ -69,23 +48,26 @@ returncode_t libtock_app_loader_command_finalize(void);
 returncode_t libtock_app_loader_command_load(void);
 
 /*
- * Function to setup the callback from capsule.
- * This function takes in the function that will be executed
- * when the callback is triggered.
- */
-returncode_t libtock_app_loader_set_load_upcall(subscribe_upcall cb, void* userdata);
-
-/*
  * Command to request the kernel to abort setup/writing process.
  */
 returncode_t libtock_app_loader_command_abort(void);
 
 /*
- * Function to setup the callback from capsule.
+ * Command to request the kernel to uninstall an application.
+ */
+returncode_t libtock_app_loader_command_uninstall(uint32_t app_short_id, uint32_t app_version);
+
+/*
+ * Functions to setup the callback from capsule.
  * This function takes in the function that will be executed
  * when the callback is triggered.
  */
+returncode_t libtock_app_loader_set_setup_upcall(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_set_write_upcall(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_set_finalize_upcall(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_set_load_upcall(subscribe_upcall cb, void* userdata);
 returncode_t libtock_app_loader_set_abort_upcall(subscribe_upcall cb, void* userdata);
+returncode_t libtock_app_loader_set_uninstall_upcall(subscribe_upcall cb, void* userdata);
 
 
 
