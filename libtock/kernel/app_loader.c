@@ -8,8 +8,7 @@
 
 #define FLASH_BUFFER_SIZE 4096
 
-static bool write_done   = false;
-volatile bool abort_flag = false;
+static bool write_done = false;
 static bool write_upcall_registered = false;
 
 /******************************************************************************************************
@@ -130,8 +129,6 @@ returncode_t libtock_app_loader_load(subscribe_upcall cb) {
 
 returncode_t libtock_app_loader_abort(subscribe_upcall cb) {
   // set up the abort done callback
-  abort_flag = true;
-
   int err = libtock_app_loader_set_abort_upcall(cb, NULL);
   if (err != 0) {
     printf("[Error] Failed to set abort done callback: %d\n", err);

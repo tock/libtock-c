@@ -12,8 +12,10 @@
 /******************************************************************************************************
 * Callback Tracking Flags
 ******************************************************************************************************/
-static bool setup_done = false;         // to check if setup is done
-static bool abort_done = false;         // to check if write abort was successful
+static bool setup_done     = false;     // to check if setup is done
+static bool abort_done     = false;     // to check if write abort was successful
+volatile bool abort_flag   = false;     // track if abort request was sent
+uint32_t write_buffer_size = 4096;
 
 /******************************************************************************************************
 * Function Prototypes
@@ -45,6 +47,7 @@ static void abort_alarm_cb(__attribute__ ((unused)) uint32_t now,
                            __attribute__ ((unused)) uint32_t scheduled,
                            __attribute__ ((unused)) void*    opaque) {
   printf("[Timer] Triggering abort now.\n");
+  abort_flag = true;
   int ret = libtock_app_loader_abort(app_abort_done_callback);
   if (ret != RETURNCODE_SUCCESS) {
     printf("[Error] Abort Failed: %d.\n", ret);
@@ -82,11 +85,19 @@ void abort_test(void) {
 
   libtock_alarm_in_ms(150, abort_alarm_cb, NULL, &abort_alarm);
 
-  printf("[Success] Setup successful. Writing app to flash.\n");
-  int ret1 = libtock_app_loader_write(binary_size, app_data);
-  if (ret1 != RETURNCODE_SUCCESS) {
-    printf("[Error] App flash write unsuccessful: %d.\n", ret1);
-    tock_exit(ret1);
+  size_t offset = 0;
+  while (offset < binary_size) {
+    if (abort_flag) break;
+    size_t chunk_len = (binary_size - offset > write_buffer_size)
+                        ? write_buffer_size
+                        : binary_size - offset;
+
+    int ret1 = libtock_app_loader_write(offset, &app_data[offset], chunk_len);
+    if (ret1 != RETURNCODE_SUCCESS) {
+      printf("[Error] Chunk write failed at offset %zu\n", offset);
+      break;
+    }
+    offset += chunk_len;
   }
 }
 
