@@ -1,4 +1,5 @@
 #include "lora_phy.h"
+
 #include "syscalls/lora_phy_syscalls.h"
 
 static void lora_phy_spi_upcall(__attribute__ ((unused)) int unused0,

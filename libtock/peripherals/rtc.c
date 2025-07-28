@@ -1,4 +1,5 @@
 #include "rtc.h"
+
 #include "syscalls/rtc_syscalls.h"
 
 // DateTime codifies Date structure into two u32 (int) numbers

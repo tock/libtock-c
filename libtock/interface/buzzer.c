@@ -1,4 +1,5 @@
 #include "buzzer.h"
+
 #include "syscalls/buzzer_syscalls.h"
 
 static void libtock_buzzer_temp_upcall(__attribute__ ((unused)) int arg0,

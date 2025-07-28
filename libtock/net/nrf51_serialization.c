@@ -1,4 +1,5 @@
 #include "nrf51_serialization.h"
+
 #include "syscalls/nrf51_serialization_syscalls.h"
 
 bool libtock_nrf51_serialization_exists(void) {

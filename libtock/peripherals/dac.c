@@ -1,4 +1,5 @@
 #include "dac.h"
+
 #include "syscalls/dac_syscalls.h"
 
 bool libtock_dac_exists(void) {

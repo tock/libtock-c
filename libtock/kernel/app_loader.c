@@ -1,4 +1,5 @@
 #include "app_loader.h"
+
 #include "syscalls/app_loader_syscalls.h"
 
 bool libtock_app_loader_exists(void) {

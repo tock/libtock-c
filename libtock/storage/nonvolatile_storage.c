@@ -1,4 +1,5 @@
 #include "nonvolatile_storage.h"
+
 #include "syscalls/nonvolatile_storage_syscalls.h"
 
 static void write_done(int                          length,

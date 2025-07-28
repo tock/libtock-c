@@ -1,4 +1,5 @@
 #include "sdcard.h"
+
 #include "syscalls/sdcard_syscalls.h"
 
 // Internal callback for creating synchronous functions

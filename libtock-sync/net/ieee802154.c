@@ -1,7 +1,6 @@
 #include <stdio.h>
 
 #include <libtock-sync/services/alarm.h>
-
 #include <libtock/net/syscalls/ieee802154_syscalls.h>
 
 #include "ieee802154.h"

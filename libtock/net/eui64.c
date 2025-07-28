@@ -1,4 +1,5 @@
 #include "eui64.h"
+
 #include "syscalls/eui64_syscalls.h"
 
 bool libtock_eui64_exists(void) {

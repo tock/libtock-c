@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "ieee802154.h"
+
 #include "syscalls/ieee802154_syscalls.h"
 
 bool libtock_ieee802154_exists(void) {
