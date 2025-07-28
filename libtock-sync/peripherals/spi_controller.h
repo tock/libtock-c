@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_spi_controller_exists(void);
+
 // As the SPI, write a buffer of data.
 returncode_t libtocksync_spi_controller_write(const uint8_t* write,
                                               size_t         len);

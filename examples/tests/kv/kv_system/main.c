@@ -3,6 +3,7 @@
 
 #include <libtock/interface/console.h>
 #include <libtock/storage/kv.h>
+#include <libtock/storage/syscalls/kv_syscalls.h>
 
 #define KEY_LEN  16
 #define DATA_LEN 32

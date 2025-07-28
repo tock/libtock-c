@@ -1,6 +1,6 @@
 #include "crc_syscalls.h"
 
-bool libtock_crc_exists(void) {
+bool libtock_crc_driver_exists(void) {
   return driver_exists(DRIVER_NUM_CRC);
 }
 

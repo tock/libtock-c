@@ -1,5 +1,7 @@
 #include "nonvolatile_storage.h"
 
+#include "syscalls/nonvolatile_storage_syscalls.h"
+
 static void write_done(int                          length,
                        __attribute__ ((unused)) int arg1,
                        __attribute__ ((unused)) int arg2,
@@ -14,6 +16,10 @@ static void read_done(int                          length,
                       void*                        opaque) {
   libtock_nonvolatile_storage_callback_read cb = (libtock_nonvolatile_storage_callback_read) opaque;
   cb(RETURNCODE_SUCCESS, length);
+}
+
+bool libtock_nonvolatile_storage_exists(void) {
+  return libtock_nonvolatile_storage_driver_exists();
 }
 
 returncode_t libtock_nonvolatile_storage_get_number_bytes(uint32_t* number_bytes) {

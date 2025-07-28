@@ -20,7 +20,7 @@ returncode_t libtock_console_set_readwrite_allow(uint8_t* buffer, uint32_t len) 
   return tock_allow_rw_return_to_returncode(aval);
 }
 
-bool libtock_console_command_exists(void) {
+bool libtock_console_driver_exists(void) {
   return driver_exists(DRIVER_NUM_CONSOLE);
 }
 

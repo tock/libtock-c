@@ -1,6 +1,11 @@
 #include <string.h>
 
+#include "syscalls/udp_syscalls.h"
 #include "udp.h"
+
+bool libtock_udp_exists(void) {
+  return libtock_udp_driver_exists();
+}
 
 returncode_t libtock_udp_bind(sock_handle_t* handle, sock_addr_t* addr, unsigned char* buf_bind_cfg) {
   // Pass interface to listen on and space for kernel to write src addr

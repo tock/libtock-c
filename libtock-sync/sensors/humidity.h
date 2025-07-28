@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_humidity_exists(void);
+
 // Read the humidity sensor synchronously.
 //
 // ## Arguments

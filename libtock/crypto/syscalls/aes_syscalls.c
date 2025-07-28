@@ -17,7 +17,7 @@
 #define TOCK_AES_CCM_MIC_LEN     7
 #define TOCK_AES_CCM_CONF        8
 
-bool libtock_aes_exists(void) {
+bool libtock_aes_driver_exists(void) {
   return driver_exists(DRIVER_NUM_AES);
 }
 

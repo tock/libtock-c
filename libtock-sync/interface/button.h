@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_button_exists(void);
+
 // Wait for a specific button to be pressed.
 //
 // This blocks until the button has been pressed. Note, this will not return if

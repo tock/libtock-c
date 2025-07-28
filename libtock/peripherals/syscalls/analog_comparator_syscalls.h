@@ -8,7 +8,7 @@ extern "C" {
 
 #define DRIVER_NUM_ANALOG_COMPARATOR 0x7
 
-bool libtock_analog_comparator_exists(void);
+bool libtock_analog_comparator_driver_exists(void);
 
 // Set the upcall function called by the AC when an interrupt is received.
 //

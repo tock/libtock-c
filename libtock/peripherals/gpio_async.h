@@ -2,7 +2,6 @@
 
 #include "../tock.h"
 #include "gpio.h"
-#include "syscalls/gpio_async_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,6 +19,9 @@ typedef void (*libtock_gpio_async_callback_interrupt)(uint32_t, uint32_t, bool);
 // - `arg1` (`returncode_t`): Status of the command operation.
 // - `arg2` (`bool`): On a read if the value is high (true) or low (false).
 typedef void (*libtock_gpio_async_callback_command)(returncode_t, bool);
+
+// Check if the driver exists.
+bool libtock_gpio_async_exists(void);
 
 returncode_t libtock_gpio_async_set_interrupt_callback(libtock_gpio_async_callback_interrupt cb);
 

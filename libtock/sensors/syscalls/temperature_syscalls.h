@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_TEMPERATURE 0x60000
 
 // Check if temperature sensor exists.
-bool libtock_temperature_exists(void);
+bool libtock_temperature_driver_exists(void);
 
 // units: temperature in hundredths of degrees centigrade.
 

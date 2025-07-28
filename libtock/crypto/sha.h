@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/sha_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,6 +18,7 @@ typedef enum {
 } libtock_sha_algorithm_t;
 
 
+bool libtock_sha_exists(void);
 
 // Compute a SHA hash over `input_buffer` and store the hash in `hash_buffer`.
 //

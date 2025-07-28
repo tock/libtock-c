@@ -8,6 +8,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_gpio_async_exists(void);
+
 returncode_t libtocksync_gpio_async_make_output(uint32_t port, uint8_t pin);
 
 returncode_t libtocksync_gpio_async_set(uint32_t port, uint8_t pin);

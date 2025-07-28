@@ -1,6 +1,6 @@
 #include "lora_phy_syscalls.h"
 
-bool libtock_lora_phy_exists(void) {
+bool libtock_lora_phy_driver_exists(void) {
   return driver_exists(DRIVER_NUM_LORA_PHY_SPI) && driver_exists(DRIVER_NUM_LORA_PHY_GPIO);
 }
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include <libtock-sync/services/alarm.h>
+#include <libtock/peripherals/syscalls/alarm_syscalls.h>
 
 static void event_cb(uint32_t now, uint32_t expiration, void* ud) {
   int i = (int)ud;

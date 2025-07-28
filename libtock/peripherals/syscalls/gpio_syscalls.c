@@ -1,6 +1,6 @@
 #include "gpio_syscalls.h"
 
-bool libtock_gpio_exists(void) {
+bool libtock_gpio_driver_exists(void) {
   return driver_exists(GPIO_DRIVER_NUM);
 }
 

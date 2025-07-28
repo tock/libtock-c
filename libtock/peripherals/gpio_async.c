@@ -1,5 +1,7 @@
 #include "gpio_async.h"
 
+#include "syscalls/gpio_async_syscalls.h"
+
 static void gpio_async_upcall_interrupt(int                          pin_number,
                                         int                          value,
                                         __attribute__ ((unused)) int unused2,
@@ -14,6 +16,10 @@ static void gpio_async_upcall_command(__attribute__ ((unused)) int unused1,
                                       void*                        opaque) {
   libtock_gpio_async_callback_command cb = (libtock_gpio_async_callback_command) opaque;
   cb(RETURNCODE_SUCCESS, value);
+}
+
+bool libtock_gpio_async_exists(void) {
+  return libtock_gpio_async_driver_exists();
 }
 
 returncode_t libtock_gpio_async_set_interrupt_callback(libtock_gpio_async_callback_interrupt cb) {

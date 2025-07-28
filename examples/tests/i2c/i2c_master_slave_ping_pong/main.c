@@ -5,6 +5,7 @@
 
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
+#include <libtock/interface/syscalls/button_syscalls.h>
 #include <libtock/peripherals/i2c_master_slave.h>
 
 #define BUF_SIZE 16

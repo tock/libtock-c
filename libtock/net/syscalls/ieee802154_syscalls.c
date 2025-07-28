@@ -25,7 +25,7 @@ returncode_t libtock_ieee802154_set_readwrite_allow_cfg(uint8_t* buffer, uint32_
   return tock_allow_rw_return_to_returncode(aval);
 }
 
-bool libtock_ieee802154_exists(void) {
+bool libtock_ieee802154_driver_exists(void) {
   return driver_exists(DRIVER_NUM_IEEE802154);
 }
 

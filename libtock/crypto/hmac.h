@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/hmac_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,6 +18,7 @@ typedef enum {
 } libtock_hmac_algorithm_t;
 
 
+bool libtock_hmac_exists(void);
 
 // Compute an HMAC using `keyb_buffer` over `input_buffer` and store the result
 // in `hash_buffer`.

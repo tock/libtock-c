@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/spi_peripheral_syscalls.h>
+
 #include "spi_peripheral.h"
 
 struct spi_peripheral_data {
@@ -11,6 +13,10 @@ static struct spi_peripheral_data result = { .fired = false };
 static void cb(returncode_t ret) {
   result.fired = true;
   result.ret   = ret;
+}
+
+bool libtocksync_spi_peripheral_exists(void) {
+  return libtock_spi_peripheral_driver_exists();
 }
 
 returncode_t libtocksync_spi_peripheral_write(const uint8_t* write,

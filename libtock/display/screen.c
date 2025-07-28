@@ -2,6 +2,8 @@
 
 #include "screen.h"
 
+#include "syscalls/screen_syscalls.h"
+
 static void screen_callback_done(int                          status,
                                  __attribute__ ((unused)) int data1,
                                  __attribute__ ((unused)) int data2,
@@ -26,6 +28,9 @@ static void screen_callback_rotation(int                          status,
   cb(tock_status_to_returncode(status), (libtock_screen_rotation_t) data1);
 }
 
+bool libtock_screen_exists(void) {
+  return libtock_screen_driver_exists();
+}
 
 statuscode_t libtock_screen_buffer_init(size_t len, uint8_t** buffer) {
   if (*buffer != NULL) return TOCK_STATUSCODE_ALREADY;
