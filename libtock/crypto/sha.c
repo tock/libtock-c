@@ -1,10 +1,10 @@
 #include "sha.h"
 
-static void sha_upcall(int ret,
+static void sha_upcall(int status,
                        __attribute__ ((unused)) int unused1,
                        __attribute__ ((unused)) int unused2, void* opaque) {
   libtock_sha_callback_hash cb = (libtock_sha_callback_hash) opaque;
-  cb((returncode_t) ret);
+  cb(tock_status_to_returncode(status));
 }
 
 returncode_t libtock_sha_simple_hash(libtock_sha_algorithm_t hash_type,

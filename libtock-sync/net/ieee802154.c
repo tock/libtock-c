@@ -16,7 +16,7 @@ static struct ieee802154_receive_data receive_result = { .fired = false };
 struct ieee802154_send_data {
   bool fired;
   bool acked;
-  statuscode_t status;
+  returncode_t ret;
 };
 
 static struct ieee802154_send_data send_result     = { .fired = false };
@@ -29,16 +29,16 @@ static void ieee802154_receive_done_cb(int pan, int src_addr, int dest_addr) {
   receive_result.dest_addr = dest_addr;
 }
 
-static void ieee802154_send_done_cb(statuscode_t status, bool acked) {
-  send_result.fired  = true;
-  send_result.acked  = acked;
-  send_result.status = status;
+static void ieee802154_send_done_cb(returncode_t ret, bool acked) {
+  send_result.fired = true;
+  send_result.acked = acked;
+  send_result.ret   = ret;
 }
 
-static void ieee802154_send_raw_done_cb(statuscode_t status, bool acked) {
-  send_result_raw.fired  = true;
-  send_result_raw.acked  = acked;
-  send_result_raw.status = status;
+static void ieee802154_send_raw_done_cb(returncode_t ret, bool acked) {
+  send_result_raw.fired = true;
+  send_result_raw.acked = acked;
+  send_result_raw.ret   = ret;
 }
 
 returncode_t libtocksync_ieee802154_send(uint16_t         addr,
@@ -55,7 +55,7 @@ returncode_t libtocksync_ieee802154_send(uint16_t         addr,
   // Wait for the frame to be sent
   yield_for(&send_result.fired);
 
-  return tock_status_to_returncode(send_result.status);
+  return send_result.ret;
 }
 
 
@@ -69,7 +69,7 @@ returncode_t libtocksync_ieee802154_send_raw(
 
   yield_for(&send_result_raw.fired);
 
-  return tock_status_to_returncode(send_result_raw.status);
+  return send_result_raw.ret;
 }
 
 returncode_t libtocksync_ieee802154_receive(const libtock_ieee802154_rxbuf* frame) {

@@ -2,7 +2,7 @@
 
 #include "syscalls/isolated_nonvolatile_storage_syscalls.h"
 
-static void get_number_bytes_done(int   ret,
+static void get_number_bytes_done(int   status,
                                   int   number_bytes_lo,
                                   int   number_bytes_hi,
                                   void* opaque) {
@@ -10,23 +10,23 @@ static void get_number_bytes_done(int   ret,
     (libtock_isolated_nonvolatile_storage_callback_get_number_bytes) opaque;
   uint64_t num = (uint64_t) number_bytes_lo | ((uint64_t) number_bytes_hi) << 32;
 
-  cb(tock_status_to_returncode(ret), num);
+  cb(tock_status_to_returncode(status), num);
 }
 
-static void write_done(int                          ret,
+static void write_done(int                          status,
                        __attribute__ ((unused)) int arg1,
                        __attribute__ ((unused)) int arg2,
                        void*                        opaque) {
   libtock_isolated_nonvolatile_storage_callback_write cb = (libtock_isolated_nonvolatile_storage_callback_write) opaque;
-  cb(tock_status_to_returncode(ret));
+  cb(tock_status_to_returncode(status));
 }
 
-static void read_done(int                          ret,
+static void read_done(int                          status,
                       __attribute__ ((unused)) int arg1,
                       __attribute__ ((unused)) int arg2,
                       void*                        opaque) {
   libtock_isolated_nonvolatile_storage_callback_read cb = (libtock_isolated_nonvolatile_storage_callback_read) opaque;
-  cb(tock_status_to_returncode(ret));
+  cb(tock_status_to_returncode(status));
 }
 
 returncode_t libtock_isolated_nonvolatile_storage_get_number_bytes(

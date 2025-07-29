@@ -24,10 +24,10 @@ typedef struct sock_handle {
 
 
 /// Callback for when a tx is completed.
-typedef void (*libtock_udp_callback_send_done) (statuscode_t);
+typedef void (*libtock_udp_callback_send_done) (returncode_t);
 
 /// Callback for when a rx is completed.
-typedef void (*libtock_udp_callback_recv_done) (statuscode_t, int);
+typedef void (*libtock_udp_callback_recv_done) (returncode_t, int);
 
 // Creates a new datagram socket bound to an address.
 // Returns 0 on success, negative on failure.

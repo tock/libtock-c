@@ -251,12 +251,12 @@ typedef void (*libtock_sensor_callback_reading)(returncode_t, int);
 Define a upcall function to be passed to the kernel:
 
 ```c
-static void sensor_temp_upcall(int                          ret,
+static void sensor_temp_upcall(int                          status,
                                int                          val,
                                __attribute__ ((unused)) int unused0,
                                void*                        opaque) {
   libtock_sensor_callback_reading cb = (libtock_sensor_callback_reading) opaque;
-  cb(ret, val);
+  cb(tock_status_to_returncode((statuscode_t) status), val);
 }
 ```
 
@@ -349,12 +349,15 @@ the function.
 
 ```c
 returncode_t libtocksync_[name]_yield_wait_for(int* value) {
-  yield_waitfor_return_t ret;
-  ret = yield_wait_for(DRIVER_NUM_[NAME], 0);
-  if (ret.data0 != RETURNCODE_SUCCESS) return ret.data0;
+  returncode_t ret;
+  yield_waitfor_return_t ywf;
 
-  *value = (int) ret.data1;
-  return RETURNCODE_SUCCESS;
+  ywf = yield_wait_for(DRIVER_NUM_[NAME], 0);
+  ret = tock_status_to_returncode(ywf.data0);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  *value = (int) ywf.data1;
+  return ret;
 }
 ```
 
@@ -400,13 +403,13 @@ space for the sync operation:
 #include "syscalls/temperature_syscalls.h"
 
 returncode_t libtocksync_sensor_read(int* val) {
-  returncode_t err;
+  returncode_t ret;
 
-  err = libtock_sensor_command_read();
-  if (err != RETURNCODE_SUCCESS) return err;
+  ret = libtock_sensor_command_read();
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Wait for the operation to finish.
-  err = libtock_temperature_yield_wait_for(val);
-  return err;
+  ret = libtock_temperature_yield_wait_for(val);
+  return ret;
 }
 ```
