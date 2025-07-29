@@ -256,7 +256,7 @@ static void sensor_temp_upcall(int                          status,
                                __attribute__ ((unused)) int unused0,
                                void*                        opaque) {
   libtock_sensor_callback_reading cb = (libtock_sensor_callback_reading) opaque;
-  cb(tock_status_to_returncode(status), val);
+  cb(tock_status_to_returncode((statuscode_t) status), val);
 }
 ```
 
