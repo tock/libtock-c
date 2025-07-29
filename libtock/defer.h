@@ -1,5 +1,14 @@
 #pragma once
 
+// Implementation of the C `defer {}` feature.
+//
+// As of July 2025, upcoming versions of C will support `defer` as a way to run
+// code when a value goes out of scope. See:
+// https://thephd.dev/_vendor/future_cxx/technical%20specification/C%20-%20defer/C%20-%20defer%20Technical%20Specification.pdf
+//
+// This implements the same feature with a macro. This implementation used from
+// https://gustedt.wordpress.com/2025/01/06/simple-defer-ready-to-use/.
+
 #ifdef __cplusplus
 extern "C" {
 #endif
