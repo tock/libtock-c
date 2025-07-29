@@ -10,6 +10,7 @@ $(LIBNAME)_SRC_ROOT := $(TOCK_USERLAND_BASE_DIR)
 # List all C and Assembly files
 $(LIBNAME)_SRCS  := $(wildcard $($(LIBNAME)_DIR)/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/crypto/*.c)
+$(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/crypto/syscalls/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/display/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/interface/*.c)
 $(LIBNAME)_SRCS  += $(wildcard $($(LIBNAME)_DIR)/kernel/*.c)
