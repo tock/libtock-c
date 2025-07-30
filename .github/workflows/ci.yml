@@ -13,15 +13,16 @@ jobs:
   ci-format:
     strategy:
       matrix:
-        os: [ubuntu-22.04]
+        os: [ubuntu-latest]
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: false # LVGL makefile manually installs the submodule
+          show-progress: false
       - name: Disable wget progress output
         run: |
           echo "verbose = off" >> $HOME/.wgetrc
@@ -29,21 +30,51 @@ jobs:
         run: pushd examples; ./format_all.sh || exit; popd
 
   ci-build:
+    # Build on the newest-available OS with newest-available compilers and with
+    # default compiler versions from the oldest current Ubuntu LTS
     strategy:
       matrix:
-        os: [ubuntu-22.04]
-    # The type of runner that the job will run on
+        os: [ubuntu-latest, ubuntu-22.04]
     runs-on: ${{ matrix.os }}
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v2
+      ###########################################
+      # Install toolchains for ubuntu-latest
+      - name: Install ARM toolchain (ubuntu latest)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          release: 'latest'
+      - name: Install RISC-V toolchain (ubuntu latest)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        # Install latest RISC-V toolchains, uses xPack
+        # https://xpack-dev-tools.github.io/
+        run: |
+          npm install --location=global xpm@latest
+          xpm install --global @xpack-dev-tools/riscv-none-elf-gcc@latest
+          tree -a "$HOME/.local/xPacks/@xpack-dev-tools/riscv-none-elf-gcc/" || echo "nope"
+          echo "$HOME/.local/xPacks/@xpack-dev-tools/riscv-none-elf-gcc/14.2.0-3.1/.content/bin" >> "$GITHUB_PATH"
+
+      ###########################################
+      # Install toolchains for ubuntu LTS
+      # Use apt to ensure we are matching 'out of the box' LTS
+      - name: Install Toolchains
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: sudo apt-get install -y gcc-arm-none-eabi gcc-riscv64-unknown-elf
+
+      ###########################################
+      # Report what toolchains are installed
+      - name: report-toolchain-versions
+        run: |
+          arm-none-eabi-gcc --version
+          riscv-none-elf-gcc --version || riscv64-unknown-elf-gcc --version
+
+      ###########################################
+      # libtock-c specific build steps begin here
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: carlosperate/arm-none-eabi-gcc-action@v1
-      - run: arm-none-eabi-gcc --version
-      - name: setup-riscv-toolchain
-        run: sudo apt-get install -y gcc-riscv64-unknown-elf
+          show-progress: false
       - name: Disable wget progress output
         run: |
           echo "verbose = off" >> $HOME/.wgetrc
@@ -51,3 +82,4 @@ jobs:
         run: pushd examples; ./build_all.sh || exit; popd
       - name: ci-debug-build
         run: pushd examples/blink; make debug RAM_START=0x20004000 FLASH_INIT=0x30051 || exit; popd
+
