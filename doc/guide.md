@@ -422,9 +422,13 @@ returncode_t libtocksync_sensor_read(int* val) {
 ### More Complicated Example:
 
 Drivers that use allow buffers must un-allow the buffers after the operation
-finishes.
+finishes. To ease authoring of cleanup code, Tock provides a macro-based
+implementation of the `defer {}` feature that will be included with a future
+version of `C`.
 
 ```c
+#include <libtock/defer.h>
+
 #include "digest.h"
 #include "syscalls/digest_syscalls.h"
 
@@ -437,27 +441,26 @@ returncode_t libtocksync_digest_compute(uint8_t* input_buffer,
   // First allow for input. If it fails, return.
   ret = libtock_digest_set_readonly_allow(input_buffer, input_buffer_len);
   if (ret != RETURNCODE_SUCCESS) return ret;
+  // Now that this buffer has been allowed, set up a `defer` block to
+  // ensure that it will be unallowed before this function returns
+  // (regardless of exit location out of the function).
+  //
+  // Note the return value of this "un-allow" operation is ignored in favor
+  // of returning the disposition of the library function (i.e., `ret`).
+  defer { libtock_digest_set_readonly_allow(NULL, 0); }
 
-  // Second allow for output. If it fails, unallow first buffer then return.
+  // Second allow for output.
   ret = libtock_digest_set_readwrite_allow(output_buffer, output_buffer_len);
-  if (ret != RETURNCODE_SUCCESS) goto exit1;
+  if (ret != RETURNCODE_SUCCESS) return ret;
+  // Set up the output unallow.
+  defer { libtock_digest_set_readwrite_allow(NULL, 0); }
 
   // Attempt the command. If it fails, unallow both buffers.
   ret = libtock_digest_command_compute_digest();
-  if (err != RETURNCODE_SUCCESS) goto exit2;
+  if (err != RETURNCODE_SUCCESS) return ret;
 
   // Wait for the digest to compute.
   ret = libtock_digest_yield_wait_for(val);
-
-exit2:
-  // Do the input unallow. We have to ignore the return value to 1) return the
-  // correct error of the actual failing operation if something happened, and
-  // 2) do the second unallow unconditionally.
-  libtock_digest_set_readonly_allow(NULL, 0);
-
-exit1:
-  // Do the output unallow.
-  libtock_digest_set_readonly_allow(NULL, 0);
 
   return ret;
 }
