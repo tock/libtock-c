@@ -67,8 +67,10 @@ ARTY_E21_TOCK_TARGETS := rv32imac|rv32imac.0x40430080.0x80004000|0x40430080|0x80
                          rv32imac|rv32imac.0x40440080.0x80007000|0x40440080|0x80007000
 
 # Specific addresses useful for the QEMU rv32i "virt" machine memory map.
-QEMU_RV32_VIRT_TOCK_TARGETS := rv32imac|rv32imac.0x80100080.0x80210000|0x80100080|0x80210000\
-                               rv32imac|rv32imac.0x80104080.0x80214000|0x80104080|0x80214000
+QEMU_RV32_VIRT_TOCK_TARGETS := rv32imac|rv32imac.0x80100080.0x80300000|0x80100080|0x80300000\
+                               rv32imac|rv32imac.0x80110080.0x80310000|0x80110080|0x80310000\
+                               rv32imac|rv32imac.0x80130080.0x80330000|0x80130080|0x80330000\
+                               rv32imac|rv32imac.0x80180080.0x80380000|0x80180080|0x80380000
 
 VEER_EL2_TOCK_TARGETS := rv32imc|rv32imc.0x20300080.0x20602000|0x20300080|0x20602000
 
