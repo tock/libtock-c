@@ -101,7 +101,7 @@ if which flock 2>&1 >/dev/null; then
 elif which shlock 2>&1 >/dev/null; then
   while true; do
     trap "rm -f ${ZIP_FILE}.lock" EXIT
-    if shlock -f "${ZIP_FILE}.lock" -p "$BASHPID"; then
+    if shlock -f "${ZIP_FILE}.lock" -p "$$"; then
       break
     else
       echo "Could not acquire lock on ${ZIP_FILE}.lock, retrying in 10..." >&2
