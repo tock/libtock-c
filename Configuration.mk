@@ -34,7 +34,7 @@ KERNEL_HEAP_SIZE ?= 1024
 
 # Set default required kernel version.
 KERNEL_MAJOR_VERSION     ?= 2
-KERNEL_MINOR_VERSION     ?= 0
+KERNEL_MINOR_VERSION     ?= 2
 
 # PACKAGE_NAME is used to identify the application for IPC and for error
 # reporting. This can be overwritten per-app to customize the name, otherwise we
