@@ -69,9 +69,9 @@ include $(2)/Makefile.version
 
 $$($(3)_SENTINEL_FILE):
 	$$(MAKE) -C $(2) -f Makefile.setup all
-	$$(MAKE) -C $(2) -f Makefile all
 
-$(1): $$($(3)_SENTINEL_FILE) ;
+$(1): $$($(3)_SENTINEL_FILE)
+	$$(MAKE) -C $(2) -f Makefile all
 else
 # No Makefile.version, so this will work the first time the library is built.
 $(1):
