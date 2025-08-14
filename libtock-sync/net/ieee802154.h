@@ -1,6 +1,5 @@
 #pragma once
 
-#include <libtock/net/ieee802154.h>
 #include <libtock/tock.h>
 
 #ifdef __cplusplus
@@ -25,7 +24,8 @@ returncode_t libtocksync_ieee802154_send(uint16_t         addr,
                                          key_id_mode_t    key_id_mode,
                                          uint8_t*         key_id,
                                          const uint8_t*   payload,
-                                         uint8_t          len);
+                                         uint8_t          len,
+                                         bool*            acked);
 
 // Sends an IEEE 802.15.4 frame synchronously. This is an alternative and contemporary
 // to the `libtock_ieee802154_send` function. This provides an interface for userprocesses to
@@ -35,7 +35,8 @@ returncode_t libtocksync_ieee802154_send(uint16_t         addr,
 // `payload` (in): Buffer containing the desired frame payload.
 // `len` (in): Length of frame payload.
 returncode_t libtocksync_ieee802154_send_raw(const uint8_t* payload,
-                                             uint8_t        len);
+                                             uint8_t        len,
+                                             bool*          acked);
 
 // Waits synchronously for an IEEE 802.15.4 frame.
 // `frame` (in): Buffer in which to put the full IEEE 802.15.4 frame data. Note
