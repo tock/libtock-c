@@ -15,10 +15,7 @@ struct gpio_result {
 
 static struct gpio_result result;
 
-static void tock_gpio_cb ( int   pin_num,
-                     __attribute__ ((unused)) int   arg2,
-                     __attribute__ ((unused)) int   arg3,
-                    __attribute__ ((unused))  void* userdata) {
+static void tock_gpio_cb ( uint32_t pin_num, bool is_asserted ) {
 	hal_gpio_irq_t* irq = gpio_irq[pin_num];
 	irq->callback(irq->context);
 }
@@ -46,7 +43,7 @@ void hal_gpio_init_in( uint32_t pin, const hal_gpio_pull_mode_t pull_mode, const
 
 	if( irq_mode == HAL_GPIO_IRQ_MODE_OFF )
 	{
-		libtock_lora_phy_gpio_command_enable_input(pin, pull_value);
+		libtock_lora_phy_gpio_enable_input(pin, pull_value);
 	}
 	else
 	{
@@ -69,8 +66,8 @@ void hal_gpio_init_in( uint32_t pin, const hal_gpio_pull_mode_t pull_mode, const
 				break;
 		}
 
-		libtock_lora_phy_gpio_command_enable_input(pin, pull_value);
-		libtock_lora_phy_gpio_command_enable_interrupt(pin, tock_irq_mode);
+		libtock_lora_phy_gpio_enable_input(pin, pull_value);
+		libtock_lora_phy_gpio_enable_interrupt(pin, tock_irq_mode);
 
 		if(( irq != NULL ) && ( irq->callback != NULL ))
 		{
@@ -78,7 +75,7 @@ void hal_gpio_init_in( uint32_t pin, const hal_gpio_pull_mode_t pull_mode, const
 			result.fired = false;
 		}
 
-		libtock_lora_phy_gpio_command_interrupt_callback(tock_gpio_cb, irq);
+		libtock_lora_phy_gpio_set_callback(tock_gpio_cb);
 	}
 }
 
@@ -100,11 +97,11 @@ void hal_gpio_irq_deatach( const hal_gpio_irq_t* irq )
 
 void hal_gpio_init_out( uint32_t pin, hal_gpio_state_t value )
 {
-	libtock_lora_phy_gpio_command_enable_output(pin);
+	libtock_lora_phy_gpio_enable_output(pin);
 	if (value == HAL_GPIO_RESET) {
-		libtock_lora_phy_gpio_command_clear(pin);
+		libtock_lora_phy_gpio_clear(pin);
 	} else {
-		libtock_lora_phy_gpio_command_set(pin);
+		libtock_lora_phy_gpio_set(pin);
 	}
 }
 
@@ -132,10 +129,10 @@ void hal_gpio_set_value( uint32_t pin, const hal_gpio_state_t value )
 	switch( value )
 	{
 		case HAL_GPIO_RESET:
-			libtock_lora_phy_gpio_command_clear(pin);
+			libtock_lora_phy_gpio_clear(pin);
 			break;
 		case HAL_GPIO_SET:
-			libtock_lora_phy_gpio_command_set(pin);
+			libtock_lora_phy_gpio_set(pin);
 			break;
 		default:
 			break;
@@ -144,7 +141,7 @@ void hal_gpio_set_value( uint32_t pin, const hal_gpio_state_t value )
 
 void hal_gpio_toggle( uint32_t pin )
 {
-	libtock_lora_phy_gpio_command_toggle(pin);
+	libtock_lora_phy_gpio_toggle(pin);
 }
 
 uint32_t hal_gpio_get_value( uint32_t pin )
