@@ -1,6 +1,5 @@
 #pragma once
 
-#include <libtock/net/lora_phy.h>
 #include <libtock/tock.h>
 
 #ifdef __cplusplus
