@@ -11,7 +11,7 @@ extern "C" {
 
 #define CONCAT_PORT_DATA(port, data) (((data & 0xFFFF) << 16) | (port & 0xFFFF))
 
-bool libtock_gpio_async_exists(void);
+bool libtock_gpio_async_driver_exists(void);
 returncode_t libtock_gpio_async_set_upcall_command(subscribe_upcall callback, void* opaque);
 returncode_t libtock_gpio_async_set_upcall_interrupt(subscribe_upcall callback, void* opaque);
 returncode_t libtock_gpio_async_command_make_output(uint32_t port, uint8_t pin);

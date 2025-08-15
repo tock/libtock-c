@@ -1,13 +1,10 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/text_screen_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define DRIVER_NUM_TEXT_SCREEN 0x90003
 
 // Callback when an operation has completed.
 //
@@ -21,6 +18,9 @@ typedef void (*libtock_text_screen_callback_done)(returncode_t);
 // - `arg2` (`uint32_t`): Width of display.
 // - `arg3` (`uint32_t`): Height of display.
 typedef void (*libtock_text_screen_callback_size)(returncode_t, uint32_t, uint32_t);
+
+// Check if the text screen driver exists.
+bool libtock_text_screen_exists(void);
 
 returncode_t libtock_text_screen_display_on(libtock_text_screen_callback_done cb);
 

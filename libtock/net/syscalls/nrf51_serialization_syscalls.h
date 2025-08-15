@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_NRF51_SERIALIZATION 0x80004
 
 // Check if this driver exists.
-bool libtock_nrf51_serialization_exists(void);
+bool libtock_nrf51_serialization_driver_exists(void);
 
 // Set the upcall function.
 returncode_t libtock_nrf51_serialization_set_upcall(subscribe_upcall callback, void* opaque);

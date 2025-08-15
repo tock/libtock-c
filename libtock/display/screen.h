@@ -1,13 +1,10 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/screen_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define DRIVER_NUM_SCREEN 0x90001
 
 // Supported pixel formats.
 typedef enum {
@@ -42,6 +39,8 @@ typedef void (*libtock_screen_callback_format)(returncode_t, libtock_screen_form
 // The callback includes the rotation angle as an int.
 typedef void (*libtock_screen_callback_rotation)(returncode_t, libtock_screen_rotation_t);
 
+// Check if the screen driver exists.
+bool libtock_screen_exists(void);
 
 // INIT
 

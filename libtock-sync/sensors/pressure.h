@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_pressure_exists(void);
+
 // Read the pressure synchronously.
 //
 // ## Arguments

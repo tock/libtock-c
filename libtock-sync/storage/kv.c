@@ -1,3 +1,5 @@
+#include <libtock/storage/syscalls/kv_syscalls.h>
+
 #include "kv.h"
 
 struct kv_data {
@@ -17,6 +19,10 @@ static void kv_cb_get(returncode_t ret, int length) {
 static void kv_cb_done(returncode_t ret) {
   result.fired = true;
   result.ret   = ret;
+}
+
+bool libtocksync_kv_exists(void) {
+  return libtock_kv_driver_exists();
 }
 
 returncode_t libtocksync_kv_get(const uint8_t* key_buffer, uint32_t key_len, uint8_t* ret_buffer, uint32_t ret_len,

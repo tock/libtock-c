@@ -1,11 +1,17 @@
 #include "gpio.h"
 
+#include "syscalls/gpio_syscalls.h"
+
 static void gpio_upcall(int                          pin_number,
                         int                          pin_level,
                         __attribute__ ((unused)) int unused2,
                         void*                        opaque) {
   libtock_gpio_callback_interrupt cb = (libtock_gpio_callback_interrupt) opaque;
   cb((uint32_t) pin_number, pin_level == 1);
+}
+
+bool libtock_gpio_exists(void) {
+  return libtock_gpio_driver_exists();
 }
 
 returncode_t libtock_gpio_count(int* count) {

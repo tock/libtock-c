@@ -8,7 +8,7 @@ extern "C" {
 
 #define DRIVER_NUM_ISOLATED_NONVOLATILE_STORAGE 0x50004
 
-bool libtock_isolated_nonvolatile_storage_exists(void);
+bool libtock_isolated_nonvolatile_storage_driver_exists(void);
 
 returncode_t libtock_isolated_nonvolatile_storage_set_upcall_get_number_bytes_done(subscribe_upcall cb, void* opaque);
 

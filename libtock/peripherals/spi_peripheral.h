@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/spi_peripheral_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,6 +11,9 @@ extern "C" {
 // - `arg1` (`returncode_t`): Status from reading/writing SPI data.
 typedef void (*libtock_spi_peripheral_callback)(returncode_t);
 
+
+// Check if the driver exists.
+bool libtock_spi_peripheral_exists(void);
 
 // Get the chip select. This will always return 0.
 returncode_t libtock_spi_peripheral_get_chip_select(uint32_t* chip_select);

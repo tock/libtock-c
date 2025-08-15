@@ -1,3 +1,5 @@
+#include <libtock/sensors/syscalls/proximity_syscalls.h>
+
 #include "proximity.h"
 
 struct data {
@@ -12,6 +14,10 @@ static void proximity_cb(returncode_t ret, uint8_t proximity) {
   result.proximity = proximity;
   result.ret       = ret;
   result.fired     = true;
+}
+
+bool libtocksync_proximity_exists(void) {
+  return libtock_proximity_driver_exists();
 }
 
 returncode_t libtocksync_proximity_read(uint8_t* proximity) {

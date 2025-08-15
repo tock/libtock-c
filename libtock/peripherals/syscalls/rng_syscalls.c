@@ -1,6 +1,6 @@
 #include "rng_syscalls.h"
 
-bool libtock_rng_exists(void) {
+bool libtock_rng_driver_exists(void) {
   return driver_exists(DRIVER_NUM_RNG);
 }
 

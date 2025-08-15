@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/aes_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,6 +12,9 @@ typedef enum {
   LIBTOCK_AES128ECB = 2,
   LIBTOCK_AES128CCM = 3
 } libtock_aes_algorithm_t;
+
+// Check if the AES driver exists on this system.
+bool libtock_aes_exists(void);
 
 // Set the AES algorithm
 // operation:

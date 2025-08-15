@@ -1,6 +1,6 @@
 #include "app_state_syscalls.h"
 
-bool libtock_app_state_exists(void) {
+bool libtock_app_state_driver_exists(void) {
   return driver_exists(DRIVER_NUM_APP_STATE);
 }
 

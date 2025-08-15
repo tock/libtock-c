@@ -1,5 +1,7 @@
 #include "rtc.h"
 
+#include "syscalls/rtc_syscalls.h"
+
 // DateTime codifies Date structure into two u32 (int) numbers
 //     date: first number (year, month, day_of_the_month):
 //            - last 5 bits store the day_of_the_month
@@ -38,6 +40,10 @@ static void rtc_set_cb(int                          status,
                        void*                        opaque) {
   libtock_rtc_callback_done cb = (libtock_rtc_callback_done) opaque;
   cb(tock_status_to_returncode(status));
+}
+
+bool libtock_rtc_exists(void) {
+  return libtock_rtc_driver_exists();
 }
 
 returncode_t libtock_rtc_get_date(libtock_rtc_callback_date cb) {

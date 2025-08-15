@@ -1,5 +1,11 @@
 #include "button.h"
 
+#include "syscalls/button_syscalls.h"
+
+bool libtock_button_exists(void) {
+  return libtock_button_driver_exists();
+}
+
 returncode_t libtock_button_count(int* count) {
   return libtock_button_command_count(count);
 }

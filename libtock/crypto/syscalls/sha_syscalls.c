@@ -10,7 +10,7 @@
 #define TOCK_SHA_UPDATE          2
 #define TOCK_SHA_FINISH          3
 
-bool libtock_sha_exists(void) {
+bool libtock_sha_driver_exists(void) {
   return driver_exists(DRIVER_NUM_SHA);
 }
 

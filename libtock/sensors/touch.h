@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/touch_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,6 +64,8 @@ typedef struct __attribute__((__packed__)) {
 // | Touch 0                                                                                 | Touch 1  ...
 
 
+// Check if the driver exists.
+bool libtock_touch_exists(void);
 
 returncode_t libtock_touch_get_number_of_touches(int* touches);
 

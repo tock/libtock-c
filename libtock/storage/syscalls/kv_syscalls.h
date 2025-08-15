@@ -8,7 +8,7 @@ extern "C" {
 
 #define DRIVER_NUM_KV 0x50003
 
-bool libtock_kv_exists(void);
+bool libtock_kv_driver_exists(void);
 
 returncode_t libtock_kv_set_upcall(subscribe_upcall callback, void* opaque);
 

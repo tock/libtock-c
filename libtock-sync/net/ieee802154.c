@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include <libtock-sync/services/alarm.h>
+#include <libtock/net/syscalls/ieee802154_syscalls.h>
 
 #include "ieee802154.h"
 struct ieee802154_receive_data {
@@ -39,6 +40,10 @@ static void ieee802154_send_raw_done_cb(returncode_t ret, bool acked) {
   send_result_raw.fired = true;
   send_result_raw.acked = acked;
   send_result_raw.ret   = ret;
+}
+
+bool libtocksync_ieee802154_exists(void) {
+  return libtock_ieee802154_driver_exists();
 }
 
 returncode_t libtocksync_ieee802154_send(uint16_t         addr,

@@ -1,3 +1,5 @@
+#include <libtock/sensors/syscalls/sound_pressure_syscalls.h>
+
 #include "sound_pressure.h"
 
 struct sound_pressure_data {
@@ -15,6 +17,18 @@ static void cb(returncode_t ret, uint8_t sound_pressure) {
   result.ret   = ret;
 }
 
+
+bool libtocksync_sound_pressure_exists(void) {
+  return libtock_sound_pressure_driver_exists();
+}
+
+returncode_t libtocksync_sound_pressure_enable(void) {
+  return libtock_sound_pressure_command_enable();
+}
+
+returncode_t libtocksync_sound_pressure_disable(void) {
+  return libtock_sound_pressure_command_disable();
+}
 
 returncode_t libtocksync_sound_pressure_read(uint8_t* sound_pressure) {
   returncode_t err;

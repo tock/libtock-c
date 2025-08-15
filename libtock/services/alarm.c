@@ -1,7 +1,9 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include "../peripherals/syscalls/alarm_syscalls.h"
 #include "alarm.h"
+
 
 #define MAX_TICKS UINT32_MAX
 

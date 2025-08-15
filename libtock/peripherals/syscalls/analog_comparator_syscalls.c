@@ -1,6 +1,6 @@
 #include "analog_comparator_syscalls.h"
 
-bool libtock_analog_comparator_exists(void) {
+bool libtock_analog_comparator_driver_exists(void) {
   return driver_exists(DRIVER_NUM_ANALOG_COMPARATOR);
 }
 

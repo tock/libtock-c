@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_RAINFALL 0x6000B
 
 // Check if the rainfall driver is installed.
-bool libtock_rainfall_exists(void);
+bool libtock_rainfall_driver_exists(void);
 
 // Configure the upcall for when the reading is ready.
 returncode_t libtock_rainfall_set_upcall(subscribe_upcall callback, void* opaque);

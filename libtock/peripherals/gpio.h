@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/gpio_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +23,9 @@ typedef enum {
   libtock_rising_edge,
   libtock_falling_edge,
 } libtock_gpio_interrupt_mode_t;
+
+// Check if the driver exists.
+bool libtock_gpio_exists(void);
 
 // Returns the number of GPIO pins configured on the board.
 returncode_t libtock_gpio_count(int* count);

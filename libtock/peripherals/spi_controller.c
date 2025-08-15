@@ -1,5 +1,11 @@
 #include "spi_controller.h"
 
+#include "syscalls/spi_controller_syscalls.h"
+
+bool libtock_spi_controller_exists(void) {
+  return libtock_spi_controller_driver_exists();
+}
+
 returncode_t libtock_spi_controller_set_chip_select(uint32_t chip_select) {
   return libtock_spi_controller_command_set_chip_select(chip_select);
 }

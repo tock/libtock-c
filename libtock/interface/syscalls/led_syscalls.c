@@ -1,6 +1,6 @@
 #include "led_syscalls.h"
 
-bool libtock_led_exists(void) {
+bool libtock_led_driver_exists(void) {
   int count;
   int ret;
 

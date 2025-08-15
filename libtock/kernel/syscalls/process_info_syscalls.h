@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_PROCESS_INFO 0x10002
 
 // Check if this driver is available on the kernel.
-bool libtock_process_info_exists(void);
+bool libtock_process_info_driver_exists(void);
 
 // // Share a buffer with the kernel to use for read only state
 // //

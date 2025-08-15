@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_NINEDOF 0x60004
 
 // Check if a ninedof sensor exists.
-bool libtock_ninedof_exists(void);
+bool libtock_ninedof_driver_exists(void);
 
 // Configure the upcall for the ninedof driver.
 returncode_t libtock_ninedof_set_upcall(subscribe_upcall callback, void* opaque);

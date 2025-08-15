@@ -1,6 +1,6 @@
 #include "screen_syscalls.h"
 
-bool libtock_screen_exists(void) {
+bool libtock_screen_driver_exists(void) {
   return driver_exists(DRIVER_NUM_SCREEN);
 }
 

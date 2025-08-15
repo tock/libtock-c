@@ -2,7 +2,7 @@
 
 #include "servo_syscalls.h"
 
-bool libtock_servo_exists(void) {
+bool libtock_servo_driver_exists(void) {
   return driver_exists(DRIVER_NUM_SERVO);
 }
 

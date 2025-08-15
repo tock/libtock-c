@@ -8,6 +8,9 @@ extern "C" {
 
 #define DRIVER_NUM_TEXT_SCREEN 0x90003
 
+// Check if the text screen driver exists.
+bool libtock_text_screen_driver_exists(void);
+
 returncode_t libtock_text_screen_set_upcall(subscribe_upcall callback, void* opaque);
 
 returncode_t libtock_text_screen_set_readonly_allow(const uint8_t* ptr, uint32_t size);

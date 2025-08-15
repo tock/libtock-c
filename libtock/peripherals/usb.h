@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/usb_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,6 +11,9 @@ extern "C" {
 // - `arg1` (`returncode_t`): Status from attaching USB. SUCCESS if all inputs
 //   are valid, else EINVAL.
 typedef void (*libtock_usb_callback_attached)(returncode_t);
+
+// Check if the driver exists.
+bool libtock_usb_exists(void);
 
 // Enable the USB controller and attach to the bus.
 //

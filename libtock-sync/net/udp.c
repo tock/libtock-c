@@ -1,5 +1,7 @@
 #include <string.h>
 
+#include <libtock/net/syscalls/udp_syscalls.h>
+
 #include "udp.h"
 
 struct recv_data {
@@ -25,6 +27,10 @@ static void recv_callback(returncode_t ret, int len) {
   recv_sync_result.val   = len;
   recv_sync_result.fired = true;
   recv_sync_result.ret   = ret;
+}
+
+bool libtocksync_udp_exists(void) {
+  return libtock_udp_driver_exists();
 }
 
 returncode_t libtocksync_udp_send(void* buf, size_t len,

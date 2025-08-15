@@ -1,5 +1,7 @@
 #include "hmac.h"
 
+#include "syscalls/hmac_syscalls.h"
+
 static void hmac_upcall(int ret,
                         __attribute__ ((unused)) int unused1,
                         __attribute__ ((unused)) int unused2, void* opaque) {
@@ -7,6 +9,9 @@ static void hmac_upcall(int ret,
   cb(tock_status_to_returncode(ret));
 }
 
+bool libtock_hmac_exists(void) {
+  return libtock_hmac_driver_exists();
+}
 
 returncode_t libtock_hmac_simple(libtock_hmac_algorithm_t hmac_type,
                                  uint8_t* key_buffer, uint32_t key_length,

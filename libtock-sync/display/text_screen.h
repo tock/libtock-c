@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_text_screen_exists(void);
+
 returncode_t libtocksync_text_screen_display_on(void);
 
 returncode_t libtocksync_text_screen_display_off(void);

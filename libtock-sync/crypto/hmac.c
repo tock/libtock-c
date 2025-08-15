@@ -1,6 +1,11 @@
+#include <libtock/crypto/syscalls/hmac_syscalls.h>
 #include <libtock/defer.h>
 
 #include "hmac.h"
+
+bool libtocksync_hmac_exists(void) {
+  return libtock_hmac_driver_exists();
+}
 
 returncode_t libtocksync_hmac_simple(libtock_hmac_algorithm_t hmac_type,
                                      uint8_t* key_buffer, uint32_t key_length,

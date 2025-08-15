@@ -8,7 +8,7 @@ extern "C" {
 
 #define DRIVER_NUM_HMAC 0x40003
 
-bool libtock_hmac_exists(void);
+bool libtock_hmac_driver_exists(void);
 
 returncode_t libtock_hmac_set_upcall(subscribe_upcall callback, void* opaque);
 

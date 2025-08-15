@@ -1,11 +1,13 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/analog_comparator_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// Check if the driver exists.
+bool libtock_analog_comparator_exists(void);
 
 // Request the number of available ACs.
 returncode_t libtock_analog_comparator_count(int* count);

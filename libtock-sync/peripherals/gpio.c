@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/gpio_syscalls.h>
+
 #include "gpio.h"
 
 struct gpio_data {
@@ -38,6 +40,10 @@ static returncode_t wait_until(uint32_t pin, libtock_gpio_input_mode_t pin_confi
     result.fired = false;
   }
   return RETURNCODE_SUCCESS;
+}
+
+bool libtocksync_gpio_exists(void) {
+  return libtock_gpio_driver_exists();
 }
 
 returncode_t libtocksync_gpio_wait_until_high(uint32_t pin, libtock_gpio_input_mode_t pin_config) {

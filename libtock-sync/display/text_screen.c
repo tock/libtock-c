@@ -1,3 +1,5 @@
+#include <libtock/display/syscalls/text_screen_syscalls.h>
+
 #include "text_screen.h"
 
 struct text_screen_data {
@@ -36,6 +38,10 @@ static returncode_t text_screen_op(returncode_t (*op)(void (*)(returncode_t))) {
 
   yield_for(&result.fired);
   return result.ret;
+}
+
+bool libtocksync_text_screen_exists(void) {
+  return libtock_text_screen_driver_exists();
 }
 
 returncode_t libtocksync_text_screen_display_on(void) {

@@ -1,6 +1,6 @@
 #include "spi_peripheral_syscalls.h"
 
-bool libtock_spi_peripheral_exists(void) {
+bool libtock_spi_peripheral_driver_exists(void) {
   return driver_exists(DRIVER_NUM_SPI_PERIPHERAL);
 }
 

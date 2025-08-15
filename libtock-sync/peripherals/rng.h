@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_rng_exists(void);
+
 // Synchronous RNG request.
 //
 // Request `num` random bytes.

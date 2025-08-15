@@ -1,3 +1,5 @@
+#include <libtock/sensors/syscalls/humidity_syscalls.h>
+
 #include "humidity.h"
 
 typedef struct {
@@ -13,6 +15,10 @@ static void humidity_callback(returncode_t ret, int humidity) {
   result.humidity = humidity;
   result.ret      = ret;
   result.fired    = true;
+}
+
+bool libtocksync_humidity_exists(void) {
+  return libtock_humidity_driver_exists();
 }
 
 returncode_t libtocksync_humidity_read(int* humidity) {

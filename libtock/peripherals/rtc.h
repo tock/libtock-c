@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/rtc_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,6 +49,9 @@ typedef void (*libtock_rtc_callback_date)(returncode_t, libtock_rtc_date_t);
 // - `arg1` (`returncode_t`): Returncode indicating status.
 typedef void (*libtock_rtc_callback_done)(returncode_t);
 
+
+// Check if the driver exists.
+bool libtock_rtc_exists(void);
 
 // Get the current date.
 //

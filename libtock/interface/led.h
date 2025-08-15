@@ -1,11 +1,13 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/led_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// Check if the driver exists.
+bool libtock_led_exists(void);
 
 // Returns the number of LEDs on the host platform.
 returncode_t libtock_led_count(int* count);

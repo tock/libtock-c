@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "syscalls/touch_syscalls.h"
 #include "touch.h"
 
 static void single_touch_upcall(int                          touch_status,
@@ -30,6 +31,10 @@ static void gesture_upcall(int                          gesture,
   libtock_touch_gesture_callback cb = (libtock_touch_gesture_callback) opaque;
 
   cb(RETURNCODE_SUCCESS, (libtock_touch_gesture_t) gesture);
+}
+
+bool libtock_touch_exists(void) {
+  return libtock_touch_driver_exists();
 }
 
 returncode_t libtock_touch_get_number_of_touches(int* touches) {

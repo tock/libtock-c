@@ -1,6 +1,6 @@
 #include "buzzer_syscalls.h"
 
-bool libtock_buzzer_exists(void) {
+bool libtock_buzzer_driver_exists(void) {
   return driver_exists(DRIVER_NUM_BUZZER);
 }
 

@@ -1,5 +1,7 @@
 #include "proximity.h"
 
+#include "syscalls/proximity_syscalls.h"
+
 // Internal callback for faking synchronous reads
 static void proximity_cb(int                         proximity,
                          __attribute__((unused)) int unused,
@@ -7,6 +9,10 @@ static void proximity_cb(int                         proximity,
                          void*                       opaque) {
   libtock_proximity_callback cb = (libtock_proximity_callback) opaque;
   cb(RETURNCODE_SUCCESS, (uint8_t) proximity);
+}
+
+bool libtock_proximity_exists(void) {
+  return libtock_proximity_driver_exists();
 }
 
 returncode_t libtock_proximity_read(libtock_proximity_callback cb) {

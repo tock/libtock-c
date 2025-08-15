@@ -1,11 +1,17 @@
 #include "lora_phy.h"
 
+#include "syscalls/lora_phy_syscalls.h"
+
 static void lora_phy_spi_upcall(__attribute__ ((unused)) int unused0,
                                 __attribute__ ((unused)) int unused1,
                                 __attribute__ ((unused)) int unused2,
                                 void*                        opaque) {
   libtock_lora_phy_callback_spi cb = (libtock_lora_phy_callback_spi) opaque;
   cb(RETURNCODE_SUCCESS);
+}
+
+bool libtock_lora_phy_exists(void) {
+  return libtock_lora_phy_driver_exists();
 }
 
 returncode_t libtock_lora_phy_write(const uint8_t*                buf,

@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_ambient_light_exists(void);
+
 // Read the ambient light sensor synchronously.
 //
 // ## Arguments

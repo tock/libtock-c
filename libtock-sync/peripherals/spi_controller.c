@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/spi_controller_syscalls.h>
+
 #include "spi_controller.h"
 
 struct spi_data {
@@ -11,6 +13,10 @@ static struct spi_data result = { .fired = false };
 static void cb(returncode_t ret) {
   result.fired = true;
   result.ret   = ret;
+}
+
+bool libtocksync_spi_controller_exists(void) {
+  return libtock_spi_controller_driver_exists();
 }
 
 returncode_t libtocksync_spi_controller_write(const uint8_t* write,

@@ -7,6 +7,14 @@
 extern "C" {
 #endif
 
+bool libtocksync_sound_pressure_exists(void);
+
+// Enable the sound pressure sensor.
+returncode_t libtocksync_sound_pressure_enable(void);
+
+// Disable the sound pressure sensor.
+returncode_t libtocksync_sound_pressure_disable(void);
+
 // Read the ambient sound pressure level synchronously.
 //
 // ## Arguments

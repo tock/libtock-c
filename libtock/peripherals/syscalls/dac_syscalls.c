@@ -1,6 +1,6 @@
 #include "dac_syscalls.h"
 
-bool libtock_dac_exists(void) {
+bool libtock_dac_driver_exists(void) {
   return driver_exists(DRIVER_NUM_DAC);
 }
 

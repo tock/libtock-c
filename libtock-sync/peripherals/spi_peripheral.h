@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+bool libtocksync_spi_peripheral_exists(void);
+
 // As the SPI peripheral, write a buffer of data.
 returncode_t libtocksync_spi_peripheral_write(const uint8_t* write,
                                               size_t         len);

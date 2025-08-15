@@ -11,7 +11,7 @@
 #define TOCK_HMAC_UPDATE          2
 #define TOCK_HMAC_FINISH          3
 
-bool libtock_hmac_exists(void) {
+bool libtock_hmac_driver_exists(void) {
   return driver_exists(DRIVER_NUM_HMAC);
 }
 

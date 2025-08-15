@@ -1,3 +1,5 @@
+#include <libtock/net/syscalls/lora_phy_syscalls.h>
+
 #include "lora_phy.h"
 
 struct lora_phy_spi_data {
@@ -10,6 +12,10 @@ static struct lora_phy_spi_data result = {.fired = false};
 static void lora_phy_spi_cb(returncode_t ret) {
   result.fired = true;
   result.ret   = ret;
+}
+
+bool libtocksync_lora_phy_exists(void) {
+  return libtock_lora_phy_driver_exists();
 }
 
 returncode_t libtocksync_lora_phy_write(const uint8_t* write,

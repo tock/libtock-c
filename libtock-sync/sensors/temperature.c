@@ -1,4 +1,10 @@
+#include "syscalls/temperature_syscalls.h"
 #include "temperature.h"
+
+
+bool libtocksync_temperature_exists(void) {
+  return libtock_temperature_driver_exists();
+}
 
 returncode_t libtocksync_temperature_read(int* temperature) {
   returncode_t err;

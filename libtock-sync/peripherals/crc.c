@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/crc_syscalls.h>
+
 #include "crc.h"
 
 struct crc_data {
@@ -12,6 +14,10 @@ static void crc_callback(returncode_t ret, uint32_t crc) {
   result.fired  = true;
   result.status = ret;
   result.crc    = crc;
+}
+
+bool libtocksync_crc_exists(void) {
+  return libtock_crc_driver_exists();
 }
 
 returncode_t libtocksync_crc_compute(const uint8_t* buf, size_t buflen, libtock_crc_alg_t algorithm, uint32_t* crc) {

@@ -8,7 +8,7 @@ static uint32_t hi(uint64_t v) {
   return (uint32_t) (v >> 32);
 }
 
-bool libtock_isolated_nonvolatile_storage_exists(void) {
+bool libtock_isolated_nonvolatile_storage_driver_exists(void) {
   return driver_exists(DRIVER_NUM_ISOLATED_NONVOLATILE_STORAGE);
 }
 

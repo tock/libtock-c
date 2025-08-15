@@ -1,11 +1,17 @@
 #include "ninedof.h"
 
+#include "syscalls/ninedof_syscalls.h"
+
 // internal callback for faking synchronous reads
 static void ninedof_upcall(int x, int y, int z, void* opaque) {
   libtock_ninedof_callback cb = (libtock_ninedof_callback) opaque;
   cb(RETURNCODE_SUCCESS, x, y, z);
 }
 
+
+bool libtock_ninedof_exists(void) {
+  return libtock_ninedof_driver_exists();
+}
 
 returncode_t libtock_ninedof_read_accelerometer(libtock_ninedof_callback cb) {
   returncode_t err;

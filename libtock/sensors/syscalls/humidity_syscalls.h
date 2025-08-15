@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_HUMIDITY 0x60001
 
 // Check if the humidity driver is installed.
-bool libtock_humidity_exists(void);
+bool libtock_humidity_driver_exists(void);
 
 // Configure the upcall for when the reading is ready.
 returncode_t libtock_humidity_set_upcall(subscribe_upcall callback, void* opaque);

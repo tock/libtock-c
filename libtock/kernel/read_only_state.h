@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/read_only_state_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,6 +17,9 @@ extern "C" {
 //   |     Time Ticks (u64)    |
 //   |-------------------------|
 #define LIBTOCK_READ_ONLY_STATE_BUFFER_LEN (4 * 4 + 4 * 4 + 8 * 4)
+
+// Check if the driver exists.
+bool libtock_read_only_state_exists(void);
 
 // Share a buffer with the kernel to use for read only state
 //

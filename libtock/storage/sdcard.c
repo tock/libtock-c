@@ -1,5 +1,7 @@
 #include "sdcard.h"
 
+#include "syscalls/sdcard_syscalls.h"
+
 // Internal callback for creating synchronous functions
 //
 // callback_type - number indicating which type of callback occurred
@@ -57,6 +59,10 @@ static void sdcard_upcall(int callback_type, int arg1, int arg2, void* opaque) {
       break;
     }
   }
+}
+
+bool libtock_sdcard_exists(void) {
+  return libtock_sdcard_driver_exists();
 }
 
 returncode_t libtock_sdcard_initialize(libtock_sdcard_callback_initialized cb) {

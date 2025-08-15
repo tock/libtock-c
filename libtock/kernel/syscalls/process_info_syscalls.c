@@ -1,6 +1,6 @@
 #include "process_info_syscalls.h"
 
-bool libtock_process_info_exists(void) {
+bool libtock_process_info_driver_exists(void) {
   return driver_exists(DRIVER_NUM_PROCESS_INFO);
 }
 

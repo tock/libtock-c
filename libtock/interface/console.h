@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../tock.h"
-#include "syscalls/console_syscalls.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,6 +15,9 @@ typedef void (*libtock_console_callback_write)(returncode_t, uint32_t);
 //
 // - `length` (`int`): Number of bytes read
 typedef void (*libtock_console_callback_read)(returncode_t, uint32_t);
+
+// Check if the driver exists.
+bool libtock_console_exists(void);
 
 returncode_t libtock_console_write(const uint8_t* buffer, uint32_t len, libtock_console_callback_write cb);
 

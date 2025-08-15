@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_CRC 0x40002
 
 // Check if CRC driver is installed.
-bool libtock_crc_exists(void);
+bool libtock_crc_driver_exists(void);
 
 // Register a callback to receive CRC results.
 returncode_t libtock_crc_set_upcall(subscribe_upcall callback, void* opaque);

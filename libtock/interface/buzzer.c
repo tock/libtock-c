@@ -1,11 +1,17 @@
 #include "buzzer.h"
 
+#include "syscalls/buzzer_syscalls.h"
+
 static void libtock_buzzer_temp_upcall(__attribute__ ((unused)) int arg0,
                                        __attribute__ ((unused)) int arg1,
                                        __attribute__ ((unused)) int arg2,
                                        void*                        opaque) {
   libtock_buzzer_done_callback cb = (libtock_buzzer_done_callback) opaque;
   cb();
+}
+
+bool libtock_buzzer_exists(void) {
+  return libtock_buzzer_driver_exists();
 }
 
 returncode_t libtock_buzzer_tone(uint32_t frequency_hz, uint32_t duration_ms, libtock_buzzer_done_callback cb) {

@@ -1,6 +1,6 @@
 #include "moisture_syscalls.h"
 
-bool libtock_moisture_exists(void) {
+bool libtock_moisture_driver_exists(void) {
   return driver_exists(DRIVER_NUM_MOISTURE);
 }
 

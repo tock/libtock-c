@@ -1,5 +1,11 @@
 #include "spi_peripheral.h"
 
+#include "syscalls/spi_peripheral_syscalls.h"
+
+bool libtock_spi_peripheral_exists(void) {
+  return libtock_spi_peripheral_driver_exists();
+}
+
 // Return the chip select. This will always return 0.
 returncode_t libtock_spi_peripheral_get_chip_select(uint32_t* chip_select) {
   return libtock_spi_peripheral_command_get_chip_select(chip_select);
