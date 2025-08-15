@@ -1,45 +1,36 @@
+#include <libtock/defer.h>
+
 #include "console.h"
+#include "syscalls/console_syscalls.h"
 
-struct console_result {
-  bool fired;
-  int length;
-  returncode_t result;
-};
+returncode_t libtocksync_console_write(const uint8_t* buffer, uint32_t length, uint32_t* written) {
+  returncode_t ret;
 
-static struct console_result result = { .fired = false };
+  ret = libtock_console_set_read_allow(buffer, length);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+  defer { libtock_console_set_read_allow(NULL, 0);
+  };
 
-static void generic_cb(returncode_t ret, uint32_t length) {
-  result.length = length;
-  result.fired  = true;
-  result.result = ret;
+  ret = libtock_console_command_write(length);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+
+  ret = libtocksync_console_yield_wait_for_write(written);
+
+  return ret;
 }
 
-returncode_t libtocksync_console_write(const uint8_t* buffer, uint32_t length, int* written) {
-  int err;
-  result.fired = false;
+returncode_t libtocksync_console_read(uint8_t* buffer, uint32_t length, uint32_t* read) {
+  returncode_t ret;
 
-  err = libtock_console_write(buffer, length, &generic_cb);
-  if (err != RETURNCODE_SUCCESS) return err;
+  ret = libtock_console_set_readwrite_allow(buffer, length);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+  defer { libtock_console_set_readwrite_allow(NULL, 0);
+  };
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  if (result.result != RETURNCODE_SUCCESS) return result.result;
+  ret = libtock_console_command_read(length);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  *written = result.length;
-  return RETURNCODE_SUCCESS;
-}
+  ret = libtocksync_console_yield_wait_for_write(read);
 
-returncode_t libtocksync_console_read(uint8_t* buffer, uint32_t length, int* read) {
-  int err;
-  result.fired = false;
-
-  err = libtock_console_read(buffer, length, &generic_cb);
-  if (err != RETURNCODE_SUCCESS) return err;
-
-  // Wait for the callback.
-  yield_for(&result.fired);
-  if (result.result != RETURNCODE_SUCCESS) return result.result;
-
-  *read = result.length;
-  return RETURNCODE_SUCCESS;
+  return ret;
 }

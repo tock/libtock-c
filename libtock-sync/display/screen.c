@@ -1,167 +1,124 @@
 #include "screen.h"
 
-struct screen_done {
-  returncode_t ret;
-  bool fired;
-};
-struct screen_format {
-  libtock_screen_format_t format;
-  returncode_t ret;
-  bool fired;
-};
-struct screen_rotation {
-  int rotation;
-  returncode_t ret;
-  bool fired;
-};
-
-static struct screen_done result;
-static struct screen_format result_format;
-static struct screen_rotation result_rotation;
-
-
-static void screen_cb_done(returncode_t ret) {
-  result.ret   = ret;
-  result.fired = true;
+static returncode_t screen_set_color(uint8_t* buffer, int buffer_len, int position, size_t color) {
+  // TODO color mode
+  if (position < buffer_len - 2) {
+    buffer[position * 2]     = (color >> 8) & 0xFF;
+    buffer[position * 2 + 1] = color & 0xFF;
+    return RETURNCODE_SUCCESS;
+  } else {
+    return RETURNCODE_ESIZE;
+  }
 }
 
-static void screen_cb_format(returncode_t ret, libtock_screen_format_t format) {
-  result_format.ret    = ret;
-  result_format.format = format;
-  result_format.fired  = true;
-}
-
-static void screen_cb_rotation(returncode_t ret, libtock_screen_rotation_t rotation) {
-  result_rotation.ret      = ret;
-  result_rotation.rotation = rotation;
-  result_rotation.fired    = true;
-}
 
 returncode_t libtocksync_screen_set_brightness(uint32_t brightness) {
   returncode_t ret;
 
-  result.fired = false;
-
-  ret = libtock_screen_set_brightness(brightness, screen_cb_done);
+  ret = libtock_screen_command_set_brightness(brightness);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  return result.ret;
+  ret = libtocksync_screen_yield_wait_for();
+  return ret;
 }
 
 returncode_t libtocksync_screen_invert_on(void) {
   returncode_t ret;
 
-  result.fired = false;
-
-  ret = libtock_screen_invert_on(screen_cb_done);
+  ret = libtock_screen_command_invert_on();
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  return result.ret;
+  ret = libtocksync_screen_yield_wait_for();
+  return ret;
 }
 
 returncode_t libtocksync_screen_invert_off(void) {
   returncode_t ret;
 
-  result.fired = false;
-
-  ret = libtock_screen_invert_on(screen_cb_done);
+  ret = libtock_screen_command_invert_off();
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  return result.ret;
+  ret = libtocksync_screen_yield_wait_for();
+  return ret;
 }
 
 returncode_t libtocksync_screen_get_pixel_format(libtock_screen_format_t* format) {
   returncode_t ret;
 
-  result_format.fired = false;
-
-  ret = libtock_screen_get_pixel_format(screen_cb_format);
+  ret = libtock_screen_command_get_pixel_format();
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the callback.
-  yield_for(&result_format.fired);
-  if (result_format.ret != RETURNCODE_SUCCESS) return result_format.ret;
+  ret = libtocksync_screen_yield_wait_for_format(format);
+  return ret;
+}
 
-  *format = result_format.format;
-  return RETURNCODE_SUCCESS;
+returncode_t libtocksync_screen_get_resolution(uint32_t* width, uint32_t* height) {
+  return libtock_screen_command_get_resolution(width, height);
 }
 
 returncode_t libtocksync_screen_get_rotation(libtock_screen_rotation_t* rotation) {
   returncode_t ret;
 
-  result_rotation.fired = false;
-
-  ret = libtock_screen_get_rotation(screen_cb_rotation);
+  ret = libtock_screen_command_get_rotation();
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the callback.
-  yield_for(&result_rotation.fired);
-  if (result_rotation.ret != RETURNCODE_SUCCESS) return result_rotation.ret;
-
-  *rotation = result_rotation.rotation;
-  return RETURNCODE_SUCCESS;
+  ret = libtocksync_screen_yield_wait_for_rotation(rotation);
+  return ret;
 }
 
 returncode_t libtocksync_screen_set_rotation(libtock_screen_rotation_t rotation) {
   returncode_t ret;
 
-  result.fired = false;
-
-  ret = libtock_screen_set_rotation(rotation, screen_cb_done);
+  ret = libtock_screen_command_set_rotation(rotation);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  return result.ret;
+  ret = libtocksync_screen_yield_wait_for();
+  return ret;
 }
 
 returncode_t libtocksync_screen_set_frame(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
   returncode_t ret;
 
-  result.fired = false;
-
-  ret = libtock_screen_set_frame(x, y, width, height, screen_cb_done);
+  ret = libtock_screen_command_set_frame(x, y, width, height);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  return result.ret;
+  ret = libtocksync_screen_yield_wait_for();
+  return ret;
 }
 
 returncode_t libtocksync_screen_fill(uint8_t* buffer, int buffer_len, size_t color) {
   returncode_t ret;
 
-  result.fired = false;
-
-  ret = libtock_screen_fill(buffer, buffer_len, color, screen_cb_done);
+  ret = screen_set_color(buffer, buffer_len, 0, color);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  if (result.ret != RETURNCODE_SUCCESS) return result.ret;
+  ret = libtock_screen_set_readonly_allow(buffer, buffer_len);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  ret = libtock_screen_set_readonly_allow(NULL, 0);
+  ret = libtock_screen_command_fill();
+  if (ret != RETURNCODE_SUCCESS) goto exit;
+
+  ret = libtocksync_screen_yield_wait_for();
+
+exit:
+  libtock_screen_set_readonly_allow(NULL, 0);
+
   return ret;
 }
 
 returncode_t libtocksync_screen_write(uint8_t* buffer, int buffer_len, size_t length) {
   returncode_t ret;
 
-  result.fired = false;
-
-  ret = libtock_screen_write(buffer, buffer_len, length, screen_cb_done);
+  ret = libtock_screen_set_readonly_allow(buffer, buffer_len);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  if (result.ret != RETURNCODE_SUCCESS) return result.ret;
+  ret = libtock_screen_command_write(length);
+  if (ret != RETURNCODE_SUCCESS) goto exit;
 
-  ret = libtock_screen_set_readonly_allow(NULL, 0);
+  ret = libtocksync_screen_yield_wait_for();
+
+exit:
+  libtock_screen_set_readonly_allow(NULL, 0);
+
   return ret;
 }
