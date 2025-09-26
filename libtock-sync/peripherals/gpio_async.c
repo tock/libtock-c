@@ -2,31 +2,16 @@
 
 #include "gpio_async.h"
 
-struct gpio_async_data {
-  bool fired;
-  bool value;
+#include "syscalls/gpio_async_syscalls.h"
+
+static returncode_t gpio_async_command(uint32_t port, uint8_t pin, returncode_t (*command_fn)(uint32_t, uint8_t)) {
   returncode_t ret;
-};
 
-static struct gpio_async_data result = { .fired = false };
+  ret = command_fn(port, pin);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-static void gpio_async_callback_command(returncode_t ret, bool value) {
-  result.fired = true;
-  result.value = value;
-  result.ret   = ret;
-}
-
-static returncode_t gpio_async_op(uint32_t port, uint8_t pin, returncode_t (*op)(uint32_t, uint8_t,
-                                                                                 libtock_gpio_async_callback_command)) {
-  returncode_t err;
-  result.fired = false;
-
-  err = op(port, pin, gpio_async_callback_command);
-  if (err != RETURNCODE_SUCCESS) return err;
-
-  // Wait for the callback.
-  yield_for(&result.fired);
-  return result.ret;
+  ret = libtocksync_gpio_async_yield_wait_for_generic_command();
+  return ret;
 }
 
 bool libtocksync_gpio_async_exists(void) {
@@ -34,65 +19,56 @@ bool libtocksync_gpio_async_exists(void) {
 }
 
 returncode_t libtocksync_gpio_async_make_output(uint32_t port, uint8_t pin) {
-  return gpio_async_op(port, pin, libtock_gpio_async_make_output);
+  return gpio_async_command(port, pin, libtock_gpio_async_command_make_output);
 }
 
 returncode_t libtocksync_gpio_async_set(uint32_t port, uint8_t pin) {
-  return gpio_async_op(port, pin, libtock_gpio_async_set);
+  return gpio_async_command(port, pin, libtock_gpio_async_command_set);
 }
 
 returncode_t libtocksync_gpio_async_clear(uint32_t port, uint8_t pin) {
-  return gpio_async_op(port, pin, libtock_gpio_async_clear);
+  return gpio_async_command(port, pin, libtock_gpio_async_command_clear);
 }
 
 returncode_t libtocksync_gpio_async_toggle(uint32_t port, uint8_t pin) {
-  return gpio_async_op(port, pin, libtock_gpio_async_toggle);
+  return gpio_async_command(port, pin, libtock_gpio_async_command_toggle);
 }
 
 returncode_t libtocksync_gpio_async_make_input(uint32_t port, uint8_t pin, libtock_gpio_input_mode_t pin_config) {
-  returncode_t err;
-  result.fired = false;
+  returncode_t ret;
 
-  err = libtock_gpio_async_make_input(port, pin, pin_config, gpio_async_callback_command);
-  if (err != RETURNCODE_SUCCESS) return err;
+  ret = libtock_gpio_async_command_make_input(port, pin, pin_config);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  return result.ret;
+  ret = libtocksync_gpio_async_yield_wait_for_generic_command();
+  return ret;
 }
 
 returncode_t libtocksync_gpio_async_read(uint32_t port, uint8_t pin, bool* value) {
-  returncode_t err;
-  result.fired = false;
+  returncode_t ret;
 
-  err = libtock_gpio_async_read(port, pin, gpio_async_callback_command);
-  if (err != RETURNCODE_SUCCESS) return err;
+  ret = libtock_gpio_async_command_read(port, pin);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  if (result.ret != RETURNCODE_SUCCESS) return result.ret;
-
-  *value = result.value;
-  return RETURNCODE_SUCCESS;
+  ret = libtocksync_gpio_async_yield_wait_for_read(value);
+  return ret;
 }
 
 returncode_t libtocksync_gpio_async_enable_interrupt(uint32_t port, uint8_t pin,
                                                      libtock_gpio_interrupt_mode_t irq_config) {
-  returncode_t err;
-  result.fired = false;
+  returncode_t ret;
 
-  err = libtock_gpio_async_enable_interrupt(port, pin, irq_config, gpio_async_callback_command);
-  if (err != RETURNCODE_SUCCESS) return err;
+  ret = libtock_gpio_async_command_enable_interrupt(port, pin, irq_config);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  return result.ret;
+  ret = libtocksync_gpio_async_yield_wait_for_generic_command();
+  return ret;
 }
 
 returncode_t libtocksync_gpio_async_disable_interrupt(uint32_t port, uint8_t pin) {
-  return gpio_async_op(port, pin, libtock_gpio_async_disable_interrupt);
+  return gpio_async_command(port, pin, libtock_gpio_async_command_disable_interrupt);
 }
 
 returncode_t libtocksync_gpio_async_disable_sync(uint32_t port, uint8_t pin) {
-  return gpio_async_op(port, pin, libtock_gpio_async_disable);
+  return gpio_async_command(port, pin, libtock_gpio_async_command_disable);
 }
