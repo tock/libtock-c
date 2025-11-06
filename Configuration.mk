@@ -72,11 +72,15 @@ QEMU_RV32_VIRT_TOCK_TARGETS := rv32imac|rv32imac.0x80100080.0x80300000|0x8010008
                                rv32imac|rv32imac.0x80130080.0x80330000|0x80130080|0x80330000\
                                rv32imac|rv32imac.0x80180080.0x80380000|0x80180080|0x80380000
 
+# Specific addresses useful for the ESP32-C3.
+ESP32_C3_TOCK_TARGETS := rv32imc|rv32imc.0x403B0080.0x3FCA2000|0x403B0080|0x3FCA2000\
+                         rv32imc|rv32imc.0x403C0080.0x3FCA8000|0x403C0080|0x3FCA8000\
+                         rv32imc|rv32imc.0x403D0080.0x3FCB0000|0x403D0080|0x3FCB0000
+
 VEER_EL2_TOCK_TARGETS := rv32imc|rv32imc.0x20300080.0x20602000|0x20300080|0x20602000
 
 # Include the RISC-V targets.
 #  rv32imac|rv32imac.0x20040080.0x80002800 # RISC-V for HiFive1b
-#  rv32imac|rv32imac.0x403B0080.0x3FCC0000 # RISC-V for ESP32-C3
 #  rv32imc|rv32imc.0x41000080.0x42008000   # RISC-V for LiteX Arty-A7
 #  rv32imc|rv32imc.0x00080080.0x40008000   # RISC-V for LiteX Simulator
 TOCK_TARGETS ?= cortex-m0\
@@ -84,13 +88,13 @@ TOCK_TARGETS ?= cortex-m0\
                 cortex-m4\
                 cortex-m7\
                 rv32imac|rv32imac.0x20040080.0x80002800|0x20040080|0x80002800\
-                rv32imac|rv32imac.0x403B0080.0x3FCC0000|0x403B0080|0x3FCC0000\
                 rv32imc|rv32imc.0x41000080.0x42008000|0x41000080|0x42008000\
                 rv32imc|rv32imc.0x00080080.0x40008000|0x00080080|0x40008000\
                 $(OPENTITAN_TOCK_TARGETS) \
                 $(ARTY_E21_TOCK_TARGETS) \
                 $(VEER_EL2_TOCK_TARGETS) \
-                $(QEMU_RV32_VIRT_TOCK_TARGETS)
+                $(QEMU_RV32_VIRT_TOCK_TARGETS)\
+                $(ESP32_C3_TOCK_TARGETS)\
 
 # Generate `TOCK_ARCH_FAMILIES`, the set of architecture families which will be
 # used to determine toolchains to use in the build process.
