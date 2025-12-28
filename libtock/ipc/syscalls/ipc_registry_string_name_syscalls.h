@@ -20,20 +20,14 @@ returncode_t libtock_ipc_registry_string_name_set_upcall_discovery_complete(subs
 // Configure the upcall when a new service registers.
 returncode_t libtock_ipc_registry_string_name_set_upcall_new_registration(subscribe_upcall callback, void* opaque);
 
-// Allow a buffer containing a string name for registration or discovery.
-returncode_t libtock_ipc_registry_string_name_set_allow_string_name(void* data, int len);
+// Allow a buffer containing a name for registration or discovery.
+returncode_t libtock_ipc_registry_string_name_set_allow_name(void* data, int len);
 
 // Register service.
 returncode_t libtock_ipc_registry_string_name_command_register(void);
 
 // Discover service.
 returncode_t libtock_ipc_registry_string_name_command_discover(void);
-
-// Enable registration notifications
-returncode_t libtock_ipc_registry_string_name_command_enable_registration_notifications(void);
-
-// Disable registration notifications
-returncode_t libtock_ipc_registry_string_name_command_disable_registration_notifications(void);
 
 #ifdef __cplusplus
 }

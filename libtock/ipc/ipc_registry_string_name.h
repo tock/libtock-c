@@ -19,10 +19,10 @@ bool libtock_ipc_registry_string_name_exists(void);
 // Register as a service using a string name.
 //
 // The callback will be triggered to indicate success or failure.
-returncode_t libtock_register_service(
-    libtock_ipc_registry_string_name_registration_complete_callback cb,
-    uint8_t* string_name,
-    uint8_t string_name_len);
+// returncode_t libtock_register_service(
+//   libtock_ipc_registry_string_name_registration_complete_callback cb,
+//   uint8_t*                                                        string_name,
+//   uint8_t                                                         string_name_len);
 
 // TODO FILL IN THE REST OF THIS
 
