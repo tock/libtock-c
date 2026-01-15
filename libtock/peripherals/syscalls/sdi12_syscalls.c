@@ -27,7 +27,7 @@ returncode_t libtock_sdi12_command_write(uint8_t* tx_buffer, uint32_t len){
 // Waits asynchronously to receive data over the sdi12 interface. A `readwrite`
 // buffer must be provided to the kernel driver prior to calling this function.
 returncode_t libtock_sdi12_command_receive(uint8_t* rx_buffer, uint32_t len) {
-    syscall_return_t cval = command(DRIVER_NUM_SDI12, SDI12_COMMAND_RX, 0, 0);
+    syscall_return_t cval = command(DRIVER_NUM_SDI12, SDI12_COMMAND_RX, 0, len);
     printf("SDI12 command receive returned %d\n", cval.type);
     return tock_command_return_novalue_to_returncode(cval);
 }

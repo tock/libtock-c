@@ -73,3 +73,4 @@ returncode_t libtock_sdi12_get_measurement(libtock_sdi12_receive_callback cb, ui
 
     return libtock_sdi12_command_get_measurement(tx_buffer, rx_buffer);
 }
+
