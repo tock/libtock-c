@@ -1,6 +1,5 @@
 #pragma once
 
-#include <libtock/peripherals/syscalls/gpio_async_syscalls.h>
 #include <libtock/tock.h>
 
 #ifdef __cplusplus

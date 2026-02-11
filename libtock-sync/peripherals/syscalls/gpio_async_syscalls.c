@@ -1,3 +1,5 @@
+#include <libtock/peripherals/syscalls/gpio_async_syscalls.h>
+
 #include "gpio_async_syscalls.h"
 
 returncode_t libtocksync_gpio_async_yield_wait_for_generic_command(void) {
