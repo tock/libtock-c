@@ -57,7 +57,7 @@ static uint8_t u8x8_d_ssd1306_tock(u8x8_t *u8x8,
       // Update the default display_info with actual information from the
       // kernel.
       uint32_t width = 0, height = 0;
-      libtock_screen_get_resolution(&width, &height);
+      libtocksync_screen_get_resolution(&width, &height);
       u8x8_ssd1306_tock.tile_width = width/8;
       u8x8_ssd1306_tock.tile_height = height/8;
       u8x8_ssd1306_tock.pixel_width = width;
