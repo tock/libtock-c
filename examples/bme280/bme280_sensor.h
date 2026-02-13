@@ -20,10 +20,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "i2c.h"
-#include "stm32wlxx_hal_i2c.h"
-#include "stm32wlxx_hal_def.h"
-#include "stm32_systime.h"
+//#include "i2c.h"
+//#include "stm32wlxx_hal_i2c.h"
+//#include "stm32wlxx_hal_def.h"
+//#include "stm32_systime.h"
 
 #include "bme280.h"
 
@@ -69,21 +69,6 @@ BME280Status BME280Deinit(void);
  */
 BME280Status BME280MeasureAll(BME280Data *data);
 
-/**
- * @brief BME280 sensor library function
- * 
- * All three measurements (temperature, pressure, humidity) are measured and
- * appropriate calibration are applied. Data gets encoded into a serialized
- * measurement.
- * 
- * @param data Buffer to store measurement
- * @param ts System time of measurement
- * @param idx Sensor index
- * @return Length of measurement
- * 
- * @see SensorsPrototypeMeasure
- */
-size_t BME280Measure(uint8_t *data, SysTime_t ts, uint32_t idx);
 
 #ifdef __cplusplus
 }

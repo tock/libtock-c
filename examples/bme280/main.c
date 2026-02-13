@@ -7,7 +7,7 @@
 int main(void) {
  while (1) {
     // Sleep
-    libtocksync_alarm_delay_ms(DELAY);
+    libtocksync_alarm_delay_ms(500);
 
     BME280Data data = {};
 

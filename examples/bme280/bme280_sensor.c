@@ -1,15 +1,11 @@
 #include "bme280_sensor.h"
 
 // system includes
-#include "sys_app.h"
-#include "stm32_systime.h"
+
 
 // user includes
 #include "bme280_common.h"
-#include "transcoder.h"
-#include "userConfig.h"
-#include "sensor.h"
-#include "sensors.h"
+
 
 /**
  * @brief Required time between measurements
@@ -131,49 +127,4 @@ BME280Status BME280MeasureAll(BME280Data *data) {
 #endif
 
   return rslt;
-}
-
-size_t BME280Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
-  // read sensor
-  BME280Data sens_data;
-  BME280Status status = BME280MeasureAll(&sens_data);
-  if (status != BME280_STATUS_OK) {
-    return -1;
-  }
-
-  const UserConfiguration* cfg = UserConfigGet();
-
-  // metadata
-  Metadata meta = Metadata_init_zero;
-  meta.ts = ts.Seconds;
-  meta.logger_id = cfg->logger_id;
-  meta.cell_id = cfg->cell_id;
-
-  SensorStatus sen_status = SENSOR_OK;
-  size_t data_len = 0;
-
-  // pressure
-  sen_status = EncodeDoubleMeasurement(
-      meta, sens_data.pressure, SensorType_BME280_PRESSURE, data, &data_len);
-  if (sen_status != SENSOR_OK) {
-    return -1;
-  }
-  SensorsAddMeasurement(data, data_len);
-
-  // temperature
-  sen_status = EncodeDoubleMeasurement(
-      meta, sens_data.temperature, SensorType_BME280_TEMP, data, &data_len);
-  if (sen_status != SENSOR_OK) {
-    return -1;
-  }
-  SensorsAddMeasurement(data, data_len);
-
-  // humidity
-  sen_status = EncodeDoubleMeasurement(
-      meta, sens_data.humidity, SensorType_BME280_HUMIDITY, data, &data_len);
-  if (sen_status != SENSOR_OK) {
-    return -1;
-  }
-
-  return data_len;
 }
