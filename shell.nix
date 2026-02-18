@@ -20,8 +20,9 @@ let
   tockloader = import (pkgs.fetchFromGitHub {
     owner = "tock";
     repo = "tockloader";
-    rev = "v1.13.0";
-    sha256 = "sha256-NRcCPTrLFZLubI5KzMmDkKJdvCdbnW97JMZSmedAQ8s=";
+    # v1.16.0-25-ga865b6f (including nrfutil backend)
+    rev = "a865b6f93f63b2af377546e8ad5c85b0a1fd53d1";
+    sha256 = "sha256-bgA86FBa/va0kAXe4hn3wgBSidHY2GPmjYoatNmJd7I=";
   }) { inherit pkgs withUnfreePkgs; };
 
   elf2tab = pkgs.rustPlatform.buildRustPackage rec {
@@ -67,7 +68,7 @@ in
     buildInputs = with pkgs; [
       elf2tab
       gcc-arm-embedded
-      python3Full
+      python3
       tockloader
       pkgsCross.riscv32-embedded.buildPackages.gcc
       unzip
