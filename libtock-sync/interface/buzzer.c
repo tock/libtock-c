@@ -1,26 +1,20 @@
+#include <libtock/interface/buzzer.h>
 #include <libtock/interface/syscalls/buzzer_syscalls.h>
 
 #include "buzzer.h"
 
-struct data {
-  bool fired;
-};
-
-static struct data result = { .fired = false };
-
-
-static void buzzer_cb(void) {
-  result.fired = true;
+bool libtocksync_buzzer_exists() {
+  return libtock_buzzer_exists();
 }
 
-returncode_t libtocksync_buzzer_tone(uint32_t frequency_hz, uint32_t duration_ms) {
-  int err;
-  result.fired = false;
 
-  err = libtock_buzzer_tone(frequency_hz,  duration_ms, buzzer_cb);
-  if (err != RETURNCODE_SUCCESS) return err;
+returncode_t libtocksync_buzzer_tone(uint32_t frequency_hz, uint32_t duration_ms) {
+  returncode_t ret;
+
+  ret = libtock_buzzer_command_tone(frequency_hz,  duration_ms);
+  if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Wait for the callback meaning the tone is finished.
-  yield_for(&result.fired);
+  libtocksync_buzzer_yield_wait_for();
   return RETURNCODE_SUCCESS;
 }
