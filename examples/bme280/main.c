@@ -2,16 +2,34 @@
 #include <libtock/interface/led.h>
 #include <stdio.h>
 #include "bme280_sensor.h"
+#include <string.h>
+#include <libtock/interface/console.h>
+
+char hello[] = "Hello World!\r\n";
+
+static void nop(
+  returncode_t ret __attribute__((unused)),
+  uint32_t     bytes_written __attribute__((unused))) {}
 
 
 int main(void) {
- while (1) {
+  
+  libtock_console_write((uint8_t*) hello, strlen(hello), nop);
+  // Because we used the async method (as opposed to something synchronous,
+  // such as printf), we must explicitly wait for the asynchronous write to complete.
+  yield();
+  // Now we are done.
+  return 0;
+  while(1){
+  };
+  BME280Status status = BME280Init();
+  while (1) {
     // Sleep
     libtocksync_alarm_delay_ms(500);
 
     BME280Data data = {};
 
-    BME280Status status = BME280MeasureAll(&data);
+    status = BME280MeasureAll(&data);
     if (status != BME280_STATUS_OK) {
       printf("BME280 Error, status: %d\r\n", status);
       continue;
