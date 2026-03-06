@@ -38,8 +38,16 @@ BME280_INTF_RET_TYPE bme280_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32
     dev_addr = *(uint8_t*)intf_ptr;
     reg_data[0] = reg_addr;
 
-    int status = i2c_master_write_read_sync(dev_addr << 1, reg_data, 1, length);
-
+    
+    //printf("read sync before\n");
+    //int status = i2c_master_write_read_sync(dev_addr << 1, reg_data, 1, length);
+    int status = i2c_master_write_sync(dev_addr << 1, &reg_addr, 1);
+    status = i2c_master_read_sync(dev_addr << 1, reg_data, length);
+    //printf("read sync after\n");
+    for (int i = 0; i < length; i++){
+        printf("%d", reg_data[i]);
+    }
+    printf("\n");
 
     if (status != 0) {
         return BME280_E_COMM_FAIL;
@@ -51,12 +59,14 @@ BME280_INTF_RET_TYPE bme280_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32
 /*!
  * I2C write function map to COINES platform
  */
+
 BME280_INTF_RET_TYPE bme280_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t length, void *intf_ptr)
 {
+    //printf("I2C write\n");
     dev_addr = *(uint8_t*)intf_ptr;
 
     int status = i2c_master_write_sync(dev_addr << 1, &reg_addr, 1);
-
+    //printf("i2C write done\n");
     if (status != 0) {
         return BME280_E_COMM_FAIL;
     }

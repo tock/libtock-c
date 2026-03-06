@@ -40,20 +40,20 @@ BME280Status BME280Init(void) {
   if (rslt != BME280_OK) {
     return rslt;
   }
-  //printf("pass 1");
+  //printf("pass 1\n");
 
   rslt = bme280_init(&dev);
   if (rslt != BME280_OK) {
     return rslt;
   }
-  //printf("pass 2");
+  //printf("pass 2\n");
 
   /* Always read the current settings before writing, especially when all the configuration is not modified */
   rslt = bme280_get_sensor_settings(&settings, &dev);
   if (rslt != BME280_OK) {
     return rslt;
   }
-  //printf("pass 3");
+  //printf("pass 3\n");
 
   /* Configuring the over-sampling rate, filter coefficient and standby time */
   /* Overwrite the desired settings */

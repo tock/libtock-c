@@ -8,4 +8,7 @@ C_SRCS := $(wildcard *.c)
 
 # Include userland master makefile. Contains rules and flags for actually
 # building the application.
+
+override CFLAGS += -DBME280_32BIT_ENABLE
+
 include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk

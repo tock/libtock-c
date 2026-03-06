@@ -14,14 +14,7 @@ static void nop(
 
 int main(void) {
   
-  libtock_console_write((uint8_t*) hello, strlen(hello), nop);
-  // Because we used the async method (as opposed to something synchronous,
-  // such as printf), we must explicitly wait for the asynchronous write to complete.
-  yield();
-  // Now we are done.
-  return 0;
-  while(1){
-  };
+  printf("bme280\n");
   BME280Status status = BME280Init();
   while (1) {
     // Sleep
