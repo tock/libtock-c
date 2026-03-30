@@ -1,6 +1,5 @@
 #pragma once
 
-#include <libtock/peripherals/spi_peripheral.h>
 #include <libtock/tock.h>
 
 #ifdef __cplusplus
