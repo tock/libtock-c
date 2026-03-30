@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../tock.h"
+#include "crc_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,22 +12,6 @@ extern "C" {
 // - `arg1` (`returncode_t`): Status of the crc.
 // - `arg2` (`uint32_t`): CRC result.
 typedef void (*libtock_crc_callback_computed)(returncode_t, uint32_t);
-
-// CRC algorithms
-//
-// In all cases, input bytes are bit-reversed (i.e., consumed from LSB to MSB.)
-//
-// Algorithms prefixed with `SAM4L_` are native to that chip and thus require
-// no software post-processing on platforms using it.
-//
-typedef enum {
-  // Polynomial 0x04C11DB7, output reversed then inverted ("CRC-32")
-  LIBTOCK_CRC_32,
-  // Polynomial 0x1EDC6F41, output reversed then inverted ("CRC-32C" / "Castagnoli")
-  LIBTOCK_CRC_32C,
-  /// Polynomial 0x1021, no output post-processing
-  LIBTOCK_CRC_16CCITT,
-} libtock_crc_alg_t;
 
 // Check if the driver exists.
 bool libtock_crc_exists(void);

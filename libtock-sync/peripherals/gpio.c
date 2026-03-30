@@ -31,8 +31,28 @@ bool libtocksync_gpio_exists(void) {
   return libtock_gpio_driver_exists();
 }
 
+returncode_t libtocksync_gpio_count(int* count) {
+  return libtock_gpio_command_count((uint32_t*) count);
+}
+
+returncode_t libtocksync_gpio_enable_output(uint32_t pin) {
+  return libtock_gpio_command_enable_output(pin);
+}
+
 returncode_t libtocksync_gpio_enable_input(uint32_t pin, libtock_gpio_input_mode_t pin_config) {
   return libtock_gpio_command_enable_input(pin, (uint32_t) pin_config);
+}
+
+returncode_t libtocksync_gpio_set(uint32_t pin) {
+  return libtock_gpio_command_set(pin);
+}
+
+returncode_t libtocksync_gpio_clear(uint32_t pin) {
+  return libtock_gpio_command_clear(pin);
+}
+
+returncode_t libtocksync_gpio_toggle(uint32_t pin) {
+  return libtock_gpio_command_toggle(pin);
 }
 
 returncode_t libtocksync_gpio_read(uint32_t pin, int* pin_value) {

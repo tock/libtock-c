@@ -1,5 +1,6 @@
 #pragma once
 
+#include <libtock/peripherals/rtc_types.h>
 #include <libtock/tock.h>
 
 #ifdef __cplusplus
