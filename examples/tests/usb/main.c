@@ -6,7 +6,7 @@ int main(void) {
   returncode_t ret;
   printf("[TEST] UDP\n");
 
-  if (!libtock_usb_exists()) {
+  if (!libtocksync_usb_exists()) {
     printf("USB test: driver is not present\n");
     return -1;
   }
