@@ -1,5 +1,6 @@
 #pragma once
 
+#include <libtock/peripherals/gpio_types.h>
 #include <libtock/tock.h>
 
 #ifdef __cplusplus
@@ -7,6 +8,12 @@ extern "C" {
 #endif
 
 bool libtocksync_gpio_exists(void);
+
+// Configure a GPIO pin as an input.
+returncode_t libtocksync_gpio_enable_input(uint32_t pin, libtock_gpio_input_mode_t pin_config);
+
+// Read the current state of a GPIO input pin.
+returncode_t libtocksync_gpio_read(uint32_t pin, int* pin_value);
 
 // Configure a GPIO pin as an input and then wait until a rising interrupt
 // occurs.

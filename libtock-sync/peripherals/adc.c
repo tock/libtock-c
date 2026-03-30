@@ -9,6 +9,18 @@ bool libtocksync_adc_exists(void) {
   return libtock_adc_driver_exists();
 }
 
+returncode_t libtocksync_adc_channel_count(int* count) {
+  return libtock_adc_command_channel_count(count);
+}
+
+returncode_t libtocksync_adc_reference_voltage(uint32_t* reference_voltage) {
+  return libtock_adc_command_get_reference_voltage(reference_voltage);
+}
+
+returncode_t libtocksync_adc_resolution_bits(uint32_t* resolution) {
+  return libtock_adc_command_get_resolution_bits(resolution);
+}
+
 returncode_t libtocksync_adc_sample(uint8_t channel, uint16_t* sample) {
   returncode_t err;
 

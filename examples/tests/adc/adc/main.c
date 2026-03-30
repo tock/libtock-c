@@ -5,9 +5,6 @@
 
 #include <libtock-sync/peripherals/adc.h>
 #include <libtock-sync/services/alarm.h>
-#include <libtock/interface/console.h>
-#include <libtock/peripherals/syscalls/adc_syscalls.h>
-#include <libtock/tock.h>
 
 int reference_voltage;
 
@@ -51,15 +48,15 @@ int main(void) {
   printf("[Tock] ADC Test\n");
 
   // check if ADC driver exists
-  if (!libtock_adc_exists()) {
+  if (!libtocksync_adc_exists()) {
     printf("No ADC driver!\n");
     return -1;
   }
   int count;
-  libtock_adc_channel_count(&count);
+  libtocksync_adc_channel_count(&count);
   printf("ADC driver exists with %d channels\n", count);
 
-  libtock_adc_command_get_reference_voltage((uint32_t*) &reference_voltage);
+  libtocksync_adc_reference_voltage((uint32_t*) &reference_voltage);
   if (reference_voltage > 0) {
     printf("ADC reference voltage %d.%dV\n", reference_voltage / 1000, reference_voltage % 1000);
   } else {
@@ -68,7 +65,7 @@ int main(void) {
   }
 
   uint32_t resolution;
-  libtock_adc_command_get_resolution_bits(&resolution);
+  libtocksync_adc_resolution_bits(&resolution);
   printf("ADC resolution %lu bits\n", resolution);
 
   while (1) {
