@@ -1,6 +1,5 @@
 #pragma once
 
-#include <libtock/peripherals/usb.h>
 #include <libtock/tock.h>
 
 #ifdef __cplusplus
