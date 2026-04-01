@@ -21,7 +21,7 @@ void program_new_secret(hotp_key_t* hotp_key) {
   while (i < 127) {
     // read next character
     char c;
-    int number_read, number_written;
+    uint32_t number_read, number_written;
     libtocksync_console_read((uint8_t*) &c, 1, &number_read);
 
     // break on enter
