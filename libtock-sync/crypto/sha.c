@@ -17,10 +17,14 @@ returncode_t libtocksync_sha_simple_hash(libtock_sha_algorithm_t hash_type,
   ret = libtock_sha_command_set_algorithm((uint8_t) hash_type);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  defer { libtock_sha_set_readonly_allow_data_buffer(input_buffer, input_length);
+  ret = libtock_sha_set_readonly_allow_data_buffer(input_buffer, input_length);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+  defer { libtock_sha_set_readonly_allow_data_buffer(NULL, 0);
   }
 
-  defer { libtock_sha_set_readwrite_allow_destination_buffer(hash_buffer, hash_length);
+  ret = libtock_sha_set_readwrite_allow_destination_buffer(hash_buffer, hash_length);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+  defer { libtock_sha_set_readwrite_allow_destination_buffer(NULL, 0);
   }
 
   ret = libtock_sha_command_run();
