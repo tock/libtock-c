@@ -4,14 +4,14 @@
 //   date: year (12 bits) | month (4 bits) | day (5 bits)
 //   time: day_of_week (3 bits) | hour (5 bits) | minute (6 bits) | seconds (6 bits)
 static void rtc_decode(uint32_t date, uint32_t time, libtock_rtc_date_t* out) {
-  out->year  = date % (1 << 21) / (1 << 9);
-  out->month = date % (1 << 9) / (1 << 5);
-  out->day   = date % (1 << 5);
+  out->year  = (date >> 9) & 0xFFF;
+  out->month = (date >> 5) & 0xF;
+  out->day   = date & 0x1F;
 
-  out->day_of_week = time % (1 << 20) / (1 << 17);
-  out->hour        = time % (1 << 17) / (1 << 12);
-  out->minute      = time % (1 << 12) / (1 << 6);
-  out->seconds     = time % (1 << 6);
+  out->day_of_week = (time >> 17) & 0x7;
+  out->hour        = (time >> 12) & 0x1F;
+  out->minute      = (time >> 6) & 0x3F;
+  out->seconds     = time & 0x3F;
 }
 
 returncode_t libtocksync_rtc_yield_wait_for_get(libtock_rtc_date_t* date) {
