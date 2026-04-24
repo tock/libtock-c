@@ -18,10 +18,10 @@
 #include <string.h>
 
 // Libtock includes
+#include <libtock-sync/interface/button.h>
 #include <libtock-sync/services/alarm.h>
 #include <libtock-sync/storage/kv.h>
 #include <libtock/interface/button.h>
-#include <libtock/tock.h>
 
 // Local includes
 #include "base32.h"
@@ -120,7 +120,7 @@ int main(void) {
     // Delay and check if button is still pressed, signalling a "hold"
     libtocksync_alarm_delay_ms(500);
     int new_val = 0;
-    libtock_button_read(btn_num, &new_val);
+    libtocksync_button_read(btn_num, &new_val);
 
     // Handle long presses (program new secret)
     if (new_val) {

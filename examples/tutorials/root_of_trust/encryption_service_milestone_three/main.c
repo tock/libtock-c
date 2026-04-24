@@ -10,7 +10,6 @@
 
 #include <libtock-sync/interface/console.h>
 #include <libtock/kernel/ipc.h>
-#include <libtock/tock.h>
 
 #include "oracle.h"
 
@@ -86,7 +85,7 @@ static int log_to_screen(const char* message) {
 
 static size_t request_plaintext(uint8_t* plaintext, size_t size) {
   char c;
-  int number_read, number_written;
+  uint32_t number_read, number_written;
 
   printf("Enter plaintext to encrypt:\n");
 

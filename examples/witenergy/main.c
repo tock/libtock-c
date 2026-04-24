@@ -19,7 +19,6 @@
 #include <libtock/interface/console.h>
 #include <libtock/interface/led.h>
 #include <libtock/net/nrf51_serialization.h>
-#include <libtock/tock.h>
 
 
 /*******************************************************************************

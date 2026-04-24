@@ -6,6 +6,14 @@ bool libtocksync_button_exists(void) {
   return libtock_button_driver_exists();
 }
 
+returncode_t libtocksync_button_count(int* count) {
+  return libtock_button_command_count(count);
+}
+
+returncode_t libtocksync_button_read(int button_num, int* button_value) {
+  return libtock_button_command_read(button_num, button_value);
+}
+
 returncode_t libtocksync_button_wait_for_press(int button_num) {
   returncode_t ret;
 
