@@ -1,6 +1,6 @@
 #pragma once
 
-#include <libtock/peripherals/crc.h>
+#include <libtock/peripherals/crc_types.h>
 #include <libtock/tock.h>
 
 #ifdef __cplusplus

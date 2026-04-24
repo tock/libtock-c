@@ -1,90 +1,48 @@
+#include <libtock/defer.h>
 #include <libtock/peripherals/syscalls/adc_syscalls.h>
 
 #include "adc.h"
 
-// used for creating synchronous versions of functions
-//
-// fired - set when the callback has been called
-// channel - channel that the collected sample corresponds to
-// sample - collected sample value, valid if single sample operation
-// length - number of collected sample values, valid if multiple sample
-//          operation
-// buffer - pointer to buffer filled with samples, valid if multiple sample
-//          operation
-// error - set to FAIL if an invalid callback type is detected
-struct adc_data {
-  bool fired;
-  uint8_t channel;
-  uint16_t sample;
-  uint32_t length;
-  uint16_t* buffer;
-  int error;
-};
-
-static struct adc_data result;
-
-
-static void sample(uint8_t channel, uint16_t sample) {
-  result.fired   = true;
-  result.channel = channel;
-  result.sample  = sample;
-}
-
-static void buffered_sample(uint8_t channel, uint32_t length, uint16_t* buffer) {
-  result.fired   = true;
-  result.channel = channel;
-  result.length  = length;
-  result.buffer  = buffer;
-}
-
-
-static libtock_adc_callbacks callbacks = {
-  .single_sample_callback     = sample,
-  .continuous_sample_callback = sample,
-  .buffered_sample_callback   = buffered_sample,
-  .continuous_buffered_sample_callback = buffered_sample,
-};
-
+#include "syscalls/adc_syscalls.h"
 
 bool libtocksync_adc_exists(void) {
   return libtock_adc_driver_exists();
 }
 
-returncode_t libtocksync_adc_sample(uint8_t channel, uint16_t* sample) {
-  int err;
-  result.fired = false;
-  result.error = RETURNCODE_SUCCESS;
+returncode_t libtocksync_adc_channel_count(int* count) {
+  return libtock_adc_command_channel_count(count);
+}
 
-  err = libtock_adc_single_sample(channel, &callbacks);
+returncode_t libtocksync_adc_reference_voltage(uint32_t* reference_voltage) {
+  return libtock_adc_command_get_reference_voltage(reference_voltage);
+}
+
+returncode_t libtocksync_adc_resolution_bits(uint32_t* resolution) {
+  return libtock_adc_command_get_resolution_bits(resolution);
+}
+
+returncode_t libtocksync_adc_sample(uint8_t channel, uint16_t* sample) {
+  returncode_t err;
+
+  err = libtock_adc_command_single_sample(channel);
   if (err != RETURNCODE_SUCCESS) return err;
 
-  // wait for callback
-  yield_for(&result.fired);
-
-  // copy over result
-  *sample = result.sample;
-
-  return result.error;
+  err = libtocksync_adc_yield_wait_for_single_sample(sample);
+  return err;
 }
 
 returncode_t libtocksync_adc_sample_buffer(uint8_t channel, uint32_t frequency, uint16_t* buffer, uint32_t length) {
   returncode_t err;
-  result.fired = false;
-  result.error = RETURNCODE_SUCCESS;
+  uint32_t actual_length;
 
-  err = libtock_adc_set_buffer(buffer, length);
-  if (err < RETURNCODE_SUCCESS) return err;
-
-  err = libtock_adc_buffered_sample(channel, frequency, &callbacks);
+  err = libtock_adc_set_readwrite_allow_set_buffer((uint8_t*) buffer, length * 2);
   if (err != RETURNCODE_SUCCESS) return err;
-
-  // wait for callback
-  yield_for(&result.fired);
-
-  // copy over result
-  if (result.buffer != buffer) {
-    return RETURNCODE_FAIL;
+  defer { libtock_adc_set_readwrite_allow_set_buffer(NULL, 0);
   }
 
-  return result.error;
+  err = libtock_adc_command_buffered_sample(channel, frequency);
+  if (err != RETURNCODE_SUCCESS) return err;
+
+  err = libtocksync_adc_yield_wait_for_buffered_sample(&actual_length);
+  return err;
 }

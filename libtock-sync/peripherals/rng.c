@@ -1,21 +1,9 @@
+#include <libtock/defer.h>
 #include <libtock/peripherals/syscalls/rng_syscalls.h>
 
 #include "rng.h"
 
-struct rng_data {
-  bool fired;
-  returncode_t ret;
-  int received;
-};
-
-// Global state for faking synchronous reads using a callback and yield.
-static struct rng_data result = { .fired = false };
-
-static void rng_cb(returncode_t ret, int received) {
-  result.fired    = true;
-  result.ret      = ret;
-  result.received = received;
-}
+#include "syscalls/rng_syscalls.h"
 
 bool libtocksync_rng_exists(void) {
   return libtock_rng_driver_exists();
@@ -24,19 +12,14 @@ bool libtocksync_rng_exists(void) {
 returncode_t libtocksync_rng_get_random_bytes(uint8_t* buf, uint32_t len, uint32_t num, int* num_received) {
   returncode_t ret;
 
-  result.fired = false;
+  ret = libtock_rng_set_allow_readwrite(buf, len);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+  defer { libtock_rng_set_allow_readwrite(NULL, 0);
+  }
 
-  ret = libtock_rng_get_random_bytes(buf, len, num, rng_cb);
+  ret = libtock_rng_command_get_random(num);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  yield_for(&result.fired);
-
-  ret = libtock_rng_set_allow_readwrite(NULL, 0);
-  if (ret != RETURNCODE_SUCCESS) return ret;
-
-  if (result.ret != RETURNCODE_SUCCESS) return result.ret;
-
-  *num_received = result.received;
-
-  return RETURNCODE_SUCCESS;
+  ret = libtocksync_rng_yield_wait_for(num_received);
+  return ret;
 }

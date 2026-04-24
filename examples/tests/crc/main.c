@@ -40,7 +40,7 @@ int main(void) {
     exit(1);
   }
 
-  if (!libtock_crc_exists()) {
+  if (!libtocksync_crc_exists()) {
     printf("CRC driver does not exist\n");
     exit(1);
   }

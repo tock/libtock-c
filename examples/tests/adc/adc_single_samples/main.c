@@ -5,21 +5,19 @@
 
 #include <libtock-sync/peripherals/adc.h>
 #include <libtock-sync/services/alarm.h>
-#include <libtock/interface/console.h>
-#include <libtock/tock.h>
 
 
 int main(void) {
   printf("[Tock] ADC Sample All Channels Test\n");
 
   // check if ADC driver exists
-  if (!libtock_adc_exists()) {
+  if (!libtocksync_adc_exists()) {
     printf("No ADC driver!\n");
     return -1;
   }
 
   int channel_count;
-  libtock_adc_channel_count(&channel_count);
+  libtocksync_adc_channel_count(&channel_count);
   printf("ADC driver exists with %d channels\n\n", channel_count);
 
   while (1) {

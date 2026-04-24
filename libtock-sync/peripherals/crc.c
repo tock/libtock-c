@@ -1,20 +1,9 @@
+#include <libtock/defer.h>
 #include <libtock/peripherals/syscalls/crc_syscalls.h>
 
 #include "crc.h"
 
-struct crc_data {
-  bool fired;
-  int status;
-  uint32_t crc;
-};
-
-static struct crc_data result = {.fired = false};
-
-static void crc_callback(returncode_t ret, uint32_t crc) {
-  result.fired  = true;
-  result.status = ret;
-  result.crc    = crc;
-}
+#include "syscalls/crc_syscalls.h"
 
 bool libtocksync_crc_exists(void) {
   return libtock_crc_driver_exists();
@@ -22,18 +11,15 @@ bool libtocksync_crc_exists(void) {
 
 returncode_t libtocksync_crc_compute(const uint8_t* buf, size_t buflen, libtock_crc_alg_t algorithm, uint32_t* crc) {
   returncode_t ret;
-  result.fired = false;
 
-  ret = libtock_crc_compute(buf, buflen, algorithm, crc_callback);
+  ret = libtock_crc_set_readonly_allow(buf, buflen);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+  defer { libtock_crc_set_readonly_allow(NULL, 0);
+  }
+
+  ret = libtock_crc_command_request((uint32_t) algorithm, buflen);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  yield_for(&result.fired);
-  if (result.status != RETURNCODE_SUCCESS) return result.status;
-
-  ret = libtock_crc_set_readonly_allow(NULL, 0);
-  if (ret != RETURNCODE_SUCCESS) return ret;
-
-  *crc = result.crc;
-
-  return RETURNCODE_SUCCESS;
+  ret = libtocksync_crc_yield_wait_for(crc);
+  return ret;
 }
