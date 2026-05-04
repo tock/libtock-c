@@ -1,46 +1,14 @@
 #include <stdio.h>
+#include <string.h>
 
 #include <libtock-sync/services/alarm.h>
+#include <libtock/defer.h>
+#include <libtock/net/ieee802154.h>
 #include <libtock/net/syscalls/ieee802154_syscalls.h>
 
 #include "ieee802154.h"
-struct ieee802154_receive_data {
-  bool fired;
-  int pan;
-  int src_addr;
-  int dest_addr;
-};
 
-static struct ieee802154_receive_data receive_result = { .fired = false };
-
-
-struct ieee802154_send_data {
-  bool fired;
-  bool acked;
-  returncode_t ret;
-};
-
-static struct ieee802154_send_data send_result     = { .fired = false };
-static struct ieee802154_send_data send_result_raw = { .fired = false };
-
-static void ieee802154_receive_done_cb(int pan, int src_addr, int dest_addr) {
-  receive_result.fired     = true;
-  receive_result.pan       = pan;
-  receive_result.src_addr  = src_addr;
-  receive_result.dest_addr = dest_addr;
-}
-
-static void ieee802154_send_done_cb(returncode_t ret, bool acked) {
-  send_result.fired = true;
-  send_result.acked = acked;
-  send_result.ret   = ret;
-}
-
-static void ieee802154_send_raw_done_cb(returncode_t ret, bool acked) {
-  send_result_raw.fired = true;
-  send_result_raw.acked = acked;
-  send_result_raw.ret   = ret;
-}
+#include "syscalls/ieee802154_syscalls.h"
 
 bool libtocksync_ieee802154_exists(void) {
   return libtock_ieee802154_driver_exists();
@@ -52,42 +20,62 @@ returncode_t libtocksync_ieee802154_send(uint16_t         addr,
                                          uint8_t*         key_id,
                                          const uint8_t*   payload,
                                          uint8_t          len) {
-  send_result.fired = false;
+  returncode_t ret;
+  bool acked;
 
-  returncode_t ret = libtock_ieee802154_send(addr, level, key_id_mode, key_id, payload, len, ieee802154_send_done_cb);
+  // Setup the CFG buffer with security parameters.
+  uint8_t buf_cfg[11];
+  buf_cfg[0] = level;
+  buf_cfg[1] = key_id_mode;
+  int bytes = libtock_ieee802154_key_id_bytes(key_id_mode);
+  if (bytes > 0) {
+    memcpy(buf_cfg + 2, key_id, bytes);
+  }
+
+  ret = libtock_ieee802154_set_readwrite_allow_cfg(buf_cfg, sizeof(buf_cfg));
+  if (ret != RETURNCODE_SUCCESS) return ret;
+  defer { libtock_ieee802154_set_readwrite_allow_cfg(NULL, 0);
+  }
+
+  ret = libtock_ieee802154_set_readonly_allow(payload, len);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+  defer { libtock_ieee802154_set_readonly_allow(NULL, 0);
+  }
+
+  ret = libtock_ieee802154_command_send(addr);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for the frame to be sent
-  yield_for(&send_result.fired);
-
-  return send_result.ret;
+  ret = libtocksync_ieee802154_yield_wait_for_send(&acked);
+  return ret;
 }
-
 
 returncode_t libtocksync_ieee802154_send_raw(
   const uint8_t* payload,
   uint8_t        len) {
-  send_result_raw.fired = false;
+  returncode_t ret;
+  bool acked;
 
-  returncode_t ret = libtock_ieee802154_send_raw(payload, len, ieee802154_send_raw_done_cb);
+  ret = libtock_ieee802154_set_readonly_allow(payload, len);
+  if (ret != RETURNCODE_SUCCESS) return ret;
+  defer { libtock_ieee802154_set_readonly_allow(NULL, 0);
+  }
+
+  ret = libtock_ieee802154_command_send_raw();
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  yield_for(&send_result_raw.fired);
-
-  return send_result_raw.ret;
+  ret = libtocksync_ieee802154_yield_wait_for_send(&acked);
+  return ret;
 }
 
 returncode_t libtocksync_ieee802154_receive(const libtock_ieee802154_rxbuf* frame) {
-  receive_result.fired = false;
+  returncode_t ret;
 
-  returncode_t ret = libtock_ieee802154_receive(frame, ieee802154_receive_done_cb);
+  ret = libtock_ieee802154_set_readwrite_allow_rx((uint8_t*) frame, libtock_ieee802154_RING_BUFFER_LEN);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  // Wait for a frame
-  yield_for(&receive_result.fired);
-
   // receive upcall is only scheduled by the kernel if a frame is successfully received
-  return RETURNCODE_SUCCESS;
+  ret = libtocksync_ieee802154_yield_wait_for_recv();
+  return ret;
 }
 
 returncode_t libtocksync_ieee802154_up(void) {

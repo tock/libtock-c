@@ -10,7 +10,6 @@
 #include <libtock-sync/sensors/sound_pressure.h>
 #include <libtock-sync/sensors/temperature.h>
 #include <libtock-sync/services/alarm.h>
-#include <libtock/tock.h>
 
 static libtock_alarm_t alarm;
 static bool light          = false;

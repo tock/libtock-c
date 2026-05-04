@@ -10,7 +10,7 @@ int main(void) {
   returncode_t ret;
   printf("[TEST] USB Keyboard HID\n");
 
-  if (!libtock_usb_keyboard_hid_exists()) {
+  if (!libtocksync_usb_keyboard_hid_exists()) {
     printf("No USB keyboard HID on this board!\n");
     return -2;
   }

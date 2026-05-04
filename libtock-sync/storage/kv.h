@@ -1,6 +1,5 @@
 #pragma once
 
-#include <libtock/storage/kv.h>
 #include <libtock/tock.h>
 
 #ifdef __cplusplus

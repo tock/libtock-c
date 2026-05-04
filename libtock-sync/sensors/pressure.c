@@ -1,20 +1,6 @@
-#include <libtock/sensors/syscalls/pressure_syscalls.h>
-
 #include "pressure.h"
 
-struct pressure_data {
-  bool fired;
-  int pressure;
-  returncode_t ret;
-};
-
-static struct pressure_data result = { .fired = false };
-
-static void pressure_cb(returncode_t ret, int pressure) {
-  result.pressure = pressure;
-  result.fired    = true;
-  result.ret      = ret;
-}
+#include "syscalls/pressure_syscalls.h"
 
 bool libtocksync_pressure_exists(void) {
   return libtock_pressure_driver_exists();
@@ -23,16 +9,9 @@ bool libtocksync_pressure_exists(void) {
 returncode_t libtocksync_pressure_read(int* pressure) {
   returncode_t err;
 
-  result.fired = false;
-
-  err = libtock_pressure_read(pressure_cb);
+  err = libtock_pressure_command_read();
   if (err != RETURNCODE_SUCCESS) return err;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  if (result.ret != RETURNCODE_SUCCESS) return result.ret;
-
-  *pressure = result.pressure;
-
-  return RETURNCODE_SUCCESS;
+  err = libtocksync_pressure_yield_wait_for(pressure);
+  return err;
 }
