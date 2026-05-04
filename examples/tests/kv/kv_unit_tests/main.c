@@ -14,8 +14,8 @@ uint8_t value_buf[DATA_LEN];
 
 
 static bool test_exists(void) {
-  bool ret = libtock_kv_exists();
-  CHECK(ret == RETURNCODE_SUCCESS);
+  bool ret = libtocksync_kv_exists();
+  CHECK(ret == true);
   return true;
 }
 
