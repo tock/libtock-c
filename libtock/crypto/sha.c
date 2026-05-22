@@ -29,9 +29,9 @@ returncode_t libtock_sha_simple_hash(libtock_sha_algorithm_t hash_type,
   ret = libtock_sha_set_readwrite_allow_destination_buffer(hash_buffer, hash_length);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  ret = libtock_sha_set_upcall(sha_upcall, cb);
+  ret = libtock_sha_set_hash_upcall(sha_upcall, cb);
   if (ret != RETURNCODE_SUCCESS) return ret;
 
-  ret = libtock_sha_command_run();
+  ret = libtock_sha_command_hash();
   return ret;
 }

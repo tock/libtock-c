@@ -13,6 +13,12 @@ extern "C" {
 // - `arg1` (`returncode_t`): Status from computing the hash.
 typedef void (*libtock_sha_callback_hash)(returncode_t);
 
+// Function signature for SHA verify callback.
+//
+// - `arg1` (`returncode_t`): Status from verifying the hash.
+// - `arg1` (`bool`): Whether the hash matched.
+typedef void (*libtock_sha_callback_verify)(returncode_t, bool);
+
 
 bool libtock_sha_exists(void);
 
@@ -23,6 +29,14 @@ returncode_t libtock_sha_simple_hash(libtock_sha_algorithm_t hash_type,
                                      uint8_t* input_buffer, uint32_t input_length,
                                      uint8_t* hash_buffer, uint32_t hash_length,
                                      libtock_sha_callback_hash cb);
+
+// Compute a SHA hash over `input_buffer` and compare it to the hash in `compare_buffer`.
+//
+// The callback will be called when the verification is finished.
+returncode_t libtock_sha_simple_verify(libtock_sha_algorithm_t hash_type,
+                                       uint8_t* input_buffer, uint32_t input_length,
+                                       uint8_t* compare_buffer, uint32_t hash_length,
+                                       libtock_sha_callback_verify cb);
 
 #ifdef __cplusplus
 }

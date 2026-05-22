@@ -15,6 +15,12 @@ returncode_t libtocksync_sha_simple_hash(libtock_sha_algorithm_t hash_type,
                                          uint8_t* input_buffer, uint32_t input_length,
                                          uint8_t* hash_buffer, uint32_t hash_length);
 
+// Verify the hash for the given buffer and compare buffer.
+returncode_t libtocksync_sha_hash_verification(libtock_sha_algorithm_t hash_type,
+                                               uint8_t* input_buffer, uint32_t input_length,
+                                               uint8_t* compare_buffer, uint32_t hash_length,
+                                               bool* correct);
+
 #ifdef __cplusplus
 }
 #endif
