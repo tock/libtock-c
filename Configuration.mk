@@ -72,6 +72,12 @@ QEMU_RV32_VIRT_TOCK_TARGETS := rv32imac|rv32imac.0x80100080.0x80300000|0x8010008
                                rv32imac|rv32imac.0x80130080.0x80330000|0x80130080|0x80330000\
                                rv32imac|rv32imac.0x80180080.0x80380000|0x80180080|0x80380000
 
+# Specific addresses useful for the QEMU rv64i "virt" machine memory map.
+QEMU_RV64_VIRT_TOCK_TARGETS := rv64imac|rv64imac.0x80100080.0x80300000|0x80100080|0x80300000\
+                               rv64imac|rv64imac.0x80110080.0x80310000|0x80110080|0x80310000\
+                               rv64imac|rv64imac.0x80130080.0x80330000|0x80130080|0x80330000\
+                               rv64imac|rv64imac.0x80180080.0x80380000|0x80180080|0x80380000
+
 # Specific addresses useful for the ESP32-C3.
 ESP32_C3_TOCK_TARGETS := rv32imc|rv32imc.0x403B0080.0x3FCA2000|0x403B0080|0x3FCA2000\
                          rv32imc|rv32imc.0x403C0080.0x3FCA8000|0x403C0080|0x3FCA8000\
@@ -94,12 +100,14 @@ TOCK_TARGETS ?= cortex-m0\
                 $(ARTY_E21_TOCK_TARGETS) \
                 $(VEER_EL2_TOCK_TARGETS) \
                 $(QEMU_RV32_VIRT_TOCK_TARGETS)\
+                $(QEMU_RV64_VIRT_TOCK_TARGETS)\
                 $(ESP32_C3_TOCK_TARGETS)\
 
 # Generate `TOCK_ARCH_FAMILIES`, the set of architecture families which will be
 # used to determine toolchains to use in the build process.
 TOCK_ARCH_FAMILIES := $(sort $(foreach target, $(TOCK_TARGETS), $(strip \
   $(findstring rv32i,$(target)) \
+  $(findstring rv64i,$(target)) \
   $(findstring cortex-m,$(target)))))
 
 # Generate `TOCK_ARCHS`, the set of architectures listed in `TOCK_TARGETS`.
@@ -219,7 +227,7 @@ override CPPFLAGS_PIC += \
 
 ################################################################################
 ##
-## RISC-V compiler/linker flags
+## RISC-V 32 bit compiler/linker flags
 ##
 ################################################################################
 
@@ -383,6 +391,143 @@ override SYSTEM_LIBS_CXX_rv32imac += \
       $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libstdc++.a \
       $(LIBCPP_BASE_DIR_rv32)/riscv/riscv64-unknown-elf/lib/rv32imac/ilp32/libsupc++.a \
       $(LIBCPP_BASE_DIR_rv32)/riscv/lib/gcc/riscv64-unknown-elf/$(LIBCPP_VERSION_rv32)/rv32imac/ilp32/libgcc.a
+
+################################################################################
+##
+## RISC-V 64 bit compiler/linker flags
+##
+################################################################################
+
+# RISC-V toolchains, irrespective of their name-tuple, can compile for
+# essentially any target. Thus, try a few known names and choose the one for
+# which a compiler is found.
+ifneq (,$(shell which riscv64-none-elf-gcc 2>/dev/null))
+  TOOLCHAIN_rv64 := riscv64-none-elf
+else ifneq (,$(shell which riscv-none-elf-gcc 2>/dev/null))
+  TOOLCHAIN_rv64 := riscv-none-elf
+else ifneq (,$(shell which riscv64-elf-gcc 2>/dev/null))
+  TOOLCHAIN_rv64 := riscv64-elf
+else ifneq (,$(shell which riscv64-unknown-elf-clang 2>/dev/null))
+  TOOLCHAIN_rv64 := riscv64-unknown-elf
+else
+  # Fallback option. We don't particularly want to throw an error as this
+  # configuration makefile can be useful without a proper toolchain.
+  TOOLCHAIN_rv64 := riscv64-unknown-elf
+endif
+TOOLCHAIN_rv64i    := $(TOOLCHAIN_rv64)
+TOOLCHAIN_rv64imc  := $(TOOLCHAIN_rv64)
+TOOLCHAIN_rv64imac := $(TOOLCHAIN_rv64)
+
+# For RISC-V we default to GCC, but can support clang as well. Eventually, one
+# or both toolchains might support the PIC we need, at which point we would
+# default to that.
+ifeq ($(CLANG),)
+  # Default to GCC
+  CC_rv64     := -gcc
+else
+  # If `CLANG=1` on command line, use -clang.
+  CC_rv64     := -clang
+endif
+CC_rv64i    := $(CC_rv64)
+CC_rv64imc  := $(CC_rv64)
+CC_rv64imac := $(CC_rv64)
+
+# Determine the version of the RISC-V compiler. This is used to select the
+# version of the libgcc library that is compatible.
+ifneq ($(findstring rv64i,$(TOCK_ARCH_FAMILIES)),)
+  CC_rv64_version := $(shell $(TOOLCHAIN_rv64)$(CC_rv64) -dumpfullversion)
+  CC_rv64_version_major := $(shell echo $(CC_rv64_version) | cut -f1 -d.)
+endif
+
+# Match compiler version to support libtock-newlib versions.
+ifeq ($(CC_rv64_version_major),15)
+  NEWLIB_VERSION_rv64 := 4.6.0.20260123
+else
+  NEWLIB_VERSION_rv64 := 4.6.0.20260123
+endif
+NEWLIB_VERSION_rv64i    := $(NEWLIB_VERSION_rv64)
+NEWLIB_VERSION_rv64imc  := $(NEWLIB_VERSION_rv64)
+NEWLIB_VERSION_rv64imac := $(NEWLIB_VERSION_rv64)
+NEWLIB_BASE_DIR_rv64 := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-newlib-$(NEWLIB_VERSION_rv64)
+
+# Match compiler version to supported libtock-libc++ versions.
+ifeq ($(CC_rv64_version_major),15)
+  LIBCPP_VERSION_rv64 := 15.2.0
+else
+  LIBCPP_VERSION_rv64 := 15.2.0
+endif
+LIBCPP_VERSION_rv64i    := $(LIBCPP_VERSION_rv64)
+LIBCPP_VERSION_rv64imc  := $(LIBCPP_VERSION_rv64)
+LIBCPP_VERSION_rv64imac := $(LIBCPP_VERSION_rv64)
+LIBCPP_BASE_DIR_rv64 := $(TOCK_USERLAND_BASE_DIR)/lib/libtock-libc++-$(LIBCPP_VERSION_rv64)
+
+# Set the toolchain specific flags.
+#
+# Note: There are no non-gcc, clang-specific flags currently in use, so there is
+# no equivalent CPPFLAGS_clang currently. If there are clang-only flags in the
+# future, one can/should be added.
+ifeq ($(findstring -gcc,$(CC_rv64)),-gcc)
+  override CPPFLAGS_toolchain_rv64 += $(CPPFLAGS_gcc)
+  override CFLAGS_toolchain_rv64 += $(CFLAGS_gcc)
+endif
+
+# Set the toolchain specific `CFLAGS` for RISC-V. We use the same generic
+# toolchain flags for each RISC-V variant.
+override CFLAGS_rv64 += $(CFLAGS_toolchain_rv64)
+
+override CFLAGS_rv64i    += $(CFLAGS_rv64)
+override CFLAGS_rv64imc  += $(CFLAGS_rv64)
+override CFLAGS_rv64imac += $(CFLAGS_rv64)
+
+# Set the base `CPPFLAGS` for all RISC-V variants based on the toolchain family.
+override CPPFLAGS_rv64 += \
+      $(CPPFLAGS_toolchain_rv64) \
+      -isystem $(NEWLIB_BASE_DIR_rv64)/riscv/riscv64-unknown-elf/include \
+      -isystem $(LIBCPP_BASE_DIR_rv64)/riscv/riscv64-unknown-elf/include/c++/$(LIBCPP_VERSION_rv64) \
+      -isystem $(LIBCPP_BASE_DIR_rv64)/riscv/riscv64-unknown-elf/include/c++/$(LIBCPP_VERSION_rv64)/riscv64-unknown-elf
+
+# Set the `CPPFLAGS` for RISC-V. Here we need different flags for different
+# variants.
+override CPPFLAGS_rv64i += $(CPPFLAGS_rv64) \
+      -march=rv64i\
+      -mabi=lp64\
+      -mcmodel=medany
+
+override CPPFLAGS_rv64imc += $(CPPFLAGS_rv64) \
+      -march=rv64imc\
+      -mabi=lp64\
+      -mcmodel=medany
+
+override CPPFLAGS_rv64imac += $(CPPFLAGS_rv64) \
+      -march=rv64imac\
+      -mabi=lp64\
+      -mcmodel=medany
+
+# Set the base `WLFLAGS` linker flags for all RISC-V variants.
+override WLFLAGS_rv64 += \
+      -Wl,--no-relax   # Prevent use of global_pointer for RISC-V.
+
+# Use the base linker flags for each RISC-V variant.
+override WLFLAGS_rv64i    += $(WLFLAGS_rv64)
+override WLFLAGS_rv64imc  += $(WLFLAGS_rv64)
+override WLFLAGS_rv64imac += $(WLFLAGS_rv64)
+
+override SYSTEM_LIBS_rv64i    += \
+      $(NEWLIB_BASE_DIR_rv64)/riscv/riscv64-unknown-elf/lib/rv64i/lp64/libc.a \
+      $(NEWLIB_BASE_DIR_rv64)/riscv/riscv64-unknown-elf/lib/rv64i/lp64/libm.a
+
+override SYSTEM_LIBS_rv64imc  += \
+      $(NEWLIB_BASE_DIR_rv64)/riscv/riscv64-unknown-elf/lib/rv64im/lp64/libc.a \
+      $(NEWLIB_BASE_DIR_rv64)/riscv/riscv64-unknown-elf/lib/rv64im/lp64/libm.a
+
+override SYSTEM_LIBS_rv64imac += \
+      $(NEWLIB_BASE_DIR_rv64)/riscv/riscv64-unknown-elf/lib/rv64imac/lp64/libc.a \
+      $(NEWLIB_BASE_DIR_rv64)/riscv/riscv64-unknown-elf/lib/rv64imac/lp64/libm.a
+
+override SYSTEM_LIBS_CXX_rv64imac += \
+      $(LIBCPP_BASE_DIR_rv64)/riscv/riscv64-unknown-elf/lib/rv64imac/lp64/libstdc++.a \
+      $(LIBCPP_BASE_DIR_rv64)/riscv/riscv64-unknown-elf/lib/rv64imac/lp64/libsupc++.a \
+      $(LIBCPP_BASE_DIR_rv64)/riscv/lib/gcc/riscv64-unknown-elf/$(LIBCPP_VERSION_rv64)/rv64imac/lp64/libgcc.a
 
 
 ################################################################################
