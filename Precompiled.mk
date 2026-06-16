@@ -25,7 +25,7 @@ PRECOMPILED_MAKEFILE = 1
 ################################################################################
 
 ARM_ARCHS := thumb/v6-m/nofp thumb/v7-m/nofp thumb/v7e-m/nofp
-RISCV_ARCHS := rv32i/ilp32 rv32im/ilp32 rv32imac/ilp32
+RISCV_ARCHS := rv32i/ilp32 rv32im/ilp32 rv32imac/ilp32 rv64imac/lp64
 
 ################################################################################
 # Newlib Rules
