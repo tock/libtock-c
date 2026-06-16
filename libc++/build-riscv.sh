@@ -6,6 +6,7 @@ GCC_SRC_DIR=$1
 GCC_INSTALL_DIR=$2
 LIBC_INCLUDE_PATH=$3
 TARGET=$4
+MCMODEL=$5
 
 if [[ ! -e $LIBC_INCLUDE_PATH ]]; then
   echo "ERROR: Missing LIBC_INCLUDE_PATH, expected"
@@ -15,8 +16,8 @@ if [[ ! -e $LIBC_INCLUDE_PATH ]]; then
   exit 1
 fi
 
-export CFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -isystem $LIBC_INCLUDE_PATH"
-export CXXFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -isystem $LIBC_INCLUDE_PATH"
+export CFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -mcmodel=$MCMODEL -isystem $LIBC_INCLUDE_PATH"
+export CXXFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -mcmodel=$MCMODEL -isystem $LIBC_INCLUDE_PATH"
 
 if gcc --version | grep -q clang; then
   echo "$(tput bold)System gcc is clang. Overriding with gcc-13"
