@@ -28,7 +28,7 @@ NEWLIB_INCLUDE_PATH ?= ../newlib-$(NEWLIB_VERSION)/newlib/libc/include
 
 gcc-$(GCC_VERSION).tar.xz:
 	@echo "Downloading gcc source $(@F)"
-	@wget -q -O $@ 'https://mirrors.sarata.com/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.xz'
+	@wget -q -O $@ 'https://mirrors.dotsrc.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.xz'
 
 gcc-$(GCC_VERSION): gcc-$(GCC_VERSION).tar.xz | newlib-$(NEWLIB_VERSION)
 	@echo "Extracting $(<F)"
