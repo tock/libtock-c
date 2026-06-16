@@ -249,6 +249,9 @@ void _start(void* app_start __attribute__((unused)),
 #endif
 }
 
+// Only include `_c_start_pic()` on architectures other than RV64I.
+#if !(defined(__riscv) && (__riscv_xlen == 64))
+
 // C startup routine that configures memory for the process. This also handles
 // PIC fixups that are required for the application.
 //
@@ -258,15 +261,15 @@ void _start(void* app_start __attribute__((unused)),
 // - `mem_start`: The starting address of the memory region assigned to this
 //   app.
 __attribute__((noreturn))
-void _c_start_pic(uint32_t app_start, uint32_t mem_start) {
+void _c_start_pic(uintptr_t app_start, uintptr_t mem_start) {
   struct hdr* myhdr = (struct hdr*)app_start;
 
   // Fix up the Global Offset Table (GOT).
 
   // Get the address in memory of where the table should go.
-  uint32_t* got_start = (uint32_t*)(myhdr->got_start + mem_start);
+  uintptr_t* got_start = (uintptr_t*)(myhdr->got_start + mem_start);
   // Get the address in flash of where the table currently is.
-  uint32_t* got_sym_start = (uint32_t*)(myhdr->got_sym_start + app_start);
+  uintptr_t* got_sym_start = (uintptr_t*)(myhdr->got_sym_start + app_start);
   // Iterate all entries in the table and correct the addresses.
   for (uint32_t i = 0; i < (myhdr->got_size / (uint32_t)sizeof(uint32_t)); i++) {
     // Use the sentinel here. If the most significant bit is 0, then we know
@@ -308,11 +311,11 @@ void _c_start_pic(uint32_t app_start, uint32_t mem_start) {
   // The data structure used for these is `struct reldata`, where a 32 bit
   // length field is followed by that many entries. We iterate each entry and
   // correct addresses.
-  struct reldata* rd = (struct reldata*)(myhdr->reldata_start + (uint32_t)app_start);
+  struct reldata* rd = (struct reldata*)(uintptr_t)(myhdr->reldata_start + (uint32_t)app_start);
   for (uint32_t i = 0; i < (rd->len / (int)sizeof(uint32_t)); i += 2) {
     // The entries are offsets from the beginning of the app's memory region.
     // First, we get a pointer to the location of the address we need to fix.
-    uint32_t* target = (uint32_t*)(rd->data[i] + mem_start);
+    uintptr_t* target = (uintptr_t*)(rd->data[i] + mem_start);
     if ((*target & 0x80000000) == 0) {
       // Again, we use our sentinel. If the address at that location has a MSB
       // of 0, then we know this is an address in RAM. We need to fix the
@@ -331,6 +334,8 @@ void _c_start_pic(uint32_t app_start, uint32_t mem_start) {
   exit(main(0, NULL));
 }
 
+#endif
+
 // C startup routine for apps compiled with fixed addresses (i.e. no PIC).
 //
 // Arguments:
@@ -339,7 +344,7 @@ void _c_start_pic(uint32_t app_start, uint32_t mem_start) {
 // - `mem_start`: The starting address of the memory region assigned to this
 //   app.
 __attribute__((noreturn))
-void _c_start_nopic(uint32_t app_start, uint32_t mem_start) {
+void _c_start_nopic(uintptr_t app_start, uintptr_t mem_start) {
   struct hdr* myhdr = (struct hdr*)app_start;
 
   // Copy over the Global Offset Table (GOT). The GOT seems to still get created
