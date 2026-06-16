@@ -13,6 +13,8 @@ elif [[ $GCC_VERSION == "12.3.0" ]]; then
   GCC_SHA="b0686eb1905594bde7b746fc58be97aceac8f802d8b5171adb6a4e84f3906d30"
 elif [[ $GCC_VERSION == "10.5.0" ]]; then
   GCC_SHA="1cd4eef592bcc7b9ec77e2c21b50dabcff9b614b4cd1ec82a9dac238c8789c95"
+elif [[ $GCC_VERSION == "15.2.0" ]]; then
+  GCC_SHA="a49348e215a32beb89a03715252ca060798c19de96955594f5431f4fad6aceff"
 fi
 
 # Name of the pre-created compiled directories.
