@@ -10,6 +10,7 @@
 
 // C standard library includes
 #include <ctype.h>
+#include <inttypes.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -188,7 +189,7 @@ static void get_next_code(hotp_key_t* hotp_key) {
 
   // Record value as a string
   char hotp_format_buffer[16];
-  int len = snprintf(hotp_format_buffer, 16, "%.*ld", KEY_DIGITS, S);
+  int len = snprintf(hotp_format_buffer, 16, "%.*" PRIu32, KEY_DIGITS, S);
   if (len < 0) {
     len = 0;
   } else if (len > 16) {
@@ -200,7 +201,7 @@ static void get_next_code(hotp_key_t* hotp_key) {
   if (ret < 0) {
     printf("ERROR sending string with USB keyboard HID: %i\r\n", ret);
   } else {
-    printf("Counter: %u. Typed \"%s\" on the USB HID the keyboard\r\n", (size_t)hotp_key->counter - 1,
+    printf("Counter: %zu. Typed \"%s\" on the USB HID the keyboard\r\n", (size_t)hotp_key->counter - 1,
            hotp_format_buffer);
   }
 

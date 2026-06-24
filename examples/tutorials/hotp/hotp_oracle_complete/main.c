@@ -10,6 +10,7 @@
 
 // C standard library includes
 #include <ctype.h>
+#include <inttypes.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -222,7 +223,7 @@ static void get_next_code_encrypted(int slot_num) {
 
   // Record value as a string
   char hotp_format_buffer[16];
-  int len = snprintf(hotp_format_buffer, 16, "%.*ld", key_digits[slot_num], S);
+  int len = snprintf(hotp_format_buffer, 16, "%.*" PRIu32, key_digits[slot_num], S);
   if (len < 0) {
     len = 0;
   } else if (len > 16) {
@@ -235,7 +236,7 @@ static void get_next_code_encrypted(int slot_num) {
     if (ret < 0) {
       printf("ERROR sending string with USB keyboard HID: %i\r\n", ret);
     } else {
-      printf("Counter: %u. Typed \"%s\" on the USB HID the keyboard\r\n", (size_t)keys[slot_num].counter - 1,
+      printf("Counter: %zu. Typed \"%s\" on the USB HID the keyboard\r\n", (size_t)keys[slot_num].counter - 1,
              hotp_format_buffer);
     }
   } else {

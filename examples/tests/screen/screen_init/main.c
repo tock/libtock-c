@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -17,7 +18,7 @@ int main(void) {
   for (uint32_t idx = 0; idx < resolutions; idx++) {
     uint32_t width, height;
     libtocksync_screen_get_supported_resolution(idx, &width, &height);
-    printf("  %ld x %ld\n", width, height);
+    printf("  %" PRIu32 " x %" PRIu32 "\n", width, height);
   }
 
   printf("available colors depths\n");

@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,14 +43,14 @@ static void alarm_fire_callback(__attribute__ ((unused)) uint32_t unused0,
   uint32_t difference_ms         = actual_fire_time_ms - expected_alarm_end_ms;
 
   printf("Alarm Fired!\n");
-  printf("\tExpected alarm to fire at %ld ms\n", expected_alarm_end_ms);
-  printf("\tAlarm actually fired at %ld ms\n", actual_fire_time_ms);
+  printf("\tExpected alarm to fire at %" PRIu32 " ms\n", expected_alarm_end_ms);
+  printf("\tAlarm actually fired at %" PRIu32 " ms\n", actual_fire_time_ms);
 
   // check for millisecond level precision
   if (difference_ms <= 1) {
-    printf("\tSuccess! Difference of %ld ms\n", difference_ms);
+    printf("\tSuccess! Difference of %" PRIu32 " ms\n", difference_ms);
   } else {
-    printf("\tFailed! Difference of %ld ms (> 1ms)\n", difference_ms);
+    printf("\tFailed! Difference of %" PRIu32 " ms (> 1ms)\n", difference_ms);
   }
 }
 

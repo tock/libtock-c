@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,13 +55,13 @@ int main(void) {
         exit(1);
       }
 
-      printf("[%8lx] Case %2d: ", procid, test_index);
+      printf("[%8" PRIx32 "] Case %2d: ", procid, test_index);
       if (r == RETURNCODE_SUCCESS) {
-        printf("result=%08lx ", result);
+        printf("result=%08" PRIx32 " ", result);
         if (result == t->output) {
           printf("(OK)");
         } else {
-          printf("(Expected %08lx)", t->output);
+          printf("(Expected %08" PRIx32 ")", t->output);
         }
       } else {
         printf("failed with status %d\n", r);

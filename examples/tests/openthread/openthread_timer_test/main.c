@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -78,7 +79,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
     // that the difference is within 3 ms of the expected 1000 ms (some latency
     // due to syscalls/kernel work is expected).
     if (now >= prev && (now - prev - DELAY_TIME) > 3) {
-      printf("[FAIL] Now Value: %ld, Prev Value: %ld, Diff: %ld.\n", now, prev, now - prev - 1000);
+      printf("[FAIL] Now Value: %" PRIu32 ", Prev Value: %" PRIu32 ", Diff: %" PRIu32 ".\n", now, prev,
+             now - prev - 1000);
       return -1;
     }
     ;
@@ -88,7 +90,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
     // Print progress every minute.
     if (now > (30000 * (passed_test + 1))) {
       passed_test++;
-      printf("[TEST UPDATE] %ld sec.\n", now / 1000);
+      printf("[TEST UPDATE] %" PRIu32 " sec.\n", now / 1000);
     }
   }
 

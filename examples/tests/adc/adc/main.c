@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,7 +31,7 @@ static void test_sampling_buffer(uint8_t channel, int index) {
   uint16_t buf[length];
   memset(buf, 0, length);
 
-  printf("%lu ADC samples at %lu Hz\n", length, FREQS[index]);
+  printf("%" PRIu32 " ADC samples at %" PRIu32 " Hz\n", length, FREQS[index]);
   int err = libtocksync_adc_sample_buffer(channel, FREQS[index], buf, length);
   if (err < 0) {
     printf("Error sampling ADC: %d\n", err);
@@ -66,7 +67,7 @@ int main(void) {
 
   uint32_t resolution;
   libtocksync_adc_resolution_bits(&resolution);
-  printf("ADC resolution %lu bits\n", resolution);
+  printf("ADC resolution %" PRIu32 " bits\n", resolution);
 
   while (1) {
     // iterate through the channels

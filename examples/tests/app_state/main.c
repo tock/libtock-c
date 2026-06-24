@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdio.h>
 
 #include <libtock-sync/storage/app_state.h>
@@ -40,7 +41,7 @@ int main(void) {
     if (app_state.count == 1) {
       *plural = 0;
     }
-    printf("This application has run %lu time%s before\n", app_state.count, plural);
+    printf("This application has run %" PRIu32 " time%s before\n", app_state.count, plural);
     app_state.count += 1;
   }
 

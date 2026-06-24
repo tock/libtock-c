@@ -80,7 +80,7 @@ int main(void) {
         printf("Packet sent.\n\n");
         break;
       default:
-        printf("Error sending packet %d\n\n", result);
+        printf("Error sending packet %zd\n\n", result);
     }
     libtocksync_alarm_delay_ms(4000);
   }

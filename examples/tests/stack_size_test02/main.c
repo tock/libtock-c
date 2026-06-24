@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdio.h>
 #include <sys/types.h>
 
@@ -14,7 +15,7 @@ int main(void) {
 #error Unknown architecture
 #endif
 
-  printf("Current stack pointer: 0x%lx\n", stack_pointer);
+  printf("Current stack pointer: 0x%" PRIx32 "\n", stack_pointer);
 
   return 0;
 }
