@@ -37,15 +37,14 @@ typedef void (*libtock_adc_callback_continuous_sample)(uint8_t, uint16_t);
 //
 // - `arg1` (`uint8_t`): Channel number.
 // - `arg2` (`uint32_t`): Number of samples.
-// - `arg2` (`uint16_t`): Buffer of samples.
-typedef void (*libtock_adc_callback_buffered_sample)(uint8_t, uint32_t, uint16_t*);
+typedef void (*libtock_adc_callback_buffered_sample)(uint8_t, uint32_t);
 
 // Function signature for ADC continuous buffered sample callback.
 //
 // - `arg1` (`uint8_t`): Channel number.
 // - `arg2` (`uint32_t`): Number of samples.
-// - `arg2` (`uint16_t`): Buffer of samples.
-typedef void (*libtock_adc_callback_continuous_buffered_sample)(uint8_t, uint32_t, uint16_t*);
+// - `arg3` (`uint8_t`): Index of buffer storing available samples.
+typedef void (*libtock_adc_callback_continuous_buffered_sample)(uint8_t, uint32_t, uint8_t);
 
 
 
@@ -53,7 +52,7 @@ typedef struct {
   libtock_adc_callback_single_sample single_sample_callback;
   libtock_adc_callback_continuous_sample continuous_sample_callback;
   libtock_adc_callback_buffered_sample buffered_sample_callback;
-  libtock_adc_callback_buffered_sample continuous_buffered_sample_callback;
+  libtock_adc_callback_continuous_buffered_sample continuous_buffered_sample_callback;
 } libtock_adc_callbacks;
 
 
