@@ -4,9 +4,9 @@
  * is not known. Therefore, this script over provisions space on some platforms.
  */
 
-/* Memory Spaces Definitions, 448K flash, 64K ram */
+/* Memory Spaces Definitions, 448K flash, 128K ram */
 PROG_LENGTH = 0x00070000;
-RAM_LENGTH  = 0x00010000;
+RAM_LENGTH  = 0x00020000;
 
 ENTRY(_start)
 
