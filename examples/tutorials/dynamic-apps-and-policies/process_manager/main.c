@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -199,7 +200,7 @@ static const char*details_get_str(void* data, uint16_t index) {
 
       uint32_t* pids = (uint32_t*) buf;
       uint32_t pid   = pids[selection];
-      snprintf(process_names[index], 50, MUI_100 "PID: %lu", pid);
+      snprintf(process_names[index], 50, MUI_100 "PID: %" PRIu32, pid);
       break;
     }
     case 1: {
@@ -214,23 +215,23 @@ static const char*details_get_str(void* data, uint16_t index) {
       } else {
         char zeros[10];
         insert_zeros(zeros, 10, 8 - hex_digits(shortid));
-        snprintf(process_names[index], 50, MUI_100 "ShortID: 0x%s%lx", zeros, shortid);
+        snprintf(process_names[index], 50, MUI_100 "ShortID: 0x%s%" PRIu32 "x", zeros, shortid);
       }
       break;
     }
     case 2: {
       uint32_t timeslices_expired = get_stat(selection, 0);
-      snprintf(process_names[index], 50, MUI_100 "Timeslices Exp: %lu", timeslices_expired);
+      snprintf(process_names[index], 50, MUI_100 "Timeslices Exp: %" PRIu32, timeslices_expired);
       break;
     }
     case 3: {
       uint32_t syscall_count = get_stat(selection, 1);
-      snprintf(process_names[index], 50, MUI_100 "Syscall Count: %lu", syscall_count);
+      snprintf(process_names[index], 50, MUI_100 "Syscall Count: %" PRIu32, syscall_count);
       break;
     }
     case 4: {
       uint32_t restart_count = get_stat(selection, 2);
-      snprintf(process_names[index], 50, MUI_100 "Restart Count: %lu", restart_count);
+      snprintf(process_names[index], 50, MUI_100 "Restart Count: %" PRIu32, restart_count);
       break;
     }
     case 5: {
