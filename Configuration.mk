@@ -447,6 +447,14 @@ CC_rv64imac := $(CC_rv64)
 ifneq ($(findstring rv64i,$(TOCK_ARCH_FAMILIES)),)
   CC_rv64_version := $(shell $(TOOLCHAIN_rv64)$(CC_rv64) -dumpfullversion)
   CC_rv64_version_major := $(shell echo $(CC_rv64_version) | cut -f1 -d.)
+
+  # Check for older toolchains, where we don't support rv64. If that is where we
+  # are don't compile 64-bit apps.
+  ifeq ($(shell test $(CC_rv64_version_major) -lt 15 && echo yes),yes)
+    TOCK_TARGETS := $(filter-out rv64%,$(TOCK_TARGETS))
+    TOCK_ARCH_FAMILIES := $(filter-out rv64%,$(TOCK_ARCH_FAMILIES))
+    TOCK_ARCHS := $(filter-out rv64%,$(TOCK_ARCHS))
+  endif
 endif
 
 # Match compiler version to support libtock-newlib versions.
