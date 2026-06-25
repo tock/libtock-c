@@ -6,8 +6,8 @@
 #include <libtock/peripherals/syscalls/alarm_syscalls.h>
 
 static void event_cb(uint32_t now, uint32_t expiration, void* ud) {
-  int i = (int)ud;
-  printf("%d %" PRIu32 " %" PRIu32 "\n", i, now, expiration);
+  uintptr_t i = (uintptr_t)ud;
+  printf("%zu %" PRIu32 " %" PRIu32 "\n", i, now, expiration);
 }
 
 int main(void) {
