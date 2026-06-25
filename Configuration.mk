@@ -103,6 +103,12 @@ TOCK_TARGETS ?= cortex-m0\
                 $(QEMU_RV64_VIRT_TOCK_TARGETS)\
                 $(ESP32_C3_TOCK_TARGETS)\
 
+# Enable an app to specify it only supports 32-bit platforms. This is useful for
+# apps that use IPC or legacy system calls that use pointers in the interface.
+ifeq ($(TOCK_TARGETS_32BIT_ONLY),yes)
+  TOCK_TARGETS := $(filter-out rv64%,$(TOCK_TARGETS))
+endif
+
 # Generate `TOCK_ARCH_FAMILIES`, the set of architecture families which will be
 # used to determine toolchains to use in the build process.
 TOCK_ARCH_FAMILIES := $(sort $(foreach target, $(TOCK_TARGETS), $(strip \
