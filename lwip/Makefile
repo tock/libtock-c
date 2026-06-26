@@ -27,5 +27,8 @@ override CPPFLAGS += -I$($(LIBNAME)_DIR)/include
 # Avoid failing in CI due to warnings in the library.
 override CPPFLAGS_$(LIBNAME) += -Wno-error
 
+# For lwip, we only support 32-bit platforms for now.
+TOCK_TARGETS_32BIT_ONLY := yes
+
 # Include the rules to build the library.
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
