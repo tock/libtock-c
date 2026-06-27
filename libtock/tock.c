@@ -74,6 +74,62 @@ returncode_t tock_command_return_u32_u32_to_returncode(syscall_return_t command_
   }
 }
 
+returncode_t tock_command_return_u32_u32_u32_to_returncode(syscall_return_t command_return,
+                                                           uint32_t* val1, uint32_t* val2, uint32_t* val3) {
+  if (command_return.type == TOCK_SYSCALL_SUCCESS_U32_U32_U32) {
+    *val1 = command_return.data[0];
+    *val2 = command_return.data[1];
+    *val3 = command_return.data[2];
+    return RETURNCODE_SUCCESS;
+  } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
+returncode_t tock_command_return_u32_u64_to_returncode(syscall_return_t command_return,
+                                                       uint32_t* val1, uint64_t* val2) {
+  if (command_return.type == TOCK_SYSCALL_SUCCESS_U32_U64) {
+    *val1 = command_return.data[0];
+    *val2 = (uint64_t)command_return.data[1] | ((uint64_t)command_return.data[2] << 32);
+    return RETURNCODE_SUCCESS;
+  } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
+returncode_t tock_command_return_failure_u32_to_returncode(syscall_return_t command_return, uint32_t* val) {
+  if (command_return.type == TOCK_SYSCALL_FAILURE_U32) {
+    *val = command_return.data[1];
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
+returncode_t tock_command_return_failure_u32_u32_to_returncode(syscall_return_t command_return,
+                                                               uint32_t* val1, uint32_t* val2) {
+  if (command_return.type == TOCK_SYSCALL_FAILURE_U32_U32) {
+    *val1 = command_return.data[1];
+    *val2 = command_return.data[2];
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
+returncode_t tock_command_return_failure_u64_to_returncode(syscall_return_t command_return, uint64_t* val) {
+  if (command_return.type == TOCK_SYSCALL_FAILURE_U64) {
+    *val = (uint64_t)command_return.data[1] | ((uint64_t)command_return.data[2] << 32);
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
 returncode_t tock_subscribe_return_to_returncode(subscribe_return_t subscribe_return) {
   // If the subscribe was successful, easily return SUCCESS.
   if (subscribe_return.success) {
