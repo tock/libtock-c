@@ -174,6 +174,41 @@ int tock_command_return_u32_u32_to_returncode(syscall_return_t, uint32_t*, uint3
 // Convert a `syscall_return_t` with a `u64` value to a `returncode_t`.
 int tock_command_return_u64_to_returncode(syscall_return_t command_return, uint64_t* val);
 
+// Convert a `syscall_return_t` with three `u32` values to a `returncode_t`.
+//
+// This expects exactly three `u32`s to be returned (i.e. the only success case
+// is `TOCK_SYSCALL_SUCCESS_U32_U32_U32`). Do not use with other expected
+// SyscallReturn variants.
+int tock_command_return_u32_u32_u32_to_returncode(syscall_return_t, uint32_t*, uint32_t*, uint32_t*);
+
+// Convert a `syscall_return_t` with a `u32` and a `u64` value to a `returncode_t`.
+//
+// This expects a `u32` and a `u64` to be returned (i.e. the only success case
+// is `TOCK_SYSCALL_SUCCESS_U32_U64`). Do not use with other expected
+// SyscallReturn variants.
+int tock_command_return_u32_u64_to_returncode(syscall_return_t, uint32_t*, uint64_t*);
+
+// Convert a `syscall_return_t` failure with one u32 to a `returncode_t`.
+//
+// This expects a failure with one u32 value (i.e. `TOCK_SYSCALL_FAILURE_U32`).
+// Fills `val` with the failure u32 on failure. Do not use with other expected
+// SyscallReturn variants.
+int tock_command_return_failure_u32_to_returncode(syscall_return_t, uint32_t*);
+
+// Convert a `syscall_return_t` failure with two u32 values to a `returncode_t`.
+//
+// This expects a failure with two u32 values (i.e. `TOCK_SYSCALL_FAILURE_U32_U32`).
+// Fills `val1` and `val2` with the failure u32s on failure. Do not use with
+// other expected SyscallReturn variants.
+int tock_command_return_failure_u32_u32_to_returncode(syscall_return_t, uint32_t*, uint32_t*);
+
+// Convert a `syscall_return_t` failure with a u64 value to a `returncode_t`.
+//
+// This expects a failure with one u64 value (i.e. `TOCK_SYSCALL_FAILURE_U64`).
+// Fills `val` with the failure u64 on failure. Do not use with other expected
+// SyscallReturn variants.
+int tock_command_return_failure_u64_to_returncode(syscall_return_t, uint64_t*);
+
 // Convert a `subscribe_return_t` to a `returncode_t`.
 int tock_subscribe_return_to_returncode(subscribe_return_t);
 
