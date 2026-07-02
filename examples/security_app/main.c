@@ -4,10 +4,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <libtock/interface/console.h>
+#include <libtock-sync/peripherals/gpio.h>
 #include <libtock/interface/led.h>
 #include <libtock/peripherals/gpio.h>
-#include <libtock/tock.h>
 
 typedef struct {
   bool pir;
@@ -44,9 +43,9 @@ int main(void) {
 
   // configure pins
   libtock_gpio_set_interrupt_callback(gpio_cb);
-  libtock_gpio_enable_input(0, libtock_pull_none);
+  libtocksync_gpio_enable_input(0, libtock_pull_none);
   libtock_gpio_enable_interrupt(0, libtock_change);
-  libtock_gpio_enable_input(1, libtock_pull_up);
+  libtocksync_gpio_enable_input(1, libtock_pull_up);
   libtock_gpio_enable_interrupt(1, libtock_change);
 
   // configure accelerometer

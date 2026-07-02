@@ -1,18 +1,10 @@
-#include <libtock/storage/syscalls/app_state_syscalls.h>
+#include <libtock/storage/app_state.h>
 
 #include "app_state.h"
 
-struct app_state_data {
-  bool fired;
-  returncode_t ret;
-};
+#include "syscalls/app_state_syscalls.h"
 
-static struct app_state_data result = {.fired = false};
-
-static void app_state_cb(returncode_t ret) {
-  result.fired = true;
-  result.ret   = ret;
-}
+static void app_state_noop_cb(__attribute__ ((unused)) returncode_t ret) {}
 
 bool libtocksync_app_state_exists(void) {
   return libtock_app_state_driver_exists();
@@ -21,13 +13,8 @@ bool libtocksync_app_state_exists(void) {
 returncode_t libtocksync_app_state_save(void) {
   returncode_t err;
 
-  result.fired = false;
-
-  err = libtock_app_state_save(app_state_cb);
+  err = libtock_app_state_save(app_state_noop_cb);
   if (err != RETURNCODE_SUCCESS) return err;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-
-  return result.ret;
+  return libtocksync_app_state_yield_wait_for();
 }

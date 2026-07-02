@@ -1,21 +1,10 @@
 #include <ctype.h>
 
+#include <libtock/defer.h>
 #include <libtock/interface/syscalls/usb_keyboard_hid_syscalls.h>
 
+#include "syscalls/usb_keyboard_hid_syscalls.h"
 #include "usb_keyboard_hid.h"
-
-
-struct usb_keyboard_hid_result {
-  bool fired;
-  returncode_t ret;
-};
-
-static struct usb_keyboard_hid_result result = {.fired = false};
-
-static void usb_keyboard_hil_cb(returncode_t ret) {
-  result.fired = true;
-  result.ret   = ret;
-}
 
 bool libtocksync_usb_keyboard_hid_exists(void) {
   return libtock_usb_keyboard_hid_driver_exists();
@@ -23,16 +12,16 @@ bool libtocksync_usb_keyboard_hid_exists(void) {
 
 returncode_t libtocksync_usb_keyboard_hid_send(uint8_t* buffer, uint32_t len) {
   int err;
-  result.fired = false;
 
-  err = libtock_usb_keyboard_hid_send(buffer, len, usb_keyboard_hil_cb);
+  err = libtock_usb_keyboard_hid_set_readwrite_allow_send_buffer(buffer, len);
+  if (err != RETURNCODE_SUCCESS) return err;
+  defer { libtock_usb_keyboard_hid_set_readwrite_allow_send_buffer(NULL, 0);
+  }
+
+  err = libtock_usb_keyboard_hid_command_send();
   if (err != RETURNCODE_SUCCESS) return err;
 
-  // Wait for the callback.
-  yield_for(&result.fired);
-  if (result.ret != RETURNCODE_SUCCESS) return result.ret;
-
-  err = libtock_usb_keyboard_hid_set_readwrite_allow_send_buffer(NULL, 0);
+  err = libtocksync_usb_keyboard_hid_yield_wait_for();
   return err;
 }
 

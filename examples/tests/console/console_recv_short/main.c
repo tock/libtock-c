@@ -5,7 +5,7 @@
 uint8_t buf[100];
 
 int main(void) {
-  int number_read;
+  uint32_t number_read;
   int ret = libtocksync_console_read(buf, 11, &number_read);
   if (ret != RETURNCODE_SUCCESS) {
     printf("[SHORT] Error doing UART receive: %i\n", ret);
@@ -13,7 +13,7 @@ int main(void) {
   }
 
   printf("\n\nconsole_recv_short: ");
-  for (int i = 0; i < number_read; i++) {
+  for (uint32_t i = 0; i < number_read; i++) {
     printf("%c", buf[i]);
   }
   printf("\n");

@@ -18,6 +18,7 @@
 #include <string.h>
 
 // Libtock includes
+#include <libtock-sync/interface/button.h>
 #include <libtock-sync/interface/console.h>
 #include <libtock-sync/services/alarm.h>
 #include <libtock/interface/button.h>
@@ -52,7 +53,7 @@ static void program_new_secret(hotp_key_t* hotp_key) {
   while (i < 127) {
     // read next character
     char c;
-    int number_read, number_written;
+    uint32_t number_read, number_written;
     libtocksync_console_read((uint8_t*) &c, 1, &number_read);
 
     // break on enter
@@ -121,7 +122,7 @@ int main(void) {
     // Delay and check if button is still pressed, signalling a "hold"
     libtocksync_alarm_delay_ms(500);
     int new_val = 0;
-    libtock_button_read(btn_num, &new_val);
+    libtocksync_button_read(btn_num, &new_val);
 
     // Handle long presses (program new secret)
     if (new_val) {

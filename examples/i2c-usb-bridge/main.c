@@ -14,13 +14,13 @@ uint8_t send_buf[DATA_LEN];
 
 static int getch(void) {
   uint8_t buffer[1];
-  int number_read;
+  uint32_t number_read;
   libtocksync_console_read(buffer, 1, &number_read);
   return buffer[0];
 }
 
-static int putnstr(char* str, int len) {
-  int number_written;
+static uint32_t putnstr(char* str, int len) {
+  uint32_t number_written;
   libtocksync_console_read((uint8_t*) str, len, &number_written);
   return number_written;
 }
