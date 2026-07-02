@@ -19,6 +19,10 @@ returncode_t libtocksync_button_count(int* count);
 //
 // - `button_num`: The index of the button.
 // - `button_value`: Will be set to 1 if button is pressed, 0 otherwise.
+//
+// ## Return Value
+//
+// A returncode indicating whether the button wait was completed successfully.
 returncode_t libtocksync_button_read(int button_num, int* button_value);
 
 // Wait for a specific button to be pressed.
