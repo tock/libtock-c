@@ -1,5 +1,6 @@
 /* vim: set sw=2 expandtab tw=80: */
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +21,7 @@ static void write_ptr(uint32_t* p) {
 __attribute__((noinline))
 static void read_ptr(uint32_t* p) {
   printf("read from %p\n", p);
-  printf("    value %lu\n", *p);
+  printf("    value %" PRIu32 "\n", *p);
 }
 
 #pragma GCC diagnostic ignored "-Wpragmas"
@@ -29,7 +30,7 @@ static void grow_stack(void) {
   register uint32_t* sp asm ("sp");
 
   uint32_t buffer[GROW_BY];
-  printf("stack: %p - buffer: %p - at_least: 0x%4lx\n",
+  printf("stack: %p - buffer: %p - at_least: 0x%4" PRIx32 "\n",
          sp, buffer, size_is_at_least);
 
   write_ptr(buffer);

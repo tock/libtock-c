@@ -93,5 +93,8 @@ override CPPFLAGS += -I$(TOCK_USERLAND_BASE_DIR)/libtock
 CPPFLAGS_$(LIBNAME) += -Wno-error
 CPPFLAGS_$(LIBNAME) += -Wno-implicit-function-declaration
 
+# For nrf, we only support 32-bit platforms for now.
+TOCK_TARGETS_32BIT_ONLY := yes
+
 # Include the rules to build the library.
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk

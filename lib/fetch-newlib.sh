@@ -11,6 +11,8 @@ elif [[ $NEWLIB_VERSION == "4.3.0.20230120" ]]; then
   NEWLIB_SHA="2595f02f7cb2fd2e444f4ddc7955deca4c52deb3f91411c4d28326be8b0d9e0d"
 elif [[ $NEWLIB_VERSION == "4.2.0.20211231" ]]; then
   NEWLIB_SHA="5916d76f1cc3c0f5487275823c85a9a9954edfa15f5706342ecb254d634ed559"
+elif [[ $NEWLIB_VERSION == "4.6.0.20260123" ]]; then
+  NEWLIB_SHA="aed944a982783670c236e0f19622c25af6271a67d1dce1e304493ea613fafbc1"
 fi
 
 # Name of the pre-created compiled directories.

@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdio.h>
 
 #include <libtock-sync/peripherals/gpio_async.h>
@@ -6,7 +7,7 @@
 int interrupt_count = 0;
 
 static void gpio_async_cb(uint32_t port, uint32_t pin, bool value) {
-  printf("INTERRUPT port:%li pin:%li val:%i\n", port, pin, value);
+  printf("INTERRUPT port:%" PRIu32 " pin:%" PRIu32 " val:%i\n", port, pin, value);
   interrupt_count++;
 
   if (interrupt_count > 5) {

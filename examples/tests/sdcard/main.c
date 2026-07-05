@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,7 +31,7 @@ int main(void) {
     return -1;
   }
   printf("SD Card Initialized!\n");
-  printf("\tBlock size: %lu bytes\n\tSize:       %lu kB\n\n",
+  printf("\tBlock size: %" PRIu32 " bytes\n\tSize:       %" PRIu32 " kB\n\n",
          block_size, size_in_kB);
 
   // read first block of the SD card

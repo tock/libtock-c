@@ -57,7 +57,7 @@ static int test_all(void) {
 static int test(uint8_t* readbuf, size_t readsize, uint8_t* writebuf, size_t writesize, size_t offset) {
   int ret;
 
-  printf("\tTest with read size %d and write size %d ...\n", readsize, writesize);
+  printf("\tTest with read size %zu and write size %zu ...\n", readsize, writesize);
 
   for (size_t i = 0; i < writesize; i++) {
     writebuf[i] = i;
@@ -77,7 +77,7 @@ static int test(uint8_t* readbuf, size_t readsize, uint8_t* writebuf, size_t wri
 
   for (size_t i = 0; i < min(readsize, writesize); i++) {
     if (readbuf[i] != writebuf[i]) {
-      printf("\tInconsistency between data written and read at index %u\n", i);
+      printf("\tInconsistency between data written and read at index %zu\n", i);
       return -1;
     }
   }

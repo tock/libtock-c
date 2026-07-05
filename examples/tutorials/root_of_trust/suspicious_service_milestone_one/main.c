@@ -3,6 +3,7 @@
 // When selected by the main screen HWRoT Demo application, attempts to dump its
 // own SRAM, followed by the SRAM of the encryption service application.
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -84,7 +85,7 @@ static int log_to_screen(const char* message) {
 
 static void dump_memory(uint32_t* start, uint32_t* end, const char* label) {
   for (uint32_t* addr = start; addr < end; addr++) {
-    printf("[%s] %p: %08lX\n", label, addr, *addr);
+    printf("[%s] %p: %08" PRIX32 "\n", label, addr, *addr);
   }
 }
 

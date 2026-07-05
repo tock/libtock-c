@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +52,7 @@ int display_hotp_keys(hotp_key_t* hotp_key, int num_keys) {
     if (hotp_key[i].len == 0) {
       snprintf(buf, 100, "Key %i: (unused)", i);
     } else {
-      snprintf(buf, 100, "Key %i: %li", i, (uint32_t) hotp_key[i].counter);
+      snprintf(buf, 100, "Key %i: %" PRIu32, i, (uint32_t) hotp_key[i].counter);
     }
     u8g2_DrawStr(&u8g2, 0, y_pos, buf);
   }

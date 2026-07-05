@@ -8,6 +8,7 @@
  * Modified: 8/28/2017
  */
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -291,7 +292,7 @@ static void print_test_result(unit_test_t* test) {
   char reason_buf[sizeof(test->reason) + 1] = {0};
   memcpy(name_buf, test->name, sizeof(test->name));
   memcpy(reason_buf, test->reason, sizeof(test->reason));
-  printf("%d.%03lu: %-24s ", test->pid, test->current, name_buf);
+  printf("%d.%03" PRIu32 ": %-24s ", test->pid, test->current, name_buf);
   switch (test->result) {
     case Passed:
       puts("[✓]");
@@ -315,7 +316,8 @@ static void print_test_summary(unit_test_t* test) {
 
   uint32_t incomplete = total - (test->pass_count + test->fail_count);
 
-  printf("Summary %d: [%lu/%lu] Passed, [%lu/%lu] Failed, [%lu/%lu] Incomplete\n",
+  printf("Summary %d: [%" PRIu32 "/%" PRIu32 "] Passed, [%" PRIu32 "/%" PRIu32 "] Failed, [%" PRIu32 "/%" PRIu32
+         "] Incomplete\n",
          test->pid, test->pass_count, total,
          test->fail_count, total,
          incomplete, total);
@@ -357,7 +359,7 @@ static void unit_test_service_callback(int                            pid,
     return;
   }
 
-  unit_test_t* test      = (unit_test_t*)buf;
+  unit_test_t* test      = (unit_test_t*)(uintptr_t)buf;
   linked_list_t* pending = (linked_list_t*)ud;
 
   switch (test->cmd) {

@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,7 +15,7 @@ int main(void) {
   returncode_t result  = RETURNCODE_EOFF;
   uint32_t servo_count = 0;
   libtock_servo_count(&servo_count);
-  printf("The number of available servomotors is: %ld\n", servo_count);
+  printf("The number of available servomotors is: %" PRIu32 "\n", servo_count);
   uint16_t angle = 0;
   uint16_t index = 0; // the first index available.
 

@@ -91,7 +91,7 @@ int main(void) {
     return -1;
   }
 
-  printf("Found BLE ESS service (%u)\n", _svc_num);
+  printf("Found BLE ESS service (%zu)\n", _svc_num);
 
   libtocksync_alarm_delay_ms(1500);
 

@@ -357,10 +357,10 @@ allow_userspace_r_return_t allow_userspace_read(uint32_t driver,
   }
 }
 
-memop_return_t memop(uint32_t op_type, int arg1) {
-  register uint32_t r0 __asm__ ("r0") = op_type;
-  register int r1 __asm__ ("r1")      = arg1;
-  register uint32_t val __asm__ ("r1");
+memop_return_t memop(uint32_t op_type, uintptr_t arg1) {
+  register uint32_t r0 __asm__ ("r0")  = op_type;
+  register uintptr_t r1 __asm__ ("r1") = arg1;
+  register uintptr_t val __asm__ ("r1");
   register uint32_t code __asm__ ("r0");
   __asm__ volatile (
     "svc 5"
@@ -469,9 +469,9 @@ subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
   register void*    a3  __asm__ ("a3") = userdata;
   register uint32_t a4  __asm__ ("a4") = 1;
   register int rtype __asm__ ("a0");
-  register int rv1 __asm__ ("a1");
-  register int rv2 __asm__ ("a2");
-  register int rv3 __asm__ ("a3");
+  register void* rv1 __asm__ ("a1");
+  register void* rv2 __asm__ ("a2");
+  register void* rv3 __asm__ ("a3");
   __asm__ volatile (
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
@@ -516,9 +516,9 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
   register size_t a3  __asm__ ("a3")   = size;
   register uint32_t a4  __asm__ ("a4") = 3;
   register int rtype __asm__ ("a0");
-  register int rv1  __asm__ ("a1");
-  register int rv2  __asm__ ("a2");
-  register int rv3  __asm__ ("a3");
+  register uintptr_t rv1  __asm__ ("a1");
+  register uintptr_t rv2  __asm__ ("a2");
+  register uintptr_t rv3  __asm__ ("a3");
   __asm__ volatile (
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
@@ -544,9 +544,9 @@ allow_userspace_r_return_t allow_userspace_read(uint32_t driver,
   register void*    a2  __asm__ ("a2") = ptr;
   register size_t a3  __asm__ ("a3")   = size;
   register int rtype __asm__ ("a0");
-  register int rv1  __asm__ ("a1");
-  register int rv2  __asm__ ("a2");
-  register int rv3  __asm__ ("a3");
+  register uintptr_t rv1  __asm__ ("a1");
+  register uintptr_t rv2  __asm__ ("a2");
+  register uintptr_t rv3  __asm__ ("a3");
   __asm__ volatile (
     "li    a4, 7\n"
     "ecall\n"
@@ -573,9 +573,9 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
   register size_t a3  __asm__ ("a3")      = size;
   register uint32_t a4  __asm__ ("a4")    = 4;
   register int rtype __asm__ ("a0");
-  register int rv1 __asm__ ("a1");
-  register int rv2 __asm__ ("a2");
-  register int rv3 __asm__ ("a3");
+  register uintptr_t rv1 __asm__ ("a1");
+  register uintptr_t rv2 __asm__ ("a2");
+  register uintptr_t rv3 __asm__ ("a3");
   __asm__ volatile (
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
@@ -593,11 +593,11 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
   }
 }
 
-memop_return_t memop(uint32_t op_type, int arg1) {
+memop_return_t memop(uint32_t op_type, uintptr_t arg1) {
   register uint32_t a0    __asm__ ("a0") = op_type;
-  register int a1         __asm__ ("a1") = arg1;
+  register uintptr_t a1   __asm__ ("a1") = arg1;
   register uint32_t a4    __asm__ ("a4") = 5;
-  register uint32_t val   __asm__ ("a1");
+  register uintptr_t val  __asm__ ("a1");
   register uint32_t code  __asm__ ("a0");
   __asm__ volatile (
     "ecall\n"
