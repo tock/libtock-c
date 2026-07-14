@@ -21,7 +21,20 @@ int main(void) {
     "str r1, [r0]\n"
     );
   #else
+  // ARM v6m only supports ldr(literal) T1 encoding, i.e., can
+  // only load literals directly to r0-r7; use mov for easy
+  // loading of higher registers.
   __asm__ volatile (
+    "ldr r0, =0xabc04328\n"
+    "ldr r1, =0xabc04329\n"
+    "ldr r2, =0xabc0432a\n"
+    "ldr r3, =0xabc0432b\n"
+    "ldr r4, =0xabc0432c\n"
+    "movs r8, r0\n"
+    "movs r9, r1\n"
+    "movs r10, r2\n"
+    "movs r11, r3\n"
+    "movs r12, r4\n"
     "ldr r0, =0xabc04320\n"
     "ldr r1, =0xabc04321\n"
     "ldr r2, =0xabc04322\n"
