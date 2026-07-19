@@ -20,7 +20,7 @@ returncode_t libtock_ipc_registry_string_name_set_upcall_new_registration(subscr
   return tock_subscribe_return_to_returncode(sval);
 }
 
-returncode_t libtock_ipc_registry_string_name_set_allow_name(void* data, int len) {
+returncode_t libtock_ipc_registry_string_name_set_allow_name(void* data, size_t len) {
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_IPC_REGISTRY_STRING_NAME, 0, data, len);
   return tock_allow_ro_return_to_returncode(aval);
 }

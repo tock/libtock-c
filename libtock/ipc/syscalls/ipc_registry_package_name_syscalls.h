@@ -22,7 +22,7 @@ returncode_t libtock_ipc_registry_package_name_set_upcall_discovery_complete(sub
 returncode_t libtock_ipc_registry_package_name_set_upcall_new_registration(subscribe_upcall callback, void* opaque);
 
 // Allow a buffer containing a name for discovery.
-returncode_t libtock_ipc_registry_package_name_set_allow_name(void* data, int len);
+returncode_t libtock_ipc_registry_package_name_set_allow_name(void* data, size_t len);
 
 // Register service.
 returncode_t libtock_ipc_registry_package_name_command_register(void);
