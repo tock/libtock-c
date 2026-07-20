@@ -30,14 +30,6 @@ returncode_t libtock_sha_simple_hash(libtock_sha_algorithm_t hash_type,
                                      uint8_t* hash_buffer, uint32_t hash_length,
                                      libtock_sha_callback_hash cb);
 
-// Compute a SHA hash over `input_buffer` and compare it to the hash in `compare_buffer`.
-//
-// The callback will be called when the verification is finished.
-returncode_t libtock_sha_simple_verify(libtock_sha_algorithm_t hash_type,
-                                       uint8_t* input_buffer, uint32_t input_length,
-                                       uint8_t* compare_buffer, uint32_t hash_length,
-                                       libtock_sha_callback_verify cb);
-
 #ifdef __cplusplus
 }
 #endif

@@ -12,19 +12,13 @@ bool libtock_sha_driver_exists(void);
 
 returncode_t libtock_sha_set_hash_upcall(subscribe_upcall callback, void* opaque);
 
-returncode_t libtock_sha_set_verify_upcall(subscribe_upcall callback, void* opaque);
-
 returncode_t libtock_sha_set_readonly_allow_data_buffer(uint8_t* buffer, uint32_t len);
 
 returncode_t libtock_sha_set_readwrite_allow_destination_buffer(uint8_t* buffer, uint32_t len);
 
-returncode_t libtock_sha_set_readonly_allow_compare_buffer(uint8_t* buffer, uint32_t len);
-
 returncode_t libtock_sha_command_set_algorithm(uint8_t hash);
 
 returncode_t libtock_sha_command_hash(void);
-
-returncode_t libtock_sha_command_verify(void);
 
 #ifdef __cplusplus
 }
