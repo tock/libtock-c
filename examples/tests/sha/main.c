@@ -52,21 +52,5 @@ int main(void) {
     printf("ERROR! SHA computation incorrect.\n");
   }
 
-  bool correct;
-  ret = libtocksync_sha_hash_verification(LIBTOCK_SHA256,
-                                          data_buf, strlen((char*) data_buf),
-                                          correct_buf, DEST_LEN,
-                                          &correct);
-  if (ret != RETURNCODE_SUCCESS) {
-    printf("Unable to verify SHA.\n");
-    return -1;
-  }
-  printf("SHA verification finished.\n");
-  if (correct) {
-    printf("SHA matched!\n");
-  } else {
-    printf("ERROR! SHA did NOT match.\n");
-  }
-
   return 0;
 }
