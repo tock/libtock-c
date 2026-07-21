@@ -1,21 +1,19 @@
 #include "sha_syscalls.h"
 
-#define TOCK_SHA_CB       0
+#define TOCK_SHA_HASH_CB   0
 
-#define TOCK_SHA_DATA_BUF     1
-#define TOCK_SHA_DEST_BUF     2
+#define TOCK_SHA_DATA_BUF     0
+#define TOCK_SHA_DEST_BUF     0
 
-#define TOCK_SHA_SET_ALGORITHM   0
-#define TOCK_SHA_RUN             1
-#define TOCK_SHA_UPDATE          2
-#define TOCK_SHA_FINISH          3
+#define TOCK_SHA_SET_ALGORITHM   1
+#define TOCK_SHA_HASH            2
 
 bool libtock_sha_driver_exists(void) {
   return driver_exists(DRIVER_NUM_SHA);
 }
 
-returncode_t libtock_sha_set_upcall(subscribe_upcall callback, void* opaque) {
-  subscribe_return_t sval = subscribe(DRIVER_NUM_SHA, TOCK_SHA_CB, callback, opaque);
+returncode_t libtock_sha_set_hash_upcall(subscribe_upcall callback, void* opaque) {
+  subscribe_return_t sval = subscribe(DRIVER_NUM_SHA, TOCK_SHA_HASH_CB, callback, opaque);
   return tock_subscribe_return_to_returncode(sval);
 }
 
@@ -34,17 +32,7 @@ returncode_t libtock_sha_command_set_algorithm(uint8_t hash) {
   return tock_command_return_novalue_to_returncode(cval);
 }
 
-returncode_t libtock_sha_command_run(void) {
-  syscall_return_t cval = command(DRIVER_NUM_SHA, TOCK_SHA_RUN, 0, 0);
-  return tock_command_return_novalue_to_returncode(cval);
-}
-
-returncode_t libtock_sha_command_update(void) {
-  syscall_return_t cval = command(DRIVER_NUM_SHA, TOCK_SHA_UPDATE, 0, 0);
-  return tock_command_return_novalue_to_returncode(cval);
-}
-
-returncode_t libtock_sha_command_finish(void) {
-  syscall_return_t cval = command(DRIVER_NUM_SHA, TOCK_SHA_FINISH, 0, 0);
+returncode_t libtock_sha_command_hash(void) {
+  syscall_return_t cval = command(DRIVER_NUM_SHA, TOCK_SHA_HASH, 0, 0);
   return tock_command_return_novalue_to_returncode(cval);
 }

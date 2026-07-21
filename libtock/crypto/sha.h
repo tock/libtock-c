@@ -13,6 +13,12 @@ extern "C" {
 // - `arg1` (`returncode_t`): Status from computing the hash.
 typedef void (*libtock_sha_callback_hash)(returncode_t);
 
+// Function signature for SHA verify callback.
+//
+// - `arg1` (`returncode_t`): Status from verifying the hash.
+// - `arg1` (`bool`): Whether the hash matched.
+typedef void (*libtock_sha_callback_verify)(returncode_t, bool);
+
 
 bool libtock_sha_exists(void);
 

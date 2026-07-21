@@ -27,11 +27,11 @@ returncode_t libtocksync_sha_simple_hash(libtock_sha_algorithm_t hash_type,
   defer { libtock_sha_set_readwrite_allow_destination_buffer(NULL, 0);
   }
 
-  ret = libtock_sha_command_run();
+  ret = libtock_sha_command_hash();
   if (ret != RETURNCODE_SUCCESS) return ret;
 
   // Wait for the operation.
-  ret = libtocksync_sha_yield_wait_for();
+  ret = libtocksync_sha_yield_wait_for_hash();
 
   return ret;
 }
