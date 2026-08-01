@@ -18,7 +18,7 @@ returncode_t libtocksync_rtc_yield_wait_for_get(libtock_rtc_date_t* date) {
   yield_waitfor_return_t ywf;
   returncode_t ret;
   ywf = yield_wait_for(DRIVER_NUM_RTC, 0);
-  ret = (returncode_t) ywf.data0;
+  ret = tock_status_to_returncode(ywf.data0);
   if (ret != RETURNCODE_SUCCESS) return ret;
   rtc_decode((uint32_t) ywf.data1, (uint32_t) ywf.data2, date);
   return ret;
@@ -27,5 +27,5 @@ returncode_t libtocksync_rtc_yield_wait_for_get(libtock_rtc_date_t* date) {
 returncode_t libtocksync_rtc_yield_wait_for_set(void) {
   yield_waitfor_return_t ywf;
   ywf = yield_wait_for(DRIVER_NUM_RTC, 0);
-  return (returncode_t) ywf.data0;
+  return tock_status_to_returncode(ywf.data0);
 }

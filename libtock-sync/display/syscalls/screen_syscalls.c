@@ -5,7 +5,7 @@ returncode_t libtocksync_screen_yield_wait_for(void) {
   ret = yield_wait_for(DRIVER_NUM_SCREEN, 0);
 
   int status = tock_status_to_returncode((statuscode_t) ret.data0);
-  return (returncode_t) status;
+  return tock_status_to_returncode(status);
 }
 
 returncode_t libtocksync_screen_yield_wait_for_format(libtock_screen_format_t* format) {
@@ -15,7 +15,7 @@ returncode_t libtocksync_screen_yield_wait_for_format(libtock_screen_format_t* f
   *format = (libtock_screen_format_t) ret.data1;
 
   int status = tock_status_to_returncode((statuscode_t) ret.data0);
-  return (returncode_t) status;
+  return tock_status_to_returncode(status);
 }
 
 returncode_t libtocksync_screen_yield_wait_for_rotation(libtock_screen_rotation_t* rotation) {
@@ -25,5 +25,5 @@ returncode_t libtocksync_screen_yield_wait_for_rotation(libtock_screen_rotation_
   *rotation = (libtock_screen_rotation_t) ret.data1;
 
   int status = tock_status_to_returncode((statuscode_t) ret.data0);
-  return (returncode_t) status;
+  return tock_status_to_returncode(status);
 }

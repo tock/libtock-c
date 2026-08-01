@@ -3,7 +3,7 @@
 returncode_t libtocksync_udp_yield_wait_for_send(void) {
   yield_waitfor_return_t ywf;
   ywf = yield_wait_for(DRIVER_NUM_UDP, SUBSCRIBE_TX);
-  return (returncode_t) ywf.data0;
+  return tock_status_to_returncode(ywf.data0);
 }
 
 returncode_t libtocksync_udp_yield_wait_for_recv(size_t* length) {

@@ -6,7 +6,7 @@ returncode_t libtocksync_console_yield_wait_for_write(uint32_t* bytes_written) {
 
   *bytes_written = ret.data1;
 
-  return (returncode_t) ret.data0;
+  return tock_status_to_returncode(ret.data0);
 }
 
 returncode_t libtocksync_console_yield_wait_for_read(uint32_t* bytes_read) {
@@ -15,5 +15,5 @@ returncode_t libtocksync_console_yield_wait_for_read(uint32_t* bytes_read) {
 
   *bytes_read = ret.data1;
 
-  return (returncode_t) ret.data0;
+  return tock_status_to_returncode(ret.data0);
 }
