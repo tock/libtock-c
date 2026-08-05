@@ -78,7 +78,7 @@ typedef enum {
 // Generic return structure from a system call.
 typedef struct {
   syscall_rtype_t type;
-  uint32_t data[3];
+  uintptr_t data[3];
 } syscall_return_t;
 
 // Return structure from a subscribe syscall. The `subscribe()` implementation
