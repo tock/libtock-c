@@ -37,12 +37,18 @@ returncode_t tock_command_return_u32_to_returncode(syscall_return_t command_retu
 }
 
 returncode_t tock_command_return_u64_to_returncode(syscall_return_t command_return, uint64_t* val) {
-  uint32_t lsb;
-  uint32_t msb;
   if (command_return.type == TOCK_SYSCALL_SUCCESS_U64) {
+#if defined(__riscv) && __riscv_xlen == 64
+    // TRD-RISCV64BIT
+    *val = command_return.data[0];
+#else
+    // TRD104
+    uint32_t lsb;
+    uint32_t msb;
     lsb  = command_return.data[0];
     msb  = command_return.data[1];
     *val = ((uint64_t)msb << 32) | lsb;
+#endif
     return RETURNCODE_SUCCESS;
   } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
     return tock_status_to_returncode(command_return.data[0]);
@@ -478,6 +484,7 @@ subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
     : "r" (a0), "r" (a1), "r" (a2), "r" (a3), "r" (a4)
     : "memory");
+#if __riscv_xlen == 32
   if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
     subscribe_return_t rval = {true, (subscribe_upcall*)rv1, (void*)rv2, 0};
     return rval;
@@ -487,6 +494,17 @@ subscribe_return_t subscribe(uint32_t driver, uint32_t subscribe,
   } else {
     exit(1);
   }
+#elif __riscv_xlen == 64
+  if (rtype == TOCK_SYSCALL_SUCCESS_FNPTR_OPAQUE) {
+    subscribe_return_t rval = {true, (subscribe_upcall*)rv1, (void*)rv2, 0};
+    return rval;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_FNPTR_OPAQUE) {
+    subscribe_return_t rval = {false, (subscribe_upcall*)rv2, (void*)rv3, (statuscode_t)rv1};
+    return rval;
+  } else {
+    exit(1);
+  }
+#endif
 }
 
 syscall_return_t command(uint32_t driver, uint32_t command,
@@ -525,6 +543,7 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
     : "r" (a0), "r" (a1), "r" (a2), "r" (a3), "r" (a4)
     : "memory");
+#if __riscv_xlen == 32
   if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
     allow_rw_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
     return rv;
@@ -535,6 +554,18 @@ allow_rw_return_t allow_readwrite(uint32_t driver, uint32_t allow,
     // Invalid return type
     exit(1);
   }
+#elif __riscv_xlen == 64
+  if (rtype == TOCK_SYSCALL_SUCCESS_PTR_LEN) {
+    allow_rw_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
+    return rv;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_PTR_LEN) {
+    allow_rw_return_t rv = {false, (void*)rv2, (size_t)rv3, (statuscode_t)rv1};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(1);
+  }
+#endif
 }
 
 allow_userspace_r_return_t allow_userspace_read(uint32_t driver,
@@ -554,6 +585,7 @@ allow_userspace_r_return_t allow_userspace_read(uint32_t driver,
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
     : "r" (a0), "r" (a1), "r" (a2), "r" (a3)
     : "memory");
+#if __riscv_xlen == 32
   if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
     allow_userspace_r_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
     return rv;
@@ -564,6 +596,18 @@ allow_userspace_r_return_t allow_userspace_read(uint32_t driver,
     // Invalid return type
     exit(-1);
   }
+#elif __riscv_xlen == 64
+  if (rtype == TOCK_SYSCALL_SUCCESS_PTR_LEN) {
+    allow_userspace_r_return_t rv = {true, (void*)rv1, (size_t)rv2, 0};
+    return rv;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_PTR_LEN) {
+    allow_userspace_r_return_t rv = {false, (void*)rv2, (size_t)rv3, (statuscode_t)rv1};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(-1);
+  }
+#endif
 }
 
 allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
@@ -582,6 +626,7 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
     : "r" (a0), "r" (a1), "r" (a2), "r" (a3), "r" (a4)
     : "memory");
+#if __riscv_xlen == 32
   if (rtype == TOCK_SYSCALL_SUCCESS_U32_U32) {
     allow_ro_return_t rv = {true, (const void*)rv1, (size_t)rv2, 0};
     return rv;
@@ -592,6 +637,18 @@ allow_ro_return_t allow_readonly(uint32_t driver, uint32_t allow,
     // Invalid return type
     exit(1);
   }
+#elif __riscv_xlen == 64
+  if (rtype == TOCK_SYSCALL_SUCCESS_PTR_LEN) {
+    allow_ro_return_t rv = {true, (const void*)rv1, (size_t)rv2, 0};
+    return rv;
+  } else if (rtype == TOCK_SYSCALL_FAILURE_PTR_LEN) {
+    allow_ro_return_t rv = {false, (const void*)rv2, (size_t)rv3, (statuscode_t)rv1};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(1);
+  }
+#endif
 }
 
 memop_return_t memop(uint32_t op_type, uintptr_t arg1) {
@@ -606,6 +663,7 @@ memop_return_t memop(uint32_t op_type, uintptr_t arg1) {
     : "r" (a0), "r" (a1), "r" (a4)
     : "memory"
     );
+#if __riscv_xlen == 32
   if (code == TOCK_SYSCALL_SUCCESS) {
     memop_return_t rv = {TOCK_STATUSCODE_SUCCESS, 0};
     return rv;
@@ -619,6 +677,27 @@ memop_return_t memop(uint32_t op_type, uintptr_t arg1) {
     // Invalid return type
     exit(1);
   }
+#elif __riscv_xlen == 64
+  if (code == TOCK_SYSCALL_SUCCESS) {
+    memop_return_t rv = {TOCK_STATUSCODE_SUCCESS, 0};
+    return rv;
+  } else if (code == TOCK_SYSCALL_SUCCESS_U32) {
+    memop_return_t rv = {TOCK_STATUSCODE_SUCCESS, val};
+    return rv;
+  } else if (code == TOCK_SYSCALL_SUCCESS_PTR) {
+    memop_return_t rv = {TOCK_STATUSCODE_SUCCESS, val};
+    return rv;
+  } else if (code == TOCK_SYSCALL_SUCCESS_ADDR) {
+    memop_return_t rv = {TOCK_STATUSCODE_SUCCESS, val};
+    return rv;
+  } else if (code == TOCK_SYSCALL_FAILURE) {
+    memop_return_t rv = {(statuscode_t) val, 0};
+    return rv;
+  } else {
+    // Invalid return type
+    exit(1);
+  }
+#endif
 }
 
 #endif

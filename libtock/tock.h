@@ -22,16 +22,22 @@ typedef void (subscribe_upcall)(int, int, int, void*);
 // There are multiple failure and success versions based on how many and the
 // size of any included values.
 typedef enum {
-  TOCK_SYSCALL_FAILURE             =   0,
-  TOCK_SYSCALL_FAILURE_U32         =   1,
-  TOCK_SYSCALL_FAILURE_U32_U32     =   2,
-  TOCK_SYSCALL_FAILURE_U64         =   3,
-  TOCK_SYSCALL_SUCCESS             = 128,
-  TOCK_SYSCALL_SUCCESS_U32         = 129,
-  TOCK_SYSCALL_SUCCESS_U32_U32     = 130,
-  TOCK_SYSCALL_SUCCESS_U64         = 131,
-  TOCK_SYSCALL_SUCCESS_U32_U32_U32 = 132,
-  TOCK_SYSCALL_SUCCESS_U32_U64     = 133
+  TOCK_SYSCALL_FAILURE              =   0,
+  TOCK_SYSCALL_FAILURE_U32          =   1,
+  TOCK_SYSCALL_FAILURE_U32_U32      =   2,
+  TOCK_SYSCALL_FAILURE_U64          =   3,
+  TOCK_SYSCALL_FAILURE_FNPTR_OPAQUE =   4,
+  TOCK_SYSCALL_FAILURE_PTR_LEN      =   5,
+  TOCK_SYSCALL_SUCCESS              = 128,
+  TOCK_SYSCALL_SUCCESS_U32          = 129,
+  TOCK_SYSCALL_SUCCESS_U32_U32      = 130,
+  TOCK_SYSCALL_SUCCESS_U64          = 131,
+  TOCK_SYSCALL_SUCCESS_U32_U32_U32  = 132,
+  TOCK_SYSCALL_SUCCESS_U32_U64      = 133,
+  TOCK_SYSCALL_SUCCESS_FNPTR_OPAQUE = 134,
+  TOCK_SYSCALL_SUCCESS_PTR_LEN      = 135,
+  TOCK_SYSCALL_SUCCESS_PTR          = 136,
+  TOCK_SYSCALL_SUCCESS_ADDR         = 137,
 } syscall_rtype_t;
 
 // ReturnCode type in libtock-c.
