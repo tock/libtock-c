@@ -11,7 +11,7 @@ returncode_t tock_status_to_returncode(statuscode_t status) {
   return -1 * status;
 }
 
-int tock_command_return_novalue_to_returncode(syscall_return_t command_return) {
+returncode_t tock_command_return_novalue_to_returncode(syscall_return_t command_return) {
   if (command_return.type == TOCK_SYSCALL_SUCCESS) {
     return RETURNCODE_SUCCESS;
   } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
@@ -23,7 +23,7 @@ int tock_command_return_novalue_to_returncode(syscall_return_t command_return) {
   }
 }
 
-int tock_command_return_u32_to_returncode(syscall_return_t command_return, uint32_t* val) {
+returncode_t tock_command_return_u32_to_returncode(syscall_return_t command_return, uint32_t* val) {
   if (command_return.type == TOCK_SYSCALL_SUCCESS_U32) {
     *val = command_return.data[0];
     return RETURNCODE_SUCCESS;
@@ -36,7 +36,7 @@ int tock_command_return_u32_to_returncode(syscall_return_t command_return, uint3
   }
 }
 
-int tock_command_return_u64_to_returncode(syscall_return_t command_return, uint64_t* val) {
+returncode_t tock_command_return_u64_to_returncode(syscall_return_t command_return, uint64_t* val) {
   uint32_t lsb;
   uint32_t msb;
   if (command_return.type == TOCK_SYSCALL_SUCCESS_U64) {
@@ -53,7 +53,8 @@ int tock_command_return_u64_to_returncode(syscall_return_t command_return, uint6
   }
 }
 
-int tock_command_return_u32_u32_to_returncode(syscall_return_t command_return, uint32_t* val1, uint32_t* val2) {
+returncode_t tock_command_return_u32_u32_to_returncode(syscall_return_t command_return, uint32_t* val1,
+                                                       uint32_t* val2) {
   if (command_return.type == TOCK_SYSCALL_SUCCESS_U32_U32) {
     *val1 = command_return.data[0];
     *val2 = command_return.data[1];
@@ -67,7 +68,7 @@ int tock_command_return_u32_u32_to_returncode(syscall_return_t command_return, u
   }
 }
 
-int tock_subscribe_return_to_returncode(subscribe_return_t subscribe_return) {
+returncode_t tock_subscribe_return_to_returncode(subscribe_return_t subscribe_return) {
   // If the subscribe was successful, easily return SUCCESS.
   if (subscribe_return.success) {
     return RETURNCODE_SUCCESS;
@@ -77,7 +78,7 @@ int tock_subscribe_return_to_returncode(subscribe_return_t subscribe_return) {
   }
 }
 
-int tock_allow_rw_return_to_returncode(allow_rw_return_t allow_return) {
+returncode_t tock_allow_rw_return_to_returncode(allow_rw_return_t allow_return) {
   // If the allow was successful, easily return SUCCESS.
   if (allow_return.success) {
     return RETURNCODE_SUCCESS;
@@ -87,7 +88,7 @@ int tock_allow_rw_return_to_returncode(allow_rw_return_t allow_return) {
   }
 }
 
-int tock_allow_ro_return_to_returncode(allow_ro_return_t allow_return) {
+returncode_t tock_allow_ro_return_to_returncode(allow_ro_return_t allow_return) {
   // If the allow was successful, easily return SUCCESS.
   if (allow_return.success) {
     return RETURNCODE_SUCCESS;
@@ -97,7 +98,7 @@ int tock_allow_ro_return_to_returncode(allow_ro_return_t allow_return) {
   }
 }
 
-int tock_allow_userspace_r_return_to_returncode(allow_userspace_r_return_t allow_return) {
+returncode_t tock_allow_userspace_r_return_to_returncode(allow_userspace_r_return_t allow_return) {
   // If the allow was successful, easily return SUCCESS.
   if (allow_return.success) {
     return RETURNCODE_SUCCESS;

@@ -155,36 +155,36 @@ returncode_t tock_status_to_returncode(statuscode_t);
 // This expects no values to be returned (i.e. the only success case is
 // `TOCK_SYSCALL_SUCCESS`). Do not use with other expected SyscallReturn
 // variants.
-int tock_command_return_novalue_to_returncode(syscall_return_t);
+returncode_t tock_command_return_novalue_to_returncode(syscall_return_t);
 
 // Convert a `syscall_return_t` with one u32 to a `returncode_t`.
 //
 // This expects exactly one u32 to be returned (i.e. the only success case is
 // `TOCK_SYSCALL_SUCCESS_U32`). Do not use with other expected SyscallReturn
 // variants.
-int tock_command_return_u32_to_returncode(syscall_return_t, uint32_t*);
+returncode_t tock_command_return_u32_to_returncode(syscall_return_t, uint32_t*);
 
 // Convert a `syscall_return_t` with two `u32` values to a `returncode_t`.
 //
 // This expects exactly two `u32`s to be returned (i.e. the only success case is
 // `TOCK_SYSCALL_SUCCESS_U32_U32`). Do not use with other expected SyscallReturn
 // variants.
-int tock_command_return_u32_u32_to_returncode(syscall_return_t, uint32_t*, uint32_t*);
+returncode_t tock_command_return_u32_u32_to_returncode(syscall_return_t, uint32_t*, uint32_t*);
 
 // Convert a `syscall_return_t` with a `u64` value to a `returncode_t`.
-int tock_command_return_u64_to_returncode(syscall_return_t command_return, uint64_t* val);
+returncode_t tock_command_return_u64_to_returncode(syscall_return_t command_return, uint64_t* val);
 
 // Convert a `subscribe_return_t` to a `returncode_t`.
-int tock_subscribe_return_to_returncode(subscribe_return_t);
+returncode_t tock_subscribe_return_to_returncode(subscribe_return_t);
 
 // Convert a `allow_rw_return_t` to a `returncode_t`.
-int tock_allow_rw_return_to_returncode(allow_rw_return_t);
+returncode_t tock_allow_rw_return_to_returncode(allow_rw_return_t);
 
 // Convert a `allow_ro_return_t` to a `returncode_t`.
-int tock_allow_ro_return_to_returncode(allow_ro_return_t);
+returncode_t tock_allow_ro_return_to_returncode(allow_ro_return_t);
 
 // Convert a `allow_userspace_r_return_t` to a `returncode_t`.
-int tock_allow_userspace_r_return_to_returncode(allow_userspace_r_return_t);
+returncode_t tock_allow_userspace_r_return_to_returncode(allow_userspace_r_return_t);
 
 void yield(void);
 void yield_for(bool*);
