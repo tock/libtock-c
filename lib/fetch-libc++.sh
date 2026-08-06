@@ -36,6 +36,16 @@ function check_sha256() {
   fi
 }
 
+function compute_sha256() {
+  if test -x /usr/bin/shasum; then
+    echo "$1" | shasum -a 256
+    return $?
+  else
+    sha256sum <(echo "$1")
+    return $?
+  fi
+}
+
 FOUND=0
 
 function fetch_and_unpack() {
@@ -50,7 +60,7 @@ function fetch_and_unpack() {
       if test -f $ZIP_FILE; then
         file $ZIP_FILE
         ls -l $ZIP_FILE
-        shasum -a 256 $ZIP_FILE
+        compute_sha256 $ZIP_FILE
       fi
       echo "  WARNING: Fetching libc++ from mirror $MIRROR failed!" >&2
     else
