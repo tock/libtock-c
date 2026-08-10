@@ -29,26 +29,11 @@ returncode_t libtock_ipc_relay_request_command_server_disable_requests(void) {
 returncode_t libtock_ipc_relay_request_command_server_get_next_request(uint32_t* len, uint64_t* ipc_id) {
   syscall_return_t cval = command(DRIVER_NUM_IPC_RELAY_REQUEST, 0x22, 0, 0);
 
-  // We have different success and failure variants so we implement this ourselves
-  // Success with u32 and u64
-  // Failure with u64
-  if (cval.type == TOCK_SYSCALL_SUCCESS_U32_U64) {
-    *len = cval.data[0];
-    uint32_t lsb = cval.data[1];
-    uint32_t msb = cval.data[2];
-    *ipc_id = (((uint64_t)msb) << 32) | ((uint64_t)lsb);
-    return RETURNCODE_SUCCESS;
-  } else if (cval.type == TOCK_SYSCALL_FAILURE_U64) {
-    // In this error case, len is either max or irrelevant depending on the returncode
-    uint32_t lsb = cval.data[1];
-    uint32_t msb = cval.data[2];
-    *ipc_id = (((uint64_t)msb) << 32) | ((uint64_t)lsb);
-    return tock_status_to_returncode(cval.data[0]);
-  } else {
-    // The remaining SyscallReturn variants must never happen if using this
-    // function. We return `EBADRVAL` to signal an unexpected return variant.
-    return RETURNCODE_EBADRVAL;
-  }
+  // We have two options here:
+  // * success returns length and ipc_id
+  // * failure returns just ipc_id, with length either max or irrelevant
+  //   depending on the returncode, which should be handled by higher layers
+  return tock_command_return_u32_u64_or_u64_to_returncode(cval, len, ipc_id);
 }
 
 returncode_t libtock_ipc_relay_request_command_server_get_next_request_from(uint32_t* len, uint64_t* ipc_id) {
@@ -56,26 +41,11 @@ returncode_t libtock_ipc_relay_request_command_server_get_next_request_from(uint
   uint32_t upper        = (uint32_t)((*ipc_id) >> 32);
   syscall_return_t cval = command(DRIVER_NUM_IPC_RELAY_REQUEST, 0x23, lower, upper);
 
-  // We have different success and failure variants
-  // Success with u32 and u64
-  // Failure with u64
-  if (cval.type == TOCK_SYSCALL_SUCCESS_U32_U64) {
-    *len = cval.data[0];
-    uint32_t lsb = cval.data[1];
-    uint32_t msb = cval.data[2];
-    *ipc_id = (((uint64_t)msb) << 32) | ((uint64_t)lsb);
-    return RETURNCODE_SUCCESS;
-  } else if (cval.type == TOCK_SYSCALL_FAILURE_U64) {
-    // In this error case, len is either max or irrelevant depending on the returncode
-    uint32_t lsb = cval.data[1];
-    uint32_t msb = cval.data[2];
-    *ipc_id = (((uint64_t)msb) << 32) | ((uint64_t)lsb);
-    return tock_status_to_returncode(cval.data[0]);
-  } else {
-    // The remaining SyscallReturn variants must never happen if using this
-    // function. We return `EBADRVAL` to signal an unexpected return variant.
-    return RETURNCODE_EBADRVAL;
-  }
+  // We have two options here:
+  // * success returns length and ipc_id
+  // * failure returns just ipc_id, with length either max or irrelevant
+  //   depending on the returncode, which should be handled by higher layers
+  return tock_command_return_u32_u64_or_u64_to_returncode(cval, len, ipc_id);
 }
 
 returncode_t libtock_ipc_relay_request_command_server_send_response(void) {
