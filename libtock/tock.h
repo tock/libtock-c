@@ -22,16 +22,22 @@ typedef void (subscribe_upcall)(int, int, int, void*);
 // There are multiple failure and success versions based on how many and the
 // size of any included values.
 typedef enum {
-  TOCK_SYSCALL_FAILURE             =   0,
-  TOCK_SYSCALL_FAILURE_U32         =   1,
-  TOCK_SYSCALL_FAILURE_U32_U32     =   2,
-  TOCK_SYSCALL_FAILURE_U64         =   3,
-  TOCK_SYSCALL_SUCCESS             = 128,
-  TOCK_SYSCALL_SUCCESS_U32         = 129,
-  TOCK_SYSCALL_SUCCESS_U32_U32     = 130,
-  TOCK_SYSCALL_SUCCESS_U64         = 131,
-  TOCK_SYSCALL_SUCCESS_U32_U32_U32 = 132,
-  TOCK_SYSCALL_SUCCESS_U32_U64     = 133
+  TOCK_SYSCALL_FAILURE              =   0,
+  TOCK_SYSCALL_FAILURE_U32          =   1,
+  TOCK_SYSCALL_FAILURE_U32_U32      =   2,
+  TOCK_SYSCALL_FAILURE_U64          =   3,
+  TOCK_SYSCALL_FAILURE_FNPTR_OPAQUE =   4,
+  TOCK_SYSCALL_FAILURE_PTR_LEN      =   5,
+  TOCK_SYSCALL_SUCCESS              = 128,
+  TOCK_SYSCALL_SUCCESS_U32          = 129,
+  TOCK_SYSCALL_SUCCESS_U32_U32      = 130,
+  TOCK_SYSCALL_SUCCESS_U64          = 131,
+  TOCK_SYSCALL_SUCCESS_U32_U32_U32  = 132,
+  TOCK_SYSCALL_SUCCESS_U32_U64      = 133,
+  TOCK_SYSCALL_SUCCESS_FNPTR_OPAQUE = 134,
+  TOCK_SYSCALL_SUCCESS_PTR_LEN      = 135,
+  TOCK_SYSCALL_SUCCESS_PTR          = 136,
+  TOCK_SYSCALL_SUCCESS_ADDR         = 137,
 } syscall_rtype_t;
 
 // ReturnCode type in libtock-c.
@@ -78,7 +84,7 @@ typedef enum {
 // Generic return structure from a system call.
 typedef struct {
   syscall_rtype_t type;
-  uint32_t data[3];
+  uintptr_t data[3];
 } syscall_return_t;
 
 // Return structure from a subscribe syscall. The `subscribe()` implementation
@@ -155,36 +161,36 @@ returncode_t tock_status_to_returncode(statuscode_t);
 // This expects no values to be returned (i.e. the only success case is
 // `TOCK_SYSCALL_SUCCESS`). Do not use with other expected SyscallReturn
 // variants.
-int tock_command_return_novalue_to_returncode(syscall_return_t);
+returncode_t tock_command_return_novalue_to_returncode(syscall_return_t);
 
 // Convert a `syscall_return_t` with one u32 to a `returncode_t`.
 //
 // This expects exactly one u32 to be returned (i.e. the only success case is
 // `TOCK_SYSCALL_SUCCESS_U32`). Do not use with other expected SyscallReturn
 // variants.
-int tock_command_return_u32_to_returncode(syscall_return_t, uint32_t*);
+returncode_t tock_command_return_u32_to_returncode(syscall_return_t, uint32_t*);
 
 // Convert a `syscall_return_t` with two `u32` values to a `returncode_t`.
 //
 // This expects exactly two `u32`s to be returned (i.e. the only success case is
 // `TOCK_SYSCALL_SUCCESS_U32_U32`). Do not use with other expected SyscallReturn
 // variants.
-int tock_command_return_u32_u32_to_returncode(syscall_return_t, uint32_t*, uint32_t*);
+returncode_t tock_command_return_u32_u32_to_returncode(syscall_return_t, uint32_t*, uint32_t*);
 
 // Convert a `syscall_return_t` with a `u64` value to a `returncode_t`.
-int tock_command_return_u64_to_returncode(syscall_return_t command_return, uint64_t* val);
+returncode_t tock_command_return_u64_to_returncode(syscall_return_t command_return, uint64_t* val);
 
 // Convert a `subscribe_return_t` to a `returncode_t`.
-int tock_subscribe_return_to_returncode(subscribe_return_t);
+returncode_t tock_subscribe_return_to_returncode(subscribe_return_t);
 
 // Convert a `allow_rw_return_t` to a `returncode_t`.
-int tock_allow_rw_return_to_returncode(allow_rw_return_t);
+returncode_t tock_allow_rw_return_to_returncode(allow_rw_return_t);
 
 // Convert a `allow_ro_return_t` to a `returncode_t`.
-int tock_allow_ro_return_to_returncode(allow_ro_return_t);
+returncode_t tock_allow_ro_return_to_returncode(allow_ro_return_t);
 
 // Convert a `allow_userspace_r_return_t` to a `returncode_t`.
-int tock_allow_userspace_r_return_to_returncode(allow_userspace_r_return_t);
+returncode_t tock_allow_userspace_r_return_to_returncode(allow_userspace_r_return_t);
 
 void yield(void);
 void yield_for(bool*);

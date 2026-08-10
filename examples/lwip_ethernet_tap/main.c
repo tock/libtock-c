@@ -175,7 +175,7 @@ static err_t tapif_output(struct netif* tapif,
 
   syscall_return_t ret = command(tap_driver_num, 3, p->tot_len, 0);
   if (ret.type != TOCK_SYSCALL_SUCCESS) {
-    printf("-> packet tx failed: %ld\r\n", ret.data[0]);
+    printf("-> packet tx failed: %lu\r\n", (unsigned long) ret.data[0]);
 
     // Synchronous error, transmission was aborted, we can transmit another
     // frame immediately:
