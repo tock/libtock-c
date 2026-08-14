@@ -591,9 +591,9 @@ syscall_return_t command(uint32_t driver, uint32_t command,
   register uint32_t a3  __asm__ ("a3") = arg2;
   register uint32_t a4  __asm__ ("a4") = 2;
   register int rtype __asm__ ("a0");
-  register int rv1 __asm__ ("a1");
-  register int rv2 __asm__ ("a2");
-  register int rv3 __asm__ ("a3");
+  register uintptr_t rv1 __asm__ ("a1");
+  register uintptr_t rv2 __asm__ ("a2");
+  register uintptr_t rv3 __asm__ ("a3");
   __asm__ volatile (
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
