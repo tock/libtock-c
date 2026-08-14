@@ -92,7 +92,17 @@ returncode_t tock_command_return_u32_u64_to_returncode(syscall_return_t command_
                                                        uint32_t* val1, uint64_t* val2) {
   if (command_return.type == TOCK_SYSCALL_SUCCESS_U32_U64) {
     *val1 = command_return.data[0];
-    *val2 = (uint64_t)command_return.data[1] | ((uint64_t)command_return.data[2] << 32);
+#if defined(__riscv) && __riscv_xlen == 64
+    // TRD-RISCV64BIT
+    *val2 = command_return.data[1];
+#else
+    // TRD104
+    uint32_t lsb;
+    uint32_t msb;
+    lsb   = command_return.data[1];
+    msb   = command_return.data[2];
+    *val2 = ((uint64_t)msb << 32) | lsb;
+#endif
     return RETURNCODE_SUCCESS;
   } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
     return tock_status_to_returncode(command_return.data[0]);
@@ -123,7 +133,17 @@ returncode_t tock_command_return_failure_u32_u32_to_returncode(syscall_return_t 
 
 returncode_t tock_command_return_failure_u64_to_returncode(syscall_return_t command_return, uint64_t* val) {
   if (command_return.type == TOCK_SYSCALL_FAILURE_U64) {
-    *val = (uint64_t)command_return.data[1] | ((uint64_t)command_return.data[2] << 32);
+#if defined(__riscv) && __riscv_xlen == 64
+    // TRD-RISCV64BIT
+    *val = command_return.data[1];
+#else
+    // TRD104
+    uint32_t lsb;
+    uint32_t msb;
+    lsb  = command_return.data[1];
+    msb  = command_return.data[2];
+    *val = ((uint64_t)msb << 32) | lsb;
+#endif
     return tock_status_to_returncode(command_return.data[0]);
   } else {
     return RETURNCODE_EBADRVAL;
