@@ -327,11 +327,24 @@ static int install_binary(uint8_t id) {
   return _app_load_buf[0];
 }
 
+// Uses the App Load service to install requested binary.
+static int run_ymodem(void) {
+  if (_app_load_service == (size_t) -1) return 0;
+
+  _app_load_buf[0] = 3;
+  _done = false;
+
+  ipc_notify_service(_app_load_service);
+  yield_for(&_done);
+
+  return _app_load_buf[0];
+}
+
 static uint16_t binaries_get_cnt(void* data) {
   UNUSED(data);
 
   get_number_of_binaries();
-  return _number_of_binaries + 1;   // one for "Back"
+  return _number_of_binaries + 1 + 1;   // one for "Back", one for ymodem
 }
 
 static const char* binaries_get_str(void* data, uint16_t index) {
@@ -355,6 +368,8 @@ static const char* binaries_get_str(void* data, uint16_t index) {
   if (index < _number_of_binaries) {
     snprintf(process_names[index], 50, "%s%s", MUI_21, binary_names[index]);
   } else if (index == _number_of_binaries) {
+    snprintf(process_names[index], 50, MUI_22 "ymodem");
+  } else if (index == _number_of_binaries + 1) {
     snprintf(process_names[index], 50, MUI_15 "Back");
   }
 
@@ -364,6 +379,16 @@ static const char* binaries_get_str(void* data, uint16_t index) {
 static uint8_t mui_u8g2_btn_goto_load_new_app(mui_t* ui_draw, uint8_t msg) {
   if (msg == MUIF_MSG_CURSOR_SELECT) {
     int ret = install_binary(binary_selection);
+    ui_draw->arg = (ret == 0 ? 43 : 42);
+  }
+  return mui_u8g2_btn_goto_wm_fi(ui_draw, msg);
+}
+
+static uint8_t mui_u8g2_btn_goto_ymodem(mui_t* ui_draw, uint8_t msg) {
+
+  if (msg == MUIF_MSG_CURSOR_SELECT) {
+    printf("Run ymodem!!\n");
+    int ret = run_ymodem();
     ui_draw->arg = (ret == 0 ? 43 : 42);
   }
   return mui_u8g2_btn_goto_wm_fi(ui_draw, msg);
@@ -411,6 +436,7 @@ muif_t muif_list[] = {
   MUIF_BUTTON("CO", mui_u8g2_btn_goto_wm_fi),
 
   MUIF_BUTTON("AL", mui_u8g2_btn_goto_load_new_app),
+  MUIF_BUTTON("AM", mui_u8g2_btn_goto_ymodem),
 };
 
 fds_t* fds =
@@ -443,6 +469,12 @@ fds_t* fds =
   MUI_STYLE(0)
   MUI_LABEL(5, 10, "Load Application?")
   MUI_XYT("AL", 45, 35, "Yes")
+  MUI_XYAT("CO", 55, 48, 20, "No")
+
+  MUI_FORM(22)
+  MUI_STYLE(0)
+  MUI_LABEL(5, 10, "Activate ymodem?")
+  MUI_XYT("AM", 45, 35, "Yes")
   MUI_XYAT("CO", 55, 48, 20, "No")
 
   MUI_FORM(42)
