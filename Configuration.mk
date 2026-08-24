@@ -72,6 +72,12 @@ QEMU_RV32_VIRT_TOCK_TARGETS := rv32imac|rv32imac.0x80100080.0x80300000|0x8010008
                                rv32imac|rv32imac.0x80130080.0x80330000|0x80130080|0x80330000\
                                rv32imac|rv32imac.0x80180080.0x80380000|0x80180080|0x80380000
 
+# Specific addresses useful for the QEMU rv32i "virt" machine memory map with apps in pflash.
+QEMU_RV32_VIRT_PFLASH_TOCK_TARGETS := rv32imac|rv32imac.0x20000080.0x80300000|0x20000080|0x80300000\
+                                      rv32imac|rv32imac.0x20010080.0x80310000|0x20010080|0x80310000\
+                                      rv32imac|rv32imac.0x20030080.0x80330000|0x20030080|0x80330000\
+                                      rv32imac|rv32imac.0x20080080.0x80380000|0x20080080|0x80380000
+
 # Specific addresses useful for the QEMU rv64i "virt" machine memory map.
 QEMU_RV64_VIRT_TOCK_TARGETS := rv64imac|rv64imac.0x80100080.0x80300000|0x80100080|0x80300000\
                                rv64imac|rv64imac.0x80110080.0x80310000|0x80110080|0x80310000\
@@ -100,6 +106,7 @@ TOCK_TARGETS ?= cortex-m0\
                 $(ARTY_E21_TOCK_TARGETS) \
                 $(VEER_EL2_TOCK_TARGETS) \
                 $(QEMU_RV32_VIRT_TOCK_TARGETS)\
+                $(QEMU_RV32_VIRT_PFLASH_TOCK_TARGETS)\
                 $(QEMU_RV64_VIRT_TOCK_TARGETS)\
                 $(ESP32_C3_TOCK_TARGETS)\
 
