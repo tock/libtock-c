@@ -15,6 +15,8 @@ C_SRCS := $(wildcard *.c)
 
 # Include an ECDSA signature in the compiled TBF.
 ELF2TAB_ARGS += --ecdsa-nist-p256-private ../keys/ec-secp256r1-tutorial-key.private.p8
+TBF_NO_FOOTER = yes
+ELF2TAB_ARGS += --minimum-footer-size 115652
 
 # List of apps to generate embed rules for:
 APPS_TO_EMBED := \
