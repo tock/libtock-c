@@ -2,8 +2,8 @@
 
 .DEFAULT_GOAL = all
 
-# Restrict to Cortex M4 for the moment. Add new chip families as needed.
-TOCK_TARGETS ?= cortex-m4
+## Restrict to Cortex M4 for the moment. Add new chip families as needed.
+#TOCK_TARGETS ?= cortex-m4
 
 # Specify this directory relative to the current application.
 TOCK_USERLAND_BASE_DIR = ../../../..
@@ -18,7 +18,7 @@ ELF2TAB_ARGS += --ecdsa-nist-p256-private ../keys/ec-secp256r1-tutorial-key.priv
 
 # List of apps to generate embed rules for:
 APPS_TO_EMBED := \
-	# $(TOCK_USERLAND_BASE_DIR)/examples/blink \
+# 	$(TOCK_USERLAND_BASE_DIR)/examples/blink \
 
 BINARY_COUNT = $(words $(APPS_TO_EMBED))
 AUTOGEN_HEADER = loadable_binaries.h

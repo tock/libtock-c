@@ -8,6 +8,7 @@
 #include <libtock/kernel/ipc.h>
 
 #include "loadable_binaries.h"
+#include "ymodem.h"
 
 #define FLASH_BUFFER_SIZE 512
 #define RETURNCODE_SUCCESS 0
@@ -19,6 +20,11 @@ static bool load_done     = false;    // to check if the process was loaded succ
 
 uint8_t app_id = 0;
 
+
+// Scratch space for one data block. Static (not stack-allocated) since
+// 1024 bytes may not comfortably fit alongside other locals on a small
+// app stack.
+static uint8_t block_data[YM_BLOCK_SIZE_LONG];
 
 /********************************
  * Function prototypes
@@ -175,6 +181,7 @@ int write_app(double size, uint8_t binary[]) {
 }
 
 static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
+  int ret;
   uint8_t* buffer         = (uint8_t*) (uintptr_t) buf;
   const char* name_buffer = (const char*) (uintptr_t) buf;
 
@@ -227,9 +234,13 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
       }
 
       app_id = buffer[1];
-      int ret = install_binary(app_id);
+      ret = install_binary(app_id);
       buffer[0] = ret;
       ipc_notify_client(pid);
+      break;
+
+    case 3:
+      ymodem_start(block_data);
       break;
   }
 }
