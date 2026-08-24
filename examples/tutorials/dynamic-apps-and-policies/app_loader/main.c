@@ -74,6 +74,88 @@ static void app_load_done_callback(int                           arg0,
   load_done = true;
 }
 
+
+// typedef void (*ymodem_cb_file_started)(uint32_t);
+// typedef void (*ymodem_cb_block_received)(uint8_t*, uint32_t);
+
+uint32_t ymodem_offset = 0;
+
+static void ymodem_file_started_callback(uint32_t filesize) {
+  printf("[AppLoader] ymodem started app size %i!\n", filesize);
+  ymodem_offset = 0;
+
+
+  int ret = libtock_app_loader_setup(filesize);
+  if (ret != RETURNCODE_SUCCESS) {
+    printf("[AppLoader] Error: Setup Failed: %d.\n", ret);
+    return;
+  }
+}
+
+
+
+static void ymodem_block_received_callback(uint8_t* buffer, uint32_t len) {
+  int ret;
+
+  printf("[AppLoader] ymodem writing block [%i:%i]\n", ymodem_offset, ymodem_offset+len);
+
+  // int ret1 = write_app(binary_size, app_data);
+  // if (ret1 != RETURNCODE_SUCCESS) {
+  //   printf("[Error] App flash write unsuccessful: %d.\n", ret1);
+  //   return -1;
+  // }
+
+
+   ret = libtock_app_loader_set_buffer(buffer, len);
+  if (ret != RETURNCODE_SUCCESS) {
+    printf("[AppLoader] Error: Failed to set the write buffer: %d.\n", ret);
+    return;
+  }
+
+  write_done = false;
+   ret = libtock_app_loader_write(ymodem_offset, len);
+  if (ret != 0) {
+    printf("[AppLoader] Error: Failed writing data to flash at address: 0x%lx\n", ymodem_offset);
+    printf("[AppLoader] Error: %s (%d)\n", tock_strrcode(ret), ret);
+    return;
+  }
+  // wait on write done callback
+  // yield_for(&write_done);
+
+  yield_wait_for(0x10001,1);
+  printf("[AppLoader] block written\n");
+
+  ymodem_offset+=len;
+
+}
+
+static void ymodem_file_received_callback(void) {
+  int ret;
+  printf("[AppLoader] Ymodem file received. Creating process now.\n");
+
+    // Now that we are done writing the binary, we ask the kernel to finalize it.
+  printf("Done writing app, finalizing.\n");
+   finalize_done = false;
+   ret = libtock_app_loader_finalize();
+  if (ret != 0) {
+    printf("[Error] Failed to finalize new process binary.\n");
+    return;
+  }
+  yield_for(&finalize_done);
+  
+
+  load_done = false;
+   ret = libtock_app_loader_load();
+  if (ret != RETURNCODE_SUCCESS) {
+    printf("[AppLoader] Error: Process creation failed: %d.\n", ret);
+    return;
+  }
+
+  // wait on load done callback
+  yield_for(&load_done);
+  
+}
+
 int install_binary(uint8_t id) {
   if (BINARY_COUNT == 0) {
     printf("[App Loader] No included apps. Unable to install!\n");
@@ -240,7 +322,7 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
       break;
 
     case 3:
-      ymodem_start(block_data);
+      ymodem_start(block_data, ymodem_file_started_callback, ymodem_block_received_callback, ymodem_file_received_callback);
       break;
   }
 }
