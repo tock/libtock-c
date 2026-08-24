@@ -214,7 +214,7 @@ static bool ym_receive_header(char* filename, uint32_t filename_len, uint32_t* f
 // Receives the data blocks of one file (after its header has been ACKed),
 // until EOT. Prints progress and a final checksum; doesn't store the file
 // anywhere.
-static bool ym_receive_file(uint32_t filesize, uint8_t* block_data) {
+static bool ym_receive_file(uint32_t filesize, uint8_t* block_data, ymodem_cb_block_received cb_block_received) {
   // Kick off the data phase.
   ym_write_byte(YM_CRC_MODE_CHAR);
 
@@ -275,6 +275,8 @@ static bool ym_receive_file(uint32_t filesize, uint8_t* block_data) {
     ym_write_byte(YM_ACK);
 
     printf("ymodem: received %i bytes\n", (int) total_received);
+
+    cb_block_received(block_data, copy_len);
   }
   printf("file loop done\n");
 
@@ -290,7 +292,9 @@ static bool ym_receive_file(uint32_t filesize, uint8_t* block_data) {
   return true;
 }
 
-void ymodem_start(uint8_t* block_data) {
+void ymodem_start(uint8_t* block_data, ymodem_cb_file_started cb_file_started,
+  ymodem_cb_block_received cb_block_received,
+  ymodem_cb_file_received cb_file_received ) {
 
 
   printf("ymodem: waiting for sender (start e.g. `sb <file>` now)...\n");
@@ -322,10 +326,13 @@ void ymodem_start(uint8_t* block_data) {
 
     printf("ymodem: receiving \"%s\" (%lu bytes)\n", filename, (unsigned long) filesize);
 
-    if (!ym_receive_file(filesize, block_data)) {
+     cb_file_started(filesize);
+
+    if (!ym_receive_file(filesize, block_data, cb_block_received)) {
       printf("ymodem: transfer of \"%s\" failed\n", filename);
       break;
     }
+    cb_file_received();
   }
 
 }
