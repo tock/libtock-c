@@ -177,6 +177,16 @@ returncode_t tock_command_return_u32_to_returncode(syscall_return_t, uint32_t*);
 // variants.
 returncode_t tock_command_return_u32_u32_to_returncode(syscall_return_t, uint32_t*, uint32_t*);
 
+// Convert a `syscall_return_t` that succeeds with one `u32` and one `u64`
+// values, and fails with one `u64`.
+//
+// In the failure case, the `u32` argument will not be modified.
+//
+// This expects one of two cases `TOCK_SYSCALL_SUCCESS_U32_U64` or
+// `TOCK_SYSCALL_FAILURE_U64` to be returned. Do not use with other expected
+// SyscallReturn variants.
+returncode_t tock_command_return_u32_u64_or_u64_to_returncode(syscall_return_t, uint32_t*, uint64_t*);
+
 // Convert a `syscall_return_t` with a `u64` value to a `returncode_t`.
 returncode_t tock_command_return_u64_to_returncode(syscall_return_t command_return, uint64_t* val);
 
