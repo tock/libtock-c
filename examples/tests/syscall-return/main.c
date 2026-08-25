@@ -231,7 +231,8 @@ int main(void) {
 
 #if defined(__riscv) && __riscv_xlen == 64
   // subscribe failure: invalid function pointer — kernel rejects and echoes ptr+userdata back
-  printf("subscribe failure (invalid fn ptr 0xc000000000000000, expect INVAL cb=0xc000000000000000 data=%p)\n", max_minus_one);
+  printf("subscribe failure (invalid fn ptr 0xc000000000000000, expect INVAL cb=0xc000000000000000 data=%p)\n",
+         max_minus_one);
   subscribe_return_t sub_f2 = subscribe(DRIVER_NUM, 0, (subscribe_upcall*)0xc000000000000000, max_minus_one);
   rc = tock_subscribe_return_to_returncode(sub_f2);
   CHECK(rc == RETURNCODE_EINVAL &&
