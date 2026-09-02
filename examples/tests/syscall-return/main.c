@@ -381,7 +381,35 @@ int main(void) {
   // memop 7: number of writeable flash regions (SuccessU32)
   printf("memop 7: number of writeable flash regions (expect success)\n");
   m = memop(7, 0);
+  uintptr_t num_wfr = m.data;
   CHECK(m.status == TOCK_STATUSCODE_SUCCESS,
+        "status=%d data=0x%" PRIxPTR, m.status, m.data);
+
+  // memop 8: writeable flash region start, index one past the last (out of
+  // range) -> Failure(FAIL)
+  printf("memop 8: writeable flash region start, bad index %" PRIuPTR " (expect FAIL)\n", num_wfr);
+  m = memop(8, num_wfr);
+  CHECK(m.status == TOCK_STATUSCODE_FAIL,
+        "status=%d data=0x%" PRIxPTR, m.status, m.data);
+
+  // memop 9: writeable flash region end, index one past the last (out of
+  // range) -> Failure(FAIL)
+  printf("memop 9: writeable flash region end, bad index %" PRIuPTR " (expect FAIL)\n", num_wfr);
+  m = memop(9, num_wfr);
+  CHECK(m.status == TOCK_STATUSCODE_FAIL,
+        "status=%d data=0x%" PRIxPTR, m.status, m.data);
+
+  // memop 0: brk to address 0 is below app RAM -> Failure(NOMEM)
+  printf("memop 0: brk(0) below app RAM (expect NOMEM)\n");
+  m = memop(0, 0);
+  CHECK(m.status == TOCK_STATUSCODE_NOMEM,
+        "status=%d data=0x%" PRIxPTR, m.status, m.data);
+
+  // memop 1: sbrk by a huge positive increment runs past the end of app RAM ->
+  // Failure(NOMEM). The break is left unchanged on failure.
+  printf("memop 1: sbrk(0x70000000) past end of app RAM (expect NOMEM)\n");
+  m = memop(1, 0x70000000);
+  CHECK(m.status == TOCK_STATUSCODE_NOMEM,
         "status=%d data=0x%" PRIxPTR, m.status, m.data);
 
   // memop with an unknown operation -> Failure(NOSUPPORT)

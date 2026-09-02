@@ -99,6 +99,16 @@ memop 5: app flash end (expect success, > flash start)
   SUCCESS
 memop 7: number of writeable flash regions (expect success)
   SUCCESS
+memop 8: writeable flash region start, bad index 0 (expect FAIL)
+  SUCCESS
+memop 9: writeable flash region end, bad index 0 (expect FAIL)
+  SUCCESS
+memop 0: brk(0) below app RAM (expect NOMEM)
+  SUCCESS
+memop 1: sbrk(0x70000000) past end of app RAM (expect NOMEM)
+  SUCCESS
+memop 1: sbrk(0) unchanged after failed brk/sbrk (expect brk=0x...)
+  SUCCESS
 memop 99: unknown operation (expect NOSUPPORT)
   SUCCESS
 yield-no-wait: no upcall pending (expect return 0)
