@@ -13,9 +13,9 @@ cmd 0: success()
   SUCCESS
 cmd 1: failure(FAIL)
   SUCCESS
-cmd 2: failure_u32(BUSY, 0x10000001)
+cmd 2: failure_u32(BUSY, 0x20000001)
   SUCCESS
-cmd 3: failure_u32_u32(NOMEM, 0x20000001, 0x20000002)
+cmd 3: failure_u32_u32(NOMEM, 0x30000001, 0x30000002)
   SUCCESS
 cmd 4: failure_u64(INVAL, 0x4000000000000001)
   SUCCESS
@@ -25,9 +25,9 @@ cmd 6: success_u32(0x60000001)
   SUCCESS
 cmd 7: success_u32_u32(0x70000001, 0x70000002)
   SUCCESS
-cmd 8: success_u32_u32_u32(0x80000001, 0x80000002, 0x80000003)
+cmd 8: success_u64(0x8000000000000001)
   SUCCESS
-cmd 9: success_u64(0x9000000000000001)
+cmd 9: success_u32_u32_u32(0x90000001, 0x90000002, 0x90000003)
   SUCCESS
 cmd 10: success_u32_u64(0xA0000001, 0xA000000000000002)
   SUCCESS
