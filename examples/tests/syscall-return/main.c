@@ -5,7 +5,7 @@
 
 #include <libtock/tock.h>
 
-#define DRIVER_NUM 0xA0000
+#define DRIVER_NUM 0xB0000
 
 static void dummy_upcall(int   a __attribute__((unused)),
                          int   b __attribute__((unused)),
@@ -41,18 +41,18 @@ int main(void) {
   rc  = tock_command_return_novalue_to_returncode(ret);
   CHECK(rc == RETURNCODE_FAIL, "rc=%d", rc);
 
-  // 2: failure_u32(BUSY, 0x10000001)
-  printf("cmd 2: failure_u32(BUSY, 0x10000001)\n");
+  // 2: failure_u32(BUSY, 0x20000001)
+  printf("cmd 2: failure_u32(BUSY, 0x20000001)\n");
   ret = command(DRIVER_NUM, 2, 0, 0);
   rc  = tock_command_return_failure_u32_to_returncode(ret, &v1);
-  CHECK(rc == RETURNCODE_EBUSY && v1 == 0x10000001u,
+  CHECK(rc == RETURNCODE_EBUSY && v1 == 0x20000001u,
         "rc=%d v1=0x%08" PRIx32, rc, v1);
 
-  // 3: failure_u32_u32(NOMEM, 0x20000001, 0x20000002)
-  printf("cmd 3: failure_u32_u32(NOMEM, 0x20000001, 0x20000002)\n");
+  // 3: failure_u32_u32(NOMEM, 0x30000001, 0x30000002)
+  printf("cmd 3: failure_u32_u32(NOMEM, 0x30000001, 0x30000002)\n");
   ret = command(DRIVER_NUM, 3, 0, 0);
   rc  = tock_command_return_failure_u32_u32_to_returncode(ret, &v1, &v2);
-  CHECK(rc == RETURNCODE_ENOMEM && v1 == 0x20000001u && v2 == 0x20000002u,
+  CHECK(rc == RETURNCODE_ENOMEM && v1 == 0x30000001u && v2 == 0x30000002u,
         "rc=%d v1=0x%08" PRIx32 " v2=0x%08" PRIx32, rc, v1, v2);
 
   // 4: failure_u64(INVAL, 0x4000000000000001)
@@ -82,20 +82,20 @@ int main(void) {
   CHECK(rc == RETURNCODE_SUCCESS && v1 == 0x70000001u && v2 == 0x70000002u,
         "rc=%d v1=0x%08" PRIx32 " v2=0x%08" PRIx32, rc, v1, v2);
 
-  // 8: success_u32_u32_u32(0x80000001, 0x80000002, 0x80000003)
-  printf("cmd 8: success_u32_u32_u32(0x80000001, 0x80000002, 0x80000003)\n");
+  // 8: success_u64(0x8000000000000001)
+  printf("cmd 8: success_u64(0x8000000000000001)\n");
   ret = command(DRIVER_NUM, 8, 0, 0);
+  rc  = tock_command_return_u64_to_returncode(ret, &v64);
+  CHECK(rc == RETURNCODE_SUCCESS && v64 == 0x8000000000000001ull,
+        "rc=%d val=0x%016" PRIx64, rc, v64);
+
+  // 9: success_u32_u32_u32(0x90000001, 0x90000002, 0x90000003)
+  printf("cmd 9: success_u32_u32_u32(0x90000001, 0x90000002, 0x90000003)\n");
+  ret = command(DRIVER_NUM, 9, 0, 0);
   rc  = tock_command_return_u32_u32_u32_to_returncode(ret, &v1, &v2, &v3);
-  CHECK(rc == RETURNCODE_SUCCESS && v1 == 0x80000001u && v2 == 0x80000002u && v3 == 0x80000003u,
+  CHECK(rc == RETURNCODE_SUCCESS && v1 == 0x90000001u && v2 == 0x90000002u && v3 == 0x90000003u,
         "rc=%d v1=0x%08" PRIx32 " v2=0x%08" PRIx32 " v3=0x%08" PRIx32,
         rc, v1, v2, v3);
-
-  // 9: success_u64(0x9000000000000001)
-  printf("cmd 9: success_u64(0x9000000000000001)\n");
-  ret = command(DRIVER_NUM, 9, 0, 0);
-  rc  = tock_command_return_u64_to_returncode(ret, &v64);
-  CHECK(rc == RETURNCODE_SUCCESS && v64 == 0x9000000000000001ull,
-        "rc=%d val=0x%016" PRIx64, rc, v64);
 
   // 10: success_u32_u64(0xA0000001, 0xA000000000000002)
   printf("cmd 10: success_u32_u64(0xA0000001, 0xA000000000000002)\n");
