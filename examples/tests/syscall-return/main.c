@@ -6,6 +6,7 @@
 #include <libtock/tock.h>
 
 #define DRIVER_NUM 0xB0000
+#define DRIVER_NUM_NON_EXISTENT 0xF9876101
 
 static void dummy_upcall(int   a __attribute__((unused)),
                          int   b __attribute__((unused)),
@@ -239,6 +240,43 @@ int main(void) {
         sub_f2.callback == (subscribe_upcall*)0xc000000000000000 && sub_f2.userdata == max_minus_one,
         "rc=%d cb=%p data=%p", rc, (void*)sub_f2.callback, sub_f2.userdata);
 #endif
+
+  // --- Non-existent drivers ---
+
+  // command
+  printf("command: non-existent driver\n");
+  ret = command(DRIVER_NUM_NON_EXISTENT, 0, 0, 0);
+  rc  = tock_command_return_novalue_to_returncode(ret);
+  CHECK(rc == RETURNCODE_ENODEVICE, "rc=%d", rc);
+
+  // allow_readonly
+  printf("allow_ro: non-existent driver\n");
+  aro = allow_readonly(DRIVER_NUM_NON_EXISTENT, 0, NULL, 0);
+  rc = tock_allow_ro_return_to_returncode(aro);
+  CHECK(rc == RETURNCODE_ENODEVICE && aro.ptr == NULL && aro.size == 0,
+        "rc=%d ptr=%p size=%zu", rc, aro.ptr, aro.size);
+
+  // allow_readwrite
+  printf("allow_rw: non-existent driver\n");
+  arw = allow_readwrite(DRIVER_NUM_NON_EXISTENT, 0, NULL, 0);
+  rc = tock_allow_rw_return_to_returncode(arw);
+  CHECK(rc == RETURNCODE_ENODEVICE && arw.ptr == NULL && arw.size == 0,
+        "rc=%d ptr=%p size=%zu", rc, arw.ptr, arw.size);
+
+  // allow_userspace_read
+  printf("allow_ur: non-existent driver\n");
+  aur = allow_userspace_read(DRIVER_NUM_NON_EXISTENT, 0, NULL, 0);
+  rc = tock_allow_userspace_r_return_to_returncode(aur);
+  CHECK(rc == RETURNCODE_ENODEVICE && aur.ptr == NULL && aur.size == 0,
+        "rc=%d ptr=%p size=%zu", rc, aur.ptr, aur.size);
+
+  // subscribe
+  printf("subscribe: non-existent driver\n");
+  sub_f = subscribe(DRIVER_NUM_NON_EXISTENT, 0, NULL, 0);
+  rc = tock_subscribe_return_to_returncode(sub_f);
+  CHECK(rc == RETURNCODE_ENODEVICE &&
+        sub_f.callback == (subscribe_upcall*)NULL && sub_f.userdata == 0,
+        "rc=%d cb=%p data=%p", rc, (void*)sub_f.callback, sub_f.userdata);
 
   printf("done\n");
   return 0;
