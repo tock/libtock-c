@@ -63,5 +63,45 @@ subscribe failure (invalid fn ptr 0x90, expect INVAL cb=0x90 data=0xffffffffffff
   SUCCESS
 subscribe failure (invalid fn ptr 0xc000000000000000, expect INVAL cb=0xc000000000000000 data=0xfffffffffffffffe)
   SUCCESS
+command: non-existent driver
+  SUCCESS
+allow_ro: non-existent driver
+  SUCCESS
+allow_rw: non-existent driver
+  SUCCESS
+allow_ur: non-existent driver
+  SUCCESS
+subscribe: non-existent driver
+  SUCCESS
+command: unknown command number 99 (expect NOSUPPORT)
+  SUCCESS
+subscribe: unknown subscribe number 9 (expect NOSUPPORT cb=dummy_upcall data=0x1234)
+  SUCCESS
+allow_ro: unknown allow number 9 (expect NOSUPPORT ptr=ro_buf size=16)
+  SUCCESS
+allow_rw: unknown allow number 9 (expect NOSUPPORT ptr=rw_buf size=16)
+  SUCCESS
+allow_ur: unsupported which 9 (expect NOSUPPORT ptr=ur_buf size=16)
+  SUCCESS
+memop 2: app RAM start (expect success, nonzero)
+  SUCCESS
+memop 3: app RAM end (expect success, > RAM start)
+  SUCCESS
+memop 1: sbrk(0) current break (expect success, RAM start <= brk <= RAM end)
+  SUCCESS
+memop 0: brk(current break) no-op (expect success, no value)
+  SUCCESS
+memop 6: grant region start (expect success, brk <= grant start <= RAM end)
+  SUCCESS
+memop 4: app flash start (expect success, nonzero)
+  SUCCESS
+memop 5: app flash end (expect success, > flash start)
+  SUCCESS
+memop 7: number of writeable flash regions (expect success)
+  SUCCESS
+memop 99: unknown operation (expect NOSUPPORT)
+  SUCCESS
+yield-no-wait: no upcall pending (expect return 0)
+  SUCCESS
 done
 ```

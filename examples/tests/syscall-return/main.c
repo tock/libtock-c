@@ -278,6 +278,126 @@ int main(void) {
         sub_f.callback == (subscribe_upcall*)NULL && sub_f.userdata == 0,
         "rc=%d cb=%p data=%p", rc, (void*)sub_f.callback, sub_f.userdata);
 
+  // --- Unsupported subdriver numbers on an existing driver ---
+  //
+  // The capsule declares one upcall / one allow-ro / one allow-rw slot (num 0)
+  // and only accepts allow-userspace-readable `which` 0. Any other number is
+  // rejected by the kernel (subscribe / allow ro+rw) or the capsule
+  // (userspace-readable) with NOSUPPORT, and the pointers/values are echoed
+  // back unchanged.
+
+  // command: unknown command number -> capsule returns failure(NOSUPPORT)
+  printf("command: unknown command number 99 (expect NOSUPPORT)\n");
+  ret = command(DRIVER_NUM, 99, 0, 0);
+  rc  = tock_command_return_novalue_to_returncode(ret);
+  CHECK(rc == RETURNCODE_ENOSUPPORT, "rc=%d", rc);
+
+  // subscribe: unknown subscribe number -> kernel returns NOSUPPORT, echoes cb+data
+  printf("subscribe: unknown subscribe number 9 (expect NOSUPPORT cb=dummy_upcall data=0x1234)\n");
+  subscribe_return_t sub_bad = subscribe(DRIVER_NUM, 9, dummy_upcall, (void*)0x1234);
+  rc = tock_subscribe_return_to_returncode(sub_bad);
+  CHECK(rc == RETURNCODE_ENOSUPPORT &&
+        sub_bad.callback == dummy_upcall && sub_bad.userdata == (void*)0x1234,
+        "rc=%d cb=%p data=%p", rc, (void*)sub_bad.callback, sub_bad.userdata);
+
+  // allow_readonly: unknown allow number -> kernel returns NOSUPPORT, echoes ptr+size
+  printf("allow_ro: unknown allow number 9 (expect NOSUPPORT ptr=ro_buf size=16)\n");
+  allow_ro_return_t aro_bad = allow_readonly(DRIVER_NUM, 9, ro_buf, sizeof(ro_buf));
+  rc = tock_allow_ro_return_to_returncode(aro_bad);
+  CHECK(rc == RETURNCODE_ENOSUPPORT && aro_bad.ptr == ro_buf && aro_bad.size == sizeof(ro_buf),
+        "rc=%d ptr=%p size=%zu", rc, aro_bad.ptr, aro_bad.size);
+
+  // allow_readwrite: unknown allow number -> kernel returns NOSUPPORT, echoes ptr+size
+  printf("allow_rw: unknown allow number 9 (expect NOSUPPORT ptr=rw_buf size=16)\n");
+  allow_rw_return_t arw_bad = allow_readwrite(DRIVER_NUM, 9, rw_buf, sizeof(rw_buf));
+  rc = tock_allow_rw_return_to_returncode(arw_bad);
+  CHECK(rc == RETURNCODE_ENOSUPPORT && arw_bad.ptr == rw_buf && arw_bad.size == sizeof(rw_buf),
+        "rc=%d ptr=%p size=%zu", rc, arw_bad.ptr, arw_bad.size);
+
+  // allow_userspace_read: unsupported `which` -> capsule returns NOSUPPORT, echoes ptr+size
+  printf("allow_ur: unsupported which 9 (expect NOSUPPORT ptr=ur_buf size=16)\n");
+  allow_userspace_r_return_t aur_bad = allow_userspace_read(DRIVER_NUM, 9, ur_buf, sizeof(ur_buf));
+  rc = tock_allow_userspace_r_return_to_returncode(aur_bad);
+  CHECK(rc == RETURNCODE_ENOSUPPORT && aur_bad.ptr == ur_buf && aur_bad.size == sizeof(ur_buf),
+        "rc=%d ptr=%p size=%zu", rc, aur_bad.ptr, aur_bad.size);
+
+  // --- Memop ---
+  //
+  // Memop returns are not driver-specific: exercise the well-defined operations
+  // and check the return variant plus the invariants between the reported
+  // addresses.
+
+  memop_return_t m;
+  uintptr_t ram_start, ram_end, cur_brk, grant_start, flash_start, flash_end;
+
+  // memop 2: start of app RAM (SuccessPtr / SuccessU32)
+  printf("memop 2: app RAM start (expect success, nonzero)\n");
+  m = memop(2, 0);
+  ram_start = m.data;
+  CHECK(m.status == TOCK_STATUSCODE_SUCCESS && ram_start != 0,
+        "status=%d data=0x%" PRIxPTR, m.status, m.data);
+
+  // memop 3: end of app RAM (SuccessPtr / SuccessU32)
+  printf("memop 3: app RAM end (expect success, > RAM start)\n");
+  m = memop(3, 0);
+  ram_end = m.data;
+  CHECK(m.status == TOCK_STATUSCODE_SUCCESS && ram_end > ram_start,
+        "status=%d data=0x%" PRIxPTR " ram_start=0x%" PRIxPTR, m.status, m.data, ram_start);
+
+  // memop 1: sbrk(0) returns the current break, unchanged (SuccessPtr / SuccessU32)
+  printf("memop 1: sbrk(0) current break (expect success, RAM start <= brk <= RAM end)\n");
+  m = memop(1, 0);
+  cur_brk = m.data;
+  CHECK(m.status == TOCK_STATUSCODE_SUCCESS && cur_brk >= ram_start && cur_brk <= ram_end,
+        "status=%d brk=0x%" PRIxPTR, m.status, m.data);
+
+  // memop 0: brk to the current break is a no-op (Success, no value)
+  printf("memop 0: brk(current break) no-op (expect success, no value)\n");
+  m = memop(0, cur_brk);
+  CHECK(m.status == TOCK_STATUSCODE_SUCCESS && m.data == 0,
+        "status=%d data=0x%" PRIxPTR, m.status, m.data);
+
+  // memop 6: start of the grant region (SuccessAddr / SuccessU32)
+  printf("memop 6: grant region start (expect success, brk <= grant start <= RAM end)\n");
+  m = memop(6, 0);
+  grant_start = m.data;
+  CHECK(m.status == TOCK_STATUSCODE_SUCCESS && grant_start >= cur_brk && grant_start <= ram_end,
+        "status=%d grant_start=0x%" PRIxPTR, m.status, m.data);
+
+  // memop 4: start of app flash (SuccessPtr / SuccessU32)
+  printf("memop 4: app flash start (expect success, nonzero)\n");
+  m = memop(4, 0);
+  flash_start = m.data;
+  CHECK(m.status == TOCK_STATUSCODE_SUCCESS && flash_start != 0,
+        "status=%d data=0x%" PRIxPTR, m.status, m.data);
+
+  // memop 5: end of app flash (SuccessPtr / SuccessU32)
+  printf("memop 5: app flash end (expect success, > flash start)\n");
+  m = memop(5, 0);
+  flash_end = m.data;
+  CHECK(m.status == TOCK_STATUSCODE_SUCCESS && flash_end > flash_start,
+        "status=%d data=0x%" PRIxPTR " flash_start=0x%" PRIxPTR, m.status, m.data, flash_start);
+
+  // memop 7: number of writeable flash regions (SuccessU32)
+  printf("memop 7: number of writeable flash regions (expect success)\n");
+  m = memop(7, 0);
+  CHECK(m.status == TOCK_STATUSCODE_SUCCESS,
+        "status=%d data=0x%" PRIxPTR, m.status, m.data);
+
+  // memop with an unknown operation -> Failure(NOSUPPORT)
+  printf("memop 99: unknown operation (expect NOSUPPORT)\n");
+  m = memop(99, 0);
+  CHECK(m.status == TOCK_STATUSCODE_NOSUPPORT,
+        "status=%d", m.status);
+
+  // --- Yield-no-wait ---
+  //
+  // All upcalls from earlier syscalls (e.g. the synchronous console writes for
+  // these printfs) have already been serviced, so no upcall is pending.
+  printf("yield-no-wait: no upcall pending (expect return 0)\n");
+  int yield_ret = yield_no_wait();
+  CHECK(yield_ret == 0, "yield_no_wait=%d", yield_ret);
+
   printf("done\n");
   return 0;
 }
