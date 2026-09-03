@@ -6,6 +6,7 @@
 #include <libtock-sync/sensors/humidity.h>
 #include <libtock-sync/sensors/moisture.h>
 #include <libtock-sync/sensors/ninedof.h>
+#include <libtock-sync/sensors/pressure.h>
 #include <libtock-sync/sensors/proximity.h>
 #include <libtock-sync/sensors/rainfall.h>
 #include <libtock-sync/sensors/sound_pressure.h>
@@ -20,6 +21,7 @@ static bool ninedof        = false;
 static bool ninedof_accel  = false;
 static bool ninedof_mag    = false;
 static bool ninedof_gyro   = false;
+static bool pressure       = false;
 static bool proximity      = false;
 static bool sound_pressure = false;
 static bool moisture       = false;
@@ -35,6 +37,7 @@ static void alarm_cb(__attribute__ ((unused)) uint32_t now,
   int ninedof_accel_x = 0, ninedof_accel_y = 0, ninedof_accel_z = 0;
   int ninedof_magneto_x = 0, ninedof_magneto_y = 0, ninedof_magneto_z = 0;
   int ninedof_gyro_x = 0, ninedof_gyro_y = 0, ninedof_gyro_z = 0;
+  int pres = 0;
   uint8_t prox_reading = 0;
   unsigned char sound_pressure_reading = 0;
 
@@ -45,6 +48,7 @@ static void alarm_cb(__attribute__ ((unused)) uint32_t now,
   if (ninedof_accel)  libtocksync_ninedof_read_accelerometer(&ninedof_accel_x, &ninedof_accel_y, &ninedof_accel_z);
   if (ninedof_mag)    libtocksync_ninedof_read_magnetometer(&ninedof_magneto_x, &ninedof_magneto_y, &ninedof_magneto_z);
   if (ninedof_gyro)   libtocksync_ninedof_read_gyroscope(&ninedof_gyro_x, &ninedof_gyro_y, &ninedof_gyro_z);
+  if (pressure)       libtocksync_pressure_read(&pres);
   if (proximity)      libtocksync_proximity_read(&prox_reading);
   if (sound_pressure) libtocksync_sound_pressure_read(&sound_pressure_reading);
   if (moisture)       libtocksync_moisture_read(&mois);
@@ -56,6 +60,7 @@ static void alarm_cb(__attribute__ ((unused)) uint32_t now,
   if (ninedof_accel)  printf("Acceleration: X: %d Y: %d Z: %d\n", ninedof_accel_x, ninedof_accel_y, ninedof_accel_z);
   if (ninedof_mag)    printf("Magnetometer: X: %d Y: %d Z: %d\n", ninedof_magneto_x, ninedof_magneto_y, ninedof_magneto_z);
   if (ninedof_gyro)   printf("Gyro:         X: %d Y: %d Z: %d\n", ninedof_gyro_x, ninedof_gyro_y, ninedof_gyro_z);
+  if (pressure)       printf("Pressure:                    %d hPa\n", pres);
   if (proximity)      printf("Proximity:                   %u\n", prox_reading);
   if (sound_pressure) printf("Sound Pressure:              %u\n", sound_pressure_reading);
   if (moisture)       printf("Moisture:                    %d%%\n", mois/100);
@@ -76,6 +81,7 @@ int main(void) {
   temperature    = libtocksync_temperature_exists();
   humidity       = libtocksync_humidity_exists();
   ninedof        = libtocksync_ninedof_exists();
+  pressure       = libtocksync_pressure_exists();
   proximity      = libtocksync_proximity_exists();
   sound_pressure = libtocksync_sound_pressure_exists();
   moisture       = libtocksync_moisture_exists();
@@ -96,6 +102,7 @@ int main(void) {
   if (ninedof_accel)  printf("[Sensors]   Sampling Accelerometer.\n");
   if (ninedof_mag)    printf("[Sensors]   Sampling Magnetometer.\n");
   if (ninedof_gyro)   printf("[Sensors]   Sampling Gyroscope.\n");
+  if (pressure)       printf("[Sensors]   Sampling Pressure sensor.\n");
   if (proximity)      printf("[Sensors]   Sampling Proximity sensor.\n");
   if (sound_pressure) printf("[Sensors]   Sampling Sound Pressure sensor.\n");
   if (moisture)       printf("[Sensors]   Sampling Moisture sensor.\n");
