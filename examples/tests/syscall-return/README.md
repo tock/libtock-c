@@ -107,11 +107,14 @@ memop 0: brk(0) below app RAM (expect NOMEM)
   SUCCESS
 memop 1: sbrk(0x70000000) past end of app RAM (expect NOMEM)
   SUCCESS
-memop 1: sbrk(0) unchanged after failed brk/sbrk (expect brk=0x...)
-  SUCCESS
 memop 99: unknown operation (expect NOSUPPORT)
   SUCCESS
 yield-no-wait: no upcall pending (expect return 0)
   SUCCESS
 done
+51/51 tests passed
+All tests succeeded
 ```
+
+(The test counts above are for a 64-bit RISC-V run, which includes four
+64-bit-pointer checks guarded by `#if`. On 32-bit targets the total is 47.)

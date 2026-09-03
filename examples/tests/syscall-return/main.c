@@ -13,9 +13,14 @@ static void dummy_upcall(int   a __attribute__((unused)),
                          int   c __attribute__((unused)),
                          void* d __attribute__((unused))) {}
 
+static int tests_run    = 0;
+static int tests_passed = 0;
+
 #define CHECK(test, fmt, ...)                             \
         do {                                              \
+          tests_run++;                                    \
           if (test) {                                     \
+            tests_passed++;                               \
             printf("  SUCCESS\n");                        \
           } else {                                        \
             printf("  FAILURE: " fmt "\n",##__VA_ARGS__); \
@@ -427,5 +432,9 @@ int main(void) {
   CHECK(yield_ret == 0, "yield_no_wait=%d", yield_ret);
 
   printf("done\n");
+  printf("%d/%d tests passed\n", tests_passed, tests_run);
+  if (tests_passed == tests_run) {
+    printf("All tests succeeded\n");
+  }
   return 0;
 }
