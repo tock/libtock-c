@@ -74,6 +74,82 @@ returncode_t tock_command_return_u32_u32_to_returncode(syscall_return_t command_
   }
 }
 
+returncode_t tock_command_return_u32_u32_u32_to_returncode(syscall_return_t command_return,
+                                                           uint32_t* val1, uint32_t* val2, uint32_t* val3) {
+  if (command_return.type == TOCK_SYSCALL_SUCCESS_U32_U32_U32) {
+    *val1 = command_return.data[0];
+    *val2 = command_return.data[1];
+    *val3 = command_return.data[2];
+    return RETURNCODE_SUCCESS;
+  } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
+returncode_t tock_command_return_u32_u64_to_returncode(syscall_return_t command_return,
+                                                       uint32_t* val1, uint64_t* val2) {
+  if (command_return.type == TOCK_SYSCALL_SUCCESS_U32_U64) {
+    *val1 = command_return.data[0];
+#if defined(__riscv) && __riscv_xlen == 64
+    // TRD-RISCV64BIT
+    *val2 = command_return.data[1];
+#else
+    // TRD104
+    uint32_t lsb;
+    uint32_t msb;
+    lsb   = command_return.data[1];
+    msb   = command_return.data[2];
+    *val2 = ((uint64_t)msb << 32) | lsb;
+#endif
+    return RETURNCODE_SUCCESS;
+  } else if (command_return.type == TOCK_SYSCALL_FAILURE) {
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
+returncode_t tock_command_return_failure_u32_to_returncode(syscall_return_t command_return, uint32_t* val) {
+  if (command_return.type == TOCK_SYSCALL_FAILURE_U32) {
+    *val = command_return.data[1];
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
+returncode_t tock_command_return_failure_u32_u32_to_returncode(syscall_return_t command_return,
+                                                               uint32_t* val1, uint32_t* val2) {
+  if (command_return.type == TOCK_SYSCALL_FAILURE_U32_U32) {
+    *val1 = command_return.data[1];
+    *val2 = command_return.data[2];
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
+returncode_t tock_command_return_failure_u64_to_returncode(syscall_return_t command_return, uint64_t* val) {
+  if (command_return.type == TOCK_SYSCALL_FAILURE_U64) {
+#if defined(__riscv) && __riscv_xlen == 64
+    // TRD-RISCV64BIT
+    *val = command_return.data[1];
+#else
+    // TRD104
+    uint32_t lsb;
+    uint32_t msb;
+    lsb  = command_return.data[1];
+    msb  = command_return.data[2];
+    *val = ((uint64_t)msb << 32) | lsb;
+#endif
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
 returncode_t tock_subscribe_return_to_returncode(subscribe_return_t subscribe_return) {
   // If the subscribe was successful, easily return SUCCESS.
   if (subscribe_return.success) {
@@ -515,9 +591,9 @@ syscall_return_t command(uint32_t driver, uint32_t command,
   register uint32_t a3  __asm__ ("a3") = arg2;
   register uint32_t a4  __asm__ ("a4") = 2;
   register int rtype __asm__ ("a0");
-  register int rv1 __asm__ ("a1");
-  register int rv2 __asm__ ("a2");
-  register int rv3 __asm__ ("a3");
+  register uintptr_t rv1 __asm__ ("a1");
+  register uintptr_t rv2 __asm__ ("a2");
+  register uintptr_t rv3 __asm__ ("a3");
   __asm__ volatile (
     "ecall\n"
     : "=r" (rtype), "=r" (rv1), "=r" (rv2), "=r" (rv3)
