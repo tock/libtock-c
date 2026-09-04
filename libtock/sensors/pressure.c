@@ -2,12 +2,12 @@
 
 #include "syscalls/pressure_syscalls.h"
 
-static void pressure_upcall(int                          pressure,
+static void pressure_upcall(int                          status,
+                            int                          pressure,
                             __attribute__ ((unused)) int unused,
-                            __attribute__ ((unused)) int unused1,
                             void*                        opaque) {
   libtock_pressure_callback cb = (libtock_pressure_callback) opaque;
-  cb(RETURNCODE_SUCCESS, pressure);
+  cb(tock_status_to_returncode(status), pressure);
 }
 
 bool libtock_pressure_exists(void) {
