@@ -97,8 +97,18 @@ static void ipc_request_waiting(uint64_t ipc_id) {
   uint32_t upper = (uint32_t)(ipc_id >> 32);
   printf("SERVER: New request waiting from IPC ID: %08X%08X\n", (unsigned int)upper, (unsigned int)lower);
 
-  // Handle request(s). Loops until no further requests remain.
-  handle_requests();
+  // This function might recur while we're handling other tasks (if we yield
+  // during that). Ignore duplicate callbacks if we're still handling requests.
+  // Note that callbacks only occur on yield calls, so using a flag variable
+  // here is sufficient.
+  static bool in_progress = false;
+  if (!in_progress) {
+    in_progress = true;
+
+    // Handle request(s). Loops until no further requests remain.
+    handle_requests();
+    in_progress = false;
+  }
 }
 
 int main(void) {
