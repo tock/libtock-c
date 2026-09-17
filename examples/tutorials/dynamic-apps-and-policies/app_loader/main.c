@@ -23,9 +23,9 @@ uint32_t write_buffer_size = 512;
 /******************************************************************************************************
 * Callback Tracking Flags
 ******************************************************************************************************/
-static bool setup_done    = false;    // to check if setup is done
-static bool finalize_done = false;    // to check if the process was finalized
-static bool load_done     = false;    // to check if the process was loaded
+static bool setup_done     = false;   // to check if setup is done
+static bool finalize_done  = false;   // to check if the process was finalized
+static bool load_done      = false;   // to check if the process was loaded
 static bool unload_done    = false;   // to check if the process was unloaded
 static bool uninstall_done = false;   // to check if the application binary was uninstalled
 

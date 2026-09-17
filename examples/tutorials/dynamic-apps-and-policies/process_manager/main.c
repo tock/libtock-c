@@ -420,7 +420,7 @@ static const char* binaries_get_str(void* data, uint16_t index) {
 static uint8_t mui_u8g2_btn_goto_load_new_app(mui_t* ui_draw, uint8_t msg) {
   if (msg == MUIF_MSG_CURSOR_SELECT) {
     int ret = install_binary(binary_selection);
-    mui_GotoForm(ui_draw, ret == 0 ? 43 : 42, 0);
+    mui_GotoForm(ui_draw, ret == 0 ? 29 : 28, 0);
     return 1;
   }
   return mui_u8g2_btn_goto_wm_fi(ui_draw, msg);
@@ -430,7 +430,7 @@ static uint8_t mui_u8g2_btn_goto_load_new_app(mui_t* ui_draw, uint8_t msg) {
 static uint8_t mui_u8g2_btn_goto_unload_uninstall_app(mui_t* ui_draw, uint8_t msg) {
   if (msg == MUIF_MSG_CURSOR_SELECT) {
     int ret = uninstall_binary();
-    mui_GotoForm(ui_draw, ret == 0 ? 43 : 42, 0);
+    mui_GotoForm(ui_draw, ret == 0 ? 39 : 38, 0);
     return 1;
   }
   return mui_u8g2_btn_goto_wm_fi(ui_draw, msg);
@@ -516,14 +516,13 @@ fds_t* fds =
   MUI_XYT("AL", 45, 35, "Yes")
   MUI_XYAT("CO", 55, 48, 20, "No")
 
-  MUI_FORM(42)
+  MUI_FORM(28)
   MUI_STYLE(0)
   MUI_LABEL(5, 10, "Failed!")
   MUI_STYLE(1)
   MUI_XYAT(".G", 46, 25, 20, "Back")
 
-
-  MUI_FORM(43)
+  MUI_FORM(29)
   MUI_STYLE(0)
   MUI_LABEL(5, 10, "Success!")
   MUI_STYLE(1)
@@ -544,7 +543,19 @@ fds_t* fds =
   MUI_STYLE(0)
   MUI_LABEL(5, 10, "Unload and Uninstall Application?")
   MUI_XYT("UL", 45, 35, "Yes")
-  MUI_XYAT("CO", 55, 48, 20, "No")
+  MUI_XYAT("CO", 55, 48, 30, "No")
+
+  MUI_FORM(38)
+  MUI_STYLE(0)
+  MUI_LABEL(5, 10, "Failed!")
+  MUI_STYLE(1)
+  MUI_XYAT(".G", 46, 25, 30, "Back")
+
+  MUI_FORM(39)
+  MUI_STYLE(0)
+  MUI_LABEL(5, 10, "Success!")
+  MUI_STYLE(1)
+  MUI_XYAT(".G", 46, 25, 30, "Back")
 
   // PROCESS CONTROL SCREEN
   MUI_FORM(3)
