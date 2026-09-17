@@ -12,9 +12,6 @@
 
 #define RETURNCODE_SUCCESS 0
 
-// uint8_t app_id = 0;
-// uint32_t short_id = 0;
-
 typedef struct {
   uint32_t app_handle;
 } Unload_metadata;
@@ -29,17 +26,14 @@ uint32_t write_buffer_size = 512;
 static bool setup_done    = false;    // to check if setup is done
 static bool finalize_done = false;    // to check if the process was finalized
 static bool load_done     = false;    // to check if the process was loaded
-// static bool app_load       = false;   // to check if there is a request to load a new app
 static bool unload_done    = false;   // to check if the process was unloaded
 static bool uninstall_done = false;   // to check if the application binary was uninstalled
-// static bool app_uninstall  = false;   // to check if there is a request to unload and uninstall an app
 
 /********************************
  * Function prototypes
  *********************************/
 int install_binary(uint8_t id);
 int uninstall_application(uint32_t id);
-// int write_app(double size, uint8_t binary[]);
 
 
 /******************************************************************************************************
@@ -90,7 +84,6 @@ static void app_unload_done_callback(int                           arg0,
   }
   um.app_handle = arg1;
 
-  // printf("App handle ->  %" PRIu32 "\n", um.app_handle);
   unload_done = true;
 }
 
@@ -179,7 +172,7 @@ int uninstall_application(uint32_t id) {
   int ret4 = libtock_app_loader_unload(id, app_unload_done_callback);
   if (ret4 != RETURNCODE_SUCCESS) {
     printf("[Error] unload Failed: %d.\n", ret4);
-    tock_exit(ret4);
+    return -1;
   }
   yield_for(&unload_done);
   unload_done = false;
@@ -188,10 +181,12 @@ int uninstall_application(uint32_t id) {
   int ret5 = libtock_app_loader_uninstall_with_app_handle(um.app_handle, app_uninstall_done_callback);
   if  (ret5 != RETURNCODE_SUCCESS) {
     printf("[Error] Uninstall Failed: %d\n", ret5);
-    tock_exit(ret5);
+    return -1;
   }
   yield_for(&uninstall_done);
   uninstall_done = false;
+
+  return 0;
 }
 
 static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
@@ -261,10 +256,10 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
       }
 
       uint32_t short_id =
-      ((uint32_t)buffer[1] << 24) |
-      ((uint32_t)buffer[2] << 16) |
-      ((uint32_t)buffer[3] <<  8) |
-      ((uint32_t)buffer[4]);
+        ((uint32_t)buffer[1] << 24) |
+        ((uint32_t)buffer[2] << 16) |
+        ((uint32_t)buffer[3] << 8) |
+        ((uint32_t)buffer[4]);
       int ret1 = uninstall_application(short_id);
       buffer[0] = ret1;
       ipc_notify_client(pid);
