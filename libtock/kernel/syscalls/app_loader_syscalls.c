@@ -29,6 +29,16 @@ returncode_t libtock_app_loader_set_abort_upcall(subscribe_upcall cb, void* user
   return tock_subscribe_return_to_returncode(sval);
 }
 
+returncode_t libtock_app_loader_set_unload_upcall(subscribe_upcall cb, void* userdata) {
+  subscribe_return_t sval = subscribe(DRIVER_NUM_APP_LOADER, 5, cb, userdata);
+  return tock_subscribe_return_to_returncode(sval);
+}
+
+returncode_t libtock_app_loader_set_uninstall_with_app_handle_upcall(subscribe_upcall cb, void* userdata) {
+  subscribe_return_t sval = subscribe(DRIVER_NUM_APP_LOADER, 6, cb, userdata);
+  return tock_subscribe_return_to_returncode(sval);
+}
+
 returncode_t libtock_app_loader_write_buffer(uint8_t* buffer, uint32_t len) {
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_APP_LOADER, 0, (void*) buffer, len);
   return tock_allow_ro_return_to_returncode(aval);
@@ -56,5 +66,15 @@ returncode_t libtock_app_loader_command_load(void) {
 
 returncode_t libtock_app_loader_command_abort(void) {
   syscall_return_t res = command(DRIVER_NUM_APP_LOADER, 5, 0, 0);
+  return tock_command_return_novalue_to_returncode(res);
+}
+
+returncode_t libtock_app_loader_command_unload(uint32_t app_short_id) {
+  syscall_return_t res = command(DRIVER_NUM_APP_LOADER, 6, app_short_id, 0);
+  return tock_command_return_novalue_to_returncode(res);
+}
+
+returncode_t libtock_app_loader_command_uninstall_with_app_handle(uint32_t app_handle) {
+  syscall_return_t res = command(DRIVER_NUM_APP_LOADER, 7, app_handle, 0);
   return tock_command_return_novalue_to_returncode(res);
 }
