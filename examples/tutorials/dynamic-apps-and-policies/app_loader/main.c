@@ -194,52 +194,6 @@ int uninstall_application(uint32_t id) {
   uninstall_done = false;
 }
 
-/******************************************************************************************************
-*
-* Function to write the app into the flash
-*
-* Takes app size and the app binary as arguments
-******************************************************************************************************/
-
-// int write_app(double size, uint8_t binary[]) {
-
-//   uint32_t write_count = 0;
-//   uint8_t write_buffer[FLASH_BUFFER_SIZE];
-//   uint32_t flash_offset = 0;
-
-//   // This value can be changed to different sizes
-//   // to mimic different bus widths.
-//   uint32_t write_buffer_size = FLASH_BUFFER_SIZE;
-
-//   write_count = (size + write_buffer_size - 1) / write_buffer_size;
-
-//   for (uint32_t offset = 0; offset < write_count; offset++) {
-
-//     memset(write_buffer, 0, write_buffer_size);
-//     // copy binary to write buffer
-//     flash_offset = (offset * write_buffer_size);
-//     size_t bytes_left = size - flash_offset;
-//     size_t chunk      = bytes_left < write_buffer_size ? bytes_left : write_buffer_size;
-//     memcpy(write_buffer, &binary[write_buffer_size * offset], chunk);
-//     int ret1 = libtocksync_app_loader_write(flash_offset, write_buffer_size, write_buffer, write_buffer_size);
-//     if (ret1 != RETURNCODE_SUCCESS) {
-//       printf("[Error] Failed writing data to flash at address: 0x%lx\n", flash_offset);
-//       printf("[Error] Error nature: %d\n", ret1);
-//       return -1;
-//     }
-//   }
-
-//   // Now that we are done writing the binary, we ask the kernel to finalize it.
-//   printf("Done writing app, finalizing.\n");
-//   int ret2 = libtocksync_app_loader_finalize();
-//   if (ret2 != RETURNCODE_SUCCESS) {
-//     printf("[Error] Failed to finalize new process binary.\n");
-//     return -1;
-//   }
-
-//   return 0;
-// }
-
 static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
   uint8_t* buffer         = (uint8_t*) (uintptr_t) buf;
   const char* name_buffer = (const char*) (uintptr_t) buf;
@@ -306,7 +260,11 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
         return;
       }
 
-      uint32_t short_id = buffer[1];
+      uint32_t short_id =
+      ((uint32_t)buffer[1] << 24) |
+      ((uint32_t)buffer[2] << 16) |
+      ((uint32_t)buffer[3] <<  8) |
+      ((uint32_t)buffer[4]);
       int ret1 = uninstall_application(short_id);
       buffer[0] = ret1;
       ipc_notify_client(pid);

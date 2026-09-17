@@ -47,6 +47,7 @@ uint8_t buf1[512];
 uint16_t selection        = 0;
 uint16_t det_selection    = 0;
 uint16_t binary_selection = 0;
+uint16_t process_selection     = 0;
 uint8_t process_control   = 0;
 
 size_t _app_load_service = -1;
@@ -327,6 +328,61 @@ static int install_binary(uint8_t id) {
   return _app_load_buf[0];
 }
 
+// Fill in menu entry with the process name (or back).
+static const char* uninstall_menu_get_item(void* data, uint16_t index) {
+  UNUSED(data);
+
+  int ret;
+  static char* process_names[20] = {NULL};
+
+  if (process_names[index] == NULL) {
+    process_names[index]    = malloc(50);
+    process_names[index][0] = '\x64';
+    process_names[index][1] = '\0';
+  }
+
+  uint32_t count;
+  libtock_process_info_get_process_ids(buf, 512, &count);
+
+  if (index < count) {
+    uint32_t* pids = (uint32_t*) buf;
+    libtock_process_info_get_process_name(pids[index], buf1, 512);
+    ret = snprintf(process_names[index], 50, MUI_31 "%s", buf1);
+    if (ret != 0) process_names[index][49] = '\0';
+  } else if (index == count) {
+    ret = snprintf(process_names[index], 50, MUI_15 "Back");
+    if (ret != 0) process_names[index][49] = '\0';
+  }
+
+  return process_names[index];
+}
+
+
+// Uses the App Load service to install requested binary.
+static int uninstall_binary(void) {
+  if (_app_load_service == (size_t) -1) return 0;
+
+  uint32_t count;
+  libtock_process_info_get_short_ids(buf, 512, &count);
+
+  uint32_t* shortids = (uint32_t*) buf;
+  uint32_t shortid   = shortids[process_selection];
+
+  _app_load_buf[0] = 3;
+  // Copy ShortID to the buffer
+  _app_load_buf[1] = (shortid >> 24) & 0xFF;
+  _app_load_buf[2] = (shortid >> 16) & 0xFF;
+  _app_load_buf[3] = (shortid >> 8) & 0xFF;
+  _app_load_buf[4] = shortid & 0xFF;
+  _done = false;
+
+  ipc_notify_service(_app_load_service);
+  yield_for(&_done);
+
+  return _app_load_buf[0];
+}
+
+
 static uint16_t binaries_get_cnt(void* data) {
   UNUSED(data);
 
@@ -370,6 +426,15 @@ static uint8_t mui_u8g2_btn_goto_load_new_app(mui_t* ui_draw, uint8_t msg) {
 }
 
 
+static uint8_t mui_u8g2_btn_goto_unload_uninstall_app(mui_t* ui_draw, uint8_t msg) {
+  if (msg == MUIF_MSG_CURSOR_SELECT) {
+    int ret = uninstall_binary();
+    ui_draw->arg = (ret == 0 ? 43 : 42);
+  }
+  return mui_u8g2_btn_goto_wm_fi(ui_draw, msg);
+}
+
+
 muif_t muif_list[] = {
   // normal text style
   MUIF_U8G2_LABEL(),
@@ -405,12 +470,15 @@ muif_t muif_list[] = {
                      mui_u8g2_u16_list_goto_w1_pi),
   MUIF_U8G2_U16_LIST("DE", &det_selection, NULL, details_get_str, details_get_cnt, mui_u8g2_u16_list_goto_w1_pi),
   MUIF_U8G2_U16_LIST("BS", &binary_selection, NULL, binaries_get_str, binaries_get_cnt, mui_u8g2_u16_list_goto_w1_pi),
+  MUIF_U8G2_U16_LIST("PL", &process_selection, NULL, uninstall_menu_get_item, process_menu_get_item_count,
+                     mui_u8g2_u16_list_goto_w1_pi),
 
   MUIF_VARIABLE("CM", &process_control, mui_u8g2_u8_opt_line_wa_mse_pi),
   MUIF_BUTTON("CN", mui_u8g2_btn_goto_process_control),
   MUIF_BUTTON("CO", mui_u8g2_btn_goto_wm_fi),
 
   MUIF_BUTTON("AL", mui_u8g2_btn_goto_load_new_app),
+  MUIF_BUTTON("UL", mui_u8g2_btn_goto_unload_uninstall_app),
 };
 
 fds_t* fds =
@@ -422,7 +490,8 @@ fds_t* fds =
   MUI_STYLE(1)
   MUI_DATA("GP",
            MUI_3  "Inspect Processes|"
-           MUI_20 "Load New Applications")
+           MUI_20 "Load New Applications|"
+           MUI_30 "Uninstall Applications")
   MUI_XYA("GC", 5, 25, 0)
   MUI_XYA("GC", 5, 37, 1)
   MUI_XYA("GC", 5, 49, 2)
@@ -431,7 +500,7 @@ fds_t* fds =
   // APP LOAD SCREEN
   MUI_FORM(20)
   MUI_STYLE(0)
-  MUI_LABEL(5, 10, "Select Application")
+  MUI_LABEL(5, 10, "Install Applications")
   MUI_XY("HR", 0, 12)
   MUI_STYLE(1)
   MUI_XYA("BS", 5, 25, 0)
@@ -441,23 +510,39 @@ fds_t* fds =
 
   MUI_FORM(21)
   MUI_STYLE(0)
-  MUI_LABEL(5, 10, "Load Application?")
+  MUI_LABEL(5, 10, "Install and Load Application?")
   MUI_XYT("AL", 45, 35, "Yes")
   MUI_XYAT("CO", 55, 48, 20, "No")
 
   MUI_FORM(42)
   MUI_STYLE(0)
-  MUI_LABEL(5, 10, "Loading Failed!")
+  MUI_LABEL(5, 10, "Failed!")
   MUI_STYLE(1)
   MUI_XYAT(".G", 46, 25, 20, "Back")
 
 
   MUI_FORM(43)
   MUI_STYLE(0)
-  MUI_LABEL(5, 10, "Loading Success!")
+  MUI_LABEL(5, 10, "Success!")
   MUI_STYLE(1)
   MUI_XYAT(".G", 46, 25, 20, "Back")
 
+  // PROCESS UNLOAD AND UNINSTALL SCREEN
+  MUI_FORM(30)
+  MUI_STYLE(0)
+  MUI_LABEL(5, 10, "Uninstall Applications")
+  MUI_XY("HR", 0, 12)
+  MUI_STYLE(1)
+  MUI_XYA("PL", 5, 25, 0)
+  MUI_XYA("PL", 5, 37, 1)
+  MUI_XYA("PL", 5, 49, 2)
+  // MUI_XYA("BS", 5, 61, 3
+  
+  MUI_FORM(31)
+  MUI_STYLE(0)
+  MUI_LABEL(5, 10, "Unload and Uninstall Application?")
+  MUI_XYT("UL", 45, 35, "Yes")
+  MUI_XYAT("CO", 55, 48, 20, "No")
 
   // PROCESS CONTROL SCREEN
   MUI_FORM(3)
