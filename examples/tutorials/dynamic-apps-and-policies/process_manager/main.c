@@ -44,11 +44,11 @@ uint8_t checkbox_led3 = 0;
 uint8_t buf[512];
 uint8_t buf1[512];
 
-uint16_t selection        = 0;
-uint16_t det_selection    = 0;
-uint16_t binary_selection = 0;
-uint16_t process_selection     = 0;
-uint8_t process_control   = 0;
+uint16_t selection         = 0;
+uint16_t det_selection     = 0;
+uint16_t binary_selection  = 0;
+uint16_t process_selection = 0;
+uint8_t process_control    = 0;
 
 size_t _app_load_service = -1;
 uint8_t _app_load_buf[SHARED_BUF_SIZE] __attribute__((aligned(SHARED_BUF_SIZE)));
@@ -420,7 +420,8 @@ static const char* binaries_get_str(void* data, uint16_t index) {
 static uint8_t mui_u8g2_btn_goto_load_new_app(mui_t* ui_draw, uint8_t msg) {
   if (msg == MUIF_MSG_CURSOR_SELECT) {
     int ret = install_binary(binary_selection);
-    ui_draw->arg = (ret == 0 ? 43 : 42);
+    mui_GotoForm(ui_draw, ret == 0 ? 43 : 42, 0);
+    return 1;
   }
   return mui_u8g2_btn_goto_wm_fi(ui_draw, msg);
 }
@@ -429,7 +430,8 @@ static uint8_t mui_u8g2_btn_goto_load_new_app(mui_t* ui_draw, uint8_t msg) {
 static uint8_t mui_u8g2_btn_goto_unload_uninstall_app(mui_t* ui_draw, uint8_t msg) {
   if (msg == MUIF_MSG_CURSOR_SELECT) {
     int ret = uninstall_binary();
-    ui_draw->arg = (ret == 0 ? 43 : 42);
+    mui_GotoForm(ui_draw, ret == 0 ? 43 : 42, 0);
+    return 1;
   }
   return mui_u8g2_btn_goto_wm_fi(ui_draw, msg);
 }
@@ -537,7 +539,7 @@ fds_t* fds =
   MUI_XYA("PL", 5, 37, 1)
   MUI_XYA("PL", 5, 49, 2)
   // MUI_XYA("BS", 5, 61, 3
-  
+
   MUI_FORM(31)
   MUI_STYLE(0)
   MUI_LABEL(5, 10, "Unload and Uninstall Application?")
