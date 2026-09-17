@@ -45,7 +45,7 @@ returncode_t libtock_app_loader_load(subscribe_upcall cb);
 returncode_t libtock_app_loader_abort(subscribe_upcall cb);
 
 /*
- * Command to request the kernel to unload a running process identified 
+ * Command to request the kernel to unload a running process identified
  * by its ShortID.
  */
 returncode_t libtock_app_loader_unload(uint32_t app_short_id, subscribe_upcall cb);

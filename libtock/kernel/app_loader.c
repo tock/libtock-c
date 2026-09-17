@@ -1,8 +1,9 @@
+#include <stdio.h>
+#include <string.h>
+
 #include "app_loader.h"
 
 #include "syscalls/app_loader_syscalls.h"
-#include <stdio.h>
-#include <string.h>
 
 #define FLASH_BUFFER_SIZE 4096
 
