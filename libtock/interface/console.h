@@ -9,11 +9,12 @@ extern "C" {
 // Function signature for write done callbacks.
 //
 // - `length` (`int`): Number of bytes written
-typedef void (*libtock_console_callback_write)(returncode_t, uint32_t);
+typedef void (*libtock_console_callback_write)(uint32_t);
 
 // Function signature for read done callbacks.
 //
-// - `length` (`int`): Number of bytes read
+// - `status` (`returncode_t`): any error or success
+// - `length` (`int`): Number of bytes read, in case of success
 typedef void (*libtock_console_callback_read)(returncode_t, uint32_t);
 
 // Check if the driver exists.

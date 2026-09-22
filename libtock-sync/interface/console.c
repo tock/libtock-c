@@ -20,8 +20,7 @@ returncode_t libtocksync_console_write(const uint8_t* buffer, uint32_t length, u
   err = libtock_console_command_write((int) length);
   if (err != RETURNCODE_SUCCESS) return err;
 
-  err = libtocksync_console_yield_wait_for_write(written);
-  return err;
+  return libtocksync_console_yield_wait_for_write(written);
 }
 
 returncode_t libtocksync_console_read(uint8_t* buffer, uint32_t length, uint32_t* read) {

@@ -10,7 +10,6 @@
 char hello[] = "Hello World!\r\n";
 
 static void nop(
-  returncode_t ret __attribute__((unused)),
   uint32_t     bytes_written __attribute__((unused))) {}
 
 int main(void) {
