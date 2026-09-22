@@ -5,7 +5,7 @@
 #  * `tockloader`
 #  * arm-none-eabi toolchain
 #  * elf2tab
-#  * riscv32-embedded toolchain
+#  * RISC-V toolchain
 #
 # To use:
 #
@@ -70,7 +70,10 @@ in
       gcc-arm-embedded
       python3
       tockloader
-      pkgsCross.riscv32-embedded.buildPackages.gcc
+      # We're using `riscv64-embedded` because that's prebuilt on
+      # cache.nixos.org. It supports RISC-V 32-bit and 64-bit targets, and we
+      # link against our own precompiled newlib.
+      pkgsCross.riscv64-embedded.buildPackages.gcc
       unzip
       openocd
       uncrustify-0_75_1
