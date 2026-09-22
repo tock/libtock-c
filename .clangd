@@ -1,0 +1,14 @@
+# clangd configuration for libtock-c
+#
+# libtock-c uses GCC cross-compilers (arm-none-eabi / riscv64-none-elf). You can
+# generate a `compile_commands.json` database for `clangd` to use through e.g.,
+# `bear -- make -C examples/c_hello`.
+#
+# A few of the flags the Makefiles pass are GCC-only and break clang ("unknown
+# argument"). This would leave these files unindexed. We instead skip them here:
+CompileFlags:
+  Remove:
+    # GCC-only ARM PIC flags (Configuration.mk, CPPFLAGS_cortex-m).
+    - -msingle-pic-base
+    - -mpic-register=*
+    - -mno-pic-data-is-text-relative
