@@ -6,6 +6,7 @@
 #  * arm-none-eabi toolchain
 #  * elf2tab
 #  * RISC-V toolchain
+#  * clangd + bear, for editor/LSP integration
 #
 # To use:
 #
@@ -43,6 +44,14 @@ let
         "sha256-A2w3nYw0A+qcZbVLC+C7ZLsWFcEaP8tc7XVBmuwsIgM=";
   };
 
+  # clangd, for editor integration (eglot, lsp-mode, ...). Building a custom
+  # package here because `pkgs.clang-tools` is a wrapper that sets `CPATH`,
+  # which is incompatible with the libraries `libtock-c` uses.
+  clangd = pkgs.runCommand "clangd-${pkgs.llvmPackages.clang-unwrapped.version}" { } ''
+    mkdir -p $out/bin
+    ln -s ${pkgs.llvmPackages.clang-unwrapped}/bin/clangd $out/bin/clangd
+  '';
+
   # The formatting scripts require a specific version of uncrustify:
   uncrustify-0_75_1 = stdenv.mkDerivation rec {
     pname = "uncrustify";
@@ -66,6 +75,8 @@ in
     name = "tock-dev";
 
     buildInputs = with pkgs; [
+      bear
+      clangd
       elf2tab
       gcc-arm-embedded
       python3
