@@ -162,7 +162,7 @@ void _start(void* app_start __attribute__((unused)),
     "li   a2, 9\n"
     "jal  ra, lld_print_a2\n"
 
-    "li   a0, 6\n"
+    "li   a0, 5\n"
     "li   a1, 0\n"
     "li   a4, 5\n"
     "ecall\n"
