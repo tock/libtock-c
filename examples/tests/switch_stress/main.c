@@ -15,7 +15,8 @@
 
 // PROBE builds one probe: load sentinel arguments, jump `a0` nops into the
 // sled, then trap. It returns the syscall's first return word.
-#if defined(__thumb__)
+#if defined(__thumb__) && __ARM_ARCH_ISA_THUMB >= 2
+// ARMv7-M (Cortex-M4, M7, ...)
 __asm__ (
   ".syntax unified\n"
   ".thumb\n"
@@ -42,6 +43,37 @@ __asm__ (
   "  .endr\n"
   "  svc  \\svcn\n"
   "  bx   lr\n"
+  ".endm\n"
+  );
+#elif defined(__thumb__)
+// ARMv6-M (Cortex-M0/M0+)
+__asm__ (
+  ".syntax unified\n"
+  ".thumb\n"
+  ".section .text.probes, \"ax\", %progbits\n"
+  ".macro PROBE name, svcn\n"
+  "  .balign 4\n"
+  "  .thumb_func\n"
+  "  .global \\name\n"
+  "\\name:\n"
+  "  adr  r2, 8f\n"                     // needs 8f to be 4-aligned, see below
+  "  lsls r0, r0, #1\n"                 // 2 bytes per nop
+  "  adds r2, r2, r0\n"
+  "  adds r2, #1\n"                     // keep the Thumb bit
+  "  mov  r12, r2\n"
+  "  ldr  r0, =0x0005A5A5\n"
+  "  ldr  r1, =0x00001234\n"
+  "  ldr  r2, =0x11112222\n"
+  "  ldr  r3, =0x33334444\n"
+  "  bx   r12\n"
+  "  .balign 4\n"
+  "8:\n"
+  "  .rept " STR(NOPS) "\n"
+  "  nop\n"
+  "  .endr\n"
+  "  svc  \\svcn\n"
+  "  bx   lr\n"
+  "  .ltorg\n"
   ".endm\n"
   );
 #elif defined(__riscv) && __riscv_xlen == 32
@@ -71,7 +103,7 @@ __asm__ (
   ".endm\n"
   );
 #else
-#error "switch_stress needs Thumb-2 or RV32"
+#error "switch_stress needs Thumb, Thumb-2 or RV32"
 #endif
 
 __asm__ (

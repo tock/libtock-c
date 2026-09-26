@@ -33,7 +33,7 @@ above, the system will either fault, or the app will detect that one or more
 of its sentinel values in the registers haven't been clobbered, causing it
 to raise an error.
 
-The app works on RISC-V and Thumb-2 systems (not ARMv6-M / Cortex-M0).
+The app works on RISC-V, Thumb (ARMv6-M) and Thumb-2 (ARMv7/8-M) systems.
 
 ## Running It
 
