@@ -9,9 +9,6 @@
 // Frequency to drive each PWM pin at, in hertz.
 #define PWM_FREQUENCY_HZ 1000
 
-// Maximum duty cycle accepted by the PWM driver (100.00%).
-#define MAX_DUTY_CYCLE 10000
-
 // Number of duty-cycle steps in one full pulse (off -> full brightness ->
 // off).
 #define PULSE_STEPS 50
@@ -25,7 +22,7 @@ static uint16_t triangle_duty_cycle(uint32_t step) {
   uint32_t half  = PULSE_STEPS / 2;
   uint32_t phase = step % PULSE_STEPS;
   uint32_t level = (phase < half) ? phase : (PULSE_STEPS - phase);
-  return (uint16_t) (level * MAX_DUTY_CYCLE / half);
+  return (uint16_t) (level * 10000 / half);
 }
 
 int main(void) {
@@ -55,7 +52,6 @@ int main(void) {
   // Offset each pin's starting phase within the pulse so pins do not all
   // pulse in lockstep.
   uint32_t phase_offset = PULSE_STEPS / count;
-  if (phase_offset == 0) phase_offset = 1;
 
   uint32_t step = 0;
   while (1) {
