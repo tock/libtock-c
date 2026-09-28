@@ -12,7 +12,7 @@
 	shallow = true
 [submodule "RadioLib/RadioLib"]
 	path = RadioLib/RadioLib
-	url = https://github.com/jgromes/RadioLib.git
+	url = https://github.com/jlab-sensing/RadioLib.git
 	shallow = true
 [submodule "lwip/lwip"]
 	path = lwip/lwip

@@ -36,4 +36,11 @@ $(LIBNAME)_SRCS  :=                                                \
     $(wildcard $($(LIBNAME)_DIR)/$(LIBNAME)/src/modules/n*/*.cpp)  \
     $(wildcard $($(LIBNAME)_DIR)/$(LIBNAME)/src/protocols/*/*.cpp) \
 
+# Disable some exceptions
+#override CPPFLAGS_$(LIBNAME) += -fno-rtti
+#override CPPFLAGS_$(LIBNAME) += -fno-exceptions
+
+# Regions
+override CPPFLAGS_$(LIBNAME) += -DRADIOLIB_LORAWAN_REGION_US915_ENABLE
+
 include $(TOCK_USERLAND_BASE_DIR)/TockLibrary.mk
