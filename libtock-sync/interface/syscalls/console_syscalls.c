@@ -4,9 +4,9 @@ returncode_t libtocksync_console_yield_wait_for_write(uint32_t* bytes_written) {
   yield_waitfor_return_t ret;
   ret = yield_wait_for(DRIVER_NUM_CONSOLE, 1);
 
-  *bytes_written = ret.data1;
+  *bytes_written = ret.data0;
 
-  return tock_status_to_returncode(ret.data0);
+  return RETURNCODE_SUCCESS;
 }
 
 returncode_t libtocksync_console_yield_wait_for_read(uint32_t* bytes_read) {
