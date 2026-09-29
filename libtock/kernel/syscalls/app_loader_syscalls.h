@@ -87,6 +87,31 @@ returncode_t libtock_app_loader_command_abort(void);
  */
 returncode_t libtock_app_loader_set_abort_upcall(subscribe_upcall cb, void* userdata);
 
+/*
+ * Command to request the kernel to unload a running process.
+ */
+returncode_t libtock_app_loader_command_unload(uint32_t app_short_id);
+
+/*
+ * Function to setup the callback from capsule.
+ * This function takes in the function that will be executed
+ * when the callback is triggered.
+ */
+returncode_t libtock_app_loader_set_unload_upcall(subscribe_upcall cb, void* userdata);
+
+/*
+ * Command to request the kernel to uninstall an application binary identified by an
+ * app handle (returned by the unload function).
+ */
+returncode_t libtock_app_loader_command_uninstall_with_app_handle(uint32_t app_handle);
+
+/*
+ * Function to setup the callback from capsule.
+ * This function takes in the function that will be executed
+ * when the callback is triggered.
+ */
+returncode_t libtock_app_loader_set_uninstall_with_app_handle_upcall(subscribe_upcall cb, void* userdata);
+
 
 
 #ifdef __cplusplus

@@ -29,3 +29,16 @@ returncode_t libtocksync_app_loader_yield_wait_for_abort(void) {
   ywf = yield_wait_for(DRIVER_NUM_APP_LOADER, 4);
   return tock_status_to_returncode(ywf.data0);
 }
+
+returncode_t libtocksync_app_loader_yield_wait_for_unload(uint32_t* app_handle) {
+  yield_waitfor_return_t ywf;
+  ywf         = yield_wait_for(DRIVER_NUM_APP_LOADER, 5);
+  *app_handle = (uint32_t) ywf.data1;
+  return tock_status_to_returncode(ywf.data0);
+}
+
+returncode_t libtocksync_app_loader_yield_wait_for_uninstall_with_app_handle(void) {
+  yield_waitfor_return_t ywf;
+  ywf = yield_wait_for(DRIVER_NUM_APP_LOADER, 6);
+  return tock_status_to_returncode(ywf.data0);
+}
