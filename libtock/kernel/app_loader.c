@@ -81,7 +81,7 @@ returncode_t libtock_app_loader_write(uint32_t offset, uint8_t* chunk_data, size
 
   ret = libtock_app_loader_command_write(offset, chunk_len);
   if (ret != RETURNCODE_SUCCESS) {
-    printf("[Error] Flash write failed at offset 0x" PRIu32 ": err %d\n", offset, ret);
+    printf("[Error] Flash write failed at offset 0x%" PRIu32 ": err %d\n", offset, ret);
     return ret;
   }
 

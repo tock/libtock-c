@@ -110,6 +110,7 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
 
   int offset       = 0;
   int num_binaries = sizeof(binary_sizes) / sizeof(binary_sizes[0]);
+  int ret, ret1;
 
   if (len < 1) {
     // Need at least one byte for the command.
@@ -156,8 +157,8 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
         return;
       }
 
-      app_id = buffer[1];
-      int ret = install_binary(app_id);
+      app_id    = buffer[1];
+      ret       = install_binary(app_id);
       buffer[0] = ret;
       ipc_notify_client(pid);
       break;
@@ -175,7 +176,7 @@ static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) voi
         ((uint32_t)buffer[2] << 16) |
         ((uint32_t)buffer[3] << 8) |
         ((uint32_t)buffer[4]);
-      int ret1 = uninstall_application(short_id);
+      ret1      = uninstall_application(short_id);
       buffer[0] = ret1;
       ipc_notify_client(pid);
       break;
