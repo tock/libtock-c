@@ -562,9 +562,17 @@ TOOLCHAIN_cortex-m3 := $(TOOLCHAIN_cortex-m)
 TOOLCHAIN_cortex-m4 := $(TOOLCHAIN_cortex-m)
 TOOLCHAIN_cortex-m7 := $(TOOLCHAIN_cortex-m)
 
-# Setup the correct compiler. For cortex-m we only support GCC as it is the only
-# toolchain with the PIC support we need for Tock userspace apps.
-CC_cortex-m  := -gcc
+# For ARM we default to GCC, but can support clang as well. As of Sep 2026 it
+# doesn't really make sense that anyone would want to compile a libtock-c app
+# with clang for ARM as it does not support the PIC variant we use. However,
+# clang is useful to support clangd as an LSP language server in code editors.
+ifeq ($(CLANG),)
+  # Default to GCC
+  CC_cortex-m := -gcc
+else
+  # If `CLANG=1` on command line, use -clang.
+  CC_cortex-m := -clang
+endif
 CC_cortex-m0 := $(CC_cortex-m)
 CC_cortex-m3 := $(CC_cortex-m)
 CC_cortex-m4 := $(CC_cortex-m)
@@ -639,12 +647,18 @@ override CPPFLAGS_cortex-m += \
       $(CPPFLAGS_PIC)\
       -mthumb\
       -mfloat-abi=soft\
-      -msingle-pic-base\
-      -mpic-register=r9\
-      -mno-pic-data-is-text-relative\
       -isystem $(NEWLIB_BASE_DIR_cortex-m)/arm/arm-none-eabi/include\
       -isystem $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/include/c++/$(LIBCPP_VERSION_cortex-m)\
       -isystem $(LIBCPP_BASE_DIR_cortex-m)/arm/arm-none-eabi/include/c++/$(LIBCPP_VERSION_cortex-m)/arm-none-eabi
+
+# If we are NOT using clang, then specify the PIC flags that are GCC-only.
+# Adding these flags is the normal case.
+ifeq ($(CLANG),)
+  override CPPFLAGS_cortex-m += \
+      -msingle-pic-base \
+      -mpic-register=r9 \
+      -mno-pic-data-is-text-relative
+endif
 
 # Work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85606
 override CPPFLAGS_cortex-m0 += $(CPPFLAGS_cortex-m) \
