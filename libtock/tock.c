@@ -150,9 +150,14 @@ void yield(void) {
   register uint32_t wait_field __asm__ ("r1") = 0;   // yield result ptr
   __asm__ volatile (
     "svc 0       \n"
+    // r0 and r1 clobbered as in/out operands, such that the compiler injects
+    // the specified values above, but doesn't rely on them being stable across
+    // the injected upcall:
+    : "+r" (wait), "+r" (wait_field)
     :
-    : "r" (wait), "r" (wait_field)
-    : "memory", "r2", "r3", "r12", "lr"
+    // Memory, remaining caller-saved registers, and condition flags are
+    // clobbered, with no in/out assumptions or constraints:
+    : "memory", "cc", "r2", "r3", "r12", "lr"
     );
 }
 
@@ -184,9 +189,14 @@ int yield_no_wait(void) {
   register uint8_t* wait_field __asm__ ("r1") = &result;   // yield result ptr
   __asm__ volatile (
     "svc 0       \n"
+    // r0 and r1 clobbered as in/out operands, such that the compiler injects
+    // the specified values above, but doesn't rely on them being stable across
+    // the injected upcall:
+    : "+r" (wait), "+r" (wait_field)
     :
-    : "r" (wait), "r" (wait_field)
-    : "memory", "r2", "r3", "r12", "lr"
+    // Memory, remaining caller-saved registers, and condition flags are
+    // clobbered, with no in/out assumptions or constraints:
+    : "memory", "cc", "r2", "r3", "r12", "lr"
     );
   return (int)result;
 }
@@ -404,8 +414,13 @@ void yield(void) {
   __asm__ volatile (
     "li       a4, 0\n"
     "ecall\n"
+    // a0 and a1 clobbered as in/out operands, such that the compiler injects
+    // the specified values above, but doesn't rely on them being stable across
+    // the injected upcall:
+    : "+r" (a0), "+r" (wait_field)
     :
-    : "r" (a0), "r" (wait_field)
+    // Memory and remaining caller-saved registers are clobbered, with no in/out
+    // assumptions or constraints:
     : "memory", "a2", "a3", "a4", "a5", "a6", "a7",
     "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
     );
@@ -418,8 +433,13 @@ int yield_no_wait(void) {
   __asm__ volatile (
     "li       a4, 0\n"
     "ecall\n"
+    // a0 and a1 clobbered as in/out operands, such that the compiler injects
+    // the specified values above, but doesn't rely on them being stable across
+    // the injected upcall:
+    : "+r" (a0), "+r" (a1)
     :
-    : "r" (a0), "r" (a1)
+    // Memory and remaining caller-saved registers are clobbered, with no in/out
+    // assumptions or constraints:
     : "memory", "a2", "a3", "a4", "a5", "a6", "a7",
     "t0", "t1", "t2", "t3", "t4", "t5", "t6", "ra"
     );
