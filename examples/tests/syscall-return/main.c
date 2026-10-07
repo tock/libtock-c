@@ -257,28 +257,28 @@ int main(void) {
   // allow_readonly
   printf("allow_ro: non-existent driver\n");
   aro = allow_readonly(DRIVER_NUM_NON_EXISTENT, 0, NULL, 0);
-  rc = tock_allow_ro_return_to_returncode(aro);
+  rc  = tock_allow_ro_return_to_returncode(aro);
   CHECK(rc == RETURNCODE_ENODEVICE && aro.ptr == NULL && aro.size == 0,
         "rc=%d ptr=%p size=%zu", rc, aro.ptr, aro.size);
 
   // allow_readwrite
   printf("allow_rw: non-existent driver\n");
   arw = allow_readwrite(DRIVER_NUM_NON_EXISTENT, 0, NULL, 0);
-  rc = tock_allow_rw_return_to_returncode(arw);
+  rc  = tock_allow_rw_return_to_returncode(arw);
   CHECK(rc == RETURNCODE_ENODEVICE && arw.ptr == NULL && arw.size == 0,
         "rc=%d ptr=%p size=%zu", rc, arw.ptr, arw.size);
 
   // allow_userspace_read
   printf("allow_ur: non-existent driver\n");
   aur = allow_userspace_read(DRIVER_NUM_NON_EXISTENT, 0, NULL, 0);
-  rc = tock_allow_userspace_r_return_to_returncode(aur);
+  rc  = tock_allow_userspace_r_return_to_returncode(aur);
   CHECK(rc == RETURNCODE_ENODEVICE && aur.ptr == NULL && aur.size == 0,
         "rc=%d ptr=%p size=%zu", rc, aur.ptr, aur.size);
 
   // subscribe
   printf("subscribe: non-existent driver\n");
   sub_f = subscribe(DRIVER_NUM_NON_EXISTENT, 0, NULL, 0);
-  rc = tock_subscribe_return_to_returncode(sub_f);
+  rc    = tock_subscribe_return_to_returncode(sub_f);
   CHECK(rc == RETURNCODE_ENODEVICE &&
         sub_f.callback == (subscribe_upcall*)NULL && sub_f.userdata == 0,
         "rc=%d cb=%p data=%p", rc, (void*)sub_f.callback, sub_f.userdata);
@@ -337,21 +337,21 @@ int main(void) {
 
   // memop 2: start of app RAM (SuccessPtr / SuccessU32)
   printf("memop 2: app RAM start (expect success, nonzero)\n");
-  m = memop(2, 0);
+  m         = memop(2, 0);
   ram_start = m.data;
   CHECK(m.status == TOCK_STATUSCODE_SUCCESS && ram_start != 0,
         "status=%d data=0x%" PRIxPTR, m.status, m.data);
 
   // memop 3: end of app RAM (SuccessPtr / SuccessU32)
   printf("memop 3: app RAM end (expect success, > RAM start)\n");
-  m = memop(3, 0);
+  m       = memop(3, 0);
   ram_end = m.data;
   CHECK(m.status == TOCK_STATUSCODE_SUCCESS && ram_end > ram_start,
         "status=%d data=0x%" PRIxPTR " ram_start=0x%" PRIxPTR, m.status, m.data, ram_start);
 
   // memop 1: sbrk(0) returns the current break, unchanged (SuccessPtr / SuccessU32)
   printf("memop 1: sbrk(0) current break (expect success, RAM start <= brk <= RAM end)\n");
-  m = memop(1, 0);
+  m       = memop(1, 0);
   cur_brk = m.data;
   CHECK(m.status == TOCK_STATUSCODE_SUCCESS && cur_brk >= ram_start && cur_brk <= ram_end,
         "status=%d brk=0x%" PRIxPTR, m.status, m.data);
@@ -378,7 +378,7 @@ int main(void) {
 
   // memop 5: end of app flash (SuccessPtr / SuccessU32)
   printf("memop 5: app flash end (expect success, > flash start)\n");
-  m = memop(5, 0);
+  m         = memop(5, 0);
   flash_end = m.data;
   CHECK(m.status == TOCK_STATUSCODE_SUCCESS && flash_end > flash_start,
         "status=%d data=0x%" PRIxPTR " flash_start=0x%" PRIxPTR, m.status, m.data, flash_start);
