@@ -74,6 +74,44 @@ returncode_t tock_command_return_u32_u32_to_returncode(syscall_return_t command_
   }
 }
 
+returncode_t tock_command_return_u32_u64_or_u64_to_returncode(syscall_return_t command_return, uint32_t* val1,
+                                                              uint64_t* val2) {
+  // The success and failure cases here are not symmetric. Two options:
+  // Success with u32 and u64
+  // Failure with u64
+  if (command_return.type == TOCK_SYSCALL_SUCCESS_U32_U64) {
+    // Success case: u32 and u64
+    *val1 = command_return.data[0];
+#if defined(__riscv) && __riscv_xlen == 64
+    // TRD-RISCV64BIT
+    *val2 = command_return.data[1];
+#else
+    // TRD104
+    uint32_t lsb = command_return.data[1];
+    uint32_t msb = command_return.data[2];
+    *val2 = (((uint64_t)msb) << 32) | ((uint64_t)lsb);
+#endif
+    return RETURNCODE_SUCCESS;
+  } else if (command_return.type == TOCK_SYSCALL_FAILURE_U64) {
+    // Failure case: error and u64
+#if defined(__riscv) && __riscv_xlen == 64
+    // TRD-RISCV64BIT
+    *val2 = command_return.data[1];
+#else
+    // TRD104
+    uint32_t lsb = command_return.data[1];
+    uint32_t msb = command_return.data[2];
+    *val2 = (((uint64_t)msb) << 32) | ((uint64_t)lsb);
+#endif
+    return tock_status_to_returncode(command_return.data[0]);
+  } else {
+    // The remaining SyscallReturn variants must never happen if using this
+    // function. We return `EBADRVAL` to signal an unexpected return variant.
+    return RETURNCODE_EBADRVAL;
+  }
+}
+
+
 returncode_t tock_subscribe_return_to_returncode(subscribe_return_t subscribe_return) {
   // If the subscribe was successful, easily return SUCCESS.
   if (subscribe_return.success) {
