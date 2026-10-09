@@ -1,0 +1,7 @@
+TOCK_USERLAND_BASE_DIR = ../../..
+
+STACK_SIZE       = 2048
+APP_HEAP_SIZE    = 8192
+KERNEL_HEAP_SIZE = 2048
+
+include $(TOCK_USERLAND_BASE_DIR)/AppMakefile.mk
