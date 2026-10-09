@@ -5,7 +5,6 @@
 
 #include <libtock-sync/services/alarm.h>
 #include <libtock/kernel/app_loader.h>
-// #include <libtock/kernel/ipc.h>
 
 #include "ymodem.h"
 
@@ -74,8 +73,6 @@ static void app_load_done_callback(int                           arg0,
 }
 
 
-// typedef void (*ymodem_cb_file_started)(uint32_t);
-// typedef void (*ymodem_cb_block_received)(uint8_t*, uint32_t);
 
 uint32_t ymodem_offset = 0;
 
@@ -98,12 +95,6 @@ static void ymodem_block_received_callback(uint8_t* buffer, uint32_t len) {
 
   printf("[AppLoader] ymodem writing block [%i:%i]\n", ymodem_offset, ymodem_offset+len);
 
-  // int ret1 = write_app(binary_size, app_data);
-  // if (ret1 != RETURNCODE_SUCCESS) {
-  //   printf("[Error] App flash write unsuccessful: %d.\n", ret1);
-  //   return -1;
-  // }
-
 
    ret = libtock_app_loader_set_buffer(buffer, len);
   if (ret != RETURNCODE_SUCCESS) {
@@ -119,8 +110,6 @@ static void ymodem_block_received_callback(uint8_t* buffer, uint32_t len) {
     return;
   }
   // wait on write done callback
-  // yield_for(&write_done);
-
   yield_wait_for(0x10001,1);
   printf("[AppLoader] block written\n");
 
@@ -155,60 +144,6 @@ static void ymodem_file_received_callback(void) {
   
 }
 
-// int install_binary(uint8_t id) {
-//   if (BINARY_COUNT == 0) {
-//     printf("[App Loader] No included apps. Unable to install!\n");
-//     return -1;
-//   }
-
-//   const char* app_name    = NULL;
-//   unsigned char* app_data = NULL;
-//   size_t app_size         = 0;
-//   size_t binary_size      = 0;
-
-//   app_name    = binary_names[id];
-//   app_data    = (uint8_t*)(uintptr_t)binaries[id];
-//   app_size    = binary_sizes[id];
-//   binary_size = actual_sizes[id];
-
-//   printf("[AppLoader] Requested to load %s!\n", app_name);
-
-//   int ret = libtock_app_loader_setup(app_size);
-//   if (ret != RETURNCODE_SUCCESS) {
-//     printf("[Error] Setup Failed: %d.\n", ret);
-//     return -1;
-//   }
-
-//   yield_for(&setup_done);
-//   setup_done = false;
-
-//   printf("[Success] Setup successful. Writing app to flash.\n");
-//   int ret1 = write_app(binary_size, app_data);
-//   if (ret1 != RETURNCODE_SUCCESS) {
-//     printf("[Error] App flash write unsuccessful: %d.\n", ret1);
-//     return -1;
-//   }
-
-//   printf("[Success] App flashed successfully. Creating process now.\n");
-//   int ret2 = libtock_app_loader_load();
-//   if (ret2 != RETURNCODE_SUCCESS) {
-//     printf("[Error] Process creation failed: %d.\n", ret2);
-//     return -1;
-//   }
-
-//   // wait on load done callback
-//   yield_for(&load_done);
-//   load_done = false;
-
-//   return 0;
-// }
-
-/******************************************************************************************************
-*
-* Function to write the app into the flash
-*
-* Takes app size and the app binary as arguments
-******************************************************************************************************/
 
 int write_app(double size, uint8_t binary[]) {
 
@@ -261,70 +196,6 @@ int write_app(double size, uint8_t binary[]) {
   return 0;
 }
 
-// static void ipc_callback(int pid, int len, int buf, __attribute__ ((unused)) void* ud) {
-//   int ret;
-//   uint8_t* buffer         = (uint8_t*) (uintptr_t) buf;
-//   const char* name_buffer = (const char*) (uintptr_t) buf;
-
-//   int offset       = 0;
-//   int num_binaries = sizeof(binary_sizes) / sizeof(binary_sizes[0]);
-
-//   if (len < 1) {
-//     // Need at least one byte for the command.
-//     return;
-//   }
-
-//   uint8_t command = buffer[0];
-
-//   switch (command) {
-//     case 0:
-//       // Return the number of binaries available
-//       buffer[0] = num_binaries;
-//       ipc_notify_client(pid);
-//       break;
-
-//     case 1:
-//       // Return the list of binaries to display on the menu
-//       if (len < num_binaries + 1) {
-//         printf("[AppLoader] Returning on Command 0x01\n");
-//         return;
-//       }
-
-//       for (int i = 0; i < num_binaries; i++) {
-//         size_t name_len = strlen(binary_names[i]);
-
-//         if ((size_t)(offset + name_len + 1) > (size_t)len) {
-//           printf("[AppLoader] Buffer overflow risk.\n");
-//           return;
-//         }
-
-//         // Copy the binary name to the buffer
-//         memcpy((void*) &name_buffer[offset], binary_names[i], name_len + 1);
-//         offset += name_len + 1;
-//       }
-
-//       ipc_notify_client(pid);
-//       break;
-
-//     case 2:
-//       // install certain app
-//       if (len < 2) {
-//         // app id missing
-//         printf("[AppLoader] Returning on Command 0x02\n");
-//         return;
-//       }
-
-//       app_id = buffer[1];
-//       ret = install_binary(app_id);
-//       buffer[0] = ret;
-//       ipc_notify_client(pid);
-//       break;
-
-//     case 3:
-//       ymodem_start(block_data, ymodem_file_started_callback, ymodem_block_received_callback, ymodem_file_received_callback);
-//       break;
-//   }
-// }
 
 
 int main(void) {
@@ -361,9 +232,6 @@ int main(void) {
     printf("[Error] Failed to set load done callback: %d\n", err4);
     return err4;
   }
-
-  // ipc_register_service_callback("app_loader", ipc_callback,
-  //                               NULL);
 
   ymodem_start(block_data, ymodem_file_started_callback, ymodem_block_received_callback, ymodem_file_received_callback);
 

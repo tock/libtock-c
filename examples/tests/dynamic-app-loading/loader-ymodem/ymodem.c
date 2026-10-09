@@ -4,36 +4,7 @@
 
 // YMODEM file receiver test app.
 //
-// Receives one or more files sent by a standard YMODEM sender (e.g.
-// `sb`/`sx` from the `lrzsz` package) over the console/UART, using CRC-16
-// mode. This app doesn't do anything with the received bytes other than
-// verify them against the sender-declared file size and print a running
-// checksum, to confirm the transfer worked -- it's a protocol test, not an
-// app installer.
-//
-// Usage: start this app, then run (on the host, connected to the board's
-// serial port):
-//
-//     sb <file>
-//
-// (piped to/from the serial device, or run inside a terminal program like
-// `cu`/`minicom` that supports invoking `sb`/`sz` directly).
-//
-// Protocol notes / simplifications:
-//
-// - Only CRC-16 mode is implemented (this app always requests it by sending
-//   'C'); the legacy single-byte checksum mode is not supported.
-// - Both 128-byte (SOH) and 1024-byte (STX) blocks are accepted.
-// - This app has no way to time out a `libtocksync_console_read()` call, so
-//   there's no retry loop around the initial handshake: it sends a single
-//   'C' and then blocks waiting for the sender's first block. Start the
-//   host-side sender before or shortly after starting this app -- YMODEM
-//   senders retry sending their first block for a while (`sb` waits about a
-//   minute) waiting for exactly this 'C', so exact timing doesn't matter,
-//   just don't wait too long between the two.
-// - Once a transfer is underway, retries are safe with blocking reads: a
-//   NAK causes the sender to resend the same block, so this app can just
-//   block waiting for that resend.
+// Receives one or more files sent by a standard YMODEM sender.
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -55,10 +26,6 @@
 #define YM_CAN 0x18
 #define YM_CRC_MODE_CHAR 'C'
 
-
-
-
-
 typedef enum {
   YM_BLOCK_OK,
   YM_BLOCK_EOT,
@@ -71,24 +38,9 @@ typedef enum {
 static bool ym_read_exact(uint8_t* buf, uint32_t len) {
   uint32_t read_count;
   uint32_t timeout = 2000;
-  // if (len > 2) {
-  //   printf("do read len:%i\n", len);
-  //   timeout=5000;
-  // }else{
-  //   printf("do read\n");
-  // }
+
   returncode_t ret = libtocksync_ymodem_read_with_timeout(buf, len, &read_count, timeout);
 
-  // if (len>2) {
-  //   printf("read done %i, %i\n", ret, read_count);
-  //   printf("got: ");
-  //   for (int i=0;i<read_count;i++) {
-  //     printf("%c", buf[i]);
-  //   }
-  //   printf("\n");
-  // }else{
-  //   printf("read done %d %d\n", ret, read_count);
-  // }
   return ret == RETURNCODE_SUCCESS && read_count == len;
 }
 
@@ -119,11 +71,8 @@ static uint16_t ym_crc16(const uint8_t* data, uint32_t len) {
 // fills in `block_data` (module-global scratch buffer), `*data_len` (128 or
 // 1024), and `*block_num`.
 static ym_block_result_t ym_receive_block(uint32_t* data_len, uint8_t* block_num, uint8_t* block_data) {
-  printf("ymodem - recv block start\n");
   uint8_t marker;
   if (!ym_read_exact(&marker, 1)) return YM_BLOCK_ERROR;
-
-  // printf("got byte %i\n", marker);
 
   if (marker == YM_EOT) return YM_BLOCK_EOT;
   if (marker == YM_CAN) return YM_BLOCK_CANCEL;
@@ -139,9 +88,7 @@ static ym_block_result_t ym_receive_block(uint32_t* data_len, uint8_t* block_num
   }
 
   uint8_t header[2];
-  // printf("A\n");
   if (!ym_read_exact(header, 2)) return YM_BLOCK_ERROR;
-  // printf("got header 2\n");
   if (!ym_read_exact(block_data, len)) return YM_BLOCK_ERROR;
   uint8_t crc_bytes[2];
   if (!ym_read_exact(crc_bytes, 2)) return YM_BLOCK_ERROR;
@@ -154,7 +101,6 @@ static ym_block_result_t ym_receive_block(uint32_t* data_len, uint8_t* block_num
 
   *block_num = header[0];
   *data_len  = len;
-  printf("ymodem - recv block done\n");
   return YM_BLOCK_OK;
 }
 
@@ -168,18 +114,14 @@ static bool ym_receive_header(char* filename, uint32_t filename_len, uint32_t* f
     uint32_t data_len;
     uint8_t block_num;
 
-    // printf("ymodem: waiting for sender (start e.g. `sb <file>` now)...\n");
   ym_write_byte(YM_CRC_MODE_CHAR);
 
     ym_block_result_t result = ym_receive_block(&data_len, &block_num, block_data);
-// printf("received block or timeout %d\n", result);
 
     if (result == YM_BLOCK_ERROR) {
       // timeout
       continue;
     }
-
-    // printf("received good news\n");
 
     if (result == YM_BLOCK_CANCEL) {
       printf("ymodem: transfer cancelled by sender\n");
@@ -261,13 +203,6 @@ static bool ym_receive_file(uint32_t filesize, uint8_t* block_data, ymodem_cb_bl
       copy_len = (remaining < data_len) ? remaining : data_len;
     }
 
-    // printf("got: ");
-    // for (int i=0;i<copy_len;i++) {
-    //   printf("%c", block_data[i]);
-    // }
-    // printf("\n");
-
-
     for (uint32_t i = 0; i < copy_len; i++) {
       checksum += block_data[i];
     }
@@ -276,17 +211,13 @@ static bool ym_receive_file(uint32_t filesize, uint8_t* block_data, ymodem_cb_bl
     expected_block++; // Wraps at 256, matching the protocol's block numbering.
     ym_write_byte(YM_ACK);
 
-    printf("ymodem: received %i bytes\n", (int) total_received);
-
     cb_block_received(block_data, copy_len);
   }
-  printf("file loop done\n");
+  // printf("ymodem: done, %i bytes received (expected %i), checksum=0x%08i\n",
+  //        (int) total_received, (int) filesize, (int) checksum);
 
-  printf("ymodem: done, %i bytes received (expected %i), checksum=0x%08i\n",
-         (int) total_received, (int) filesize, (int) checksum);
-
-  printf("ymodem: done, %i bytes received (expected %i)\n",
-         (int) total_received, (int) filesize);
+  // printf("ymodem: done, %i bytes received (expected %i)\n",
+  //        (int) total_received, (int) filesize);
   if (filesize > 0 && total_received != filesize) {
     printf("ymodem: WARNING size mismatch\n");
   }
@@ -298,25 +229,6 @@ void ymodem_start(uint8_t* block_data, ymodem_cb_file_started cb_file_started,
   ymodem_cb_block_received cb_block_received,
   ymodem_cb_file_received cb_file_received ) {
 
-
-  printf("ymodem: waiting for sender (start e.g. `sb <file>` now)...\n");
-  // uint32_t data_len;
-  // uint8_t block_num;
-
-  // while (true) {
-  //   ym_write_byte(YM_CRC_MODE_CHAR);
-
-  //   ym_block_result_t result = ym_receive_block(&data_len, &block_num);
-
-  //   if (result == YM_BLOCK_ERROR) {
-  //     // timeout
-  //     continue;
-  //   } else {
-  //     break;
-  //   }
-  // }
-
-
   while (true) {
     char filename[YM_MAX_FILENAME];
     uint32_t filesize;
@@ -325,8 +237,6 @@ void ymodem_start(uint8_t* block_data, ymodem_cb_file_started cb_file_started,
       printf("ymodem: batch complete\n");
       break;
     }
-
-    printf("ymodem: receiving \"%s\" (%lu bytes)\n", filename, (unsigned long) filesize);
 
      cb_file_started(filesize);
 

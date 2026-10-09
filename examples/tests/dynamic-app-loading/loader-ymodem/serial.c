@@ -14,9 +14,6 @@
 #define UPCALL_READ_DONE  2
 
 
-
-
-
 static returncode_t libtock_ymodem_set_read_allow(const uint8_t* buffer, uint32_t len) {
   allow_ro_return_t aval = allow_readonly(DRIVER_NUM_YMODEM, 1, (void*) buffer, len);
   return tock_allow_ro_return_to_returncode(aval);
@@ -27,8 +24,6 @@ static returncode_t libtock_ymodem_set_readwrite_allow(uint8_t* buffer, uint32_t
   return tock_allow_rw_return_to_returncode(aval);
 }
 
-
-
 static returncode_t libtock_ymodem_command_write(int length) {
   syscall_return_t cval = command(DRIVER_NUM_YMODEM, 1, length, 0);
   return tock_command_return_novalue_to_returncode(cval);
@@ -38,7 +33,6 @@ static returncode_t libtock_ymodem_command_read(int length) {
   syscall_return_t cval = command(DRIVER_NUM_YMODEM, 2, length, 0);
   return tock_command_return_novalue_to_returncode(cval);
 }
-
 
 
 
