@@ -366,10 +366,6 @@ override CPPFLAGS_rv32imac += $(CPPFLAGS_rv32) \
       -mabi=ilp32\
       -mcmodel=medlow
 
-# Set the base `WLFLAGS` linker flags for all RISC-V variants.
-override WLFLAGS_rv32 += \
-      -Wl,--no-relax   # Prevent use of global_pointer for RISC-V.
-
 # Use the base linker flags for each RISC-V variant.
 override WLFLAGS_rv32i    += $(WLFLAGS_rv32)
 override WLFLAGS_rv32imc  += $(WLFLAGS_rv32)
@@ -520,10 +516,6 @@ override CPPFLAGS_rv64imac += $(CPPFLAGS_rv64) \
       -march=rv64imac\
       -mabi=lp64\
       -mcmodel=medany
-
-# Set the base `WLFLAGS` linker flags for all RISC-V variants.
-override WLFLAGS_rv64 += \
-      -Wl,--no-relax   # Prevent use of global_pointer for RISC-V.
 
 # Use the base linker flags for each RISC-V variant.
 override WLFLAGS_rv64i    += $(WLFLAGS_rv64)
