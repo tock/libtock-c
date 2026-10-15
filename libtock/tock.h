@@ -273,6 +273,22 @@ void* tock_app_writeable_flash_region_ends_at(int region_index);
 // Checks to see if the given driver number exists on this platform.
 bool driver_exists(uint32_t driver);
 
+// Creates a duplicate driver number for `instance_num` additional instances
+// of the driver identified by `driver_num`. This encodes `instance_num` into
+// bits 27:24 of the driver number, which must otherwise be unused by
+// `driver_num`.
+#define TOCK_DUP_DRIVER_NUM(driver_num, instance_num)                          \
+  (__extension__ ({                                                           \
+    _Static_assert((instance_num) < 16,                                      \
+        "This mechanism only supports up to 15 additional driver numbers.");  \
+    _Static_assert(((driver_num) & 0x0f000000) == 0,                         \
+        "Must use the base driver number to create a duplicate.");           \
+    _Static_assert((instance_num) > 0,                                       \
+        "This mechanism is for new instance indices above the base driver "  \
+        "number.");                                                          \
+    (((uint32_t) (instance_num) << 24) | (uint32_t) (driver_num));           \
+  }))
+
 
 const char* tock_strerr(statuscode_t status);
 const char* tock_strrcode(returncode_t returncode);
