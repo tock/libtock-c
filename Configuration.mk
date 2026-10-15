@@ -366,6 +366,9 @@ override CPPFLAGS_rv32imac += $(CPPFLAGS_rv32) \
       -mabi=ilp32\
       -mcmodel=medlow
 
+# Set the base `WLFLAGS` linker flags for all RISC-V variants.
+override WLFLAGS_rv32 += \
+
 # Use the base linker flags for each RISC-V variant.
 override WLFLAGS_rv32i    += $(WLFLAGS_rv32)
 override WLFLAGS_rv32imc  += $(WLFLAGS_rv32)
@@ -516,6 +519,9 @@ override CPPFLAGS_rv64imac += $(CPPFLAGS_rv64) \
       -march=rv64imac\
       -mabi=lp64\
       -mcmodel=medany
+
+# Set the base `WLFLAGS` linker flags for all RISC-V variants.
+override WLFLAGS_rv64 += \
 
 # Use the base linker flags for each RISC-V variant.
 override WLFLAGS_rv64i    += $(WLFLAGS_rv64)
