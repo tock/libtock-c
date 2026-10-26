@@ -332,6 +332,11 @@ void libtock_alarm_cancel(libtock_alarm_ticks_t* alarm) {
     root = alarm->next;
     if (root != NULL) {
       libtock_alarm_command_set_absolute(root->reference, root->dt);
+    } else {
+      // `root` is NULL, we have no more timers outstanding, make sure to cancel
+      // any pending alarms. Otherwise the pending timer can fire and trigger
+      // the assert in `alarm_upcall()`.
+      libtock_alarm_command_stop();
     }
   }
 
