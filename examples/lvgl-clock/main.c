@@ -54,9 +54,9 @@ static void update_callback(lv_timer_t* timer) {
   minutes = minutes % 60;
   hours = hours % 24;
 
-  const char *ampm = "am";
+  const char *ampm = "AM";
   if (ldate->hour > 12) {
-    ampm = "pm";
+    ampm = "PM";
   }
   hours = hours % 12;
 

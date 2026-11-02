@@ -6,6 +6,7 @@
 #include <libtock/tock.h>
 
 #include "lvgl_driver.h"
+#include "lvgl_tick.h"
 
 #define PIXEL_SIZE 2 // 16 bit for RGB565
 
@@ -47,14 +48,6 @@ static void indev_cb(__attribute__ ((unused)) lv_indev_t* _indev, lv_indev_data_
   }
 }
 
-static uint32_t tick_cb(void) {
-  uint32_t ticks;
-  libtock_alarm_command_read(&ticks);
-
-  uint32_t ms = libtock_alarm_ticks_to_ms(ticks);
-  return ms;
-}
-
 int lvgl_driver_init(int buffer_lines) {
   uint32_t width, height;
   int error = libtocksync_screen_get_resolution(&width, &height);
@@ -77,7 +70,7 @@ int lvgl_driver_init(int buffer_lines) {
   lv_display_set_buffers(display_device, buffer1, buffer2, buffer_size, LV_DISPLAY_RENDER_MODE_PARTIAL);
   lv_display_set_user_data(display_device, (void*)buffer_size);
 
-  lv_tick_set_cb(tick_cb);
+  lv_tick_set_cb(lvgl_tick_ms);
 
   int touches;
   if (libtock_touch_get_number_of_touches(&touches) == RETURNCODE_SUCCESS && touches >= 1) {

@@ -5,37 +5,18 @@
 #include "alarm.h"
 
 
-#define MAX_TICKS UINT32_MAX
-
-/** \brief Checks if `now` is between `reference` and `dt`, meaning
- *  the alarm has not yet expired.
- *
- * Invariants:
- * 1. `now` hasn't wrapped `reference`, i.e., in an infinite space,
- *    `now` - `reference` <= MAX_TICKS
- * 2. `dt` is at most MAX_TICKS, such that `reference + dt` at most
- *     wraps back to `reference`.
- * 3. `now` happens after `reference`, so if `now` is not "within"
- *    `reference` and `dt`, it is after, not before.
- * 4. `now` may be larger or smaller than `reference` since ticks
- *    wrap.
- *
- * Corrolaries:
- * - if `now` is larger than `reference`, `now - reference` is
- *   directly comparable to `dt` (1 & 2)
- * - if `now` is less than reference, `now - reference` wraps, and is
- * - comparable to `dt` because `now` is guaranteed to happened after
- *   `reference` (3)
- *
- * The result is that the check is fairly simple, but its simplicitly
- * relies specifically on `now` never happening before `reference`,
- * and thus tied to the specific logic in `alarm_upcall` (see inline
- * comment on delaying executing callbacks until after checking all
- * outstanding alarms).
- */
-static bool is_within(uint32_t now, uint32_t reference, uint32_t dt) {
-  return now - reference < dt;
-}
+// Longest single alarm scheduled by `libtock_alarm_in_ms`; longer alarms
+// are split into several consecutive alarms.
+//
+// This is half of the 32-bit tick range, rather than the full range: an
+// alarm is recognized as expired by comparing the ticks elapsed since its
+// reference (`now - reference`, modulo 2^32) to its `dt`. For an alarm with
+// `dt` close to 2^32, even a slight delay in handling its upcall makes
+// `now - reference` wrap around, and the alarm then appears to have almost
+// 2^32 ticks left (512s at the 8.4MHz tick rate exposed by a 24-bit RTC on
+// nRF52), delaying it and every alarm queued behind it. Keeping alarms
+// within half of the range tolerates up to 2^31 ticks of latency.
+#define MAX_TICKS (UINT32_MAX / 2)
 
 /** \brief Convert milliseconds to clock ticks
  *
@@ -101,67 +82,49 @@ uint32_t libtock_alarm_ticks_to_ms(uint32_t ticks) {
 
 static libtock_alarm_ticks_t* root = NULL;
 
+/** \brief Number of ticks until `alarm` expires, relative to `now`.
+ *
+ * Negative (or zero) if the alarm has expired.
+ *
+ * All outstanding alarms have a `reference` in the past (relative to
+ * `now`), and less than 2^32 ticks ago, so `now - reference` is the
+ * number of ticks elapsed since `reference`, even if the clock wrapped in
+ * between. Comparing this to `dt` is thus meaningful, and the returned value
+ * can be used to order alarms by expiration time, regardless of whether
+ * their expirations wrap around the clock.
+ */
+static int64_t remaining_ticks(const libtock_alarm_ticks_t* alarm, uint32_t now) {
+  uint32_t elapsed = now - alarm->reference;
+  return (int64_t)alarm->dt - (int64_t)elapsed;
+}
+
+/** \brief Insert `alarm` into the list of outstanding alarms, ordered by
+ * expiration time.
+ *
+ * Alarms with equal expirations are kept in insertion order.
+ */
 static void root_insert(libtock_alarm_ticks_t* alarm) {
-  // We want to insert the new alarm just before an existing alarm
-  // that should expire next after it, as `alarm_upcall` breaks as
-  // soon as it finds an alarm that should not fire yet. To do so, we
-  // need to account for an empty list, a non-empty list where the new
-  // alarm should be last, as well as computing relative expirations
-  // when alarm expirations may overflow the clock 0 or 1 times.
+  uint32_t now;
+  libtock_alarm_command_read(&now);
+  int64_t new_remaining = remaining_ticks(alarm, now);
 
-  if (root == NULL) {
-    root       = alarm;
-    root->next = NULL;
-    root->prev = NULL;
-    return;
-  }
-
-  // Compute the tick value at which the new alarm will expire.
-  uint32_t new_expiration = alarm->reference + alarm->dt;
-  // Determine whether the clock overflows before the new alarm
-  // expires. Because ticks are 32-bit, a clock can overflow at most
-  // once before a 32-bit alarm fires.
-  bool new_overflows = alarm->reference > (UINT32_MAX - alarm->dt);
-
-  libtock_alarm_ticks_t** cur = &root;
   libtock_alarm_ticks_t* prev = NULL;
-  while (*cur != NULL) {
-    // Compute the tick value at which this alarm will expire.
-    uint32_t cur_expiration = (*cur)->reference + (*cur)->dt;
-    // Determine whether the clock overflows before this alarm
-    // expires.
-    bool cur_overflows = (*cur)->reference > (UINT32_MAX - (*cur)->dt);
-
-    // This alarm (`cur`) happens after the new alarm (`alarm`) if:
-    //
-    // - both overflow or neither overflow and cur expiration is
-    //   larger than the new expiration
-    // - only cur overflows, cur's reference is before new reference
-    //   (both started this epoch, cur must expire next epoch)
-    // - only cur overflows, cur's reference is after new reference
-    //   (cur started in previous epoch, cur also must expire this
-    //   epoch) and cur's expiration is larger than the new
-    //   expiration.
-    //
-    // If the new alarm overflows and this alarm doesn't, this alarm
-    // happens _before_ the new alarm.
-    if (((cur_overflows == new_overflows) && (cur_expiration > new_expiration)) ||
-        (cur_overflows && ((*cur)->reference < alarm->reference || cur_expiration > new_expiration))) {
-      // insert before
-      libtock_alarm_ticks_t* tmp = *cur;
-      *cur        = alarm;
-      alarm->next = tmp;
-      alarm->prev = prev;
-      tmp->prev   = alarm;
-      return;
-    }
-    prev = *cur;
-    cur  = &prev->next;
+  libtock_alarm_ticks_t* cur  = root;
+  while (cur != NULL && remaining_ticks(cur, now) <= new_remaining) {
+    prev = cur;
+    cur  = cur->next;
   }
-  // didn't return, so prev points to the last in the list
-  prev->next  = alarm;
+
   alarm->prev = prev;
-  alarm->next = NULL;
+  alarm->next = cur;
+  if (cur != NULL) {
+    cur->prev = alarm;
+  }
+  if (prev != NULL) {
+    prev->next = alarm;
+  } else {
+    root = alarm;
+  }
 }
 
 static libtock_alarm_ticks_t* root_pop(void) {
@@ -174,6 +137,7 @@ static libtock_alarm_ticks_t* root_pop(void) {
       root->prev = NULL;
     }
     res->next = NULL;
+    res->prev = NULL;
     return res;
   }
 }
@@ -184,115 +148,43 @@ static libtock_alarm_ticks_t* root_peek(void) {
 
 /** \brief Upcall for internal virtual alarms
  *
- * This upcall checks the ordered list of outstanding alarms for
- * expired alarms, removes them from the list, and invokes their
- * callbacks.
+ * Fires all expired alarms, in expiration order, and then (re-)arms the
+ * kernel alarm for the earliest outstanding alarm, if any.
  *
- * Invariants:
- * 1. The list of outstanding alarms is ordered by absolute expiration time.
- * 2. The alarm event that invoked this upcall is for the current `head` of the list.
- * 3. No alarms are added (or re-added) to the list between while
- *    iterating through alarms
- * 4. For each alarm, `alarm->dt < MAX_TICKS + 1`
+ * This upcall does not assume that it was delivered for the current head
+ * of the list: it may be a stale upcall for an alarm that has since been
+ * cancelled or replaced (the kernel may have already queued the upcall when
+ * the alarm was cancelled), or it may be delivered late, after several
+ * alarms have expired. It thus only relies on the current time.
  *
- * Corrollaries:
- * - If the head of the list hasn't expired, no alarms in the tail of
- *   the list have expired (1)
- * - `scheduled` happens after `head->reference` (2)
- * - `scheduled` happens before `head->reference + MAX_TICKS + 1` (4)
- * - For each alarm in the list, `now` happens after
- *   `alarm->reference` (2, 3)
- * - For each alarm, `scheduled` cannot have cannot have wrapped
- *   `alarm->reference` (1, 4)
- * - For each alarm, if `scheduled` and `now` are not on the same side of
- *   `alarm->reference`, the alarm must have expired (1, 4)
+ * Alarms are popped from the list one at a time, right before invoking
+ * their callback, and `now` is re-read after each callback. This way:
  *
- * Critically, this upcall cannot allow any alarms to be added to the
- * ordered list while iterating by invoking upcalls, as that could
- * violate invariant (3) and result in `now` happening before some
- * `alarm->reference`.
- *
- * Some alarms that expire between `now` and the end of the upcall may
- * be "missed", which may mean they are delivered later. They should
- * still show up first in the list at the end, so will fire next.
+ * - callbacks may freely set or cancel any alarm (including other expired
+ *   alarms that have not been invoked yet),
+ * - alarms set by callbacks have a reference no later than `now`, so the
+ *   expiration check stays valid.
  */
 static void alarm_upcall(__attribute__ ((unused)) int   kernel_now,
-                         int                            scheduled0,
+                         __attribute__ ((unused)) int   scheduled,
                          __attribute__ ((unused)) int   unused2,
                          __attribute__ ((unused)) void* opaque) {
-  // `tocall` is a temporary list to keep track of expired alarms to call later.
-  libtock_alarm_ticks_t* tocall      = NULL;
-  libtock_alarm_ticks_t* tocall_last = NULL;
+  for (libtock_alarm_ticks_t* head = root_peek(); head != NULL; head = root_peek()) {
+    uint32_t now;
+    libtock_alarm_command_read(&now);
 
-  // We want `scheduled` as unsigned so wrapping math works out correctly.
-  uint32_t scheduled = scheduled0;
-
-  // Take the current tick value. We could use `kernel_now`, but would
-  // potentially unnecessarily delay some alarms.
-  uint32_t now;
-  libtock_alarm_command_read(&now);
-
-  // We know this upcall is associated with the head, so it's easier
-  // to deal with.
-  libtock_alarm_ticks_t* head = root_pop();
-
-  // Formally, we should be able to just add head to
-  // `tocall`, but let's just be defensive just in case there is an
-  // errant alarm.
-  assert(head != NULL && !is_within(scheduled, head->reference, head->dt));
-  head->next  = NULL;
-  head->prev  = NULL;
-  tocall      = head;
-  tocall_last = head;
-
-  // Now iterate through the remaining alarms in case any of them have
-  // also expired.
-  for (libtock_alarm_ticks_t* alarm = root_peek(); alarm != NULL; alarm = root_peek()) {
-    // has the alarm not expired yet?
-    // Three cases:
-    //   1. scheduled - reference is larger than now - reference:
-    //      ticks have wrapped reference, alarm must have expired.
-    //   2. scheduled is no longer within reference + dt (alarm
-    //      expired)
-    //   3. now is no longer within reference + dt (alarm expired)
-    //
-    // Simpler to check the non-expiring case first.
-    if ((now - alarm->reference >= scheduled - alarm->reference) &&
-        is_within(scheduled, alarm->reference, alarm->dt) &&
-        is_within(now, alarm->reference, alarm->dt)) {
-      // Nope, has not expired, nothing "after" this alarm has
-      // expired either, since we add alarms in expiration order.
-      break;
-    } else {
-      // Expired, add to `tocall` list.
-      root_pop();
-      alarm->next = NULL;
-      alarm->prev = tocall_last;
-      // If this expired, head must have also expired, so `tocall` and
-      // `tocall_last` are non-null, so just add to the end.
-      tocall_last->next = alarm;
+    if (remaining_ticks(head, now) > 0) {
+      // Not expired yet. As the list is ordered, no other alarm has
+      // expired. Make sure the kernel will notify us when it does.
+      libtock_alarm_command_set_absolute(head->reference, head->dt);
+      return;
     }
-  }
 
-  for (libtock_alarm_ticks_t* alarm = tocall; alarm != NULL; alarm = tocall) {
-    alarm->prev = NULL;
-    tocall      = alarm->next;
-    alarm->next = NULL;
-    if (alarm->callback) {
-      uint32_t expiration = alarm->reference + alarm->dt;
-      alarm->callback(now, expiration, alarm->ud);
+    root_pop();
+    if (head->callback) {
+      uint32_t expiration = head->reference + head->dt;
+      head->callback(now, expiration, head->ud);
     }
-  }
-
-  head = root_peek();
-  if (head != NULL) {
-    // TODO(alevy): At this point, is it possible we've wrapped so far
-    // past `reference` that we might end up delaying a technically
-    // expired alarm by another timer wrap? I think technically yes,
-    // though techincally the interface only guarantees alarms will
-    // delay *at least* `dt`, so more is fine, and we could be delayed
-    // arbitrarily long by the kernel anyway.
-    libtock_alarm_command_set_absolute(head->reference, head->dt);
   }
 }
 
@@ -321,6 +213,11 @@ int libtock_alarm_at(uint32_t reference, uint32_t dt, libtock_alarm_callback cb,
 }
 
 void libtock_alarm_cancel(libtock_alarm_ticks_t* alarm) {
+  if (root != alarm && alarm->prev == NULL) {
+    // Not outstanding (never set, already fired, or already cancelled).
+    return;
+  }
+
   if (alarm->prev != NULL) {
     alarm->prev->next = alarm->next;
   }
@@ -332,6 +229,10 @@ void libtock_alarm_cancel(libtock_alarm_ticks_t* alarm) {
     root = alarm->next;
     if (root != NULL) {
       libtock_alarm_command_set_absolute(root->reference, root->dt);
+    } else {
+      // No outstanding alarms anymore, so stop the kernel alarm. An upcall
+      // may still have been queued already, `alarm_upcall` ignores it.
+      libtock_alarm_command_stop();
     }
   }
 
