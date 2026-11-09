@@ -272,6 +272,14 @@ void _c_start_pic(uintptr_t app_start, uintptr_t mem_start) {
   uintptr_t* got_sym_start = (uintptr_t*)(myhdr->got_sym_start + app_start);
   // Iterate all entries in the table and correct the addresses.
   for (uint32_t i = 0; i < (myhdr->got_size / (uint32_t)sizeof(uint32_t)); i++) {
+
+    // If the entry is 0, then it is a null pointer and we don't need to
+    // correct it.
+    if (got_sym_start[i] == 0) {
+      got_start[i] = 0;
+      continue;
+    }
+
     // Use the sentinel here. If the most significant bit is 0, then we know
     // this offset is pointing to an address in memory. If the MSB is 1, then
     // the offset refers to a value in flash.
@@ -316,6 +324,13 @@ void _c_start_pic(uintptr_t app_start, uintptr_t mem_start) {
     // The entries are offsets from the beginning of the app's memory region.
     // First, we get a pointer to the location of the address we need to fix.
     uintptr_t* target = (uintptr_t*)(rd->data[i] + mem_start);
+
+    // If the address is 0, then it is a null pointer and we don't need to
+    // correct it.
+    if (*target == 0) {
+      continue;
+    }
+
     if ((*target & 0x80000000) == 0) {
       // Again, we use our sentinel. If the address at that location has a MSB
       // of 0, then we know this is an address in RAM. We need to fix the
