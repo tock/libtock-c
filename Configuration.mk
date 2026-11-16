@@ -85,7 +85,24 @@ ESP32_C3_TOCK_TARGETS := rv32imc|rv32imc.0x42100080.0x3FCA0000|0x42100080|0x3FCA
 
 VEER_EL2_TOCK_TARGETS := rv32imc|rv32imc.0x20300080.0x20602000|0x20300080|0x20602000
 
-# Include the RISC-V targets.
+# If RISCV_RELOCATABLE is 1, we build a single relocatable 32-bit RISC-V app per
+# architecture rather than many fixed address ones.
+RISCV_RELOCATABLE ?= 0
+ifeq ($(RISCV_RELOCATABLE),1)
+  TOCK_TARGETS ?= cortex-m0\
+                  cortex-m3\
+                  cortex-m4\
+                  cortex-m7\
+                  rv32imc\
+                  rv32imac\
+                  $(QEMU_RV64_VIRT_TOCK_TARGETS)
+  override CPPFLAGS_rv32 += $(CPPFLAGS_PIC) -DTOCK_RISCV_RELOCATABLE
+  LAYOUT_rv32i    := $(TOCK_USERLAND_BASE_DIR)/userland_riscv_relocatable.ld
+  LAYOUT_rv32imc  := $(TOCK_USERLAND_BASE_DIR)/userland_riscv_relocatable.ld
+  LAYOUT_rv32imac := $(TOCK_USERLAND_BASE_DIR)/userland_riscv_relocatable.ld
+endif
+
+# Include the RISC-V targets if RISCV_RELOCATABLE is 0 (the default).
 #  rv32imac|rv32imac.0x20040080.0x80002800 # RISC-V for HiFive1b
 #  rv32imc|rv32imc.0x41000080.0x42008000   # RISC-V for LiteX Arty-A7
 #  rv32imc|rv32imc.0x00080080.0x40008000   # RISC-V for LiteX Simulator

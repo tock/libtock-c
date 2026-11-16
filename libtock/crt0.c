@@ -50,6 +50,18 @@ struct hdr {
   uint32_t reldata_start;
   // 36: The size of the stack requested by this application.
   uint32_t stack_size;
+
+#if defined(TOCK_RISCV_RELOCATABLE)
+  // Used by relocatable RISC-V apps to copy their code to RAM.
+  //
+  // 40: Offset of the code in flash from the start of the application binary.
+  uint32_t text_sym_start;
+  // 44: Offset of where the code needs to be placed in memory from the start
+  //     of the application's memory region.
+  uint32_t text_start;
+  // 48: Size of the code.
+  uint32_t text_size;
+#endif
 };
 
 // The structure of the relative data section. This structure comes from the
@@ -237,11 +249,47 @@ void _start(void* app_start __attribute__((unused)),
     "mv  a1, t1\n"              // a1 = app_brk
     "ecall\n"                   // memop
 
+#if defined(TOCK_RISCV_RELOCATABLE)
+    // Copy the code from flash into memory.
+    // memcpy(mem_start + text_start, app_start + text_sym_start, text_size);
+    "lw   t0, 40(s0)\n"         // t0 = myhdr->text_sym_start
+    "add  t0, t0, s0\n"         // t0 = src = app_start + text_sym_start
+    "lw   t1, 44(s0)\n"         // t1 = myhdr->text_start
+    "add  t1, t1, s2\n"         // t1 = dst = mem_start + text_start
+    "lw   t2, 48(s0)\n"         // t2 = myhdr->text_size
+    "add  t2, t2, t0\n"         // t2 = end = src + text_size
+    "sub  t3, t1, t0\n"         // t3 = dst - src = how far the code moves
+
+    // while (src < end) { *dst++ = *src++; }
+    "1:\n"
+    "bgeu t0, t2, 2f\n"         // if src >= end, done copying
+    "lw   t4, 0(t0)\n"          // t4 = *src
+    "sw   t4, 0(t1)\n"          // *dst = t4
+    "addi t0, t0, 4\n"          // src++
+    "addi t1, t1, 4\n"          // dst++
+    "j    1b\n"                 // loop back
+    "2:\n"
+
+    // fence.i to ensure that the instruction cache is updated with the new code.
+    ".option push\n"
+    ".option arch, +zifencei\n"
+    "fence.i\n"
+    ".option pop\n"
+
+    // Jump to _c_start_pic_riscv in the copy.
+    "lla  t0, _c_start_pic_riscv\n" // t0 = &_c_start_pic_riscv in flash
+    "add  t0, t0, t3\n"         // t0 = &_c_start_pic_riscv in the copy
+    "mv   a0, s0\n"             // first arg is app_start
+    "mv   s0, sp\n"             // Set the frame pointer to sp.
+    "mv   a1, s2\n"             // second arg is mem_start
+    "jr   t0\n"
+#else
     // Call into the rest of startup. This should never return.
     "mv   a0, s0\n"             // first arg is app_start
     "mv   s0, sp\n"             // Set the frame pointer to sp.
     "mv   a1, s2\n"             // second arg is mem_start
     "jal  _c_start_nopic\n"
+#endif
     );
 
 #else
@@ -348,6 +396,90 @@ void _c_start_pic(uintptr_t app_start, uintptr_t mem_start) {
 
   exit(main(0, NULL));
 }
+
+#if defined(TOCK_RISCV_RELOCATABLE)
+// One entry of the .rela.data section.
+struct riscv_rela {
+  // Offset of the address to be updated relative to the start of the
+  // application's memory region.
+  uint32_t offset;
+  // Relocation type (lower 8 bits) and symbol.
+  uint32_t info;
+  // Relocation addend.
+  int32_t addend;
+};
+
+#define R_RISCV_32 1
+
+// C startup routine that configures memory for relocatable RISC-V apps. This
+// also handles PIC fixups that are required for the application.
+//
+// Arguments:
+// - `app_start`: The address of where the app binary starts in flash. This does
+//   not include the TBF header or any padding before the app.
+// - `mem_start`: The starting address of the memory region assigned to this
+//   app.
+__attribute__((noreturn))
+void _c_start_pic_riscv(uintptr_t app_start, uintptr_t mem_start) {
+  struct hdr* myhdr = (struct hdr*)app_start;
+
+  // Fix up the Global Offset Table (GOT).
+
+  // Get the address in memory of where the table should go.
+  uintptr_t* got_start = (uintptr_t*)(myhdr->got_start + mem_start);
+  // Get the address in flash of where the table currently is.
+  uintptr_t* got_sym_start = (uintptr_t*)(myhdr->got_sym_start + app_start);
+  // Iterate all entries in the table and correct the addresses.
+  for (uint32_t i = 0; i < (myhdr->got_size / (uint32_t)sizeof(uint32_t)); i++) {
+
+    // If the entry is 0, then it is a null pointer and we don't need to
+    // correct it.
+    if (got_sym_start[i] == 0) {
+      got_start[i] = 0;
+      continue;
+    }
+
+    got_start[i] = got_sym_start[i] + mem_start;
+  }
+
+  // Load the data section from flash into RAM. We use the offsets from our
+  // crt0 header so we know where this starts and where it should go.
+  void* data_start     = (void*)(myhdr->data_start + mem_start);
+  void* data_sym_start = (void*)(myhdr->data_sym_start + app_start);
+  memcpy(data_start, data_sym_start, myhdr->data_size);
+
+  // Zero BSS segment. Again, we know where this should be in the process RAM
+  // based on the crt0 header.
+  char* bss_start = (char*)(myhdr->bss_start + mem_start);
+  memset(bss_start, 0, myhdr->bss_size);
+
+  // Do relative data address fixups. We know these entries are stored at the end
+  // of flash and can be located using the crt0 header.
+  struct reldata* rd         = (struct reldata*)(uintptr_t)(myhdr->reldata_start + (uint32_t)app_start);
+  struct riscv_rela* entries = (struct riscv_rela*)rd->data;
+  for (uint32_t i = 0; i < (rd->len / (uint32_t)sizeof(struct riscv_rela)); i++) {
+    // Only absolute addresses need to be corrected.
+    if ((entries[i].info & 0xff) != R_RISCV_32) {
+      continue;
+    }
+
+    // The entries are offsets from the beginning of the app's memory region.
+    // First, we get a pointer to the location of the address we need to fix.
+    uintptr_t* target = (uintptr_t*)(entries[i].offset + mem_start);
+
+    // If the address is 0, then it is a null pointer and we don't need to
+    // correct it.
+    if (*target == 0) {
+      continue;
+    }
+
+    *target += mem_start;
+  }
+
+  exit(main(0, NULL));
+}
+
+#endif
 
 #endif
 

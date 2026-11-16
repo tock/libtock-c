@@ -61,7 +61,7 @@ gcc-riscv-$(GCC_VERSION)-medlow-install/lib/libcc1.la: gcc-$(GCC_VERSION)
 	@mkdir -p gcc-riscv-$(GCC_VERSION)-medlow-out
 	@mkdir -p gcc-riscv-$(GCC_VERSION)-medlow-install
 	@echo "Entering directory gcc-riscv-$(GCC_VERSION)-medlow-out"
-	cd gcc-riscv-$(GCC_VERSION)-medlow-out; ../build-riscv.sh ../$< ../gcc-riscv-$(GCC_VERSION)-medlow-install $(NEWLIB_INCLUDE_PATH) $(TOOLCHAIN_rv32i) medlow | tee build-riscv-medlow.log
+	cd gcc-riscv-$(GCC_VERSION)-medlow-out; ../build-riscv.sh ../$< ../gcc-riscv-$(GCC_VERSION)-medlow-install $(NEWLIB_INCLUDE_PATH) $(TOOLCHAIN_rv32i) medlow -fPIC | tee build-riscv-medlow.log
 
 gcc-riscv-$(GCC_VERSION)-medany-install/lib/libcc1.la: gcc-$(GCC_VERSION)
 	@echo ""
@@ -70,7 +70,7 @@ gcc-riscv-$(GCC_VERSION)-medany-install/lib/libcc1.la: gcc-$(GCC_VERSION)
 	@mkdir -p gcc-riscv-$(GCC_VERSION)-medany-out
 	@mkdir -p gcc-riscv-$(GCC_VERSION)-medany-install
 	@echo "Entering directory gcc-riscv-$(GCC_VERSION)-medany-out"
-	cd gcc-riscv-$(GCC_VERSION)-medany-out; ../build-riscv.sh ../$< ../gcc-riscv-$(GCC_VERSION)-medany-install $(NEWLIB_INCLUDE_PATH) $(TOOLCHAIN_rv32i) medany | tee build-riscv-medany.log
+	cd gcc-riscv-$(GCC_VERSION)-medany-out; ../build-riscv.sh ../$< ../gcc-riscv-$(GCC_VERSION)-medany-install $(NEWLIB_INCLUDE_PATH) $(TOOLCHAIN_rv32i) medany -fPIC | tee build-riscv-medany.log
 
 # Helper targets to run this from the docker script incrementally
 .PHONY: arm riscv-medlow riscv-medany
