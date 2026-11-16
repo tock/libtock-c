@@ -13,7 +13,6 @@
 [submodule "RadioLib/RadioLib"]
 	path = RadioLib/RadioLib
 	url = https://github.com/jgromes/RadioLib.git
-	shallow = true
 [submodule "lwip/lwip"]
 	path = lwip/lwip
 	# Using GitHub mirror, as git.savannah.gnu.org seems to cause
