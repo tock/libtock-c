@@ -337,6 +337,10 @@ void libtock_alarm_cancel(libtock_alarm_ticks_t* alarm) {
       // any pending alarms. Otherwise the pending timer can fire and trigger
       // the assert in `alarm_upcall()`.
       libtock_alarm_command_stop();
+
+      // Now unsubscribe so we drop any pending upcalls that may have been
+      // enqueued before stop() was handled.
+      libtock_alarm_set_upcall(NULL, NULL);
     }
   }
 
