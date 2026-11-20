@@ -360,7 +360,7 @@ void libtock_alarm_cancel(libtock_alarm_ticks_t* alarm) {
 
       // Finish clearing any upcalls by re-subscribing.
       libtock_alarm_set_upcall((subscribe_upcall*)alarm_upcall, NULL);
-  
+
       // Then re-arm the alarm.
       libtock_alarm_command_set_absolute(root->reference, root->dt);
     } else {
