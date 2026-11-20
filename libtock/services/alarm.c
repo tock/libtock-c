@@ -350,7 +350,7 @@ void libtock_alarm_cancel(libtock_alarm_ticks_t* alarm) {
     // removed. This could have happened between when libtock_alarm_cancel() was
     // called and when we stopped the underlying alarm in the kernel. We do this
     // by re-setting or clearing the upcall. Any subscribe will clear any
-    // pending uncalls for the alarm.
+    // pending upcalls for the alarm.
 
     // Check if there is a later alarm that we need to setup. This will affect
     // how we call subscribe and whether we need to re-arm the alarm stack.
