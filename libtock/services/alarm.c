@@ -321,6 +321,7 @@ int libtock_alarm_at(uint32_t reference, uint32_t dt, libtock_alarm_callback cb,
 }
 
 void libtock_alarm_cancel(libtock_alarm_ticks_t* alarm) {
+  // Remove the canceled alarm from the list.
   if (alarm->prev != NULL) {
     alarm->prev->next = alarm->next;
   }
@@ -328,22 +329,49 @@ void libtock_alarm_cancel(libtock_alarm_ticks_t* alarm) {
     alarm->next->prev = alarm->prev;
   }
 
+  // Check if the canceled alarm is the active alarm. If not, we've already
+  // removed it from the list and that is all we need to do. If so, we need to
+  // make sure no upcall happens for the canceled alarm.
   if (root == alarm) {
+    // The canceled alarm is the active alarm. Update the active alarm to the
+    // next alarm to be fired.
     root = alarm->next;
+
+    // Now we need to ensure the canceled alarm can't cause an upcall. Since we
+    // have removed the canceled alarm from the list, any upcall it triggers
+    // will be unexpected by the rest of this library.
+
+    // First, make sure the alarm system doesn't generate any new upcalls by
+    // stopping the underlying alarm.
+    libtock_alarm_command_stop();
+
+    // Second, we need to ensure that any upcalls that may have been enqueued by
+    // the canceled alarm but haven't been delivered to this process yet are
+    // removed. This could have happened between when libtock_alarm_cancel() was
+    // called and when we stopped the underlying alarm in the kernel. We do this
+    // by re-setting or clearing the upcall. Any subscribe will clear any
+    // pending uncalls for the alarm.
+
+    // Check if there is a later alarm that we need to setup. This will affect
+    // how we call subscribe and whether we need to re-arm the alarm stack.
     if (root != NULL) {
+      // `root` is not NULL, so we need to setup the next alarm in the list to
+      // fire.
+
+      // Finish clearing any upcalls by re-subscribing.
+      libtock_alarm_set_upcall((subscribe_upcall*)alarm_upcall, NULL);
+  
+      // Then re-arm the alarm.
       libtock_alarm_command_set_absolute(root->reference, root->dt);
     } else {
-      // `root` is NULL, we have no more timers outstanding, make sure to cancel
-      // any pending alarms. Otherwise the pending timer can fire and trigger
-      // the assert in `alarm_upcall()`.
-      libtock_alarm_command_stop();
-
-      // Now unsubscribe so we drop any pending upcalls that may have been
-      // enqueued before stop() was handled.
+      // We don't have any other alarm to set, but we finish clearing any
+      // pending upcalls by unsubscribing.
       libtock_alarm_set_upcall(NULL, NULL);
     }
   }
 
+  // Clear potential references to other alarms that may not exist if this alarm
+  // object is re-used.
   alarm->prev = NULL;
   alarm->next = NULL;
 }
