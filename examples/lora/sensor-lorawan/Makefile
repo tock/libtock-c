@@ -20,6 +20,8 @@ override CPPFLAGS += "-DRADIO_CONFIG_CI=radioConfig_example.h"
 endif
 endif
 
+ELF2TAB_ARGS += --read_ids 2903764429
+
 # Use the libtock-c Make system
 EXTERN_LIBS += $(TOCK_USERLAND_BASE_DIR)/RadioLib
 
