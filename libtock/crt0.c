@@ -16,6 +16,28 @@
 
 extern int main(int argc, char* argv[]);
 
+// The C++ global constructors. userland_generic.ld places them in .data.
+extern void (*__init_array_start[])(void);
+extern void (*__init_array_end[])(void);
+
+// Calls each global constructor, in the order of .init_array.
+static void run_init_array(void) {
+  size_t count = (size_t)(__init_array_end - __init_array_start);
+  for (size_t index = 0; index < count; index++) {
+    __init_array_start[index]();
+  }
+}
+
+extern void (*__fini_array_start[])(void);
+extern void (*__fini_array_end[])(void);
+
+static void run_fini_array(void) {
+  size_t count = (size_t)(__fini_array_end - __fini_array_start);
+  while (count > 0) {
+    __fini_array_start[--count]();
+  }
+}
+
 // Allow _start to go undeclared
 #pragma GCC diagnostic ignored "-Wmissing-declarations"
 #pragma GCC diagnostic ignored "-Wmissing-prototypes"
@@ -346,6 +368,9 @@ void _c_start_pic(uintptr_t app_start, uintptr_t mem_start) {
     }
   }
 
+  // After the .rel.data fixups, so each .init_array entry holds its run address.
+  atexit(run_fini_array);
+  run_init_array();
   exit(main(0, NULL));
 }
 
@@ -382,5 +407,7 @@ void _c_start_nopic(uintptr_t app_start, uintptr_t mem_start) {
   char* bss_start = (char*)(myhdr->bss_start + mem_start);
   memset(bss_start, 0, myhdr->bss_size);
 
+  atexit(run_fini_array);
+  run_init_array();
   exit(main(0, NULL));
 }
