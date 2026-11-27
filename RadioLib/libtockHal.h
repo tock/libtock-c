@@ -76,10 +76,12 @@ class TockRadioLibHal : public RadioLibHal {
       : RadioLibHal(TOCK_RADIOLIB_PIN_INPUT, TOCK_RADIOLIB_PIN_OUTPUT, TOCK_RADIOLIB_PIN_LOW, TOCK_RADIOLIB_PIN_HIGH, TOCK_RADIOLIB_PIN_RISING, TOCK_RADIOLIB_PIN_FALLING)  {
     }
 
-    void init() override {
+    int16_t init() override {
+      return(RADIOLIB_ERR_NONE);
     }
 
-    void term() override {
+    int16_t term() override {
+      return(RADIOLIB_ERR_NONE);
     }
 
     // GPIO-related methods (pinMode, digitalWrite etc.) should check
@@ -184,20 +186,23 @@ class TockRadioLibHal : public RadioLibHal {
       return 0;
     }
 
-    void spiBegin() {
+    int16_t spiBegin() {
+      return(RADIOLIB_ERR_NONE);
     }
 
     void spiBeginTransaction() {
     }
 
-    void spiTransfer(uint8_t* out, size_t len, uint8_t* in) {
+    int16_t spiTransfer(uint8_t* out, size_t len, uint8_t* in) {
       libtocksync_lora_phy_read_write(out, in, len);
+      return(RADIOLIB_ERR_NONE);
     }
 
     void spiEndTransaction() {
     }
 
-    void spiEnd() {
+    int16_t spiEnd() {
+      return(RADIOLIB_ERR_NONE);
     }
 
     void yield() {
