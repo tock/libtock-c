@@ -199,7 +199,7 @@ endef
 # generated
 define BUILD_RULES
 
-$$(BUILDDIR)/$(1)/$(2).custom.ld: $$(LAYOUT) | $$(BUILDDIR)/$(1)
+$$(BUILDDIR)/$(1)/$(2).custom.ld: $$(or $$(LAYOUT_$(1)),$$(LAYOUT)) | $$(BUILDDIR)/$(1)
 	@# Start with a copy of the template / generic ld script
 	$$(Q)cp $$< $$@
 	@# #616 #635: sed is not cross-platform

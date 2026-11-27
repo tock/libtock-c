@@ -44,7 +44,7 @@ newlib-riscv-$(NEWLIB_VERSION)-medlow-install/$(TOOLCHAIN_rv32i)/lib/libc.a: new
 	@mkdir -p newlib-riscv-$(NEWLIB_VERSION)-medlow-out
 	@mkdir -p newlib-riscv-$(NEWLIB_VERSION)-medlow-install
 	@echo "Entering directory newlib-riscv-$(NEWLIB_VERSION)-medlow-out"
-	cd newlib-riscv-$(NEWLIB_VERSION)-medlow-out; ../build-riscv.sh ../$< ../newlib-riscv-$(NEWLIB_VERSION)-medlow-install $(TOOLCHAIN_rv32i) medlow | tee build-riscv-medlow.log
+	cd newlib-riscv-$(NEWLIB_VERSION)-medlow-out; ../build-riscv.sh ../$< ../newlib-riscv-$(NEWLIB_VERSION)-medlow-install $(TOOLCHAIN_rv32i) medlow -fPIC | tee build-riscv-medlow.log
 
 newlib-riscv-$(NEWLIB_VERSION)-medany-install/$(TOOLCHAIN_rv32i)/lib/libc.a: newlib-$(NEWLIB_VERSION)
 	@echo ""
@@ -53,7 +53,7 @@ newlib-riscv-$(NEWLIB_VERSION)-medany-install/$(TOOLCHAIN_rv32i)/lib/libc.a: new
 	@mkdir -p newlib-riscv-$(NEWLIB_VERSION)-medany-out
 	@mkdir -p newlib-riscv-$(NEWLIB_VERSION)-medany-install
 	@echo "Entering directory newlib-riscv-$(NEWLIB_VERSION)-medany-out"
-	cd newlib-riscv-$(NEWLIB_VERSION)-medany-out; ../build-riscv.sh ../$< ../newlib-riscv-$(NEWLIB_VERSION)-medany-install $(TOOLCHAIN_rv32i) medany | tee build-riscv-medany.log
+	cd newlib-riscv-$(NEWLIB_VERSION)-medany-out; ../build-riscv.sh ../$< ../newlib-riscv-$(NEWLIB_VERSION)-medany-install $(TOOLCHAIN_rv32i) medany -fPIC | tee build-riscv-medany.log
 
 # Helper targets to run this from the docker script incrementally
 .PHONY: arm riscv-medlow riscv-medany

@@ -6,6 +6,7 @@ NEWLIB_SRC_DIR=$1
 NEWLIB_INSTALL_DIR=$2
 TARGET=$3
 MCMODEL=$4
+EXTRA_CFLAGS=$5
 
 $NEWLIB_SRC_DIR/configure --target=$TARGET \
   --disable-newlib-supplied-syscalls \
@@ -21,5 +22,5 @@ $NEWLIB_SRC_DIR/configure --target=$TARGET \
   --enable-newlib-nano-formatted-io \
   --prefix=`realpath $NEWLIB_INSTALL_DIR`
 
-make -j$(nproc) CFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -mcmodel=$MCMODEL"
+make -j$(nproc) CFLAGS_FOR_TARGET="-g -Os -ffunction-sections -fdata-sections -mcmodel=$MCMODEL $EXTRA_CFLAGS"
 make install
